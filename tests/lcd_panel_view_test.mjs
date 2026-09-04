@@ -29,6 +29,15 @@ assert.equal(mixed.summary, `1 on; 1 off; ${dotCount - 2} unknown`);
 assert.deepEqual(Array.from(mixed.rgba.slice(0, 4)), [17, 42, 34, 255]);
 assert.deepEqual(Array.from(mixed.rgba.slice(4, 8)), [132, 235, 194, 255]);
 assert.deepEqual(Array.from(mixed.rgba.slice(8, 12)), [67, 57, 40, 255]);
+const translated = lcdPanelImage(
+    {width: 192, height: 64, dots},
+    (source, values = {}) => `translated:${source.replace(
+        /\{([a-zA-Z][a-zA-Z0-9]*)\}/g,
+        (match, name) => Object.hasOwn(values, name) ? values[name] : match,
+    )}`,
+);
+assert.match(translated.summary, /^translated:1 on;/);
+assert.match(translated.ariaLabel, /^translated:Provisional/);
 
 assert.throws(
     () => lcdPanelImage({width: 191, height: 64, dots}),

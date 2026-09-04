@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark">
     <title>JR-800 Emulator</title>
-    <link rel="stylesheet" href="./styles.css?v=e397">
+    <link rel="stylesheet" href="./styles.css?v=e402">
 </head>
 <body>
     <header class="app-header">
@@ -13,7 +13,11 @@
             <p class="eyebrow">Local emulation workspace</p>
             <h1>JR-800 Emulator</h1>
         </div>
-        <output id="status" class="status" data-tone="idle">Initializing worker</output>
+        <div class="header-actions">
+            <output id="status" class="status" data-tone="idle">Initializing worker</output>
+            <button id="sound-toggle" class="language-toggle" type="button" aria-pressed="true">Sound: on</button>
+            <button id="language-toggle" class="language-toggle" type="button" aria-label="Switch interface language to Japanese">&#26085;&#26412;&#35486;</button>
+        </div>
     </header>
 
     <main>
@@ -191,32 +195,9 @@
                     <p class="section-index">02</p>
                     <h2 id="load-heading">Target image</h2>
                 </div>
-                <p>Choose a synthetic SDK application or a local JR8ROM container. Files remain in this browser session.</p>
+                <p>Choose a local JR8ROM container, then start BASIC or a RAM program. Files remain in this browser session.</p>
             </div>
             <div class="loader-grid">
-                <article class="loader-card">
-                    <div class="loader-card-heading">
-                        <h3>Synthetic application</h3>
-                        <span class="chip">JR8APP</span>
-                    </div>
-                    <p>Load an SDK application and optional integrity-bound source data.</p>
-                    <div class="application-load-grid">
-                        <label class="file-field">
-                            <span>.J8A</span>
-                            <input id="application-file" type="file" accept=".j8a,application/octet-stream">
-                        </label>
-                        <label class="file-field">
-                            <span>.J8D</span>
-                            <input id="debug-file" type="file" accept=".j8d,application/octet-stream">
-                        </label>
-                        <label>
-                            <span>Initial SP</span>
-                            <input id="stack-pointer" class="mono-input" value="$01FF" inputmode="text">
-                        </label>
-                        <button id="load" class="primary" type="button">Load application</button>
-                    </div>
-                </article>
-
                 <article class="loader-card">
                     <div class="loader-card-heading">
                         <h3>JR-800 hardware model</h3>
@@ -240,14 +221,14 @@
                     </div>
                     <div class="rom-load-grid">
                         <label class="file-field">
-                            <span>RAM program .J8A</span>
-                            <input id="hardware-program-file" type="file" accept=".j8a,application/octet-stream" disabled>
+                            <span>RAM program .WAV / .J8A</span>
+                            <input id="hardware-program-file" type="file" accept=".wav,.j8a,audio/wav,application/octet-stream" disabled>
                         </label>
                         <div class="rom-load-actions">
-                            <button id="load-program" type="button" disabled>Load RAM program</button>
+                    <button id="load-program" type="button" disabled>Load and run RAM program</button>
                         </div>
                     </div>
-                    <p class="privacy-note">The JR8ROM and RAM program stay in local Worker memory. They are neither uploaded nor persistently stored by this page.</p>
+                    <p class="privacy-note">WAV files are converted locally. The JR8ROM and RAM program stay in local Worker memory. They are neither uploaded nor persistently stored by this page.</p>
 
                     <details class="configuration">
                         <summary>Explicit experimental configuration</summary>
@@ -306,6 +287,30 @@
         <details id="debugger-menu" class="debugger-menu">
             <summary>Developer debugger</summary>
             <div class="debugger-menu-body">
+        <section class="panel sdk-load-panel" aria-labelledby="sdk-load-heading">
+            <div class="panel-heading">
+                <div>
+                    <p class="section-index">SDK</p>
+                    <h2 id="sdk-load-heading">SDK application debugging</h2>
+                </div>
+                <p>Load a synthetic SDK application and optional integrity-bound source data for developer debugging.</p>
+            </div>
+            <div class="application-load-grid">
+                <label class="file-field">
+                    <span>.J8A</span>
+                    <input id="application-file" type="file" accept=".j8a,application/octet-stream">
+                </label>
+                <label class="file-field">
+                    <span>.J8D</span>
+                    <input id="debug-file" type="file" accept=".j8d,application/octet-stream">
+                </label>
+                <label>
+                    <span>Initial SP</span>
+                    <input id="stack-pointer" class="mono-input" value="$01FF" inputmode="text">
+                </label>
+                <button id="load" class="primary" type="button">Load application for debugging</button>
+            </div>
+        </section>
         <section class="control-strip" aria-label="Execution controls">
             <button id="reset" type="button" disabled>Reset</button>
             <button id="run" class="primary" type="button" disabled>Run</button>
@@ -516,6 +521,20 @@
         </details>
     </main>
 
-    <script type="module" src="./app.mjs?v=e397"></script>
+    <span id="file-protocol-en" hidden>This page cannot run directly from a local file. Build the Web UI, start an HTTP server, and open the generated page.</span>
+    <span id="file-protocol-ja" hidden>&#12371;&#12398;&#12506;&#12540;&#12472;&#12399;&#12525;&#12540;&#12459;&#12523;&#12501;&#12449;&#12452;&#12523;&#12392;&#12375;&#12390;&#30452;&#25509;&#23455;&#34892;&#12391;&#12365;&#12414;&#12379;&#12435;&#12290;Web UI&#12434;&#12499;&#12523;&#12489;&#12375;&#12289;HTTP&#12469;&#12540;&#12496;&#12540;&#12434;&#36215;&#21205;&#12375;&#12390;&#12289;&#29983;&#25104;&#12373;&#12428;&#12383;&#12506;&#12540;&#12472;&#12434;&#38283;&#12356;&#12390;&#12367;&#12384;&#12373;&#12356;&#12290;</span>
+    <script>
+        if (window.location.protocol === "file:") {
+            const language = (navigator.language || "en").toLowerCase();
+            const message = document.getElementById(
+                language.startsWith("ja") ? "file-protocol-ja" : "file-protocol-en",
+            );
+            const status = document.getElementById("status");
+            document.documentElement.lang = language.startsWith("ja") ? "ja" : "en";
+            status.textContent = message.textContent;
+            status.dataset.tone = "error";
+        }
+    </script>
+    <script type="module" src="./app.mjs?v=e402"></script>
 </body>
 </html>

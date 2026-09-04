@@ -16,6 +16,8 @@
 namespace {
 
 constexpr std::size_t logical_rom_size = 32U * 1024U;
+constexpr std::uint32_t wav_sample_rate = 48'000U;
+constexpr std::int16_t wav_amplitude = 12'000;
 
 static_assert(JR800_CALENDAR_ALARM_TERMINAL_DISCONNECTED == 0);
 static_assert(JR800_CALENDAR_ALARM_TERMINAL_UNKNOWN == 1);
@@ -87,6 +89,124 @@ std::vector<std::uint8_t> make_jr8app(
     application.integrity_sha256 =
         jr800::formats::jr8app::compute_integrity(application);
     return jr800::formats::jr8app::write(application);
+}
+
+void append_le16(std::vector<std::uint8_t>& bytes, std::uint16_t value) {
+    bytes.push_back(static_cast<std::uint8_t>(value & 0xFFU));
+    bytes.push_back(static_cast<std::uint8_t>((value >> 8U) & 0xFFU));
+}
+
+void append_le32(std::vector<std::uint8_t>& bytes, std::uint32_t value) {
+    append_le16(bytes, static_cast<std::uint16_t>(value & 0xFFFFU));
+    append_le16(bytes, static_cast<std::uint16_t>((value >> 16U) & 0xFFFFU));
+}
+
+std::uint16_t additive_sum(std::span<const std::uint8_t> bytes) {
+    std::uint32_t sum = 0U;
+    for (const auto byte : bytes) {
+        sum += byte;
+    }
+    return static_cast<std::uint16_t>(sum & 0xFFFFU);
+}
+
+void append_wav_cycle(std::vector<std::int16_t>& samples, bool long_period) {
+    const std::size_t half_period = long_period ? 21U : 11U;
+    samples.insert(samples.end(), half_period, wav_amplitude);
+    samples.insert(
+        samples.end(),
+        half_period,
+        static_cast<std::int16_t>(-wav_amplitude)
+    );
+}
+
+void append_wav_cycles(
+    std::vector<std::int16_t>& samples,
+    bool long_period,
+    std::size_t count
+) {
+    for (std::size_t index = 0U; index < count; ++index) {
+        append_wav_cycle(samples, long_period);
+    }
+}
+
+void append_wav_byte(
+    std::vector<std::int16_t>& samples,
+    std::uint8_t value
+) {
+    for (int bit = 7; bit >= 0; --bit) {
+        append_wav_cycle(samples, ((value >> bit) & 1U) != 0U);
+    }
+    append_wav_cycle(samples, true);
+}
+
+void append_wav_block(
+    std::vector<std::int16_t>& samples,
+    std::span<const std::uint8_t> bytes,
+    std::size_t long_sync_cycles,
+    std::size_t short_sync_cycles
+) {
+    append_wav_cycles(samples, false, 4'000U);
+    append_wav_cycles(samples, true, long_sync_cycles);
+    append_wav_cycles(samples, false, short_sync_cycles);
+    append_wav_cycles(samples, true, 2U);
+    for (const auto byte : bytes) {
+        append_wav_byte(samples, byte);
+    }
+}
+
+std::vector<std::uint8_t> make_native_program_wav(
+    std::uint16_t address,
+    std::uint16_t entry_point,
+    std::span<const std::uint8_t> program
+) {
+    std::vector<std::uint8_t> header(34U, 0U);
+    header[0] = 0x01U;
+    constexpr std::string_view filename = "CAPIWAV";
+    std::copy(filename.begin(), filename.end(), header.begin() + 1);
+    const auto write_word = [&](std::size_t offset, std::uint16_t value) {
+        header[offset] = static_cast<std::uint8_t>(value & 0xFFU);
+        header[offset + 1U] = static_cast<std::uint8_t>(value >> 8U);
+    };
+    write_word(17U, static_cast<std::uint16_t>(program.size()));
+    write_word(19U, address);
+    write_word(21U, entry_point);
+    const auto header_sum = additive_sum(
+        std::span<const std::uint8_t>{header}.first(32U)
+    );
+    header[32] = static_cast<std::uint8_t>(header_sum >> 8U);
+    header[33] = static_cast<std::uint8_t>(header_sum & 0xFFU);
+
+    std::vector<std::uint8_t> data(program.begin(), program.end());
+    const auto data_sum = additive_sum(program);
+    data.push_back(static_cast<std::uint8_t>(data_sum >> 8U));
+    data.push_back(static_cast<std::uint8_t>(data_sum & 0xFFU));
+
+    std::vector<std::int16_t> samples(wav_sample_rate / 10U, 0);
+    append_wav_block(samples, header, 40U, 40U);
+    samples.insert(samples.end(), wav_sample_rate / 500U, 0);
+    append_wav_block(samples, data, 20U, 20U);
+    samples.insert(samples.end(), wav_sample_rate / 10U, 0);
+
+    const auto data_size = static_cast<std::uint32_t>(samples.size() * 2U);
+    std::vector<std::uint8_t> wav;
+    wav.reserve(44U + data_size);
+    wav.insert(wav.end(), {'R', 'I', 'F', 'F'});
+    append_le32(wav, 36U + data_size);
+    wav.insert(wav.end(), {'W', 'A', 'V', 'E'});
+    wav.insert(wav.end(), {'f', 'm', 't', ' '});
+    append_le32(wav, 16U);
+    append_le16(wav, 1U);
+    append_le16(wav, 1U);
+    append_le32(wav, wav_sample_rate);
+    append_le32(wav, wav_sample_rate * 2U);
+    append_le16(wav, 2U);
+    append_le16(wav, 16U);
+    wav.insert(wav.end(), {'d', 'a', 't', 'a'});
+    append_le32(wav, data_size);
+    for (const auto sample : samples) {
+        append_le16(wav, static_cast<std::uint16_t>(sample));
+    }
+    return wav;
 }
 
 std::uint64_t combine(std::uint32_t low, std::uint32_t high) noexcept {
@@ -568,6 +688,63 @@ int main() {
             && program_state.cycle_count_high
                 == state_before_mixed_program.cycle_count_high,
         "Rejected multi-segment RAM program partially changed the machine"
+    );
+    const std::array<std::uint8_t, 4U> invalid_wav{'R', 'I', 'F', 'F'};
+    jr800_native_program_wav_issue wav_issue{0xFFFFU, 0xFFFFU};
+    passed &= expect(
+        jr800_machine_load_native_program_wav(
+            nullptr,
+            invalid_wav.data(),
+            static_cast<std::uint32_t>(invalid_wav.size()),
+            &wav_issue
+        ) == JR800_STATUS_INVALID_ARGUMENT
+            && wav_issue.code == 0xFFFFU
+            && jr800_machine_load_native_program_wav(
+                synthetic,
+                invalid_wav.data(),
+                static_cast<std::uint32_t>(invalid_wav.size()),
+                &wav_issue
+            ) == JR800_STATUS_WRONG_MACHINE_KIND,
+        "Invalid native program WAV arguments were accepted"
+    );
+    passed &= expect(
+        jr800_machine_load_native_program_wav(
+            program_machine,
+            invalid_wav.data(),
+            static_cast<std::uint32_t>(invalid_wav.size()),
+            &wav_issue
+        ) == JR800_STATUS_INVALID_NATIVE_PROGRAM_WAV
+            && wav_issue.code == JR800_NATIVE_PROGRAM_WAV_ISSUE_INVALID_WAV
+            && wav_issue.burst_index == 0U,
+        "Invalid native program WAV did not report its decoder issue"
+    );
+    const auto program_wav = make_native_program_wav(
+        0x2800U,
+        0x2800U,
+        ram_program
+    );
+    wav_issue = {0xFFFFU, 0xFFFFU};
+    loaded_ram.fill(0U);
+    passed &= expect(
+        jr800_machine_load_native_program_wav(
+            program_machine,
+            program_wav.data(),
+            static_cast<std::uint32_t>(program_wav.size()),
+            &wav_issue
+        ) == JR800_STATUS_OK
+            && wav_issue.code == JR800_NATIVE_PROGRAM_WAV_ISSUE_NONE
+            && wav_issue.burst_index == 0U
+            && jr800_machine_read_memory(
+                program_machine,
+                0x2800U,
+                loaded_ram.data(),
+                loaded_ram.size()
+            ) == JR800_STATUS_OK
+            && loaded_ram == ram_program
+            && jr800_machine_get_state(program_machine, &program_state)
+                == JR800_STATUS_OK
+            && program_state.pc == 0x2800U,
+        "Native program WAV did not decode, load, and select its entry point"
     );
     jr800_machine_destroy(program_machine);
     passed &= expect(

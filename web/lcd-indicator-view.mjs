@@ -92,7 +92,13 @@ function validateSnapshot(indicators) {
     }
 }
 
-export function lcdIndicatorView(indicators) {
+function defaultTranslate(source, values = {}) {
+    return source.replace(/\{([a-zA-Z][a-zA-Z0-9]*)\}/g, (match, name) => (
+        Object.hasOwn(values, name) ? String(values[name]) : match
+    ));
+}
+
+export function lcdIndicatorView(indicators, translate = defaultTranslate) {
     validateSnapshot(indicators);
     let knownCount = 0;
     const entries = Jr800VisibleLcdIndicators.map((identity) => {
@@ -109,15 +115,27 @@ export function lcdIndicatorView(indicators) {
                 ? "?"
                 : `$${rawValue.toString(16).toUpperCase().padStart(2, "0")}`;
         const detail = state === "raw"
-            ? `raw RAM ${valueText}; drive state unresolved`
+            ? translate(
+                "raw RAM {value}; drive state unresolved",
+                {value: valueText},
+            )
             : state === "unknown"
-                ? "raw RAM unknown; drive state unresolved"
-                : "indicator data unavailable";
-        return Object.freeze({...identity, state, rawValue, valueText, detail});
+                ? translate("raw RAM unknown; drive state unresolved")
+                : translate("indicator data unavailable");
+        return Object.freeze({
+            ...identity,
+            description: translate(identity.description),
+            state,
+            rawValue,
+            valueText,
+            detail,
+        });
     });
     const summary = indicators === null
-        ? "Indicator RAM unavailable; battery telemetry omitted"
-        : `${knownCount} of ${entries.length} raw values known; `
-            + "drive states unresolved; battery telemetry omitted";
+        ? translate("Indicator RAM unavailable; battery telemetry omitted")
+        : translate(
+            "{known} of {total} raw values known; drive states unresolved; battery telemetry omitted",
+            {known: knownCount, total: entries.length},
+        );
     return Object.freeze({entries: Object.freeze(entries), summary});
 }

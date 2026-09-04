@@ -25,6 +25,7 @@
 #include "jr800/formats/jr8dbg.hpp"
 #include "jr800/formats/jr8rom.hpp"
 #include "jr800/formats/linked_error.hpp"
+#include "jr800/formats/native_msave.hpp"
 #include "jr800/isa/instruction_metadata.hpp"
 #include "jr800/runtime/application_loader.hpp"
 
@@ -65,6 +66,16 @@ static_assert(
 static_assert(
     sizeof(jr800_lcd_indicator_raw)
         == JR800_LCD_INDICATOR_RAW_WORD_COUNT * sizeof(std::uint32_t)
+);
+static_assert(
+    sizeof(jr800_native_program_wav_issue)
+        == JR800_NATIVE_PROGRAM_WAV_ISSUE_WORD_COUNT * sizeof(std::uint32_t)
+);
+static_assert(
+    JR800_NATIVE_PROGRAM_WAV_ISSUE_AMBIGUOUS_HEADER_BYTE_ORDER
+        == static_cast<int>(
+            jr800::formats::NativeMsaveIssueCode::ambiguous_header_byte_order
+        ) + 1
 );
 enum class MachineKind : std::uint8_t {
     synthetic_application,
@@ -883,6 +894,39 @@ jr800_status load_status(jr800::runtime::LoadApplicationResult result) noexcept 
     return JR800_STATUS_INTERNAL_ERROR;
 }
 
+jr800_status load_jr800_application(
+    jr800_machine& machine,
+    const jr800::formats::jr8app::Application& application
+) {
+    const auto loaded = jr800::runtime::load_application(
+        *machine.hardware_machine,
+        application
+    );
+    if (loaded != jr800::runtime::LoadApplicationResult::loaded) {
+        return load_status(loaded);
+    }
+    machine.debugger.clear_history();
+    machine.debugger.clear_debug_info();
+    machine.debugger.clear_execution_breakpoints();
+    machine.debugger.clear_memory_watchpoints();
+    machine.debugger.clear_expression_watches();
+    machine.debugger.clear_symbol_watches();
+    return JR800_STATUS_OK;
+}
+
+void copy_native_program_wav_issue(
+    const jr800::formats::NativeMsaveIssue& source,
+    jr800_native_program_wav_issue& destination
+) noexcept {
+    destination = {
+        static_cast<std::uint32_t>(source.code) + 1U,
+        static_cast<std::uint32_t>(std::min<std::size_t>(
+            source.burst_index,
+            UINT32_MAX
+        )),
+    };
+}
+
 jr800_status debug_status(jr800::debugger::DebugInfoLoadResult result) noexcept {
     using jr800::debugger::DebugInfoLoadResult;
     switch (result) {
@@ -1339,22 +1383,59 @@ jr800_status jr800_machine_load_program(
         const auto application = jr800::formats::jr8app::read(
             std::span<const std::uint8_t>{bytes, byte_count}
         );
-        const auto loaded = jr800::runtime::load_application(
-            *machine->hardware_machine,
-            application
-        );
-        if (loaded != jr800::runtime::LoadApplicationResult::loaded) {
-            return load_status(loaded);
-        }
-        machine->debugger.clear_history();
-        machine->debugger.clear_debug_info();
-        machine->debugger.clear_execution_breakpoints();
-        machine->debugger.clear_memory_watchpoints();
-        machine->debugger.clear_expression_watches();
-        machine->debugger.clear_symbol_watches();
-        return JR800_STATUS_OK;
+        return load_jr800_application(*machine, application);
     } catch (const jr800::formats::linked::Error&) {
         return JR800_STATUS_INVALID_APPLICATION;
+    } catch (const std::exception&) {
+        return JR800_STATUS_INTERNAL_ERROR;
+    }
+}
+
+jr800_status jr800_machine_load_native_program_wav(
+    jr800_machine* machine,
+    const std::uint8_t* bytes,
+    std::uint32_t byte_count,
+    jr800_native_program_wav_issue* issue
+) {
+    if (machine == nullptr || bytes == nullptr || byte_count == 0U
+        || issue == nullptr) {
+        return JR800_STATUS_INVALID_ARGUMENT;
+    }
+    if (machine->kind != MachineKind::jr800) {
+        return JR800_STATUS_WRONG_MACHINE_KIND;
+    }
+    if (!machine->logical_rom_loaded) {
+        return JR800_STATUS_NO_ROM;
+    }
+    *issue = {
+        JR800_NATIVE_PROGRAM_WAV_ISSUE_NONE,
+        0U,
+    };
+    try {
+        const auto decoded = jr800::formats::decode_native_program_wav(
+            std::span<const std::uint8_t>{bytes, byte_count}
+        );
+        if (!decoded.issues.empty()) {
+            copy_native_program_wav_issue(decoded.issues.front(), *issue);
+            return JR800_STATUS_INVALID_NATIVE_PROGRAM_WAV;
+        }
+        if (!decoded.file.has_value()) {
+            issue->code = JR800_NATIVE_PROGRAM_WAV_ISSUE_INVALID_WAV;
+            return JR800_STATUS_INVALID_NATIVE_PROGRAM_WAV;
+        }
+
+        jr800::formats::jr8app::Application application;
+        application.target_profile = "hd6301v1";
+        application.entry_point = decoded.file->execution_address;
+        application.segments = {{
+            jr800::formats::jr8app::SegmentKind::data,
+            decoded.file->start_address,
+            static_cast<std::uint32_t>(decoded.file->payload.size()),
+            decoded.file->payload,
+        }};
+        application.integrity_sha256 =
+            jr800::formats::jr8app::compute_integrity(application);
+        return load_jr800_application(*machine, application);
     } catch (const std::exception&) {
         return JR800_STATUS_INTERNAL_ERROR;
     }

@@ -109,6 +109,16 @@ h3 { margin: 0; font-size: 0.92rem; }
 .status[data-tone="ready"] { color: var(--accent); border-color: rgb(112 214 180 / 45%); }
 .status[data-tone="running"] { color: var(--warning); border-color: rgb(226 186 107 / 45%); }
 .status[data-tone="error"] { color: var(--danger); border-color: rgb(240 139 134 / 45%); }
+.header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.65rem;
+}
+.language-toggle {
+    min-width: 5.25rem;
+    white-space: nowrap;
+}
 
 main { width: min(1440px, calc(100% - 2.5rem)); margin: 1.25rem auto 3rem; }
 .panel { border: 1px solid var(--line); border-radius: 0.55rem; background: rgb(17 22 29 / 96%); box-shadow: 0 18px 55px rgb(0 0 0 / 18%); }
@@ -190,7 +200,7 @@ main { width: min(1440px, calc(100% - 2.5rem)); margin: 1.25rem auto 3rem; }
 .load-panel { padding: 1.25rem; }
 .panel-heading, .panel-title-row { display: flex; align-items: start; justify-content: space-between; gap: 1.5rem; }
 .panel-heading > p { max-width: 34rem; margin: 0; color: var(--muted); font-size: 0.83rem; line-height: 1.55; }
-.loader-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.85rem; margin-top: 1.25rem; }
+.loader-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.85rem; margin-top: 1.25rem; }
 .loader-card { min-width: 0; padding: 1rem; border: 1px solid var(--line); border-radius: 0.4rem; background: #0c1117; }
 .loader-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .loader-card > p { margin: 0.55rem 0 0; color: var(--muted); font-size: 0.78rem; line-height: 1.5; }
@@ -550,6 +560,7 @@ td.empty { height: 4rem; color: var(--muted); text-align: center; }
 @media (max-width: 660px) {
     .app-header { align-items: start; flex-direction: column; padding: 1.5rem 1.25rem; }
     .status { max-width: 100%; text-align: left; }
+    .header-actions { width: 100%; justify-content: space-between; }
     main { width: min(100% - 1.25rem, 1440px); }
     .machine-console { padding: 0.58rem; border-radius: 0.8rem; }
     .machine-console-heading { padding-right: 0.05rem; }

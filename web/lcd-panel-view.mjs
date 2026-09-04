@@ -13,7 +13,13 @@ const colors = Object.freeze({
     [Jr800LcdDotState.on]: Object.freeze([132, 235, 194, 255]),
 });
 
-export function lcdPanelImage(panel) {
+function defaultTranslate(source, values = {}) {
+    return source.replace(/\{([a-zA-Z][a-zA-Z0-9]*)\}/g, (match, name) => (
+        Object.hasOwn(values, name) ? String(values[name]) : match
+    ));
+}
+
+export function lcdPanelImage(panel, translate = defaultTranslate) {
     const available = panel !== null && panel !== undefined;
     const dots = panel?.dots
         ?? new Uint8Array(JR800_LCD_PANEL_DOT_COUNT);
@@ -44,13 +50,16 @@ export function lcdPanelImage(panel) {
     }
 
     const summary = available
-        ? `${counts.on} on; ${counts.off} off; ${counts.unknown} unknown`
-        : "LCD experiment is not enabled for this session";
+        ? translate("{on} on; {off} off; {unknown} unknown", counts)
+        : translate("LCD experiment is not enabled for this session");
     return {
         width: JR800_LCD_PANEL_WIDTH,
         height: JR800_LCD_PANEL_HEIGHT,
         rgba,
         summary,
-        ariaLabel: `Provisional JR-800 LCD matrix. ${summary}`,
+        ariaLabel: translate(
+            "Provisional JR-800 LCD matrix. {summary}",
+            {summary},
+        ),
     };
 }

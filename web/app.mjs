@@ -26,6 +26,32 @@ import {
     basicRunCanContinue,
     jr800BasicBootExperimentConfiguration,
 } from "./basic-boot-profile.mjs";
+import {
+    WebUiLanguage,
+    createWebUiLocalizer,
+    languageToggleLabel,
+    loadJapaneseMessages,
+    preferredWebUiLanguage,
+} from "./i18n.mjs";
+import {Jr800AudioOutput} from "./audio-output.mjs";
+
+const WEB_KEY_MINIMUM_HOLD_CYCLES = 49_152;
+
+let japaneseMessages = {};
+try {
+    japaneseMessages = await loadJapaneseMessages(
+        new URL("./locale-ja.json", import.meta.url),
+    );
+} catch (error) {
+    console.error(error);
+}
+const localizer = createWebUiLocalizer(
+    japaneseMessages,
+    preferredWebUiLanguage(navigator.languages ?? navigator.language),
+);
+localizer.bindDocument(document);
+const translate = (source, values = {}) => localizer.text(source, values);
+const audioOutput = new Jr800AudioOutput();
 
 const worker = new Worker(new URL("./jr800-worker.mjs", import.meta.url), {type: "module"});
 
@@ -50,7 +76,13 @@ class WorkerClient {
             if (message.ok) {
                 pending.resolve(message.result);
             } else {
-                pending.reject(new Error(message.error));
+                const error = new Error(message.error);
+                if (message.errorCode !== undefined) {
+                    error.code = message.errorCode;
+                    error.issue = message.issue;
+                    error.burstIndex = message.burstIndex;
+                }
+                pending.reject(error);
             }
             return;
         }
@@ -93,7 +125,8 @@ class WorkerClient {
 const client = new WorkerClient(worker);
 const elements = Object.fromEntries(
     [
-        "status", "application-file", "debug-file", "stack-pointer", "load",
+        "status", "language-toggle", "sound-toggle", "application-file", "debug-file",
+        "stack-pointer", "load",
         "jr8rom-file", "raw-rom-warning", "boot-basic", "load-rom",
         "resume-machine", "pause-basic",
         "hardware-program-file", "load-program",
@@ -179,7 +212,14 @@ let calendarAttached = false;
 let basicRunContinuous = false;
 let nextExpressionWatchId = 1;
 let nextSymbolWatchId = 1;
+let lastSnapshot = null;
+let statusMessage = {
+    source: "Initializing worker",
+    values: {},
+    tone: "idle",
+};
 const virtualKeyboardState = new Jr800VirtualKeyboardState();
+let keyboardTransitionTail = Promise.resolve();
 
 function setMachineLayout(layout) {
     if (layout !== "workbench" && layout !== "device") {
@@ -196,9 +236,56 @@ function setMachineLayout(layout) {
     );
 }
 
-function setStatus(text, tone = "idle") {
-    elements.status.textContent = text;
+function setStatus(source, tone = "idle", values = {}) {
+    statusMessage = {source, values, tone};
+    elements.status.textContent = translate(source, values);
     elements.status.dataset.tone = tone;
+}
+
+function updateLanguageToggle() {
+    const label = languageToggleLabel(localizer.language);
+    elements["language-toggle"].textContent = label;
+    elements["language-toggle"].setAttribute(
+        "aria-label",
+        translate("Switch interface language to {language}", {language: label}),
+    );
+}
+
+function updateSoundToggle() {
+    const state = translate(audioOutput.enabled ? "on" : "off");
+    elements["sound-toggle"].textContent = translate(
+        "Sound: {state}",
+        {state},
+    );
+    elements["sound-toggle"].setAttribute(
+        "aria-pressed",
+        audioOutput.enabled ? "true" : "false",
+    );
+}
+
+async function activateAudio() {
+    if (!audioOutput.enabled || !await audioOutput.activate()) {
+        return;
+    }
+    if (initialized) {
+        await client.request("set-audio-enabled", {enabled: true});
+    }
+}
+
+function switchLanguage() {
+    localizer.setLanguage(
+        localizer.language === WebUiLanguage.japanese
+            ? WebUiLanguage.english
+            : WebUiLanguage.japanese,
+    );
+    updateLanguageToggle();
+    updateSoundToggle();
+    if (lastSnapshot !== null) {
+        render(lastSnapshot);
+    } else if (!loaded) {
+        renderPoweredOff();
+    }
+    setStatus(statusMessage.source, statusMessage.tone, statusMessage.values);
 }
 
 function virtualKeyboardAvailable() {
@@ -252,13 +339,13 @@ function renderVirtualKeyboardState() {
 
     if (!virtualKeyboardAvailable()) {
         elements["virtual-keyboard-summary"].textContent =
-            "Keyboard unavailable";
+            translate("Keyboard unavailable");
     } else if (held.length === 0) {
         elements["virtual-keyboard-summary"].textContent =
-            "Keyboard ready";
+            translate("Keyboard ready");
     } else {
         elements["virtual-keyboard-summary"].textContent =
-            `Held: ${held.join(" + ")}`;
+            translate("Held: {keys}", {keys: held.join(" + ")});
     }
 }
 
@@ -270,10 +357,20 @@ function sendVirtualKeyboardTransition(transition) {
     if (!virtualKeyboardAvailable()) {
         return;
     }
-    void client.request("set-keyboard-key-state", transition).catch((error) => {
+    const fields = transition.pressed && running
+        ? {...transition, minimumHoldCycles: WEB_KEY_MINIMUM_HOLD_CYCLES}
+        : transition;
+    keyboardTransitionTail = keyboardTransitionTail
+        .catch(() => {})
+        .then(() => client.request("set-keyboard-key-state", fields));
+    void keyboardTransitionTail.catch((error) => {
         virtualKeyboardState.releaseAll();
         renderVirtualKeyboardState();
-        setStatus(error instanceof Error ? error.message : String(error), "error");
+        setStatus(
+            "Error: {message}",
+            "error",
+            {message: error instanceof Error ? error.message : String(error)},
+        );
     });
 }
 
@@ -284,11 +381,13 @@ function releaseAllVirtualKeys(sendToMachine = true) {
         return;
     }
     for (const release of releases) {
-        void client.request("set-keyboard-key-state", release).catch((error) => {
-            setStatus(
-                error instanceof Error ? error.message : String(error),
-                "error",
-            );
+        keyboardTransitionTail = keyboardTransitionTail
+            .catch(() => {})
+            .then(() => client.request("set-keyboard-key-state", release));
+        void keyboardTransitionTail.catch((error) => {
+            setStatus("Error: {message}", "error", {
+                message: error instanceof Error ? error.message : String(error),
+            });
         });
     }
 }
@@ -672,11 +771,13 @@ function renderLcdPanel(panel) {
     const canvas = elements["lcd-panel"];
     const context = canvas.getContext("2d");
     if (context === null) {
-        elements["lcd-summary"].textContent = "Canvas rendering is unavailable";
+        elements["lcd-summary"].textContent = translate(
+            "Canvas rendering is unavailable",
+        );
         return;
     }
 
-    const view = lcdPanelImage(panel);
+    const view = lcdPanelImage(panel, translate);
     const image = context.createImageData(view.width, view.height);
     image.data.set(view.rgba);
     context.putImageData(image, 0, 0);
@@ -685,15 +786,19 @@ function renderLcdPanel(panel) {
 }
 
 function renderLcdIndicators(indicators) {
-    const view = lcdIndicatorView(indicators);
+    const view = lcdIndicatorView(indicators, translate);
     for (const entry of view.entries) {
         const element = lcdIndicatorElements.get(entry.name);
         const value = element.querySelector("[data-lcd-indicator-value]");
         element.dataset.state = entry.state;
-        element.setAttribute(
-            "aria-label",
-            `${entry.label} indicator: ${entry.description}; ${entry.detail}`,
-        );
+        element.setAttribute("aria-label", translate(
+            "{label} indicator: {description}; {detail}",
+            {
+                label: entry.label,
+                description: entry.description,
+                detail: entry.detail,
+            },
+        ));
         element.title = `${entry.description}; ${entry.detail}`;
         value.textContent = entry.valueText;
     }
@@ -702,9 +807,14 @@ function renderLcdIndicators(indicators) {
 
 function renderKeyboardActivity(activity) {
     elements["keyboard-summary"].textContent = activity === null
-        ? "Keyboard activity unavailable"
-        : `${activity.readAttempts} read attempts · `
-            + `${activity.distinctAddresses} distinct addresses`;
+        ? translate("Keyboard activity unavailable")
+        : translate(
+            "{reads} read attempts; {addresses} distinct addresses",
+            {
+                reads: activity.readAttempts,
+                addresses: activity.distinctAddresses,
+            },
+        );
 }
 
 function byteList(bytes, length = bytes.length) {
@@ -737,7 +847,8 @@ function renderMemory(memory) {
             : ".").join("");
         lines.push(`${addressText}  ${hexText}  ${ascii}`);
     }
-    elements.memory.textContent = lines.join("\n") || "No memory loaded";
+    elements.memory.textContent = lines.join("\n")
+        || translate("No memory loaded");
 }
 
 function renderHistory(history) {
@@ -753,7 +864,9 @@ function renderHistory(history) {
         );
         return row;
     });
-    elements.history.replaceChildren(...(rows.length ? rows : [emptyRow(6, "No history")]));
+    elements.history.replaceChildren(...(
+        rows.length ? rows : [emptyRow(6, translate("No history"))]
+    ));
 }
 
 function renderTrace(accesses) {
@@ -771,10 +884,15 @@ function renderTrace(accesses) {
         );
         return row;
     });
-    elements.trace.replaceChildren(...(rows.length ? rows : [emptyRow(6, "No accesses")]));
+    elements.trace.replaceChildren(...(
+        rows.length ? rows : [emptyRow(6, translate("No accesses"))]
+    ));
     elements["access-count"].textContent = accesses.length > 256
-        ? `${accesses.length} matching; latest 256 shown`
-        : `${accesses.length} matching records`;
+        ? translate(
+            "{count} matching; latest 256 shown",
+            {count: accesses.length},
+        )
+        : translate("{count} matching records", {count: accesses.length});
 }
 
 function expressionValueText(value) {
@@ -813,7 +931,7 @@ function renderExpressionWatches(watches) {
         remove.type = "button";
         remove.dataset.watchId = String(watch.id);
         remove.className = "watch-remove";
-        remove.textContent = "Remove";
+        remove.textContent = translate("Remove");
         remove.disabled = running;
         removeCell.append(remove);
         row.append(
@@ -824,7 +942,9 @@ function renderExpressionWatches(watches) {
         return row;
     });
     elements["expression-watch-body"].replaceChildren(
-        ...(rows.length ? rows : [emptyRow(3, "No expression watches")]),
+        ...(rows.length
+            ? rows
+            : [emptyRow(3, translate("No expression watches"))]),
     );
 }
 
@@ -846,18 +966,21 @@ function renderSymbolWatches(watches) {
         remove.type = "button";
         remove.dataset.watchId = String(watch.id);
         remove.className = "watch-remove";
-        remove.textContent = "Remove";
+        remove.textContent = translate("Remove");
         remove.disabled = running;
         removeCell.append(remove);
         row.append(name, cell(symbolWatchResultText(watch)), removeCell);
         return row;
     });
     elements["symbol-watch-body"].replaceChildren(
-        ...(rows.length ? rows : [emptyRow(3, "No symbol watches")]),
+        ...(rows.length
+            ? rows
+            : [emptyRow(3, translate("No symbol watches"))]),
     );
 }
 
 function render(snapshot) {
+    lastSnapshot = snapshot;
     const {state} = snapshot;
     elements.profile.textContent = state.profile;
     elements["register-pc"].textContent = registerText(state, "pc", 4, 0x01);
@@ -866,13 +989,15 @@ function render(snapshot) {
     elements["register-a"].textContent = registerText(state, "a", 2, 0x08);
     elements["register-b"].textContent = registerText(state, "b", 2, 0x10);
     elements["register-cc"].textContent = conditionCodeText(state);
-    elements["execution-state"].textContent = state.executionState;
+    elements["execution-state"].textContent = translate(state.executionState);
     elements["calendar-alarm-terminal"].textContent =
-        state.calendarAlarmTerminal;
-    elements["port2-timer-output"].textContent = state.port2TimerOutput;
+        translate(state.calendarAlarmTerminal);
+    elements["port2-timer-output"].textContent = translate(
+        state.port2TimerOutput,
+    );
     elements["lcd-substituted-read-count"].textContent =
         state.lcdSubstitutedDataReadCount === null
-            ? "unavailable"
+            ? translate("unavailable")
             : String(state.lcdSubstitutedDataReadCount);
     elements.cycles.textContent = String(state.cycleCount);
     elements["current-address"].textContent = hex(snapshot.disassembly.address, 4);
@@ -880,8 +1005,8 @@ function render(snapshot) {
     elements.source.textContent = snapshot.source
         ? `${snapshot.source.path}:${snapshot.source.line}:${snapshot.source.column}`
         : machineKind === "jr800"
-            ? "Source mapping is unavailable for a logical ROM"
-            : "No source mapping";
+            ? translate("Source mapping is unavailable for a logical ROM")
+            : translate("No source mapping");
     renderMemory(snapshot.memory);
     renderLcdPanel(snapshot.lcdPanel);
     renderLcdIndicators(snapshot.lcdIndicators);
@@ -893,21 +1018,22 @@ function render(snapshot) {
 }
 
 function renderPoweredOff() {
-    elements.profile.textContent = "Power off";
+    lastSnapshot = null;
+    elements.profile.textContent = translate("Power off");
     elements["register-pc"].textContent = "----";
     elements["register-sp"].textContent = "----";
     elements["register-x"].textContent = "----";
     elements["register-a"].textContent = "--";
     elements["register-b"].textContent = "--";
     elements["register-cc"].textContent = "--";
-    elements["execution-state"].textContent = "off";
-    elements["calendar-alarm-terminal"].textContent = "unavailable";
-    elements["port2-timer-output"].textContent = "unavailable";
-    elements["lcd-substituted-read-count"].textContent = "unavailable";
+    elements["execution-state"].textContent = translate("off");
+    elements["calendar-alarm-terminal"].textContent = translate("unavailable");
+    elements["port2-timer-output"].textContent = translate("unavailable");
+    elements["lcd-substituted-read-count"].textContent = translate("unavailable");
     elements.cycles.textContent = "0";
     elements["current-address"].textContent = "$----";
-    elements.disassembly.textContent = "Power off";
-    elements.source.textContent = "No source mapping";
+    elements.disassembly.textContent = translate("Power off");
+    elements.source.textContent = translate("No source mapping");
     renderMemory({address: 0, bytes: []});
     renderLcdPanel(null);
     renderLcdIndicators(null);
@@ -944,7 +1070,14 @@ function stopText(stop) {
                 ? ` at ${hex(stop.conditionFaultAddress, 4)}`
                 : "")
         : "";
-    return `Stopped: ${stop.reason}${trigger}${access}; ${count} instructions${suspended}${fault}${condition}`;
+    return translate(
+        "Stopped: {reason}; {count} instructions{details}",
+        {
+            reason: `${stop.reason}${trigger}${access}`,
+            count,
+            details: `${suspended}${fault}${condition}`,
+        },
+    );
 }
 
 async function perform(operation, pendingText) {
@@ -954,9 +1087,44 @@ async function perform(operation, pendingText) {
         }
         return await operation();
     } catch (error) {
-        setStatus(error instanceof Error ? error.message : String(error), "error");
+        setStatus("Error: {message}", "error", {
+            message: localizedErrorMessage(error),
+        });
         throw error;
     }
+}
+
+const nativeProgramWavIssueMessages = Object.freeze({
+    "invalid-wav": "The file is not a valid WAV file.",
+    "unsupported-wav": "The WAV encoding is not supported.",
+    "no-signal": "No JR-800 cassette signal was detected.",
+    "unexpected-burst-count":
+        "The recording has an unexpected number of signal blocks ({count}).",
+    "synchronization-failed":
+        "A cassette signal block could not be synchronized (block {block}).",
+    "truncated-block": "A cassette signal block is truncated (block {block}).",
+    "framing-error": "A cassette signal block has a framing error (block {block}).",
+    "checksum-mismatch":
+        "A cassette signal block has a checksum mismatch (block {block}).",
+    "unsupported-header": "The cassette header is not supported.",
+    "invalid-length": "The cassette header contains an invalid data length.",
+    "invalid-program-range":
+        "The recorded program does not fit in the supported JR-800 RAM range.",
+    "ambiguous-header-byte-order":
+        "The cassette header has more than one possible interpretation.",
+});
+
+function localizedErrorMessage(error) {
+    if (error?.code !== "native-program-wav") {
+        return translate(error instanceof Error ? error.message : String(error));
+    }
+    const source = nativeProgramWavIssueMessages[error.issue]
+        ?? "The WAV file could not be converted.";
+    const reason = translate(source, {
+        block: Number(error.burstIndex ?? 0) + 1,
+        count: Number(error.burstIndex ?? 0),
+    });
+    return translate("WAV conversion failed: {reason}", {reason});
 }
 
 async function readLinkedBinary(file, label) {
@@ -1003,6 +1171,17 @@ function romFileFormat(file) {
     throw new TypeError("ROM file must use the .j8r or .rom extension");
 }
 
+function ramProgramFileFormat(file) {
+    const name = file.name.toLowerCase();
+    if (name.endsWith(".j8a")) {
+        return "jr8app";
+    }
+    if (name.endsWith(".wav")) {
+        return "wav";
+    }
+    throw new TypeError("RAM program must be a .wav or .j8a file");
+}
+
 function selectedRomFile() {
     const file = elements["jr8rom-file"].files?.[0];
     if (!file) {
@@ -1014,7 +1193,9 @@ function selectedRomFile() {
 function rawRomLoadApproved() {
     const pendingFile = elements["jr8rom-file"].files?.[0];
     return !pendingFile?.name.toLowerCase().endsWith(".rom")
-        || window.confirm(elements["raw-rom-warning"].textContent);
+        || window.confirm(translate(
+            "Follow the documentation to convert the WAV file recorded from the physical machine to .j8r. Continue?",
+        ));
 }
 
 async function loadJr800Machine(romFile, configuration) {
@@ -1071,7 +1252,7 @@ elements.load.addEventListener("click", () => {
         nextExpressionWatchId = 1;
         nextSymbolWatchId = 1;
         render(result);
-        setStatus(`Loaded ${applicationFile.name}`, "ready");
+        setStatus("Loaded {name}", "ready", {name: applicationFile.name});
         setControls();
     }, "Loading application").catch(() => {});
 });
@@ -1085,7 +1266,11 @@ elements["load-rom"].addEventListener("click", () => {
         const configuration = hardwareConfiguration();
         basicRunContinuous = false;
         await loadJr800Machine(romFile, configuration);
-        setStatus(`Loaded local ROM ${romFile.name}`, "ready");
+        setStatus(
+            "Loaded local ROM {name}",
+            "ready",
+            {name: romFile.name},
+        );
     }, "Loading local ROM").catch(() => {});
 });
 
@@ -1110,21 +1295,26 @@ elements["load-program"].addEventListener("click", () => {
     void perform(async () => {
         const programFile = elements["hardware-program-file"].files?.[0];
         if (!programFile) {
-            throw new Error("Select a JR8APP RAM program file");
+            throw new Error("Select a WAV or JR8APP RAM program file");
         }
-        const application = await readLinkedBinary(
+        const format = ramProgramFileFormat(programFile);
+        const program = await readLinkedBinary(
             programFile,
-            "JR8APP RAM program file",
+            format === "wav" ? "WAV RAM program file" : "JR8APP RAM program file",
         );
-        const result = await client.request("load-program", {
-            application,
+        const command = format === "wav"
+            ? "load-native-program-wav"
+            : "load-program";
+        const field = format === "wav" ? {wav: program} : {application: program};
+        const result = await client.request(command, {
+            ...field,
             view: viewOptions(),
-        }, [application]);
+        }, [program]);
         basicRunContinuous = false;
         releaseAllVirtualKeys(false);
         render(result);
-        setStatus(`Loaded RAM program ${programFile.name}`, "ready");
         setControls();
+        await startBasicRun("RAM program running");
     }, "Loading RAM program").catch(() => {});
 });
 
@@ -1165,24 +1355,30 @@ function executionLimits() {
     return {instructionLimit, suspendedCycleLimit};
 }
 
-async function startRun(command, fields, status, limits = executionLimits()) {
+async function startRun(
+    command,
+    fields,
+    status,
+    limits = executionLimits(),
+    statusValues = {},
+) {
     const result = await client.request(command, {
         ...limits,
         ...fields,
         view: viewOptions(),
     });
     running = result.running;
-    setStatus(status, "running");
+    setStatus(status, "running", statusValues);
     setControls();
 }
 
-async function startBasicRun() {
+async function startBasicRun(status = "BASIC running") {
     basicRunContinuous = true;
     try {
         await startRun(
             "run",
             {},
-            "BASIC running",
+            status,
             Jr800BasicRunSlice,
         );
     } catch (error) {
@@ -1238,7 +1434,9 @@ elements["run-to"].addEventListener("click", () => {
         return startRun(
             "run-to",
             {address: target},
-            `Running to ${hex(target, 4)}`,
+            "Running to {target}",
+            executionLimits(),
+            {target: hex(target, 4)},
         );
     }).catch(() => {});
 });
@@ -1252,7 +1450,9 @@ elements["run-to-source"].addEventListener("click", () => {
         return startRun(
             "run-to-source",
             target,
-            `Running to ${target.sourcePath}:${target.line}`,
+            "Running to {target}",
+            executionLimits(),
+            {target: `${target.sourcePath}:${target.line}`},
         );
     }).catch(() => {});
 });
@@ -1267,7 +1467,9 @@ elements["run-to-symbol"].addEventListener("click", () => {
         return startRun(
             "run-to-symbol",
             {symbolName},
-            `Running to symbol ${symbolName}`,
+            "Running to symbol {name}",
+            executionLimits(),
+            {name: symbolName},
         );
     }).catch(() => {});
 });
@@ -1284,11 +1486,17 @@ async function setPoint(command, input, enabled, label, condition = "") {
     const value = address(input.value);
     await client.request(command, {address: value, enabled, condition});
     const conditionText = enabled && condition.length !== 0
-        ? ` when ${condition}`
+        ? translate(" when {condition}", {condition})
         : "";
     setStatus(
-        `${label} ${enabled ? "enabled" : "disabled"} at ${hex(value, 4)}${conditionText}`,
+        "{label} {state} at {address}{condition}",
         "ready",
+        {
+            label: translate(label),
+            state: translate(enabled ? "enabled" : "disabled"),
+            address: hex(value, 4),
+            condition: conditionText,
+        },
     );
 }
 
@@ -1319,8 +1527,13 @@ elements["enable-watchpoint"].addEventListener("click", () => {
             enabled: true,
         });
         setStatus(
-            `Memory watchpoint (${mode}) enabled at ${hex(value, 4)}`,
+            "Memory watchpoint ({mode}) {state} at {address}",
             "ready",
+            {
+                mode,
+                state: translate("enabled"),
+                address: hex(value, 4),
+            },
         );
     }).catch(() => {});
 });
@@ -1334,8 +1547,13 @@ elements["disable-watchpoint"].addEventListener("click", () => {
             enabled: false,
         });
         setStatus(
-            `Memory watchpoint (${mode}) disabled at ${hex(value, 4)}`,
+            "Memory watchpoint ({mode}) {state} at {address}",
             "ready",
+            {
+                mode,
+                state: translate("disabled"),
+                address: hex(value, 4),
+            },
         );
     }).catch(() => {});
 });
@@ -1354,7 +1572,11 @@ elements["add-expression-watch"].addEventListener("click", () => {
         ++nextExpressionWatchId;
         elements["watch-expression"].value = "";
         render(snapshot);
-        setStatus(`Expression watch added: ${expression}`, "ready");
+        setStatus(
+            "Expression watch added: {expression}",
+            "ready",
+            {expression},
+        );
     }, "Adding expression watch").catch(() => {});
 });
 
@@ -1391,7 +1613,7 @@ elements["add-symbol-watch"].addEventListener("click", () => {
         ++nextSymbolWatchId;
         elements["watch-symbol"].value = "";
         render(snapshot);
-        setStatus(`Symbol watch added: ${name}`, "ready");
+        setStatus("Symbol watch added: {name}", "ready", {name});
     }, "Adding symbol watch").catch(() => {});
 });
 
@@ -1435,13 +1657,17 @@ elements["set-keyboard-response"].addEventListener("click", () => {
             render(snapshot);
         }
         const timing = update.appliedDuringRun
-            ? ` at a run boundary after ${update.totalInstructionsExecuted} instructions`
+            ? translate(
+                " at a run boundary after {count} instructions",
+                {count: update.totalInstructionsExecuted},
+            )
             : "";
         setStatus(
             known
-                ? `Raw keyboard response set at ${hex(keyboardAddress, 4)}${timing}`
-                : `Raw keyboard response cleared at ${hex(keyboardAddress, 4)}${timing}`,
+                ? "Raw keyboard response set at {address}{timing}"
+                : "Raw keyboard response cleared at {address}{timing}",
             update.appliedDuringRun ? "running" : "ready",
+            {address: hex(keyboardAddress, 4), timing},
         );
     }, "Updating raw keyboard response").catch(() => {});
 });
@@ -1458,7 +1684,11 @@ elements["advance-calendar"].addEventListener("click", () => {
             view: viewOptions(),
         });
         render(result.snapshot);
-        setStatus(`Advanced calendar by ${ticks} oscillator ticks`, "ready");
+        setStatus(
+            "Advanced calendar by {ticks} oscillator ticks",
+            "ready",
+            {ticks},
+        );
     }, "Advancing calendar oscillator").catch(() => {});
 });
 
@@ -1503,9 +1733,26 @@ elements["layout-workbench"].addEventListener("click", () => {
 elements["layout-device"].addEventListener("click", () => {
     setMachineLayout("device");
 });
+elements["language-toggle"].addEventListener("click", switchLanguage);
+elements["sound-toggle"].addEventListener("click", () => {
+    const enabled = !audioOutput.enabled;
+    audioOutput.setEnabled(enabled);
+    updateSoundToggle();
+    if (enabled) {
+        void activateAudio().catch((error) => {
+            setStatus("Error: {message}", "error", {
+                message: error instanceof Error ? error.message : String(error),
+            });
+        });
+    } else if (initialized) {
+        void client.request("set-audio-enabled", {enabled: false});
+    }
+});
 elements["force-power-off"].addEventListener("click", () => {
     if (!virtualKeyboardAvailable() || !window.confirm(
-        "Force power off the emulator? The loaded session will be discarded.",
+        translate(
+            "Force power off the emulator? The loaded session will be discarded.",
+        ),
     )) {
         return;
     }
@@ -1629,6 +1876,12 @@ document.addEventListener("keyup", (event) => {
 });
 
 window.addEventListener("blur", () => releaseAllVirtualKeys());
+document.addEventListener("pointerdown", () => {
+    void activateAudio();
+}, {capture: true});
+document.addEventListener("keydown", () => {
+    void activateAudio();
+}, {capture: true});
 document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
         releaseAllVirtualKeys();
@@ -1636,6 +1889,7 @@ document.addEventListener("visibilitychange", () => {
 });
 
 client.on("stopped", (message) => {
+    audioOutput.flush();
     running = false;
     render(message.snapshot);
     if (basicRunContinuous && basicRunCanContinue(message.stop)
@@ -1651,11 +1905,15 @@ client.on("stopped", (message) => {
     setStatus(stopText(message.stop), "ready");
     setControls();
 });
+client.on("audio-transitions", (message) => audioOutput.append(message));
+client.on("audio-reset", () => audioOutput.reset());
 client.on("error", (message) => {
     basicRunContinuous = false;
     running = false;
     const detail = message?.error ?? message;
-    setStatus(detail instanceof Error ? detail.message : String(detail), "error");
+    setStatus("Error: {message}", "error", {
+        message: detail instanceof Error ? detail.message : String(detail),
+    });
     setControls();
 });
 
@@ -1671,11 +1929,20 @@ for (const id of [
     elements[id].addEventListener("change", setControls);
 }
 
+updateLanguageToggle();
+updateSoundToggle();
 setControls();
 void perform(async () => {
     const moduleUrl = new URL("./jr800_wasm.mjs", import.meta.url).href;
     const result = await client.request("initialize", {moduleUrl});
     initialized = true;
-    setStatus(`Worker ready; ABI ${result.abiVersion}`, "ready");
+    if (audioOutput.context?.state === "running") {
+        await client.request("set-audio-enabled", {enabled: true});
+    }
+    setStatus(
+        "Worker ready; ABI {version}",
+        "ready",
+        {version: result.abiVersion},
+    );
     setControls();
 }, "Initializing worker").catch(() => {});

@@ -1,4 +1,4 @@
-if(EXISTS "${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v35.md")
+if(EXISTS "${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v36.md")
     add_test(
         NAME abi_version_contract
         COMMAND
@@ -6,7 +6,7 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v35.md")
             ${CMAKE_CURRENT_SOURCE_DIR}/abi_version_contract_test.py
             --header ${PROJECT_SOURCE_DIR}/wasm/include/jr800/wasm/api.h
             --adapter ${PROJECT_SOURCE_DIR}/web/wasm-machine.mjs
-            --document ${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v35.md
+            --document ${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v36.md
     )
     set_tests_properties(
         abi_version_contract
@@ -38,6 +38,21 @@ if(EMSCRIPTEN)
             $<TARGET_FILE_DIR:jr800_wasm>/index.html
             $<TARGET_FILE_DIR:jr800_wasm>/app.mjs
             $<TARGET_FILE_DIR:jr800_wasm>/styles.css
+    )
+    add_test(
+        NAME i18n
+        COMMAND
+            ${NODE_EXECUTABLE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/i18n_test.mjs
+            $<TARGET_FILE_DIR:jr800_wasm>/i18n.mjs
+            $<TARGET_FILE_DIR:jr800_wasm>/locale-ja.json
+    )
+    add_test(
+        NAME audio_output
+        COMMAND
+            ${NODE_EXECUTABLE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/audio_output_test.mjs
+            $<TARGET_FILE_DIR:jr800_wasm>/audio-output.mjs
     )
     add_test(
         NAME basic_boot_profile

@@ -109,8 +109,12 @@ assert.doesNotMatch(
 );
 assert.match(
     html,
-    /<details id="debugger-menu" class="debugger-menu">[\s\S]*<summary>Developer debugger<\/summary>[\s\S]*aria-label="Execution controls"[\s\S]*aria-label="Debugger workspace"[\s\S]*<\/details>/,
-    "Developer debugger must contain the controls and workspace",
+    /<details id="debugger-menu" class="debugger-menu">[\s\S]*<summary>Developer debugger<\/summary>[\s\S]*id="sdk-load-heading"[\s\S]*id="application-file"[\s\S]*aria-label="Execution controls"[\s\S]*aria-label="Debugger workspace"[\s\S]*<\/details>/,
+    "Developer debugger must contain the SDK loader, controls, and workspace",
+);
+assert.ok(
+    html.indexOf('id="application-file"') > html.indexOf('id="debugger-menu"'),
+    "The SDK application loader must not appear in the user-facing target panel",
 );
 assert.doesNotMatch(
     html,
@@ -134,6 +138,8 @@ assert.deepEqual(
 );
 
 for (const id of [
+    "language-toggle",
+    "sound-toggle",
     "application-file",
     "load",
     "jr8rom-file",
@@ -431,7 +437,7 @@ assert.match(
 );
 assert.match(
     app,
-    /request\("set-keyboard-key-state", transition\)/,
+    /request\("set-keyboard-key-state", fields\)/,
     "Virtual keyboard transitions are not connected to the Worker",
 );
 assert.match(
@@ -456,6 +462,11 @@ assert.match(
     "J8D file selection contract is missing",
 );
 assert.match(
+    app,
+    /"application-file", "debug-file",/,
+    "The debug-file control must be included in the application element map",
+);
+assert.match(
     html,
     /id="jr8rom-file"[^>]*accept="\.j8r,\.rom,application\/octet-stream"/,
     "J8R and raw ROM file selection contract is missing",
@@ -471,14 +482,39 @@ assert.ok(
     "Raw ROM warning text must match the required Japanese message",
 );
 assert.equal(
-    [...app.matchAll(/window\.confirm\(elements\["raw-rom-warning"\]\.textContent\)/g)].length,
-    1,
-    "Raw ROM confirmation must have one shared implementation",
+    [...app.matchAll(/window\.confirm\(\s*translate\(/g)].length,
+    2,
+    "Both confirmations must use the shared localizer",
 );
 assert.match(
     app,
-    /function rawRomLoadApproved\(\)[\s\S]*endsWith\("\.rom"\)[\s\S]*window\.confirm\(elements\["raw-rom-warning"\]\.textContent\)/,
-    "Raw ROM loading must use the visible confirmation text",
+    /function rawRomLoadApproved\(\)[\s\S]*endsWith\("\.rom"\)[\s\S]*window\.confirm\(translate\([\s\S]*Follow the documentation/,
+    "Raw ROM loading must use the localized confirmation text",
+);
+assert.match(
+    app,
+    /preferredWebUiLanguage\(navigator\.languages \?\? navigator\.language\)/,
+    "The initial interface language must follow the browser language",
+);
+assert.match(
+    app,
+    /elements\["language-toggle"\]\.addEventListener\("click", switchLanguage\)/,
+    "The interface language toggle is not connected",
+);
+assert.match(
+    app,
+    /client\.on\("audio-transitions", \(message\) => audioOutput\.append\(message\)\)/,
+    "Port 1 audio transitions are not connected to the Web Audio output",
+);
+assert.match(
+    app,
+    /elements\["sound-toggle"\]\.addEventListener\("click"[\s\S]*set-audio-enabled/,
+    "The sound toggle is not connected to the Worker",
+);
+assert.match(
+    html,
+    /window\.location\.protocol === "file:"[\s\S]*file-protocol-ja[\s\S]*status\.dataset\.tone = "error"/,
+    "Direct local-file opening must show actionable guidance",
 );
 assert.match(
     app,
@@ -492,13 +528,23 @@ assert.match(
 );
 assert.match(
     html,
-    /id="hardware-program-file"[^>]*accept="\.j8a,application\/octet-stream"[^>]*disabled/,
-    "JR-800 RAM-program selection contract is missing",
+    /id="hardware-program-file"[^>]*accept="\.wav,\.j8a,audio\/wav,application\/octet-stream"[^>]*disabled/,
+    "JR-800 WAV and JR8APP RAM-program selection contract is missing",
 );
 assert.match(
     app,
-    /elements\["load-program"\]\.addEventListener\("click"[\s\S]*request\("load-program"[\s\S]*Loaded RAM program/,
-    "JR-800 RAM-program loading is not connected to the Worker",
+    /elements\["load-program"\]\.addEventListener\("click"[\s\S]*"load-native-program-wav"[\s\S]*"load-program"[\s\S]*client\.request\(command[\s\S]*startBasicRun\("RAM program running"\)/,
+    "JR-800 WAV and JR8APP loading must continue from the recorded entry",
+);
+assert.match(
+    app,
+    /nativeProgramWavIssueMessages[\s\S]*"checksum-mismatch"[\s\S]*localizedErrorMessage\(error\)/,
+    "WAV conversion failures must be converted to visible user messages",
+);
+assert.match(
+    app,
+    /WEB_KEY_MINIMUM_HOLD_CYCLES = 49_152[\s\S]*let keyboardTransitionTail = Promise\.resolve\(\)[\s\S]*minimumHoldCycles: WEB_KEY_MINIMUM_HOLD_CYCLES[\s\S]*keyboardTransitionTail = keyboardTransitionTail/,
+    "Web keyboard input must be held and serialized across BASIC scan intervals",
 );
 assert.doesNotMatch(
     html,
@@ -680,12 +726,12 @@ assert.match(
 );
 assert.match(
     app,
-    /elements\["calendar-alarm-terminal"\]\.textContent\s*=\s*state\.calendarAlarmTerminal;/,
+    /elements\["calendar-alarm-terminal"\]\.textContent\s*=\s*translate\(state\.calendarAlarmTerminal\);/,
     "Calendar ALARM diagnostic is not connected to snapshots",
 );
 assert.match(
     app,
-    /elements\["port2-timer-output"\]\.textContent\s*=\s*state\.port2TimerOutput;/,
+    /elements\["port2-timer-output"\]\.textContent\s*=\s*translate\(\s*state\.port2TimerOutput,\s*\);/,
     "Port 2 timer-output diagnostic is not connected to snapshots",
 );
 assert.match(
@@ -700,7 +746,7 @@ assert.match(
 );
 assert.match(
     app,
-    /function renderLcdIndicators\(indicators\)[\s\S]*lcdIndicatorView\(indicators\)[\s\S]*entry\.description[\s\S]*entry\.valueText/,
+    /function renderLcdIndicators\(indicators\)[\s\S]*lcdIndicatorView\(indicators, translate\)[\s\S]*entry\.description[\s\S]*entry\.valueText/,
     "LCD indicator raw-value presentation is missing",
 );
 assert.match(

@@ -26,6 +26,7 @@ export const Status = Object.freeze({
     symbolNotAddress: 22,
     invalidJr8rom: 23,
     incompleteJr8rom: 24,
+    invalidNativeProgramWav: 25,
 });
 
 export const MAX_LINKED_BINARY_BYTES = 64 * 1024 * 1024;
@@ -71,6 +72,23 @@ const STATUS_NAMES = [
     "symbol-not-address",
     "invalid-jr8rom",
     "incomplete-jr8rom",
+    "invalid-native-program-wav",
+];
+
+const NATIVE_PROGRAM_WAV_ISSUE_NAMES = [
+    "none",
+    "invalid-wav",
+    "unsupported-wav",
+    "no-signal",
+    "unexpected-burst-count",
+    "synchronization-failed",
+    "truncated-block",
+    "framing-error",
+    "checksum-mismatch",
+    "unsupported-header",
+    "invalid-length",
+    "invalid-program-range",
+    "ambiguous-header-byte-order",
 ];
 
 const PROFILE_NAMES = ["jr800_unresolved", "mc6801", "hd6301v1"];
@@ -283,7 +301,8 @@ const EXPRESSION_WATCH_WORDS = 6;
 const SYMBOL_WATCH_WORDS = 6;
 const KEYBOARD_ACTIVITY_WORDS = 4;
 const LCD_INDICATOR_RAW_WORDS = 2;
-const WASM_ABI_VERSION = 35;
+const NATIVE_PROGRAM_WAV_ISSUE_WORDS = 2;
+const WASM_ABI_VERSION = 36;
 
 function checkedWatchpointMode(mode) {
     if (typeof mode !== "string"
@@ -665,6 +684,18 @@ export class WasmApiError extends Error {
     }
 }
 
+export class NativeProgramWavError extends WasmApiError {
+    constructor(status, issueCode, burstIndex) {
+        super("load-native-program-wav", status);
+        this.name = "NativeProgramWavError";
+        this.issueCode = issueCode;
+        this.issue = NATIVE_PROGRAM_WAV_ISSUE_NAMES[issueCode]
+            ?? `issue-${issueCode}`;
+        this.burstIndex = burstIndex;
+        this.message = `WAV conversion failed: ${this.issue}`;
+    }
+}
+
 export class WasmMachine {
     static async create(moduleUrl) {
         const imported = await import(moduleUrl);
@@ -753,6 +784,11 @@ export class WasmMachine {
                 "jr800_machine_load_program",
                 "number",
                 ["number", "number", "number"],
+            ),
+            loadNativeProgramWav: bind(
+                "jr800_machine_load_native_program_wav",
+                "number",
+                ["number", "number", "number", "number"],
             ),
             reset: bind("jr800_machine_reset", "number", ["number"]),
             getState: bind("jr800_machine_get_state", "number", ["number", "number"]),
@@ -1030,6 +1066,40 @@ export class WasmMachine {
         });
     }
 
+    #loadNativeProgramWav(binary) {
+        this.#withInput(binary, (pointer, size) => {
+            this.#allocate(
+                NATIVE_PROGRAM_WAV_ISSUE_WORDS * WORD_BYTES,
+                (issuePointer) => {
+                    this.module.HEAPU32.fill(
+                        0,
+                        issuePointer / WORD_BYTES,
+                        issuePointer / WORD_BYTES
+                            + NATIVE_PROGRAM_WAV_ISSUE_WORDS,
+                    );
+                    const status = this.functions.loadNativeProgramWav(
+                        this.handle,
+                        pointer,
+                        size,
+                        issuePointer,
+                    );
+                    if (status === Status.invalidNativeProgramWav) {
+                        const issue = this.#readWords(
+                            issuePointer,
+                            NATIVE_PROGRAM_WAV_ISSUE_WORDS,
+                        );
+                        throw new NativeProgramWavError(
+                            status,
+                            issue[0],
+                            issue[1],
+                        );
+                    }
+                    this.#check("load-native-program-wav", status);
+                },
+            );
+        });
+    }
+
     load(application, {debugInfo, initialStackPointer = 0x01ff, view} = {}) {
         this.#requireHandle();
         if (this.kind !== "synthetic") {
@@ -1123,6 +1193,19 @@ export class WasmMachine {
         }
         const applicationBytes = checkedInputBytes(application);
         this.#loadProgram(applicationBytes);
+        return this.snapshot(view);
+    }
+
+    loadNativeProgramWav(wav, {view} = {}) {
+        this.#requireHandle();
+        if (this.kind !== "jr800") {
+            throw new WasmApiError(
+                "load-native-program-wav",
+                Status.wrongMachineKind,
+            );
+        }
+        const wavBytes = checkedInputBytes(wav);
+        this.#loadNativeProgramWav(wavBytes);
         return this.snapshot(view);
     }
 

@@ -101,6 +101,13 @@ assert.ok(
         .every(({detail}) => detail.includes("drive state unresolved")),
     "Raw zero and nonzero values must not become off/on states",
 );
+const translated = lcdIndicatorView(
+    rawSnapshot,
+    (source) => `translated:${source}`,
+);
+assert.match(translated.summary, /^translated:/);
+assert.match(translated.entries[0].description, /^translated:/);
+assert.match(translated.entries[0].detail, /^translated:/);
 
 assert.throws(
     () => lcdIndicatorView([]),

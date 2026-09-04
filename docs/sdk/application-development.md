@@ -13,8 +13,8 @@
 JR8APPをそのままJR-800実機へ転送して動かせることや、実機のメモリーマップ、I/O、起動方法との一致を保証するものではありません。
 
 実機ROMを使う`jr8run jr800`と、SDKアプリを合成RAMで動かす`jr8run app.j8a`は別の実行経路です。
-Web UIには、SDKアプリを合成RAMでデバッグする`Synthetic application`と、BASIC起動後のJR-800 RAMへ変換済みプログラムを読み込む`RAM program .J8A`があります。
-このガイドでは前者を扱います。
+Web UIでは、SDKアプリを合成RAMで動かす機能を一般利用の画面から分離し、折りたたまれた`Developer debugger`内の`SDK application debugging`へ置いています。
+このガイドでは、その開発者向けデバッグ経路を扱います。
 
 ## 必要な環境
 
@@ -247,7 +247,7 @@ build/native-release/tools/jr8run \
 
 詳細は[ヘッドレスJR8APPテスト](headless-testing.md)を参照してください。
 
-## Web UIで実行する
+## Web UIでデバッグする
 
 リポジトリのルートでWASM版をビルドし、HTTPサーバーを起動します。
 
@@ -259,11 +259,12 @@ python3 -m http.server 8000 --directory build/wasm-release/web
 
 `http://127.0.0.1:8000/`を開き、次の順で読み込みます。
 
-1. `Synthetic application`の`.J8A`で`app.j8a`を選びます。
-2. ソース表示やシンボル操作を使う場合は、`.J8D`で対応する`app.j8d`も選びます。
-3. `Initial SP`を確認します。
-4. `Load application`を押します。
-5. `Developer debugger`を開き、`Run`、`Step`、ブレークポイント、ウォッチ、メモリー、履歴、トレースを操作します。
+1. `Developer debugger`を開きます。
+2. `SDK application debugging`の`.J8A`で`app.j8a`を選びます。
+3. ソース表示やシンボル操作を使う場合は、`.J8D`で対応する`app.j8d`も選びます。
+4. `Initial SP`を確認します。
+5. `Load application for debugging`を押します。
+6. `Run`、`Step`、ブレークポイント、ウォッチ、メモリー、履歴、トレースを操作します。
 
 初期SPの既定値は`$01FF`です。
 JR8DBGは対応するJR8APPと整合性が一致するときだけ読み込まれます。

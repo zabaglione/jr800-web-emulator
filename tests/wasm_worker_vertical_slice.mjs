@@ -201,6 +201,87 @@ function makeJr8app(
     ]));
 }
 
+function makeNativeProgramWav(address, entryPoint, program) {
+    const sampleRate = 48_000;
+    const amplitude = 12_000;
+    const samples = Array(sampleRate / 10).fill(0);
+    const appendCycle = (longPeriod) => {
+        const halfPeriod = longPeriod ? 21 : 11;
+        for (let index = 0; index < halfPeriod; index += 1) {
+            samples.push(amplitude);
+        }
+        for (let index = 0; index < halfPeriod; index += 1) {
+            samples.push(-amplitude);
+        }
+    };
+    const appendCycles = (longPeriod, count) => {
+        for (let index = 0; index < count; index += 1) {
+            appendCycle(longPeriod);
+        }
+    };
+    const appendByte = (value) => {
+        for (let bit = 7; bit >= 0; bit -= 1) {
+            appendCycle(((value >> bit) & 1) !== 0);
+        }
+        appendCycle(true);
+    };
+    const appendBlock = (bytes, longSyncCycles, shortSyncCycles) => {
+        appendCycles(false, 4_000);
+        appendCycles(true, longSyncCycles);
+        appendCycles(false, shortSyncCycles);
+        appendCycles(true, 2);
+        for (const byte of bytes) {
+            appendByte(byte);
+        }
+    };
+    const additiveSum = (bytes) => bytes.reduce(
+        (sum, byte) => (sum + byte) & 0xffff,
+        0,
+    );
+
+    const header = Buffer.alloc(34);
+    header.writeUInt8(0x01, 0);
+    Buffer.from("WORKERWAV", "ascii").copy(header, 1);
+    header.writeUInt16LE(program.byteLength, 17);
+    header.writeUInt16LE(address, 19);
+    header.writeUInt16LE(entryPoint, 21);
+    header.writeUInt16BE(additiveSum(header.subarray(0, 32)), 32);
+    const data = Buffer.alloc(program.byteLength + 2);
+    Buffer.from(
+        program.buffer,
+        program.byteOffset,
+        program.byteLength,
+    ).copy(data);
+    data.writeUInt16BE(additiveSum(program), program.byteLength);
+
+    appendBlock(header, 40, 40);
+    for (let index = 0; index < sampleRate / 500; index += 1) {
+        samples.push(0);
+    }
+    appendBlock(data, 20, 20);
+    for (let index = 0; index < sampleRate / 10; index += 1) {
+        samples.push(0);
+    }
+
+    const pcm = Buffer.alloc(samples.length * 2);
+    samples.forEach((sample, index) => pcm.writeInt16LE(sample, index * 2));
+    const wav = Buffer.alloc(44 + pcm.byteLength);
+    Buffer.from("RIFF", "ascii").copy(wav, 0);
+    wav.writeUInt32LE(36 + pcm.byteLength, 4);
+    Buffer.from("WAVEfmt ", "ascii").copy(wav, 8);
+    wav.writeUInt32LE(16, 16);
+    wav.writeUInt16LE(1, 20);
+    wav.writeUInt16LE(1, 22);
+    wav.writeUInt32LE(sampleRate, 24);
+    wav.writeUInt32LE(sampleRate * 2, 28);
+    wav.writeUInt16LE(2, 32);
+    wav.writeUInt16LE(16, 34);
+    Buffer.from("data", "ascii").copy(wav, 36);
+    wav.writeUInt32LE(pcm.byteLength, 40);
+    pcm.copy(wav, 44);
+    return Uint8Array.from(wav);
+}
+
 function nextEvent(event) {
     const queuedIndex = queuedEvents.findIndex((message) => message.event === event);
     if (queuedIndex >= 0) {
@@ -307,7 +388,7 @@ function jr800StopParity(stop) {
 
 try {
     const initialized = await request("initialize", {moduleUrl});
-    assert.equal(initialized.abiVersion, 35);
+    assert.equal(initialized.abiVersion, 36);
     const initialApplication = application.slice();
     const initialDebugInfo = debugInfo.slice();
     const syntheticLoaded = await request("load", {
@@ -1108,7 +1189,7 @@ try {
         },
         view: {memoryAddress: 0x8000, memoryLength: 2},
     }, [nopRom.buffer]);
-    assert.equal(jr800Loaded.state.abiVersion, 35);
+    assert.equal(jr800Loaded.state.abiVersion, 36);
     assert.equal(jr800Loaded.state.profile, "hd6301v1");
     assert.equal(jr800Loaded.state.pc, 0x8000);
     assert.equal(jr800Loaded.state.sp, 0x2345);
@@ -1325,6 +1406,36 @@ try {
         view: {memoryAddress: 0x0f7f, memoryLength: 1},
     });
     assert.deepEqual(releasedKeyboard.memory.bytes, [0xff]);
+    await assert.rejects(
+        request("set-keyboard-key-state", {
+            key: "letter-x",
+            pressed: true,
+            minimumHoldCycles: -1,
+        }),
+        /Minimum key hold must be a uint32 cycle count/,
+    );
+    await request("set-keyboard-key-state", {
+        key: "letter-x",
+        pressed: true,
+        minimumHoldCycles: 100,
+    });
+    const deferredKeyboardReleasePromise = request("set-keyboard-key-state", {
+        key: "letter-x",
+        pressed: false,
+    });
+    const deferredKeyboardRelease = await request("snapshot", {
+        view: {memoryAddress: 0x0f7f, memoryLength: 1},
+    });
+    assert.deepEqual(deferredKeyboardRelease.memory.bytes, [0xfe]);
+    const keyboardHoldStopPromise = nextEvent("stopped");
+    await request("run", {instructionLimit: 1_000});
+    const keyboardHoldStop = await keyboardHoldStopPromise;
+    await deferredKeyboardReleasePromise;
+    assert.equal(keyboardHoldStop.stop.reason, "instruction-limit");
+    const minimumHoldReleased = await request("snapshot", {
+        view: {memoryAddress: 0x0f7f, memoryLength: 1},
+    });
+    assert.deepEqual(minimumHoldReleased.memory.bytes, [0xff]);
     const modeledKeyboardKeys = [
         "shift",
         "control",
@@ -1721,6 +1832,45 @@ try {
     assert.equal(ramProgramStep.snapshot.state.pc, 0x2802);
     assert.equal(ramProgramStep.snapshot.state.a, 0x42);
 
+    const beforeRejectedWav = await request("snapshot", {
+        view: {memoryAddress: 0x2800, memoryLength: 4},
+    });
+    const invalidWav = Uint8Array.of(0x52, 0x49, 0x46, 0x46);
+    await assert.rejects(
+        request("load-native-program-wav", {
+            wav: invalidWav,
+            view: {memoryAddress: 0x2800, memoryLength: 4},
+        }, [invalidWav.buffer]),
+        /WAV conversion failed: invalid-wav/,
+    );
+    assert.deepEqual(
+        await request("snapshot", {
+            view: {memoryAddress: 0x2800, memoryLength: 4},
+        }),
+        beforeRejectedWav,
+        "rejected WAV conversion changed the active JR-800 machine",
+    );
+
+    const nativeProgramWav = makeNativeProgramWav(
+        0x2800,
+        0x2800,
+        Uint8Array.of(0x86, 0x43, 0x20, 0xfe),
+    );
+    const loadedNativeProgramWav = await request("load-native-program-wav", {
+        wav: nativeProgramWav,
+        view: {memoryAddress: 0x2800, memoryLength: 4},
+    }, [nativeProgramWav.buffer]);
+    assert.equal(loadedNativeProgramWav.state.pc, 0x2800);
+    assert.deepEqual(
+        loadedNativeProgramWav.memory.bytes,
+        [0x86, 0x43, 0x20, 0xfe],
+    );
+    const nativeProgramWavStep = await request("step", {
+        view: {memoryAddress: 0x2800, memoryLength: 4},
+    });
+    assert.equal(nativeProgramWavStep.snapshot.state.pc, 0x2802);
+    assert.equal(nativeProgramWavStep.snapshot.state.a, 0x43);
+
     const beforeRejectedRamProgram = await request("snapshot", {
         view: {memoryAddress: 0x2800, memoryLength: 4},
     });
@@ -2019,6 +2169,39 @@ try {
     assert.equal(longSleep.stop.totalInstructionsExecuted, 1);
     assert.equal(longSleep.stop.totalSuspendedCyclesElapsed, 65_537);
     assert.equal(longSleep.snapshot.state.cycleCount, 65_541);
+
+    const audioRom = makeJr8rom(Uint8Array.of(
+        0x86, 0xef,
+        0x97, 0x02,
+        0x86, 0xff,
+        0x97, 0x02,
+        0x86, 0xef,
+        0x97, 0x02,
+        0x1a,
+    ));
+    await request(
+        "load-jr800",
+        {romContainer: audioRom},
+        [audioRom.buffer],
+    );
+    assert.deepEqual(
+        await request("set-audio-enabled", {enabled: true}),
+        {enabled: true},
+    );
+    const audioPromise = nextEvent("audio-transitions");
+    const audioStopPromise = nextEvent("stopped");
+    await request("run", {instructionLimit: 20});
+    const [audio, audioStop] = await Promise.all([
+        audioPromise,
+        audioStopPromise,
+    ]);
+    assert.equal(audio.clockHz, 1_228_800);
+    assert.deepEqual(audio.transitions.map(({level}) => level), [true, false]);
+    assert.ok(audio.transitions[1].cycle > audio.transitions[0].cycle);
+    assert.equal(audioStop.stop.reason, "sleeping");
+    const audioResetPromise = nextEvent("audio-reset");
+    await request("reset");
+    await audioResetPromise;
 
     const powerOffRom = makeJr8rom(Uint8Array.of(0x20, 0xfe));
     await request(

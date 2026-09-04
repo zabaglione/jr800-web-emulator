@@ -28,6 +28,7 @@ if(EMSCRIPTEN)
         _jr800_machine_load_logical_rom
         _jr800_machine_load_jr8rom
         _jr800_machine_load_program
+        _jr800_machine_load_native_program_wav
         _jr800_machine_reset
         _jr800_machine_get_state
         _jr800_machine_step
@@ -100,6 +101,9 @@ if(EMSCRIPTEN)
             ${PROJECT_SOURCE_DIR}/web/index.html
             ${PROJECT_SOURCE_DIR}/web/styles.css
             ${PROJECT_SOURCE_DIR}/web/app.mjs
+            ${PROJECT_SOURCE_DIR}/web/i18n.mjs
+            ${PROJECT_SOURCE_DIR}/web/locale-ja.json
+            ${PROJECT_SOURCE_DIR}/web/audio-output.mjs
             ${PROJECT_SOURCE_DIR}/web/basic-boot-profile.mjs
             ${PROJECT_SOURCE_DIR}/web/lcd-indicator-view.mjs
             ${PROJECT_SOURCE_DIR}/web/lcd-panel-view.mjs
@@ -114,6 +118,9 @@ if(EMSCRIPTEN)
             ${PROJECT_SOURCE_DIR}/web/index.html
             ${PROJECT_SOURCE_DIR}/web/styles.css
             ${PROJECT_SOURCE_DIR}/web/app.mjs
+            ${PROJECT_SOURCE_DIR}/web/i18n.mjs
+            ${PROJECT_SOURCE_DIR}/web/locale-ja.json
+            ${PROJECT_SOURCE_DIR}/web/audio-output.mjs
             ${PROJECT_SOURCE_DIR}/web/basic-boot-profile.mjs
             ${PROJECT_SOURCE_DIR}/web/lcd-indicator-view.mjs
             ${PROJECT_SOURCE_DIR}/web/lcd-panel-view.mjs

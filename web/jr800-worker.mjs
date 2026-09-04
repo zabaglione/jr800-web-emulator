@@ -1,10 +1,19 @@
 // SPDX-License-Identifier: MIT
 
-import {normalizeViewOptions, WasmMachine} from "./wasm-machine.mjs";
+import {
+    NativeProgramWavError,
+    normalizeViewOptions,
+    WasmMachine,
+} from "./wasm-machine.mjs";
 
 const RUN_SLICE_INSTRUCTIONS = 1000;
 const SUSPENDED_SLICE_CYCLES = 65_536;
 const DEFAULT_SUSPENDED_CYCLE_LIMIT = SUSPENDED_SLICE_CYCLES;
+const JR800_AUDIO_ACCESS_FILTER = Object.freeze({
+    firstAddress: 0x0002,
+    lastAddress: 0x0002,
+    kindMask: 0x04,
+});
 
 let sendToHost;
 let subscribe;
@@ -35,6 +44,106 @@ let stepOverPending = false;
 let stepOutState = null;
 const expressionWatches = new Map();
 const symbolWatches = new Map();
+let audioEnabled = false;
+let lastAudioAccessSequence = 0n;
+let lastAudioLevel = null;
+const minimumKeyboardReleaseCycles = new Map();
+const deferredKeyboardReleases = new Set();
+const pendingKeyboardReleaseResponses = new Map();
+
+function machineCycle(current) {
+    return BigInt(current.state().cycleCount);
+}
+
+function clearKeyboardHoldState(current = null, release = false) {
+    if (release && current?.kind === "jr800") {
+        const keys = new Set([
+            ...minimumKeyboardReleaseCycles.keys(),
+            ...deferredKeyboardReleases,
+        ]);
+        for (const key of keys) {
+            current.setKeyboardKeyState(key, false);
+        }
+    }
+    for (const pending of pendingKeyboardReleaseResponses.values()) {
+        for (const {id, result} of pending) {
+            response(id, result);
+        }
+    }
+    minimumKeyboardReleaseCycles.clear();
+    deferredKeyboardReleases.clear();
+    pendingKeyboardReleaseResponses.clear();
+}
+
+function applyDeferredKeyboardReleases(current) {
+    if (current.kind !== "jr800" || deferredKeyboardReleases.size === 0) {
+        return;
+    }
+    const cycle = machineCycle(current);
+    for (const key of [...deferredKeyboardReleases]) {
+        if (cycle < minimumKeyboardReleaseCycles.get(key)) {
+            continue;
+        }
+        current.setKeyboardKeyState(key, false);
+        for (const {id, result} of pendingKeyboardReleaseResponses.get(key) ?? []) {
+            response(id, result);
+        }
+        deferredKeyboardReleases.delete(key);
+        minimumKeyboardReleaseCycles.delete(key);
+        pendingKeyboardReleaseResponses.delete(key);
+    }
+}
+
+function resetAudioCollector() {
+    lastAudioAccessSequence = 0n;
+    lastAudioLevel = null;
+}
+
+function synchronizeAudioCollector(current) {
+    const records = current.kind === "jr800"
+        ? current.accesses(JR800_AUDIO_ACCESS_FILTER)
+        : [];
+    for (const record of records) {
+        lastAudioAccessSequence = BigInt(record.sequence);
+        if (record.valueKnown) {
+            lastAudioLevel = (record.value & 0x10) !== 0;
+        }
+    }
+}
+
+function emitAudioTransitions(current) {
+    if (!audioEnabled || current.kind !== "jr800") {
+        return;
+    }
+    const transitions = [];
+    for (const record of current.accesses(JR800_AUDIO_ACCESS_FILTER)) {
+        const sequence = BigInt(record.sequence);
+        if (sequence <= lastAudioAccessSequence) {
+            continue;
+        }
+        lastAudioAccessSequence = sequence;
+        if (!record.valueKnown) {
+            lastAudioLevel = null;
+            continue;
+        }
+        const level = (record.value & 0x10) !== 0;
+        const previousLevel = record.previousValueKnown
+            ? (record.previousValue & 0x10) !== 0
+            : lastAudioLevel;
+        lastAudioLevel = level;
+        if (previousLevel !== null && previousLevel !== level) {
+            transitions.push({cycle: record.instructionCycle, level});
+        }
+    }
+    if (transitions.length !== 0) {
+        sendToHost({
+            type: "event",
+            event: "audio-transitions",
+            clockHz: 1_228_800,
+            transitions,
+        });
+    }
+}
 
 function response(id, result) {
     sendToHost({type: "response", id, ok: true, result});
@@ -42,7 +151,13 @@ function response(id, result) {
 
 function failure(id, error) {
     const detail = error instanceof Error ? error.stack ?? error.message : String(error);
-    sendToHost({type: "response", id, ok: false, error: detail});
+    const responseMessage = {type: "response", id, ok: false, error: detail};
+    if (error instanceof NativeProgramWavError) {
+        responseMessage.errorCode = "native-program-wav";
+        responseMessage.issue = error.issue;
+        responseMessage.burstIndex = error.burstIndex;
+    }
+    sendToHost(responseMessage);
 }
 
 function requireMachine() {
@@ -138,6 +253,9 @@ function finishRun(stop, memoryAddress, memoryLength, traceFilter) {
     runTargetAddress = null;
     stepOverPending = false;
     stepOutState = null;
+    if (stop.reason !== "instruction-limit" && stop.reason !== "sleeping") {
+        clearKeyboardHoldState(requireMachine(), true);
+    }
     emitStopped(
         {
             ...stop,
@@ -208,6 +326,8 @@ function scheduleRunSlice(
                     ? current.run(slice)
                     : current.runTo(runTargetAddress, slice);
             }
+            applyDeferredKeyboardReleases(current);
+            emitAudioTransitions(current);
             const executed = Number(stop.instructionsExecuted);
             executedInstructions += executed;
             remainingInstructions -= executed;
@@ -224,6 +344,7 @@ function scheduleRunSlice(
                 const suspended = current.advanceSuspendedCycles(
                     cycleSlice,
                 );
+                applyDeferredKeyboardReleases(current);
                 suspendedCyclesElapsed += suspended.cyclesElapsed;
                 remainingSuspendedCycles -= suspended.cyclesElapsed;
                 if (suspended.busFault !== "none") {
@@ -354,6 +475,8 @@ async function dispatch(message) {
             machineModuleUrl = message.moduleUrl;
             expressionWatches.clear();
             symbolWatches.clear();
+            clearKeyboardHoldState();
+            resetAudioCollector();
             if (previous) {
                 previous.destroy();
             }
@@ -390,6 +513,8 @@ async function dispatch(message) {
             }
             expressionWatches.clear();
             symbolWatches.clear();
+            clearKeyboardHoldState();
+            resetAudioCollector();
             response(id, {
                 ...snapshot,
                 expressionWatches: [],
@@ -426,6 +551,8 @@ async function dispatch(message) {
             machineModuleUrl = moduleUrl;
             expressionWatches.clear();
             symbolWatches.clear();
+            clearKeyboardHoldState();
+            resetAudioCollector();
             if (previous) {
                 previous.destroy();
             }
@@ -436,11 +563,18 @@ async function dispatch(message) {
             });
             break;
         }
-        case "load-program": {
+        case "load-program":
+        case "load-native-program-wav": {
             requireIdle();
             const current = requireMachine();
             const view = normalizeReadableMachineView(current, message.view);
-            const snapshot = current.loadProgram(message.application, {view});
+            if (message.command === "load-program") {
+                current.loadProgram(message.application, {view});
+            } else {
+                current.loadNativeProgramWav(message.wav, {view});
+            }
+            clearKeyboardHoldState(current, true);
+            const snapshot = snapshotWithWatches(current, view);
             expressionWatches.clear();
             symbolWatches.clear();
             response(id, {
@@ -455,6 +589,12 @@ async function dispatch(message) {
             const current = requireMachine();
             const view = normalizeReadableMachineView(current, message.view);
             current.reset();
+            clearKeyboardHoldState(current, true);
+            resetAudioCollector();
+            if (audioEnabled) {
+                synchronizeAudioCollector(current);
+            }
+            sendToHost({type: "event", event: "audio-reset"});
             response(id, snapshotWithWatches(current, view));
             break;
         }
@@ -463,6 +603,8 @@ async function dispatch(message) {
             const current = requireMachine();
             const view = normalizeReadableMachineView(current, message.view);
             const stop = current.step();
+            applyDeferredKeyboardReleases(current);
+            emitAudioTransitions(current);
             response(id, {
                 stop,
                 snapshot: snapshotWithWatches(current, {
@@ -470,6 +612,16 @@ async function dispatch(message) {
                     focusAddress: stopFocusAddress(stop, current.state()),
                 }),
             });
+            break;
+        }
+        case "set-audio-enabled": {
+            const current = requireMachine();
+            audioEnabled = Boolean(message.enabled);
+            resetAudioCollector();
+            if (audioEnabled) {
+                synchronizeAudioCollector(current);
+            }
+            response(id, {enabled: audioEnabled});
             break;
         }
         case "run": {
@@ -530,6 +682,7 @@ async function dispatch(message) {
                 );
             }
             const advance = current.advanceSuspendedCycles(message.cycleLimit);
+            applyDeferredKeyboardReleases(current);
             response(id, {
                 advance,
                 snapshot: snapshotWithWatches(current, view),
@@ -579,17 +732,51 @@ async function dispatch(message) {
         }
         case "set-keyboard-key-state": {
             const current = requireMachine();
+            const minimumHoldCycles = message.minimumHoldCycles ?? 0;
+            if (!Number.isInteger(minimumHoldCycles)
+                || minimumHoldCycles < 0
+                || minimumHoldCycles > 0xffff_ffff) {
+                throw new RangeError("Minimum key hold must be a uint32 cycle count");
+            }
             const appliedDuringRun = running;
             const totalInstructionsExecuted = appliedDuringRun
                 ? executedInstructions
                 : null;
-            current.setKeyboardKeyState(message.key, message.pressed);
-            response(id, {
+            const result = {
                 key: message.key,
                 pressed: message.pressed,
                 appliedDuringRun,
                 totalInstructionsExecuted,
-            });
+            };
+            if (message.pressed === true) {
+                current.setKeyboardKeyState(message.key, true);
+                deferredKeyboardReleases.delete(message.key);
+                minimumKeyboardReleaseCycles.set(
+                    message.key,
+                    machineCycle(current) + BigInt(minimumHoldCycles),
+                );
+            } else if (message.pressed === false) {
+                const releaseCycle = minimumKeyboardReleaseCycles.get(
+                    message.key,
+                );
+                if (releaseCycle !== undefined
+                    && machineCycle(current) < releaseCycle) {
+                    deferredKeyboardReleases.add(message.key);
+                    const pending = pendingKeyboardReleaseResponses.get(
+                        message.key,
+                    ) ?? [];
+                    pending.push({id, result});
+                    pendingKeyboardReleaseResponses.set(message.key, pending);
+                    break;
+                } else {
+                    current.setKeyboardKeyState(message.key, false);
+                    deferredKeyboardReleases.delete(message.key);
+                    minimumKeyboardReleaseCycles.delete(message.key);
+                }
+            } else {
+                current.setKeyboardKeyState(message.key, message.pressed);
+            }
+            response(id, result);
             break;
         }
         case "pause":
@@ -684,6 +871,9 @@ async function dispatch(message) {
             stepOutState = null;
             expressionWatches.clear();
             symbolWatches.clear();
+            clearKeyboardHoldState();
+            resetAudioCollector();
+            sendToHost({type: "event", event: "audio-reset"});
             current.destroy();
             machine = undefined;
             response(id, {poweredOff: true});
@@ -701,6 +891,8 @@ async function dispatch(message) {
             stepOutState = null;
             expressionWatches.clear();
             symbolWatches.clear();
+            clearKeyboardHoldState();
+            resetAudioCollector();
             response(id, {disposed: true});
             break;
         default:

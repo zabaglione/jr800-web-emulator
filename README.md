@@ -5,7 +5,7 @@ JR-800 Webエミュレーターは、National JR-800をブラウザー上で動�
 
 現在は開発中の実験版です。
 所有者が実機から取得したROMでは、明示的な仮設定の下でBASICの起動と代表的なキー入力を確認しています。
-LCDの物理的な構成、未確認のキーボード行、電源管理、音声、プリンターなどには未実装または未確定の部分があります。
+LCDの物理的な構成、未確認のキーボード行、電源管理、実機スピーカーの電気的特性、プリンターなどには未実装または未確定の部分があります。
 
 機械語アプリを作る方法は、[JR-800アプリ開発ガイド](docs/sdk/application-development.md)に分けて説明しています。
 
@@ -147,6 +147,19 @@ http://127.0.0.1:8000/
 
 画面上部に`Worker ready; ABI ...`と表示されれば準備完了です。
 
+表示言語はブラウザーの優先言語に合わせて、日本語または英語が自動で選ばれます。
+画面右上の言語ボタンで、いつでも切り替えられます。
+音声は初期状態で有効です。
+ブラウザーの自動再生制限に対応するため、最初のクリックまたはキー操作の後から再生されます。
+画面右上の`Sound`ボタンでミュートと再開を切り替えられます。
+
+`web/index.html`をFinderなどから直接開くと、必要なWebAssemblyとWorkerをブラウザーが読み込めないため動作しません。
+この場合は画面上部に案内が表示されるので、上記のHTTPサーバーから開き直してください。
+
+ビルド済みの`build/wasm-release/web/`は静的なWebサイトとして配信できるため、公開時はGitHub Pagesでも実行できます。
+ROMと機械語プログラムは選択時にブラウザー内のWorkerメモリーへ読み込むだけで、このWeb UIはアップロードや永続保存を行いません。
+ページを再読み込みまたは閉じると、読み込んだ内容は失われます。
+
 ## 4. BASICを起動する
 
 1. `JR-800 hardware model`の`.J8R / .ROM`で`jr800-basic-8000-ffff.j8r`を選びます。
@@ -156,6 +169,11 @@ http://127.0.0.1:8000/
 
 `Boot BASIC experiment`は、現在BASIC起動に使っている仮のRAM、LCD、カレンダー、ポート、キーボード入力値を明示的に適用します。
 これらは実機の確定した電源投入値ではありません。
+
+BASICの`SOUND 音程,長さ`も使用できます。
+取扱説明書にある`SOUND 339,長さ`はA（440 Hz）の指定です。
+Web UIは、ROM BASICがPort 1のbit 4へ出力する変化を、公称1.2288 MHzのCPU Eクロックに合わせてブラウザー音声へ変換します。
+波形のタイミングはエミュレーター上の命令境界に基づくため、実機スピーカーの音量、音色、電気的な波形を再現したものではありません。
 
 ## 5. WAVで配布された機械語プログラムを動かす
 
@@ -168,26 +186,20 @@ JR-800向けの機械語プログラムは、WAVで配布されていること�
 MLOAD "",,R
 ```
 
-このエミュレーターでは、WAVをいったん`.j8a`へ変換してから読み込みます。
-元のWAVと変換結果はROMと同様にGitへ追加せず、`local-data/`など利用者だけが読める場所へ保存してください。
-
-```sh
-mkdir -p local-data/programs
-
-build/native-release/tools/jr8wav decode-native-program \
-  path/to/program.wav \
-  local-data/programs/program.j8a
-```
-
-変換に成功したら、Web UIで次の順に操作します。
+Web UIはWAVをブラウザー内で直接変換できます。コマンドラインで`.j8a`を作る必要はありません。
+次の順に操作します。
 
 1. `.J8R / .ROM`で自分の`jr800-basic-8000-ffff.j8r`を選び、`Boot BASIC experiment`を押します。
 2. BASICの画面が安定するまで待ち、まだ実行中なら`Pause`を押します。
-3. `RAM program .J8A`で変換した`.j8a`を選び、`Load RAM program`を押します。
-4. `Resume emulation`を押します。
+3. `RAM program .WAV / .J8A`で配布された`.wav`を選び、`Load and run RAM program`を押します。
 
-この読込方法は、WAVのヘッダーにあるロードアドレスへプログラムを直接配置し、実行アドレスから再開するものです。
+Web UIはWAVの信号、ヘッダー、データ、チェックサムを検証します。
+変換できない場合は理由を画面に表示し、RAMへは読み込みません。
+変換に成功すると、WAVのヘッダーにあるロードアドレスへプログラムを直接配置し、記録された実行アドレスから自動的に実行します。
 カセット音声の再生時間や`MLOAD`内部の信号処理を再現するものではありません。
+
+`.j8a`として保存しておきたい場合だけ、付属の`jr8wav decode-native-program`を使用できます。
+元のWAVと変換結果はROMと同様にGitへ追加せず、利用者だけが読める場所へ保存してください。
 
 詳しい手順と制限は[機械語プログラムWAVの利用ガイド](docs/user/machine-language-wav.md)を参照してください。
 
@@ -202,8 +214,8 @@ build/native-release/tools/jr8wav decode-native-program \
 | `Boot BASIC experiment` | 現在の仮設定を適用してROMを読み込み、BASICの連続実行を始めます。 |
 | `Pause` | BASICの連続実行を一時停止します。 |
 | `Resume emulation` | 一時停止した実行を再開します。 |
-| `RAM program .J8A` | `jr8wav decode-native-program`でWAVから変換したRAMプログラムを選ぶ欄で、JR-800のROM読込後だけ使用できます。 |
-| `Load RAM program` | 選択したプログラムをRAMへ配置してWAVのヘッダーに記録された実行アドレスへ移動し、停止した状態を保ちます。 |
+| `RAM program .WAV / .J8A` | `MSAVE`で保存したWAV、または変換済みJR8APPを選ぶ欄で、JR-800のROM読込後だけ使用できます。 |
+| `Load and run RAM program` | WAVを必要に応じてブラウザー内で変換し、記録されたアドレスへ配置して自動的に実行します。 |
 | `Load only` | 個別のハードウェア仮説を調べるために通常は不明のままROMだけを読み込む機能で、一般利用では使いません。 |
 | `Explicit experimental configuration` | RAMや周辺機器の仮入力を個別に指定する研究用設定です。 |
 | `Developer debugger` | レジスター、ステップ実行、ブレークポイント、ウォッチポイント、逆アセンブル、メモリー、履歴、トレースを表示します。 |
@@ -296,8 +308,8 @@ CPU fault、未対応アクセス、停止時間上限などに到達した場�
 - `index.html`を直接開いて動かない場合は、HTTPサーバー経由で開いてください。
 - `RESET`後はセッションが破棄されるため、ROMを選び直してください。
 - `Load only`で進まない場合は、通常利用向けの`Boot BASIC experiment`を使ってください。
-- WAVを`RAM program .J8A`で選べない場合は、先に`jr8wav decode-native-program`で`.j8a`へ変換してください。
-- `Load RAM program`が使えない場合は、先にJR8ROMを読み込み、実行中なら`Pause`を押してください。
+- WAVを読み込めない場合は、画面に表示された変換理由を確認し、対応するPCM形式、信号レベル、チェックサム、対象機種を確認してください。
+- `Load and run RAM program`が使えない場合は、先にJR8ROMを読み込み、実行中なら`Pause`を押してください。
 - LCD表示や周辺機器が実機と異なる場合は、開発中の未実装または未確定な機能である可能性があります。
 
 ## 関連文書
