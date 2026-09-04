@@ -1,0 +1,6 @@
+target hd6301v1
+entry entry
+region ZP $0000 $0100
+region CODE $0200 $0100
+place .text CODE
+place .bss ZP

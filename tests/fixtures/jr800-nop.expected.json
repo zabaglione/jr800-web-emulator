@@ -1,0 +1,84 @@
+{
+  "initial": {
+    "state": {
+      "abiVersion": 35,
+      "profile": "hd6301v1",
+      "pc": 32768,
+      "sp": 9029,
+      "x": 13398,
+      "a": 103,
+      "b": 137,
+      "conditionCode": 245,
+      "executionState": "active",
+      "cycleCount": 0,
+      "registerKnownMask": 31,
+      "conditionCodeKnownMask": 255,
+      "calendarAlarmTerminal": "released",
+      "port2TimerOutput": "disabled",
+      "lcdSubstitutedDataReadCount": 0
+    },
+    "memory": [1, 1],
+    "historyCount": 0,
+    "accessCount": 0,
+    "keyboardActivity": {
+      "readAttempts": 0,
+      "distinctAddresses": 0
+    },
+    "disassembly": {
+      "address": 32768,
+      "bytes": [1, 0, 0],
+      "length": 1,
+      "supported": true,
+      "text": "NOP"
+    }
+  },
+  "step": {
+    "stop": {
+      "reason": "step-complete",
+      "fault": "none",
+      "instructionsExecuted": 1,
+      "pcBefore": 32768,
+      "pcAfter": 32769,
+      "bytes": [1, 0, 0],
+      "instructionLength": 1,
+      "bytesFetched": 1,
+      "cycles": 1,
+      "busFault": "none",
+      "stepKind": "instruction",
+      "interruptSource": "none"
+    },
+    "snapshot": {
+      "state": {
+        "abiVersion": 35,
+        "profile": "hd6301v1",
+        "pc": 32769,
+        "sp": 9029,
+        "x": 13398,
+        "a": 103,
+        "b": 137,
+        "conditionCode": 245,
+        "executionState": "active",
+        "cycleCount": 1,
+        "registerKnownMask": 31,
+        "conditionCodeKnownMask": 255,
+        "calendarAlarmTerminal": "released",
+        "port2TimerOutput": "disabled",
+        "lcdSubstitutedDataReadCount": 0
+      },
+      "memory": [1, 1],
+      "historyCount": 1,
+      "accessCount": 1,
+      "keyboardActivity": {
+        "readAttempts": 0,
+        "distinctAddresses": 0
+      },
+      "disassembly": {
+        "address": 32769,
+        "bytes": [1, 0, 0],
+        "length": 1,
+        "supported": true,
+        "text": "NOP"
+      }
+    }
+  }
+}

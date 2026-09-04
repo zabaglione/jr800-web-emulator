@@ -1,0 +1,31 @@
+{
+  "stop": {
+    "reason": "memory-watchpoint",
+    "triggerAddress": 1,
+    "triggerAccess": "data-write",
+    "instructionsExecuted": 4,
+    "pcBefore": 519,
+    "pcAfter": 522,
+    "fault": "none"
+  },
+  "state": {
+    "profile": "hd6301v1",
+    "pc": 522,
+    "sp": 511,
+    "x": 0,
+    "a": 153,
+    "b": 0,
+    "conditionCode": 200,
+    "executionState": "active",
+    "cycleCount": 12
+  },
+  "memory": [66, 153],
+  "historyCount": 4,
+  "accessCount": 12,
+  "source": {
+    "path": "main.s",
+    "line": 9,
+    "column": 5
+  },
+  "disassembly": "STAA $0001"
+}

@@ -1,0 +1,31 @@
+add_library(
+    jr800_core
+    src/bus.cpp
+    src/cpu.cpp
+    src/hd44102.cpp
+    src/hd6301v1_ports.cpp
+    src/hd6301v1_ram_control.cpp
+    src/hd6301v1_sci.cpp
+    src/hd6301v1_timer.cpp
+    src/jr800_bus.cpp
+    src/jr800_keyboard.cpp
+    src/jr800_lcd.cpp
+    src/jr800_machine.cpp
+    src/jr800_memory.cpp
+    src/machine.cpp
+    src/rp5c01_register_file.cpp
+    src/synthetic_machine.cpp
+)
+add_library(jr800::core ALIAS jr800_core)
+
+target_include_directories(
+    jr800_core
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+target_link_libraries(
+    jr800_core
+    PUBLIC
+        jr800::isa
+        jr800_project_options
+)

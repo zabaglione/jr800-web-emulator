@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>JR-800 Emulator</title>
+    <link rel="stylesheet" href="./styles.css?v=e397">
+</head>
+<body>
+    <header class="app-header">
+        <div>
+            <p class="eyebrow">Local emulation workspace</p>
+            <h1>JR-800 Emulator</h1>
+        </div>
+        <output id="status" class="status" data-tone="idle">Initializing worker</output>
+    </header>
+
+    <main>
+        <section id="machine-console" class="machine-console" data-layout="device" aria-label="JR-800 emulation console">
+            <header class="machine-console-heading">
+                <div class="machine-console-tools">
+                    <div class="machine-layout-switch" role="group" aria-label="Console layout">
+                        <button id="layout-workbench" type="button" aria-pressed="false">Workbench</button>
+                        <button id="layout-device" type="button" aria-pressed="true">Device layout</button>
+                    </div>
+                </div>
+            </header>
+        <article id="lcd-panel-card" class="panel lcd-panel-card" aria-label="LCD">
+            <div class="lcd-display-frame">
+                <aside class="lcd-indicator-rail lcd-page-rail" aria-label="Page indicators">
+                    <p class="lcd-rail-title">PAGE</p>
+                    <ol class="lcd-indicator-list">
+                        <li data-lcd-indicator="page-1" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">1</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="page-2" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">2</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="page-3" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">3</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="page-4" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">4</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="page-5" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">5</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="page-6" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">6</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="page-7" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">7</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="page-8" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">8</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
+                    </ol>
+                </aside>
+                <div class="lcd-matrix-well">
+                    <canvas id="lcd-panel" class="lcd-canvas" width="192" height="64" role="img" aria-describedby="lcd-summary lcd-indicator-summary">Canvas support is required to render the LCD matrix.</canvas>
+                </div>
+                <aside class="lcd-indicator-rail lcd-mode-rail" aria-label="Mode indicators">
+                    <p class="lcd-rail-title">MODE</p>
+                    <ul class="lcd-indicator-list">
+                        <li data-lcd-indicator="capital-lock" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">CAP.L</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="graphics-input" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">GRAPH</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="kana-input" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">KANA</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="insert-mode" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">INS</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="control-mode" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">CTRL</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="radian-mode" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">RAD</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="degree-mode" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">DEG</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
+                    </ul>
+                </aside>
+            </div>
+            <p id="lcd-summary" class="sr-only">LCD panel unavailable</p>
+            <p id="lcd-indicator-summary" class="sr-only">The matrix composition and indicator RAM locations are provisional. Indicator RAM unavailable; battery telemetry omitted. Raw indicator values never imply a lit or unlit physical segment.</p>
+        </article>
+
+            <article id="virtual-keyboard-card" class="virtual-keyboard-card" aria-label="Virtual keyboard">
+                <output id="virtual-keyboard-summary" class="sr-only" aria-live="polite">Keyboard unavailable</output>
+
+                <div class="virtual-top-controls">
+                    <div class="virtual-system-strip">
+                        <div class="virtual-power-cluster" aria-label="Power controls">
+                            <p>POWER</p>
+                            <button class="virtual-power-key" type="button" disabled title="Power behavior is not modeled">OFF</button>
+                            <button class="virtual-power-key virtual-power-key-on" type="button" disabled title="Power behavior is not modeled">ON</button>
+                        </div>
+                        <div class="virtual-speaker-gap" aria-hidden="true"></div>
+                        <button class="virtual-key virtual-key-menu virtual-key-light" type="button" data-jr800-key="menu" disabled><span>MENU</span></button>
+                    </div>
+                    <div class="virtual-function-strip" aria-label="Programmable keys">
+                        <button class="virtual-key" type="button" data-jr800-key="pf-6" data-legend-key="pf-6" disabled><span data-key-legend>PF6</span></button>
+                        <button class="virtual-key" type="button" data-jr800-key="pf-7" data-legend-key="pf-7" disabled><span data-key-legend>PF7</span></button>
+                        <button class="virtual-key" type="button" data-jr800-key="pf-8" data-legend-key="pf-8" disabled><span data-key-legend>PF8</span></button>
+                        <button class="virtual-key" type="button" data-jr800-key="pf-9" data-legend-key="pf-9" disabled><span data-key-legend>PF9</span></button>
+                        <button class="virtual-key" type="button" data-jr800-key="pf-10" data-legend-key="pf-10" disabled><span data-key-legend>PF10</span></button>
+                        <button class="virtual-key" type="button" data-jr800-key="pf-1" data-legend-key="pf-1" disabled><span data-key-legend>PF1</span></button>
+                        <button class="virtual-key" type="button" data-jr800-key="pf-2" data-legend-key="pf-2" disabled><span data-key-legend>PF2</span></button>
+                        <button class="virtual-key" type="button" data-jr800-key="pf-3" data-legend-key="pf-3" disabled><span data-key-legend>PF3</span></button>
+                        <button class="virtual-key" type="button" data-jr800-key="pf-4" data-legend-key="pf-4" disabled><span data-key-legend>PF4</span></button>
+                        <button class="virtual-key" type="button" data-jr800-key="pf-5" data-legend-key="pf-5" disabled><span data-key-legend>PF5</span></button>
+                    </div>
+                </div>
+
+                <div class="virtual-keyboard-layout">
+                    <div class="virtual-main-keyboard-column">
+                        <div class="virtual-reset-row">
+                            <button id="force-power-off" class="virtual-reset-pin" type="button" disabled aria-label="RESET pin; force power off">
+                                <span>RESET</span><span class="virtual-reset-hole" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                        <div class="virtual-main-keyboard-scroll">
+                            <div class="virtual-main-keyboard" aria-label="Main keyboard">
+                            <div class="virtual-key-row">
+                                <button class="virtual-key" type="button" data-jr800-key="main-1" data-legend-key="main-1" disabled><span data-key-legend>1</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="main-2" data-legend-key="main-2" disabled><span data-key-legend>2</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="main-3" data-legend-key="main-3" disabled><span data-key-legend>3</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="main-4" data-legend-key="main-4" disabled><span data-key-legend>4</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="main-5" data-legend-key="main-5" disabled><span data-key-legend>5</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="main-6" data-legend-key="main-6" disabled><span data-key-legend>6</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="main-7" data-legend-key="main-7" disabled><span data-key-legend>7</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="main-8" data-legend-key="main-8" disabled><span data-key-legend>8</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="main-9" data-legend-key="main-9" disabled><span data-key-legend>9</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="main-0" data-legend-key="main-0" disabled><span data-key-legend>0</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="main-caret" data-legend-key="main-caret" disabled><span data-key-legend>^</span></button>
+                                <button class="virtual-key virtual-key-light virtual-key-wide" type="button" data-jr800-key="break" data-legend-key="break" disabled><span data-key-legend>BREAK</span></button>
+                            </div>
+                            <div class="virtual-key-row virtual-key-row-offset">
+                                <button class="virtual-key" type="button" data-jr800-key="letter-q" data-legend-key="letter-q" disabled><span data-key-legend>Q</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-w" data-legend-key="letter-w" disabled><span data-key-legend>W</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-e" data-legend-key="letter-e" disabled><span data-key-legend>E</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-r" data-legend-key="letter-r" disabled><span data-key-legend>R</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-t" data-legend-key="letter-t" disabled><span data-key-legend>T</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-y" data-legend-key="letter-y" disabled><span data-key-legend>Y</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-u" data-legend-key="letter-u" disabled><span data-key-legend>U</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-i" data-legend-key="letter-i" disabled><span data-key-legend>I</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-o" data-legend-key="letter-o" disabled><span data-key-legend>O</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-p" data-legend-key="letter-p" disabled><span data-key-legend>P</span></button>
+                                <button class="virtual-key virtual-key-action virtual-key-return" type="button" data-jr800-key="return" data-legend-key="return" disabled><span data-key-legend>RETURN</span></button>
+                            </div>
+                            <div class="virtual-key-row">
+                                <button class="virtual-key virtual-key-modifier virtual-key-light virtual-key-wide" type="button" data-jr800-key="control" data-latching="true" aria-pressed="false" disabled><span>CTRL</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-a" data-legend-key="letter-a" disabled><span data-key-legend>A</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-s" data-legend-key="letter-s" disabled><span data-key-legend>S</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-d" data-legend-key="letter-d" disabled><span data-key-legend>D</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-f" data-legend-key="letter-f" disabled><span data-key-legend>F</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-g" data-legend-key="letter-g" disabled><span data-key-legend>G</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-h" data-legend-key="letter-h" disabled><span data-key-legend>H</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-j" data-legend-key="letter-j" disabled><span data-key-legend>J</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-k" data-legend-key="letter-k" disabled><span data-key-legend>K</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-l" data-legend-key="letter-l" disabled><span data-key-legend>L</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="semicolon" data-legend-key="semicolon" disabled><span data-key-legend>;</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="colon" data-legend-key="colon" disabled><span data-key-legend>:</span></button>
+                            </div>
+                            <div class="virtual-key-row">
+                                <button class="virtual-key virtual-key-modifier virtual-key-shift virtual-key-wide" type="button" data-jr800-key="shift" data-latching="true" aria-pressed="false" disabled><span>SHIFT</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-z" data-legend-key="letter-z" disabled><span data-key-legend>Z</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-x" data-legend-key="letter-x" disabled><span data-key-legend>X</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-c" data-legend-key="letter-c" disabled><span data-key-legend>C</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-v" data-legend-key="letter-v" disabled><span data-key-legend>V</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-b" data-legend-key="letter-b" disabled><span data-key-legend>B</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-n" data-legend-key="letter-n" disabled><span data-key-legend>N</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="letter-m" data-legend-key="letter-m" disabled><span data-key-legend>M</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="comma" data-legend-key="comma" disabled><span data-key-legend>,</span></button>
+                                <button class="virtual-key" type="button" data-jr800-key="period" data-legend-key="period" disabled><span data-key-legend>.</span></button>
+                                <button class="virtual-key virtual-key-action virtual-key-space" type="button" data-jr800-key="space" disabled><span>SPACE</span></button>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+
+                    <div class="virtual-side-keyboard">
+                        <div class="virtual-navigation" aria-label="Editing and navigation keys">
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-insert-rub" data-legend-key="insert-rub" disabled><span data-key-legend>RUB</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-vertical-arrows" data-legend-key="vertical-arrows" disabled aria-label="Up, or Shift plus down"><span data-key-legend>↑</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-horizontal-arrows" data-legend-key="horizontal-arrows" disabled aria-label="Right, or Shift plus left"><span data-key-legend>→</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="home-cls" data-legend-key="home-cls" disabled><span data-key-legend>CLS</span></button>
+                        </div>
+                        <div class="virtual-keypad" aria-label="Numeric keypad">
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-7" disabled><span>7</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-8" disabled><span>8</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-9" disabled><span>9</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-divide" disabled><span>/</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-4" disabled><span>4</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-5" disabled><span>5</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-6" disabled><span>6</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-multiply" disabled><span>*</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-1" disabled><span>1</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-2" disabled><span>2</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-3" disabled><span>3</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-subtract" disabled><span>-</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-0" disabled><span>0</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-decimal" disabled><span>.</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-equal" disabled><span>=</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-add" disabled><span>+</span></button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <section class="panel load-panel" aria-labelledby="load-heading">
+            <div class="panel-heading">
+                <div>
+                    <p class="section-index">02</p>
+                    <h2 id="load-heading">Target image</h2>
+                </div>
+                <p>Choose a synthetic SDK application or a local JR8ROM container. Files remain in this browser session.</p>
+            </div>
+            <div class="loader-grid">
+                <article class="loader-card">
+                    <div class="loader-card-heading">
+                        <h3>Synthetic application</h3>
+                        <span class="chip">JR8APP</span>
+                    </div>
+                    <p>Load an SDK application and optional integrity-bound source data.</p>
+                    <div class="application-load-grid">
+                        <label class="file-field">
+                            <span>.J8A</span>
+                            <input id="application-file" type="file" accept=".j8a,application/octet-stream">
+                        </label>
+                        <label class="file-field">
+                            <span>.J8D</span>
+                            <input id="debug-file" type="file" accept=".j8d,application/octet-stream">
+                        </label>
+                        <label>
+                            <span>Initial SP</span>
+                            <input id="stack-pointer" class="mono-input" value="$01FF" inputmode="text">
+                        </label>
+                        <button id="load" class="primary" type="button">Load application</button>
+                    </div>
+                </article>
+
+                <article class="loader-card">
+                    <div class="loader-card-heading">
+                        <h3>JR-800 hardware model</h3>
+                        <span class="chip">J8R / RAW</span>
+                    </div>
+                    <p>Load one owner-provided J8R container or 32 KiB raw ROM for addresses $8000-$FFFF.</p>
+                    <span id="raw-rom-warning" hidden>&#12489;&#12461;&#12517;&#12513;&#12531;&#12488;&#12395;&#24467;&#12387;&#12390;&#23455;&#27231;&#12391;&#37682;&#38899;&#12375;&#12383;WAV&#12501;&#12449;&#12452;&#12523;&#12434; .j8r &#12395;&#22793;&#25563;&#12375;&#12390;&#12367;&#12384;&#12373;&#12356;&#12290;&#20966;&#29702;&#12399;&#32154;&#34892;&#12375;&#12414;&#12377;&#12290;</span>
+                    <div class="rom-load-grid">
+                        <label class="file-field">
+                            <span>.J8R / .ROM</span>
+                            <input id="jr8rom-file" type="file" accept=".j8r,.rom,application/octet-stream">
+                        </label>
+                        <div class="rom-load-actions">
+                            <button id="boot-basic" class="primary" type="button">Boot BASIC experiment</button>
+                            <button id="load-rom" type="button">Load only</button>
+                        </div>
+                    </div>
+                    <div class="rom-run-actions">
+                        <button id="resume-machine" type="button" disabled>Resume emulation</button>
+                        <button id="pause-basic" type="button" disabled>Pause</button>
+                    </div>
+                    <div class="rom-load-grid">
+                        <label class="file-field">
+                            <span>RAM program .J8A</span>
+                            <input id="hardware-program-file" type="file" accept=".j8a,application/octet-stream" disabled>
+                        </label>
+                        <div class="rom-load-actions">
+                            <button id="load-program" type="button" disabled>Load RAM program</button>
+                        </div>
+                    </div>
+                    <p class="privacy-note">The JR8ROM and RAM program stay in local Worker memory. They are neither uploaded nor persistently stored by this page.</p>
+
+                    <details class="configuration">
+                        <summary>Explicit experimental configuration</summary>
+                        <p>Disabled items remain unknown or disconnected. Enabling an item is an experiment input, not a hardware claim.</p>
+                        <div class="configuration-grid">
+                            <fieldset>
+                                <legend>Reset state</legend>
+                                <label class="check-field"><input id="reset-sp-enabled" type="checkbox"><span>Supply SP</span></label>
+                                <label><span>SP value</span><input id="reset-sp-value" class="mono-input" value="$0000" inputmode="text"></label>
+                                <label class="check-field"><input id="reset-x-enabled" type="checkbox"><span>Supply X</span></label>
+                                <label><span>X value</span><input id="reset-x-value" class="mono-input" value="$0000" inputmode="text"></label>
+                                <label class="check-field"><input id="reset-a-enabled" type="checkbox"><span>Supply A</span></label>
+                                <label><span>A value</span><input id="reset-a-value" class="mono-input" value="$00" inputmode="text"></label>
+                                <label class="check-field"><input id="reset-b-enabled" type="checkbox"><span>Supply B</span></label>
+                                <label><span>B value</span><input id="reset-b-value" class="mono-input" value="$00" inputmode="text"></label>
+                                <label class="check-field"><input id="reset-cc-enabled" type="checkbox"><span>Supply unresolved CCR bits</span></label>
+                                <div class="paired-fields"><label><span>Value</span><input id="reset-cc-value" class="mono-input" value="$00" inputmode="text"></label><label><span>Known mask</span><input id="reset-cc-known-mask" class="mono-input" value="$2F" inputmode="text"></label></div>
+                            </fieldset>
+
+                            <fieldset>
+                                <legend>RAM</legend>
+                                <label class="check-field"><input id="internal-ram-enabled" type="checkbox"><span>Initialize CPU internal RAM</span></label>
+                                <label><span>Internal byte</span><input id="internal-ram-value" class="mono-input" value="$00" inputmode="text"></label>
+                                <label class="check-field"><input id="standard-ram-enabled" type="checkbox"><span>Initialize standard RAM</span></label>
+                                <label><span>Standard byte</span><input id="standard-ram-value" class="mono-input" value="$00" inputmode="text"></label>
+                                <label class="check-field"><input id="expansion-ram-enabled" type="checkbox"><span>Attach expansion RAM</span></label>
+                                <label><span>Expansion byte</span><input id="expansion-ram-value" class="mono-input" value="$00" inputmode="text"></label>
+                            </fieldset>
+
+                            <fieldset>
+                                <legend>Display and calendar</legend>
+                                <label class="check-field"><input id="lcd-enabled" type="checkbox"><span>Attach LCD experiment</span></label>
+                                <label><span>Unknown-data byte</span><input id="lcd-value" class="mono-input" value="$00" inputmode="text"></label>
+                                <label class="check-field"><input id="calendar-enabled" type="checkbox"><span>Attach calendar experiment</span></label>
+                                <label><span>Address source</span><select id="calendar-address-source"><option value="a0-a3">A0-A3</option><option value="a1-a4">A1-A4</option><option value="a2-a5">A2-A5</option><option value="a3-a6">A3-A6</option><option value="a4-a7">A4-A7</option><option value="a5-a8">A5-A8</option></select></label>
+                                <label><span>Upper read bits</span><select id="calendar-upper-read"><option value="zero">All zero</option><option value="one">All one</option></select></label>
+                                <label class="check-field"><input id="calendar-cpu-cycle-ratio-enabled" type="checkbox"><span>Use E-030 nominal 1.2288 MHz CPU E clock</span></label>
+                            </fieldset>
+
+                            <fieldset>
+                                <legend>External inputs</legend>
+                                <label class="check-field"><input id="port1-enabled" type="checkbox"><span>Supply Port 1 pins</span></label>
+                                <div class="paired-fields"><label><span>Value</span><input id="port1-value" class="mono-input" value="$00" inputmode="text"></label><label><span>Known mask</span><input id="port1-known-mask" class="mono-input" value="$FF" inputmode="text"></label></div>
+                                <label class="check-field"><input id="port2-enabled" type="checkbox"><span>Supply Port 2 pins 0-4</span></label>
+                                <div class="paired-fields"><label><span>Value</span><input id="port2-value" class="mono-input" value="$00" inputmode="text"></label><label><span>Known mask</span><input id="port2-known-mask" class="mono-input" value="$1F" inputmode="text"></label></div>
+                                <label><span>RAM standby power</span><select id="ram-standby"><option value="">Unknown</option><option value="valid">Valid</option><option value="invalid">Invalid</option></select></label>
+                                <label class="check-field"><input id="keyboard-window-enabled" type="checkbox"><span>Uniform raw keyboard window</span></label>
+                                <label><span>Keyboard byte</span><input id="keyboard-window-value" class="mono-input" value="$FF" inputmode="text"></label>
+                            </fieldset>
+                        </div>
+                    </details>
+                </article>
+            </div>
+        </section>
+
+        <details id="debugger-menu" class="debugger-menu">
+            <summary>Developer debugger</summary>
+            <div class="debugger-menu-body">
+        <section class="control-strip" aria-label="Execution controls">
+            <button id="reset" type="button" disabled>Reset</button>
+            <button id="run" class="primary" type="button" disabled>Run</button>
+            <button id="pause" type="button" disabled>Pause</button>
+            <button id="step" type="button" disabled>Step</button>
+            <button id="step-over" type="button" disabled>Step over</button>
+            <button id="step-out" type="button" disabled>Step out</button>
+            <label class="compact-field">
+                <span>Run to address</span>
+                <input id="run-to-address" class="mono-input" value="$020A" inputmode="text">
+            </label>
+            <button id="run-to" type="button" disabled>Run to</button>
+            <label class="compact-field">
+                <span>Source path:line</span>
+                <input id="run-to-source-location" class="mono-input" value="main.s:9" inputmode="text">
+            </label>
+            <button id="run-to-source" type="button" disabled>Run to source</button>
+            <label class="compact-field">
+                <span>Symbol</span>
+                <input id="run-to-symbol-name" class="mono-input" value="loop" inputmode="text">
+            </label>
+            <button id="run-to-symbol" type="button" disabled>Run to symbol</button>
+            <label class="compact-field">
+                <span>Instruction limit</span>
+                <input id="instruction-limit" class="mono-input" value="1000000" inputmode="numeric">
+            </label>
+            <label class="compact-field">
+                <span>Suspended cycle limit</span>
+                <input id="suspended-cycle-limit" class="mono-input" value="65536" inputmode="numeric">
+            </label>
+            <label class="compact-field">
+                <span>Calendar oscillator ticks</span>
+                <input id="calendar-oscillator-ticks" class="mono-input" value="32768" inputmode="numeric" disabled>
+            </label>
+            <button id="advance-calendar" type="button" disabled>Advance calendar</button>
+            <button id="adjust-calendar-seconds" type="button" aria-describedby="calendar-adjust-boundary" disabled>Adjust seconds once</button>
+            <p id="calendar-adjust-boundary" class="control-boundary">Calendar ADJ is one software-qualified RP5C01 action. No physical input level or pulse is modeled.</p>
+        </section>
+
+        <section class="workspace" aria-label="Debugger workspace">
+            <article class="panel registers-panel">
+                <div class="panel-title-row">
+                    <div>
+                        <p class="section-index">03</p>
+                        <h2>Registers</h2>
+                    </div>
+                    <span id="profile" class="chip">No target</span>
+                </div>
+                <dl class="register-grid">
+                    <div><dt>PC</dt><dd id="register-pc">----</dd></div>
+                    <div><dt>SP</dt><dd id="register-sp">----</dd></div>
+                    <div><dt>X</dt><dd id="register-x">----</dd></div>
+                    <div><dt>A</dt><dd id="register-a">--</dd></div>
+                    <div><dt>B</dt><dd id="register-b">--</dd></div>
+                    <div><dt>CCR</dt><dd id="register-cc">--</dd></div>
+                    <div><dt>State</dt><dd id="execution-state">--</dd></div>
+                    <div><dt>Calendar ALARM</dt><dd id="calendar-alarm-terminal" aria-live="polite">--</dd></div>
+                    <div><dt>Port 2 timer out</dt><dd id="port2-timer-output" aria-live="polite">--</dd></div>
+                    <div><dt>LCD substituted reads</dt><dd id="lcd-substituted-read-count" aria-live="polite">--</dd></div>
+                </dl>
+                <p class="panel-caveat">Calendar ALARM is the internal RP5C01 pull-down request; Port 2 timer out is a CPU-internal logical state. Physical JR-800 wiring is unresolved. LCD substituted reads count software replacements under the explicit LCD experiment and do not validate physical decoding.</p>
+                <div class="cycle-row"><span>Cycles</span><strong id="cycles">0</strong></div>
+                <div class="watch-section">
+                    <p class="subheading">Expression watches</p>
+                    <div class="watch-controls">
+                        <label>
+                            <span>Expression</span>
+                            <input id="watch-expression" class="mono-input" placeholder="A or symbol(&quot;loop&quot;)" disabled>
+                        </label>
+                        <button id="add-expression-watch" type="button" disabled>Add</button>
+                    </div>
+                    <div class="table-scroll watch-scroll">
+                        <table>
+                            <thead><tr><th>Expression</th><th>Value / error</th><th>Action</th></tr></thead>
+                            <tbody id="expression-watch-body"><tr><td class="empty" colspan="3">No expression watches</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="watch-section">
+                    <p class="subheading">Symbol watches</p>
+                    <div class="watch-controls">
+                        <label>
+                            <span>Exact symbol name</span>
+                            <input id="watch-symbol" class="mono-input" placeholder="main" disabled>
+                        </label>
+                        <button id="add-symbol-watch" type="button" disabled>Add</button>
+                    </div>
+                    <div class="table-scroll watch-scroll">
+                        <table>
+                            <thead><tr><th>Symbol</th><th>Value / metadata</th><th>Action</th></tr></thead>
+                            <tbody id="symbol-watch-body"><tr><td class="empty" colspan="3">No symbol watches</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </article>
+
+            <article class="panel current-panel">
+                <div class="panel-title-row">
+                    <div>
+                        <p class="section-index">04</p>
+                        <h2>Current instruction</h2>
+                    </div>
+                    <span id="current-address" class="chip">$----</span>
+                </div>
+                <p id="disassembly" class="instruction">No application loaded</p>
+                <p id="source" class="source-location">No source mapping</p>
+                <div class="point-grid">
+                    <label class="point-wide">
+                        <span>Execution breakpoint</span>
+                        <input id="breakpoint-address" class="mono-input" value="$0200">
+                    </label>
+                    <button id="enable-breakpoint" type="button" disabled>Enable</button>
+                    <button id="disable-breakpoint" type="button" disabled>Disable</button>
+                    <label class="condition-wide">
+                        <span>Condition (optional)</span>
+                        <input id="breakpoint-condition" class="mono-input" placeholder="A == $42 && mem8[$0010] != 0">
+                    </label>
+                    <label>
+                        <span>Memory watchpoint</span>
+                        <input id="watchpoint-address" class="mono-input" value="$0001">
+                    </label>
+                    <label>
+                        <span>Mode</span>
+                        <select id="watchpoint-mode">
+                            <option value="read">Read</option>
+                            <option value="write" selected>Write</option>
+                            <option value="access">Read or write</option>
+                        </select>
+                    </label>
+                    <button id="enable-watchpoint" type="button" disabled>Enable</button>
+                    <button id="disable-watchpoint" type="button" disabled>Disable</button>
+                </div>
+                <div class="keyboard-response">
+                    <p class="subheading">Raw keyboard response</p>
+                    <div class="keyboard-response-grid">
+                        <label><span>Address</span><input id="keyboard-address" class="mono-input" value="$0C00" inputmode="text"></label>
+                        <label><span>Value</span><input id="keyboard-value" class="mono-input" value="$FF" inputmode="text"></label>
+                        <label class="check-field"><input id="keyboard-known" type="checkbox" checked><span>Known</span></label>
+                        <button id="set-keyboard-response" type="button" disabled>Apply</button>
+                    </div>
+                    <p id="keyboard-summary" class="keyboard-summary" aria-live="polite">Keyboard activity unavailable</p>
+                </div>
+            </article>
+
+            <article class="panel memory-panel">
+                <div class="panel-title-row">
+                    <div>
+                        <p class="section-index">05</p>
+                        <h2>Memory</h2>
+                    </div>
+                    <button id="refresh-memory" type="button" disabled>Refresh</button>
+                </div>
+                <div class="memory-controls">
+                    <label><span>Address</span><input id="memory-address" class="mono-input" value="$0000"></label>
+                    <label><span>Length</span><input id="memory-length" class="mono-input" value="32"></label>
+                </div>
+                <pre id="memory" class="memory-view">No memory loaded</pre>
+            </article>
+
+            <article class="panel history-panel">
+                <div class="panel-title-row">
+                    <div>
+                        <p class="section-index">06</p>
+                        <h2>Instruction history</h2>
+                    </div>
+                    <button id="clear-history" type="button" disabled>Clear</button>
+                </div>
+                <div class="table-scroll">
+                    <table>
+                        <thead><tr><th>#</th><th>PC</th><th>Bytes</th><th>A</th><th>Cycles</th><th>Fault</th></tr></thead>
+                        <tbody id="history"><tr><td colspan="6" class="empty">No history</td></tr></tbody>
+                    </table>
+                </div>
+            </article>
+
+            <article class="panel trace-panel">
+                <div class="panel-title-row">
+                    <div>
+                        <p class="section-index">07</p>
+                        <h2>Architectural access trace</h2>
+                    </div>
+                    <span id="access-count" class="chip">0 records</span>
+                </div>
+                <div class="trace-controls">
+                    <label><span>First address</span><input id="trace-first-address" class="mono-input" value="$0000"></label>
+                    <label><span>Last address</span><input id="trace-last-address" class="mono-input" value="$FFFF"></label>
+                    <label>
+                        <span>Access kind</span>
+                        <select id="trace-kind">
+                            <option value="all" selected>All</option>
+                            <option value="instructionFetch">Instruction fetch</option>
+                            <option value="dataRead">Data read</option>
+                            <option value="dataWrite">Data write</option>
+                            <option value="data">Data read or write</option>
+                        </select>
+                    </label>
+                    <button id="apply-trace-filter" type="button" disabled>Apply filter</button>
+                </div>
+                <div class="table-scroll">
+                    <table>
+                        <thead><tr><th>#</th><th>Instruction</th><th>Kind</th><th>Address</th><th>Value</th><th>Previous</th></tr></thead>
+                        <tbody id="trace"><tr><td colspan="6" class="empty">No accesses</td></tr></tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+            </div>
+        </details>
+    </main>
+
+    <script type="module" src="./app.mjs?v=e397"></script>
+</body>
+</html>
