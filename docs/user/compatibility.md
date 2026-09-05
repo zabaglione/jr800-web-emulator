@@ -73,5 +73,6 @@ Chromeでブラウザーの終了・再起動後にROMのファイル名と起�
 別のROMへの変更、保存コピーの削除、保存領域が使えない場合の手動起動も検証しています。
 ROM、WAV、プログラムを外部へ送信する処理はありません。
 
-GitHub Pages向けの配下URLでWorkerとWASMを読み込む検査は、市販ROMを使わない合成データで実施します。
-実際の配信先では、[GitHub Pagesの設定手順](github-pages.md)に従ってデプロイと起動を確認してください。
+[GitHub Pagesの公開URL](https://zabaglione.github.io/jr800-web-emulator/)でも、両ROMの起動とブラウザー再起動後のファイル名復元・明示的な起動を確認しています。
+配下URLでのWorker／WASMの読込や保存の例外処理は、市販ROMを使わない合成データでも検査しています。
+自分のリポジトリで配信する場合は、[GitHub Pagesの設定手順](github-pages.md)を参照してください。

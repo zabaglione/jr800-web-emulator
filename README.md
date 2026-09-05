@@ -1,5 +1,7 @@
 # JR-800 Webエミュレーター
 
+[エミュレーターを開く（GitHub Pages）](https://zabaglione.github.io/jr800-web-emulator/)
+
 ![JR-HuBASIC 1.0を起動したJR-800エミュレーターの液晶とキーボード](docs/images/jr800-basic-1.0.png)
 
 JR-800 Webエミュレーターは、National JR-800をブラウザー上で動かし、BASICの操作や機械語プログラムの調査を行うためのソフトウェアです。
