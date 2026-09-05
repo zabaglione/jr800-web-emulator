@@ -7,6 +7,7 @@
 ```sh
 jr8run \
   --max-instructions 100 \
+  --watch write:0x0001 \
   --expect-stop memory-watchpoint \
   --expect 'PC == 0x020A && A == 0x99 && cycles == 12' \
   --expect 'mem8[0x0000] == 0x42 && mem8[0x0001] == 0x99' \

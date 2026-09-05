@@ -16,6 +16,6 @@
 
 ## ビルド用依存物
 
-| 名前 | バージョン | ライセンス | 用途 | 上流 |
+| 名前 | 動作確認したバージョン | ライセンス | 用途 | 上流 |
 | --- | --- | --- | --- | --- |
-| Emscripten SDK | 6.0.8 | MITおよび同梱ツールの各ライセンス | WebAssemblyビルド | https://github.com/emscripten-core/emsdk |
+| Emscripten SDK | 6.0.9-git | MITおよび同梱ツールの各ライセンス | WebAssemblyビルド | https://github.com/emscripten-core/emsdk |
