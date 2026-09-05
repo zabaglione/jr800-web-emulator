@@ -11,9 +11,9 @@ extern "C" {
 #define JR800_NODISCARD
 #endif
 
-#define JR800_WASM_ABI_VERSION 36U
-#define JR800_HARDWARE_CONFIGURATION_WORD_COUNT 31U
-#define JR800_STATE_WORD_COUNT 18U
+#define JR800_WASM_ABI_VERSION 37U
+#define JR800_HARDWARE_CONFIGURATION_WORD_COUNT 32U
+#define JR800_STATE_WORD_COUNT 21U
 #define JR800_STOP_WORD_COUNT 24U
 #define JR800_HISTORY_WORD_COUNT 33U
 #define JR800_ACCESS_WORD_COUNT 11U
@@ -375,6 +375,7 @@ typedef struct jr800_hardware_configuration {
     uint32_t ram_standby_valid;
     uint32_t keyboard_window_known;
     uint32_t keyboard_window_value;
+    uint32_t ignore_unsupported_io;
 } jr800_hardware_configuration;
 
 /* All transport records contain only uint32_t words for a stable WASM layout. */
@@ -397,6 +398,9 @@ typedef struct jr800_machine_state {
     uint32_t lcd_substituted_data_read_count_valid;
     uint32_t lcd_substituted_data_read_count_low;
     uint32_t lcd_substituted_data_read_count_high;
+    uint32_t ignored_io_access_count_valid;
+    uint32_t ignored_io_access_count_low;
+    uint32_t ignored_io_access_count_high;
 } jr800_machine_state;
 
 typedef struct jr800_stop_info {

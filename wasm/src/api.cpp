@@ -241,6 +241,15 @@ std::optional<std::uint64_t> lcd_substituted_data_read_count(
     return machine.hardware_machine->lcd_substituted_data_read_count();
 }
 
+std::optional<std::uint64_t> ignored_io_access_count(
+    const jr800_machine& machine
+) noexcept {
+    if (machine.kind != MachineKind::jr800) {
+        return std::nullopt;
+    }
+    return machine.hardware_machine->ignored_io_access_count();
+}
+
 std::uint32_t stop_reason(jr800::debugger::StopReason reason) noexcept {
     using jr800::debugger::StopReason;
     switch (reason) {
@@ -662,6 +671,7 @@ machine_configuration(const jr800_hardware_configuration& source) noexcept {
         || !valid_boolean(source.ram_standby_known)
         || !valid_boolean(source.ram_standby_valid)
         || !valid_boolean(source.keyboard_window_known)
+        || !valid_boolean(source.ignore_unsupported_io)
         || source.reset_stack_pointer_value > 0xFFFFU
         || source.reset_index_register_value > 0xFFFFU
         || !valid_byte(source.reset_accumulator_a_value)
@@ -743,6 +753,7 @@ machine_configuration(const jr800_hardware_configuration& source) noexcept {
     }
 
     ParsedJr800Configuration configuration;
+    configuration.machine.ignore_unsupported_io = source.ignore_unsupported_io != 0U;
     configuration.reset_state = {
         .stack_pointer = source.reset_stack_pointer_enabled
             ? std::optional<std::uint16_t>{
@@ -950,9 +961,11 @@ void copy_state(
     std::uint32_t calendar_alarm_terminal_state,
     std::uint32_t port2_timer_output_state,
     std::optional<std::uint64_t> lcd_substituted_read_count,
+    std::optional<std::uint64_t> ignored_access_count,
     jr800_machine_state& destination
 ) noexcept {
     const auto substituted_read_count = lcd_substituted_read_count.value_or(0U);
+    const auto ignored_count = ignored_access_count.value_or(0U);
     destination = {
         JR800_WASM_ABI_VERSION,
         profile_id(profile),
@@ -972,6 +985,9 @@ void copy_state(
         lcd_substituted_read_count.has_value() ? 1U : 0U,
         low_word(substituted_read_count),
         high_word(substituted_read_count),
+        ignored_access_count.has_value() ? 1U : 0U,
+        low_word(ignored_count),
+        high_word(ignored_count),
     };
 }
 
@@ -1488,6 +1504,7 @@ jr800_status jr800_machine_get_state(
         calendar_alarm_terminal(*machine),
         port2_timer_output(*machine),
         lcd_substituted_data_read_count(*machine),
+        ignored_io_access_count(*machine),
         *state
     );
     return JR800_STATUS_OK;

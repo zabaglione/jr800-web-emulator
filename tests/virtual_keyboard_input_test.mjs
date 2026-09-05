@@ -12,6 +12,7 @@ if (!modulePath) {
 
 const {
     Jr800VirtualKeyboardState,
+    Jr800TypingRollover,
     Jr800VirtualLatchKeys,
     isJr800VirtualLatchKey,
 } = await import(pathToFileURL(modulePath));
@@ -103,3 +104,33 @@ assert.throws(
     () => state.press("pointer:10", "missing"),
     /Virtual keyboard key is unsupported/,
 );
+
+const rollover = new Jr800TypingRollover();
+assert.deepEqual(rollover.transition({key: "letter-a", pressed: true}), [
+    {key: "letter-a", pressed: true},
+]);
+assert.deepEqual(rollover.transition({key: "letter-b", pressed: true}), [
+    {key: "letter-a", pressed: false},
+    {key: "letter-b", pressed: true},
+]);
+assert.deepEqual(rollover.transition({key: "letter-a", pressed: false}), []);
+assert.deepEqual(rollover.transition({key: "letter-b", pressed: true}), []);
+assert.deepEqual(rollover.transition({key: "shift", pressed: true}), [
+    {key: "shift", pressed: true},
+]);
+assert.deepEqual(rollover.transition({key: "letter-c", pressed: true}), [
+    {key: "letter-b", pressed: false},
+    {key: "letter-c", pressed: true},
+]);
+assert.deepEqual(rollover.transition({key: "shift", pressed: false}), [
+    {key: "shift", pressed: false},
+]);
+assert.deepEqual(rollover.transition({key: "letter-c", pressed: false}), [
+    {key: "letter-c", pressed: false},
+]);
+rollover.transition({key: "letter-a", pressed: true});
+rollover.reset();
+assert.deepEqual(rollover.transition({key: "letter-b", pressed: true}), [
+    {key: "letter-b", pressed: true},
+]);
+assert.throws(() => rollover.transition({key: "letter-a", pressed: 1}), /boolean/);

@@ -287,8 +287,8 @@ export const Jr800LcdIndicatorNames = Object.freeze([
 ]);
 
 const WORD_BYTES = 4;
-const JR800_CONFIGURATION_WORDS = 31;
-const STATE_WORDS = 18;
+const JR800_CONFIGURATION_WORDS = 32;
+const STATE_WORDS = 21;
 const STOP_WORDS = 24;
 const HISTORY_WORDS = 33;
 const ACCESS_WORDS = 11;
@@ -302,7 +302,7 @@ const SYMBOL_WATCH_WORDS = 6;
 const KEYBOARD_ACTIVITY_WORDS = 4;
 const LCD_INDICATOR_RAW_WORDS = 2;
 const NATIVE_PROGRAM_WAV_ISSUE_WORDS = 2;
-const WASM_ABI_VERSION = 36;
+const WASM_ABI_VERSION = 37;
 
 function checkedWatchpointMode(mode) {
     if (typeof mode !== "string"
@@ -454,9 +454,14 @@ export function normalizeJr800Configuration(configuration = {}) {
         "port2Pins",
         "ramStandbyPowerValid",
         "keyboardWindowValue",
+        "ignoreUnsupportedIo",
     ]);
     if (Object.keys(configuration).some((key) => !allowedKeys.has(key))) {
         throw new TypeError("JR-800 configuration contains an unknown field");
+    }
+    if (configuration.ignoreUnsupportedIo !== undefined
+        && typeof configuration.ignoreUnsupportedIo !== "boolean") {
+        throw new TypeError("Ignore unsupported I/O must be boolean");
     }
     const optionalByte = (key, label) => configuration[key] === undefined
         ? undefined
@@ -567,6 +572,7 @@ export function normalizeJr800Configuration(configuration = {}) {
         ),
         ramStandbyPowerValid: configuration.ramStandbyPowerValid,
         keyboardWindowValue,
+        ignoreUnsupportedIo: configuration.ignoreUnsupportedIo ?? false,
     });
 }
 
@@ -610,6 +616,7 @@ function jr800ConfigurationWords(configuration) {
         configuration.ramStandbyPowerValid ? 1 : 0,
         configuration.keyboardWindowValue === undefined ? 0 : 1,
         configuration.keyboardWindowValue ?? 0,
+        configuration.ignoreUnsupportedIo ? 1 : 0,
     ]);
 }
 
@@ -1242,6 +1249,9 @@ export class WasmMachine {
                 lcdSubstitutedDataReadCount: words[15] === 0
                     ? null
                     : combine(words[16], words[17]),
+                ignoredIoAccessCount: words[18] === 0
+                    ? null
+                    : combine(words[19], words[20]),
             };
         });
     }

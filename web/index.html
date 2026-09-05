@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark">
     <title>JR-800 Emulator</title>
-    <link rel="stylesheet" href="./styles.css?v=e402">
+    <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
     <header class="app-header">
@@ -35,32 +35,44 @@
                 <aside class="lcd-indicator-rail lcd-page-rail" aria-label="Page indicators">
                     <p class="lcd-rail-title">PAGE</p>
                     <ol class="lcd-indicator-list">
-                        <li data-lcd-indicator="page-1" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">1</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
-                        <li data-lcd-indicator="page-2" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">2</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
-                        <li data-lcd-indicator="page-3" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">3</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
-                        <li data-lcd-indicator="page-4" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">4</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
-                        <li data-lcd-indicator="page-5" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">5</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
-                        <li data-lcd-indicator="page-6" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">6</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
-                        <li data-lcd-indicator="page-7" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">7</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
-                        <li data-lcd-indicator="page-8" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">8</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="page-1" data-state="unavailable"><svg class="lcd-indicator-mark" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5 11 1 11 9Z"/></svg><span class="lcd-indicator-label">1</span><span class="sr-only" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="page-2" data-state="unavailable"><svg class="lcd-indicator-mark" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5 11 1 11 9Z"/></svg><span class="lcd-indicator-label">2</span><span class="sr-only" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="page-3" data-state="unavailable"><svg class="lcd-indicator-mark" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5 11 1 11 9Z"/></svg><span class="lcd-indicator-label">3</span><span class="sr-only" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="page-4" data-state="unavailable"><svg class="lcd-indicator-mark" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5 11 1 11 9Z"/></svg><span class="lcd-indicator-label">4</span><span class="sr-only" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="page-5" data-state="unavailable"><svg class="lcd-indicator-mark" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5 11 1 11 9Z"/></svg><span class="lcd-indicator-label">5</span><span class="sr-only" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="page-6" data-state="unavailable"><svg class="lcd-indicator-mark" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5 11 1 11 9Z"/></svg><span class="lcd-indicator-label">6</span><span class="sr-only" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="page-7" data-state="unavailable"><svg class="lcd-indicator-mark" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5 11 1 11 9Z"/></svg><span class="lcd-indicator-label">7</span><span class="sr-only" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="page-8" data-state="unavailable"><svg class="lcd-indicator-mark" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5 11 1 11 9Z"/></svg><span class="lcd-indicator-label">8</span><span class="sr-only" data-lcd-indicator-value>n/a</span></li>
                     </ol>
                 </aside>
                 <div class="lcd-matrix-well">
                     <canvas id="lcd-panel" class="lcd-canvas" width="192" height="64" role="img" aria-describedby="lcd-summary lcd-indicator-summary">Canvas support is required to render the LCD matrix.</canvas>
                 </div>
                 <aside class="lcd-indicator-rail lcd-mode-rail" aria-label="Mode indicators">
-                    <p class="lcd-rail-title">MODE</p>
                     <ul class="lcd-indicator-list">
-                        <li data-lcd-indicator="capital-lock" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">CAP.L</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
-                        <li data-lcd-indicator="graphics-input" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">GRAPH</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
-                        <li data-lcd-indicator="kana-input" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">KANA</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
-                        <li data-lcd-indicator="insert-mode" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">INS</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
-                        <li data-lcd-indicator="control-mode" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">CTRL</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
-                        <li data-lcd-indicator="radian-mode" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">RAD</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
-                        <li data-lcd-indicator="degree-mode" data-state="unavailable"><span class="lcd-indicator-mark" aria-hidden="true"></span><span class="lcd-indicator-label">DEG</span><span class="lcd-indicator-value" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="capital-lock" data-state="unavailable"><svg class="lcd-indicator-mark" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5 11 1 11 9Z"/></svg><span class="lcd-indicator-label">CAP.L</span><span class="sr-only" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="graphics-input" data-state="unavailable"><svg class="lcd-indicator-mark" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5 11 1 11 9Z"/></svg><span class="lcd-indicator-label">GRAPH</span><span class="sr-only" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="kana-input" data-state="unavailable"><svg class="lcd-indicator-mark" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5 11 1 11 9Z"/></svg><span class="lcd-indicator-label">KANA</span><span class="sr-only" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="insert-mode" data-state="unavailable"><svg class="lcd-indicator-mark" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5 11 1 11 9Z"/></svg><span class="lcd-indicator-label">INS</span><span class="sr-only" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="control-mode" data-state="unavailable"><svg class="lcd-indicator-mark" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5 11 1 11 9Z"/></svg><span class="lcd-indicator-label">CTRL</span><span class="sr-only" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="radian-mode" data-state="unavailable"><svg class="lcd-indicator-mark" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5 11 1 11 9Z"/></svg><span class="lcd-indicator-label">RAD</span><span class="sr-only" data-lcd-indicator-value>n/a</span></li>
+                        <li data-lcd-indicator="degree-mode" data-state="unavailable"><svg class="lcd-indicator-mark" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5 11 1 11 9Z"/></svg><span class="lcd-indicator-label">DEG</span><span class="sr-only" data-lcd-indicator-value>n/a</span></li>
+                        <li class="lcd-battery-position" data-lcd-indicator="battery-warning" data-state="unavailable"><svg class="lcd-indicator-mark" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5 11 1 11 9Z"/></svg><span class="lcd-indicator-label">Battery life</span><span class="sr-only" data-lcd-indicator-value>n/a</span></li>
                     </ul>
                 </aside>
             </div>
+            <details id="lcd-appearance" class="lcd-appearance">
+                <summary>LCD appearance</summary>
+                <div class="lcd-appearance-controls">
+                    <label for="lcd-contrast"><span>Contrast</span><output for="lcd-contrast" id="lcd-contrast-value">75%</output><input id="lcd-contrast" data-lcd-setting="contrast" type="range" min="0" max="100" step="1" value="75"></label>
+                    <label for="lcd-brightness"><span>Background brightness</span><output for="lcd-brightness" id="lcd-brightness-value">60%</output><input id="lcd-brightness" data-lcd-setting="brightness" type="range" min="0" max="100" step="1" value="60"></label>
+                    <label for="lcd-tint"><span>Tint (gray to olive)</span><output for="lcd-tint" id="lcd-tint-value">35%</output><input id="lcd-tint" data-lcd-setting="tint" type="range" min="0" max="100" step="1" value="35"></label>
+                    <label for="lcd-dot-gap"><span>Dot spacing</span><output for="lcd-dot-gap" id="lcd-dot-gap-value">18%</output><input id="lcd-dot-gap" data-lcd-setting="dotGap" type="range" min="0" max="40" step="1" value="18"></label>
+                    <label for="lcd-inactive-dots"><span>Unlit dot visibility</span><output for="lcd-inactive-dots" id="lcd-inactive-dots-value">12%</output><input id="lcd-inactive-dots" data-lcd-setting="inactiveDots" type="range" min="0" max="100" step="1" value="12"></label>
+                    <div class="lcd-appearance-reset"><button id="lcd-appearance-reset" type="button">Reset appearance</button></div>
+                </div>
+                <p id="lcd-appearance-note" class="lcd-appearance-note">Appearance settings are remembered in this browser.</p>
+            </details>
             <p id="lcd-summary" class="sr-only">LCD panel unavailable</p>
             <p id="lcd-indicator-summary" class="sr-only">The matrix composition and indicator RAM locations are provisional. Indicator RAM unavailable; battery telemetry omitted. Raw indicator values never imply a lit or unlit physical segment.</p>
         </article>
@@ -72,8 +84,8 @@
                     <div class="virtual-system-strip">
                         <div class="virtual-power-cluster" aria-label="Power controls">
                             <p>POWER</p>
-                            <button class="virtual-power-key" type="button" disabled title="Power behavior is not modeled">OFF</button>
-                            <button class="virtual-power-key virtual-power-key-on" type="button" disabled title="Power behavior is not modeled">ON</button>
+                            <button id="power-off" class="virtual-power-key" type="button" disabled title="Suspend emulation and retain memory">OFF</button>
+                            <button id="power-on" class="virtual-power-key virtual-power-key-on" type="button" disabled title="Resume emulation with retained memory">ON</button>
                         </div>
                         <div class="virtual-speaker-gap" aria-hidden="true"></div>
                         <button class="virtual-key virtual-key-menu virtual-key-light" type="button" data-jr800-key="menu" disabled><span>MENU</span></button>
@@ -215,6 +227,8 @@
                             <button id="load-rom" type="button">Load only</button>
                         </div>
                     </div>
+                    <label class="check-field"><input id="ignore-unsupported-io" type="checkbox" checked><span>Continue past unsupported I/O</span></label>
+                    <p>Unsupported reads return $FF; writes are discarded. Applies when loading a ROM.</p>
                     <div class="rom-run-actions">
                         <button id="resume-machine" type="button" disabled>Resume emulation</button>
                         <button id="pause-basic" type="button" disabled>Pause</button>
@@ -370,6 +384,7 @@
                     <div><dt>Calendar ALARM</dt><dd id="calendar-alarm-terminal" aria-live="polite">--</dd></div>
                     <div><dt>Port 2 timer out</dt><dd id="port2-timer-output" aria-live="polite">--</dd></div>
                     <div><dt>LCD substituted reads</dt><dd id="lcd-substituted-read-count" aria-live="polite">--</dd></div>
+                    <div><dt>Ignored I/O accesses</dt><dd id="ignored-io-access-count" aria-live="polite">--</dd></div>
                 </dl>
                 <p class="panel-caveat">Calendar ALARM is the internal RP5C01 pull-down request; Port 2 timer out is a CPU-internal logical state. Physical JR-800 wiring is unresolved. LCD substituted reads count software replacements under the explicit LCD experiment and do not validate physical decoding.</p>
                 <div class="cycle-row"><span>Cycles</span><strong id="cycles">0</strong></div>
@@ -535,6 +550,6 @@
             status.dataset.tone = "error";
         }
     </script>
-    <script type="module" src="./app.mjs?v=e402"></script>
+    <script type="module" src="./app.mjs"></script>
 </body>
 </html>

@@ -240,22 +240,59 @@ main { width: min(1440px, calc(100% - 2.5rem)); margin: 1.25rem auto 3rem; }
 .history-panel, .trace-panel { grid-column: span 3; }
 .lcd-panel-card { grid-column: 1 / -1; margin-bottom: 1rem; }
 .panel-caveat { max-width: 58rem; margin: 0.7rem 0 0; color: var(--muted); font-size: 0.76rem; line-height: 1.5; }
-.lcd-display-frame { display: grid; grid-template-columns: minmax(4.4rem, 0.18fr) minmax(0, 960px) minmax(6.4rem, 0.24fr); align-items: stretch; justify-content: center; gap: 0.75rem; margin-top: 1rem; padding: 0.9rem; border: 1px solid rgb(112 214 180 / 24%); border-radius: 0.45rem; background: #0a1113; }
-.lcd-matrix-well { display: flex; align-items: center; min-width: 0; padding: 0.45rem; border: 1px solid rgb(112 214 180 / 32%); border-radius: 0.3rem; background: #241f18; }
-.lcd-canvas { display: block; width: 100%; height: auto; border-radius: 0.15rem; background: #241f18; image-rendering: pixelated; }
-.lcd-indicator-rail { min-width: 0; padding: 0.45rem; border: 1px solid var(--line); border-radius: 0.3rem; background: #0d1519; }
-.lcd-rail-title { margin: 0 0 0.4rem; color: var(--muted); font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.16em; }
-.lcd-indicator-list { display: grid; grid-template-rows: repeat(8, minmax(1.1rem, 1fr)); gap: 0.18rem; height: calc(100% - 1rem); margin: 0; padding: 0; list-style: none; }
-.lcd-mode-rail .lcd-indicator-list { grid-template-rows: repeat(7, minmax(1.1rem, 1fr)); }
-.lcd-indicator-list li { display: grid; grid-template-columns: 0.55rem minmax(0, 1fr) auto; align-items: center; gap: 0.3rem; min-width: 0; padding: 0.12rem 0.2rem; border-left: 2px solid transparent; color: var(--muted); font-family: var(--mono); font-size: 0.62rem; }
-.lcd-indicator-mark { width: 0.42rem; height: 0.42rem; border: 1px solid var(--line-strong); border-radius: 50%; }
-.lcd-indicator-label { overflow: hidden; text-overflow: ellipsis; }
-.lcd-indicator-value { color: #667580; font-size: 0.56rem; }
-.lcd-indicator-list li[data-state="unknown"] .lcd-indicator-mark { border-style: dashed; border-color: var(--warning); }
-.lcd-indicator-list li[data-state="unknown"] .lcd-indicator-value { color: var(--warning); }
-.lcd-indicator-list li[data-state="raw"] { border-left-color: var(--accent); color: var(--text); }
-.lcd-indicator-list li[data-state="raw"] .lcd-indicator-mark { border-color: var(--accent); }
-.lcd-indicator-list li[data-state="raw"] .lcd-indicator-value { color: var(--accent-strong); }
+/* Host LCD appearance: reflective surface with dark, separate dots. */
+.lcd-panel-card { container-type: inline-size; --lcd-surface: #bbbfaf; --lcd-ink: #4d554d; --lcd-off-ink: #b1b5a8; }
+.lcd-display-frame {
+    --lcd-legend-width: clamp(2rem, 8cqw, 6.5rem);
+    --lcd-marker-width: clamp(0.75rem, 3cqw, 2.4rem);
+    --lcd-rim: clamp(0.3rem, 1.2cqw, 0.85rem);
+    display: grid;
+    grid-template-columns: calc(var(--lcd-legend-width) + var(--lcd-marker-width)) minmax(0, 1fr) calc(var(--lcd-legend-width) + var(--lcd-marker-width));
+    align-items: stretch;
+    padding: calc(var(--lcd-rim) + 1.5em) var(--lcd-rim) var(--lcd-rim);
+    border: 1px solid #303434;
+    border-radius: 0.45rem;
+    background: #555b5e;
+    box-shadow: inset 0 2px 5px rgb(0 0 0 / 28%);
+    font-family: Arial, sans-serif;
+    font-size: clamp(0.4rem, 1.65cqw, 1.1rem);
+}
+.lcd-matrix-well { display: flex; align-items: center; min-width: 0; padding: var(--lcd-rim) 0; background: var(--lcd-surface); }
+.lcd-canvas { display: block; width: 100%; height: auto; background: var(--lcd-surface); image-rendering: auto; }
+.lcd-indicator-rail { position: relative; display: grid; min-width: 0; min-height: 0; padding: var(--lcd-rim) 0; }
+.lcd-indicator-rail::before { position: absolute; top: 0; bottom: 0; width: var(--lcd-marker-width); background: var(--lcd-surface); content: ""; }
+.lcd-page-rail::before { right: 0; border-radius: var(--lcd-rim) 0 0 var(--lcd-rim); }
+.lcd-mode-rail::before { left: 0; border-radius: 0 var(--lcd-rim) var(--lcd-rim) 0; }
+.lcd-rail-title { position: absolute; right: var(--lcd-marker-width); bottom: 100%; margin: 0; padding: 0 0.6em 0.2em 0; color: #e0e0d3; font-size: 1.05em; letter-spacing: 0.07em; }
+.lcd-indicator-list { position: relative; display: grid; grid-template-rows: repeat(8, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; }
+.lcd-indicator-list li { position: relative; display: grid; grid-template-columns: var(--lcd-legend-width) var(--lcd-marker-width); align-items: center; min-width: 0; min-height: 0; color: #e0e0d3; line-height: 1; }
+.lcd-indicator-label { grid-column: 1; grid-row: 1; padding-right: 0.6em; text-align: right; white-space: nowrap; }
+.lcd-indicator-mark { grid-column: 2; grid-row: 1; justify-self: center; width: 50%; height: auto; max-height: 65%; fill: var(--lcd-off-ink); }
+.lcd-mode-rail li { grid-template-columns: var(--lcd-marker-width) var(--lcd-legend-width); }
+.lcd-mode-rail .lcd-indicator-label { grid-column: 2; padding: 0 0 0 0.6em; text-align: left; }
+.lcd-mode-rail .lcd-indicator-mark { grid-column: 1; transform: rotate(180deg); }
+.lcd-mode-rail li:nth-child(6)::after, .lcd-mode-rail li:nth-child(8)::after { position: absolute; top: 0; right: 0; left: calc(var(--lcd-marker-width) + 0.6em); border-top: 1px solid #b4b7af; content: ""; }
+.lcd-battery-position .lcd-indicator-label { font-size: 0.82em; }
+.lcd-battery-position::before { position: absolute; bottom: 0; right: 0; left: calc(var(--lcd-marker-width) + 0.6em); border-bottom: 1px solid #b4b7af; content: ""; }
+.lcd-indicator-list li[data-request="set"] .lcd-indicator-mark { fill: var(--lcd-ink); }
+.lcd-battery-position .lcd-indicator-mark { fill: var(--lcd-ink); }
+.lcd-indicator-list li[data-request="unknown"]:not(.lcd-battery-position) .lcd-indicator-mark { fill: none; stroke: var(--lcd-ink); stroke-width: 0.7; stroke-dasharray: 2 2; opacity: 0.4; }
+.lcd-appearance { margin-top: 0.75rem; border-top: 1px solid rgb(213 222 206 / 18%); }
+.lcd-appearance summary { padding: 0.7rem 0 0.15rem; color: #d2dacd; font-size: 0.78rem; cursor: pointer; }
+.lcd-appearance summary:focus-visible { outline: 2px solid #c5d0b9; outline-offset: 3px; }
+.lcd-appearance-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.85rem 1.6rem; padding: 1rem 0 0.35rem; }
+.lcd-appearance-controls label { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.3rem 0.5rem; }
+.lcd-appearance-controls label > span { margin: 0; color: #d2dacd; font-size: 0.75rem; letter-spacing: 0; text-transform: none; }
+.lcd-appearance-controls output { color: #a9b6a3; font-family: var(--mono); font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+.lcd-appearance-controls input[type="range"] { grid-column: 1 / -1; min-height: 2rem; margin: 0; padding: 0; border: 0; border-radius: 0; accent-color: #bbc9ae; background: transparent; cursor: ew-resize; }
+.lcd-appearance-reset { display: flex; align-items: center; justify-content: flex-end; }
+.lcd-appearance-reset button { font-size: 0.75rem; border-color: #6b7a6f; color: #d2dacd; background: #35433d; }
+.lcd-appearance-note { margin: 0.55rem 0 0; color: #acb8a7; font-size: 0.72rem; }
+@media (max-width: 540px) {
+    .lcd-appearance-controls { grid-template-columns: 1fr; gap: 0.55rem; }
+    .lcd-appearance-reset { justify-content: flex-start; }
+}
+
 .virtual-keyboard-card {
     margin-top: 0.75rem;
     padding: 1rem;
@@ -579,7 +616,4 @@ td.empty { height: 4rem; color: var(--muted); text-align: center; }
     .watch-controls { grid-template-columns: 1fr; }
     .trace-controls { grid-template-columns: 1fr 1fr; }
     .trace-controls label:nth-child(3), .trace-controls button { grid-column: span 2; }
-    .lcd-display-frame { grid-template-columns: 1fr; }
-    .lcd-indicator-list, .lcd-mode-rail .lcd-indicator-list { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: auto; height: auto; }
-    .lcd-mode-rail .lcd-indicator-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }

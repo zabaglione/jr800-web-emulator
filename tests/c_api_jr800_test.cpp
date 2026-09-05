@@ -219,6 +219,45 @@ std::uint64_t combine(std::uint32_t low, std::uint32_t high) noexcept {
 int main() {
     bool passed = true;
 
+    {
+        jr800_hardware_configuration io_configuration{};
+        io_configuration.abi_version = JR800_WASM_ABI_VERSION;
+        io_configuration.ignore_unsupported_io = 2U;
+        passed &= expect(jr800_machine_create_jr800(&io_configuration) == nullptr,
+            "Invalid ignore-I/O boolean was accepted");
+        io_configuration.ignore_unsupported_io = 1U;
+        auto* io_machine = jr800_machine_create_jr800(&io_configuration);
+        passed &= expect(io_machine != nullptr, "Ignore-I/O machine creation failed");
+        if (io_machine != nullptr) {
+            std::vector<std::uint8_t> io_rom(logical_rom_size, 0x01U);
+            constexpr std::array<std::uint8_t, 8U> io_program{
+                0x86U, 0x12U, 0xB7U, 0x03U, 0x00U, 0xB6U, 0x03U, 0x00U,
+            };
+            std::copy(io_program.begin(), io_program.end(), io_rom.begin());
+            io_rom[logical_rom_size - 2U] = 0x80U;
+            io_rom[logical_rom_size - 1U] = 0x00U;
+            jr800_machine_state io_state{};
+            jr800_stop_info io_stop{};
+            passed &= expect(
+                jr800_machine_load_logical_rom(io_machine, io_rom.data(),
+                    static_cast<std::uint32_t>(io_rom.size())) == JR800_STATUS_OK
+                    && jr800_machine_run(io_machine, 3U, &io_stop) == JR800_STATUS_OK
+                    && io_stop.reason == JR800_STOP_INSTRUCTION_LIMIT
+                    && jr800_machine_get_state(io_machine, &io_state) == JR800_STATUS_OK
+                    && io_state.a == 0xFFU
+                    && io_state.ignored_io_access_count_valid == 1U
+                    && io_state.ignored_io_access_count_low == 2U
+                    && io_state.ignored_io_access_count_high == 0U,
+                "C ABI ignore-I/O execution or diagnostics differ");
+            passed &= expect(jr800_machine_reset(io_machine) == JR800_STATUS_OK
+                && jr800_machine_get_state(io_machine, &io_state) == JR800_STATUS_OK
+                && io_state.ignored_io_access_count_valid == 1U
+                && io_state.ignored_io_access_count_low == 0U,
+                "C ABI reset retained ignored-I/O diagnostics");
+            jr800_machine_destroy(io_machine);
+        }
+    }
+
     jr800_hardware_configuration invalid_configuration{};
     invalid_configuration.abi_version = JR800_WASM_ABI_VERSION;
     invalid_configuration.expansion_ram_enabled = 1U;

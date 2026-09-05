@@ -4,6 +4,7 @@ import {
     AccessTraceMask,
     JR800_LOGICAL_ROM_BYTES,
     Jr800KeyboardKey,
+    Jr800LcdDotState,
     MAX_JR8ROM_BYTES,
     MAX_LINKED_BINARY_BYTES,
 } from "./wasm-machine.mjs";
@@ -11,10 +12,17 @@ import {
     Jr800VisibleLcdIndicators,
     lcdIndicatorView,
 } from "./lcd-indicator-view.mjs";
-import {lcdPanelImage} from "./lcd-panel-view.mjs";
+import {
+    Jr800LcdAppearanceDefaults,
+    Jr800LcdPanelRenderer,
+    lcdPalette,
+    lcdPanelImage,
+    normalizeLcdAppearance,
+} from "./lcd-panel-view.mjs";
 import {jr800KeyForHostCode} from "./keyboard-input.mjs";
 import {
     Jr800VirtualKeyboardState,
+    Jr800TypingRollover,
     isJr800VirtualLatchKey,
 } from "./virtual-keyboard-input.mjs";
 import {
@@ -128,7 +136,8 @@ const elements = Object.fromEntries(
         "status", "language-toggle", "sound-toggle", "application-file", "debug-file",
         "stack-pointer", "load",
         "jr8rom-file", "raw-rom-warning", "boot-basic", "load-rom",
-        "resume-machine", "pause-basic",
+        "ignore-unsupported-io", "ignored-io-access-count",
+        "resume-machine", "pause-basic", "power-on", "power-off",
         "hardware-program-file", "load-program",
         "reset-sp-enabled", "reset-sp-value",
         "reset-x-enabled", "reset-x-value",
@@ -168,6 +177,7 @@ const elements = Object.fromEntries(
         "apply-trace-filter",
         "machine-console", "layout-workbench", "layout-device",
         "lcd-panel-card", "lcd-panel", "lcd-summary", "lcd-indicator-summary",
+        "lcd-appearance-reset", "lcd-appearance-note",
         "virtual-keyboard-card", "virtual-keyboard-summary", "force-power-off",
         "keyboard-address", "keyboard-value", "keyboard-known",
         "set-keyboard-response", "keyboard-summary",
@@ -219,7 +229,46 @@ let statusMessage = {
     tone: "idle",
 };
 const virtualKeyboardState = new Jr800VirtualKeyboardState();
+const typingRollover = new Jr800TypingRollover();
 let keyboardTransitionTail = Promise.resolve();
+const LCD_APPEARANCE_STORAGE_KEY = "jr800.lcd-appearance";
+let lcdAppearanceStorageAvailable = true;
+let lcdAppearance = loadLcdAppearance();
+const lcdRenderer = new Jr800LcdPanelRenderer(elements["lcd-panel"]);
+const lcdAppearanceInputs = [...document.querySelectorAll("[data-lcd-setting]")];
+
+function loadLcdAppearance() {
+    try {
+        return normalizeLcdAppearance(JSON.parse(localStorage.getItem(LCD_APPEARANCE_STORAGE_KEY)));
+    } catch {
+        lcdAppearanceStorageAvailable = false;
+        return {...Jr800LcdAppearanceDefaults};
+    }
+}
+
+function saveLcdAppearance() {
+    try {
+        localStorage.setItem(LCD_APPEARANCE_STORAGE_KEY, JSON.stringify(lcdAppearance));
+        lcdAppearanceStorageAvailable = true;
+    } catch {
+        lcdAppearanceStorageAvailable = false;
+    }
+}
+
+function applyLcdAppearance() {
+    const palette = lcdPalette(lcdAppearance);
+    elements["lcd-panel-card"].style.setProperty("--lcd-surface", `rgb(${palette.surface.join(",")})`);
+    elements["lcd-panel-card"].style.setProperty("--lcd-ink", `rgb(${palette[Jr800LcdDotState.on].slice(0, 3).join(",")})`);
+    elements["lcd-panel-card"].style.setProperty("--lcd-off-ink", `rgb(${palette[Jr800LcdDotState.off].slice(0, 3).join(",")})`);
+    for (const input of lcdAppearanceInputs) {
+        input.value = lcdAppearance[input.dataset.lcdSetting];
+        document.getElementById(`${input.id}-value`).textContent = `${input.value}%`;
+    }
+    elements["lcd-appearance-note"].textContent = translate(lcdAppearanceStorageAvailable
+        ? "Appearance settings are remembered in this browser."
+        : "Appearance settings apply only to this visit.");
+    renderLcdPanel(lastSnapshot?.lcdPanel ?? null);
+}
 
 function setMachineLayout(layout) {
     if (layout !== "workbench" && layout !== "device") {
@@ -280,6 +329,7 @@ function switchLanguage() {
     );
     updateLanguageToggle();
     updateSoundToggle();
+    applyLcdAppearance();
     if (lastSnapshot !== null) {
         render(lastSnapshot);
     } else if (!loaded) {
@@ -357,14 +407,17 @@ function sendVirtualKeyboardTransition(transition) {
     if (!virtualKeyboardAvailable()) {
         return;
     }
-    const fields = transition.pressed && running
-        ? {...transition, minimumHoldCycles: WEB_KEY_MINIMUM_HOLD_CYCLES}
-        : transition;
-    keyboardTransitionTail = keyboardTransitionTail
-        .catch(() => {})
-        .then(() => client.request("set-keyboard-key-state", fields));
+    for (const next of typingRollover.transition(transition)) {
+        const fields = next.pressed && running
+            ? {...next, minimumHoldCycles: WEB_KEY_MINIMUM_HOLD_CYCLES}
+            : next;
+        keyboardTransitionTail = keyboardTransitionTail
+            .catch(() => {})
+            .then(() => client.request("set-keyboard-key-state", fields));
+    }
     void keyboardTransitionTail.catch((error) => {
         virtualKeyboardState.releaseAll();
+        typingRollover.reset();
         renderVirtualKeyboardState();
         setStatus(
             "Error: {message}",
@@ -375,6 +428,7 @@ function sendVirtualKeyboardTransition(transition) {
 }
 
 function releaseAllVirtualKeys(sendToMachine = true) {
+    typingRollover.reset();
     const releases = virtualKeyboardState.releaseAll();
     renderVirtualKeyboardState();
     if (!sendToMachine || !virtualKeyboardAvailable()) {
@@ -400,6 +454,7 @@ function setControls() {
         || machineKind !== "jr800";
     for (const id of [
         "application-file", "debug-file", "stack-pointer", "jr8rom-file",
+        "ignore-unsupported-io",
     ]) {
         elements[id].disabled = !initialized || running;
     }
@@ -460,6 +515,8 @@ function setControls() {
         || machineKind !== "jr800";
     elements["pause-basic"].disabled = !running
         || machineKind !== "jr800";
+    elements["power-on"].disabled = elements["resume-machine"].disabled;
+    elements["power-off"].disabled = elements["pause-basic"].disabled;
 
     const editable = initialized && !running;
     const standardRamEnabled = elements["standard-ram-enabled"].checked;
@@ -608,7 +665,9 @@ function knownBitsConfiguration(prefix, maximum, label) {
 }
 
 function hardwareConfiguration() {
-    const configuration = {};
+    const configuration = {
+        ignoreUnsupportedIo: elements["ignore-unsupported-io"].checked,
+    };
     if (elements["reset-sp-enabled"].checked) {
         configuration.resetStackPointer = wordValue(
             "reset-sp-value",
@@ -769,18 +828,11 @@ function conditionCodeText(state) {
 
 function renderLcdPanel(panel) {
     const canvas = elements["lcd-panel"];
-    const context = canvas.getContext("2d");
-    if (context === null) {
-        elements["lcd-summary"].textContent = translate(
-            "Canvas rendering is unavailable",
-        );
+    const view = lcdPanelImage(panel, translate, lcdAppearance);
+    if (!lcdRenderer.draw(view, lcdAppearance)) {
+        elements["lcd-summary"].textContent = translate("Canvas rendering is unavailable");
         return;
     }
-
-    const view = lcdPanelImage(panel, translate);
-    const image = context.createImageData(view.width, view.height);
-    image.data.set(view.rgba);
-    context.putImageData(image, 0, 0);
     elements["lcd-summary"].textContent = view.summary;
     canvas.setAttribute("aria-label", view.ariaLabel);
 }
@@ -791,15 +843,17 @@ function renderLcdIndicators(indicators) {
         const element = lcdIndicatorElements.get(entry.name);
         const value = element.querySelector("[data-lcd-indicator-value]");
         element.dataset.state = entry.state;
+        element.dataset.request = entry.request === null
+            ? "unknown" : entry.request ? "set" : "clear";
         element.setAttribute("aria-label", translate(
             "{label} indicator: {description}; {detail}",
             {
                 label: entry.label,
                 description: entry.description,
-                detail: entry.detail,
+                detail: `${entry.requestDetail}; ${entry.detail}`,
             },
         ));
-        element.title = `${entry.description}; ${entry.detail}`;
+        element.title = `${entry.description}; ${entry.requestDetail}; ${entry.detail}`;
         value.textContent = entry.valueText;
     }
     elements["lcd-indicator-summary"].textContent = view.summary;
@@ -999,6 +1053,10 @@ function render(snapshot) {
         state.lcdSubstitutedDataReadCount === null
             ? translate("unavailable")
             : String(state.lcdSubstitutedDataReadCount);
+    elements["ignored-io-access-count"].textContent =
+        state.ignoredIoAccessCount === null
+            ? translate("unavailable")
+            : String(state.ignoredIoAccessCount);
     elements.cycles.textContent = String(state.cycleCount);
     elements["current-address"].textContent = hex(snapshot.disassembly.address, 4);
     elements.disassembly.textContent = snapshot.disassembly.text;
@@ -1030,6 +1088,7 @@ function renderPoweredOff() {
     elements["calendar-alarm-terminal"].textContent = translate("unavailable");
     elements["port2-timer-output"].textContent = translate("unavailable");
     elements["lcd-substituted-read-count"].textContent = translate("unavailable");
+    elements["ignored-io-access-count"].textContent = translate("unavailable");
     elements.cycles.textContent = "0";
     elements["current-address"].textContent = "$----";
     elements.disassembly.textContent = translate("Power off");
@@ -1062,6 +1121,13 @@ function stopText(stop) {
     const fault = stop.fault && stop.fault !== "none"
         ? `; fault ${stop.fault}`
         : "";
+    const bus = stop.reason === "cpu-fault" && stop.busFault
+        && stop.busFault !== "none"
+        ? `; bus ${stop.busFault}`
+            + (stop.fault === "bus-access"
+                ? ` (${stop.faultAccess} at ${hex(stop.triggerAddress, 4)})`
+                : "")
+        : "";
     const condition = stop.reason === "breakpoint-condition-error"
         ? `; condition ${stop.conditionError}`
             + (stop.stateFault !== "none" ? ` (${stop.stateFault})` : "")
@@ -1075,7 +1141,7 @@ function stopText(stop) {
         {
             reason: `${stop.reason}${trigger}${access}`,
             count,
-            details: `${suspended}${fault}${condition}`,
+            details: `${suspended}${fault}${bus}${condition}`,
         },
     );
 }
@@ -1331,7 +1397,7 @@ elements.step.addEventListener("click", () => {
     void perform(async () => {
         const result = await client.request("step", {view: viewOptions()});
         render(result.snapshot);
-        setStatus(stopText(result.stop), "ready");
+        setStatus(stopText(result.stop), result.stop.reason === "cpu-fault" ? "error" : "ready");
     }, "Stepping").catch(() => {});
 });
 
@@ -1363,6 +1429,7 @@ async function startRun(
     statusValues = {},
 ) {
     const result = await client.request(command, {
+        realtime: command === "run" && machineKind === "jr800",
         ...limits,
         ...fields,
         view: viewOptions(),
@@ -1387,21 +1454,26 @@ async function startBasicRun(status = "BASIC running") {
     }
 }
 
-elements["resume-machine"].addEventListener("click", () => {
-    void perform(() => startBasicRun()).catch(() => {
-        basicRunContinuous = false;
-        running = false;
-        setControls();
+for (const id of ["resume-machine", "power-on"]) {
+    elements[id].addEventListener("click", () => {
+        void perform(() => startBasicRun()).catch(() => {
+            basicRunContinuous = false;
+            running = false;
+            setControls();
+        });
     });
-});
+}
 
-elements["pause-basic"].addEventListener("click", () => {
-    basicRunContinuous = false;
-    void perform(async () => {
-        await client.request("pause");
-        setStatus("Pause requested", "running");
-    }).catch(() => {});
-});
+for (const id of ["pause-basic", "power-off"]) {
+    elements[id].addEventListener("click", () => {
+        basicRunContinuous = false;
+        releaseAllVirtualKeys();
+        void perform(async () => {
+            await client.request("pause");
+            setStatus("Pause requested", "running");
+        }).catch(() => {});
+    });
+}
 
 elements.run.addEventListener("click", () => {
     basicRunContinuous = false;
@@ -1727,6 +1799,21 @@ elements["clear-history"].addEventListener("click", () => {
     }).catch(() => {});
 });
 
+for (const input of lcdAppearanceInputs) {
+    input.addEventListener("input", () => {
+        lcdAppearance = normalizeLcdAppearance({
+            ...lcdAppearance, [input.dataset.lcdSetting]: Number(input.value),
+        });
+        saveLcdAppearance();
+        applyLcdAppearance();
+    });
+}
+elements["lcd-appearance-reset"].addEventListener("click", () => {
+    lcdAppearance = {...Jr800LcdAppearanceDefaults};
+    saveLcdAppearance();
+    applyLcdAppearance();
+});
+
 elements["layout-workbench"].addEventListener("click", () => {
     setMachineLayout("workbench");
 });
@@ -1888,8 +1975,8 @@ document.addEventListener("visibilitychange", () => {
     }
 });
 
+client.on("progress", (message) => render(message.snapshot));
 client.on("stopped", (message) => {
-    audioOutput.flush();
     running = false;
     render(message.snapshot);
     if (basicRunContinuous && basicRunCanContinue(message.stop)
@@ -1901,13 +1988,15 @@ client.on("stopped", (message) => {
         });
         return;
     }
+    audioOutput.reset();
     basicRunContinuous = false;
-    setStatus(stopText(message.stop), "ready");
+    setStatus(stopText(message.stop), message.stop.reason === "cpu-fault" ? "error" : "ready");
     setControls();
 });
 client.on("audio-transitions", (message) => audioOutput.append(message));
 client.on("audio-reset", () => audioOutput.reset());
 client.on("error", (message) => {
+    audioOutput.reset();
     basicRunContinuous = false;
     running = false;
     const detail = message?.error ?? message;
@@ -1931,6 +2020,7 @@ for (const id of [
 
 updateLanguageToggle();
 updateSoundToggle();
+applyLcdAppearance();
 setControls();
 void perform(async () => {
     const moduleUrl = new URL("./jr800_wasm.mjs", import.meta.url).href;

@@ -67,6 +67,10 @@ export const Jr800VisibleLcdIndicators = Object.freeze([
         name: "degree-mode", label: "DEG", group: "mode",
         description: "Degree angle mode",
     }),
+    Object.freeze({
+        name: "battery-warning", label: "Battery life", group: "mode",
+        description: "Battery available indicator",
+    }),
 ]);
 
 function validateSnapshot(indicators) {
@@ -106,6 +110,17 @@ export function lcdIndicatorView(indicators, translate = defaultTranslate) {
         const state = indicators === null
             ? "unavailable"
             : rawValue === null ? "unknown" : "raw";
+        // E-389/E-415: show BASIC's request, not an inferred electrical state.
+        const request = rawValue === null || identity.name === "battery-warning"
+            ? null
+            : (rawValue & (identity.group === "page" ? 0x08 : 0x04)) !== 0;
+        const requestDetail = identity.name === "battery-warning"
+            ? translate("Always displayed in the emulator")
+            : request === null
+                ? translate("BASIC indicator request unknown")
+                : translate(request
+                    ? "BASIC indicator request set"
+                    : "BASIC indicator request clear");
         if (state === "raw") {
             ++knownCount;
         }
@@ -124,8 +139,11 @@ export function lcdIndicatorView(indicators, translate = defaultTranslate) {
                 : translate("indicator data unavailable");
         return Object.freeze({
             ...identity,
+            label: translate(identity.label),
             description: translate(identity.description),
             state,
+            request,
+            requestDetail,
             rawValue,
             valueText,
             detail,

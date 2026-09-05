@@ -92,43 +92,50 @@ if(EMSCRIPTEN)
         jr800_wasm
         PROPERTIES
             SUFFIX ".mjs"
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/web"
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/web-module"
     )
+    set(
+        JR800_WEB_ASSET_NAMES
+        styles.css
+        app.mjs
+        i18n.mjs
+        locale-ja.json
+        audio-output.mjs
+        audio-signal.mjs
+        basic-boot-profile.mjs
+        lcd-indicator-view.mjs
+        lcd-panel-view.mjs
+        keyboard-input.mjs
+        virtual-keyboard-input.mjs
+        virtual-keyboard-legends.mjs
+        run-pacer.mjs
+        jr800-worker.mjs
+        wasm-machine.mjs
+    )
+    set(JR800_WEB_ASSET_SOURCES ${JR800_WEB_ASSET_NAMES})
+    list(TRANSFORM JR800_WEB_ASSET_SOURCES PREPEND "${PROJECT_SOURCE_DIR}/web/")
+    set(JR800_WEB_ASSET_OUTPUTS ${JR800_WEB_ASSET_NAMES})
+    list(TRANSFORM JR800_WEB_ASSET_OUTPUTS PREPEND "${CMAKE_BINARY_DIR}/web-module/")
     add_custom_target(
         jr800_web_bundle ALL
         COMMAND
             ${CMAKE_COMMAND} -E copy_if_different
-            ${PROJECT_SOURCE_DIR}/web/index.html
-            ${PROJECT_SOURCE_DIR}/web/styles.css
-            ${PROJECT_SOURCE_DIR}/web/app.mjs
-            ${PROJECT_SOURCE_DIR}/web/i18n.mjs
-            ${PROJECT_SOURCE_DIR}/web/locale-ja.json
-            ${PROJECT_SOURCE_DIR}/web/audio-output.mjs
-            ${PROJECT_SOURCE_DIR}/web/basic-boot-profile.mjs
-            ${PROJECT_SOURCE_DIR}/web/lcd-indicator-view.mjs
-            ${PROJECT_SOURCE_DIR}/web/lcd-panel-view.mjs
-            ${PROJECT_SOURCE_DIR}/web/keyboard-input.mjs
-            ${PROJECT_SOURCE_DIR}/web/virtual-keyboard-input.mjs
-            ${PROJECT_SOURCE_DIR}/web/virtual-keyboard-legends.mjs
-            ${PROJECT_SOURCE_DIR}/web/jr800-worker.mjs
-            ${PROJECT_SOURCE_DIR}/web/wasm-machine.mjs
-            ${CMAKE_BINARY_DIR}/web
+            ${JR800_WEB_ASSET_SOURCES}
+            ${CMAKE_BINARY_DIR}/web-module
+        COMMAND
+            ${Python3_EXECUTABLE}
+            ${PROJECT_SOURCE_DIR}/tools/build_web_bundle.py
+            --index ${PROJECT_SOURCE_DIR}/web/index.html
+            --output ${CMAKE_BINARY_DIR}/web
+            ${JR800_WEB_ASSET_OUTPUTS}
+            $<TARGET_FILE:jr800_wasm>
+            $<TARGET_FILE_DIR:jr800_wasm>/jr800_wasm.wasm
         DEPENDS
             jr800_wasm
+            ${PROJECT_SOURCE_DIR}/tools/build_web_bundle.py
             ${PROJECT_SOURCE_DIR}/web/index.html
-            ${PROJECT_SOURCE_DIR}/web/styles.css
-            ${PROJECT_SOURCE_DIR}/web/app.mjs
-            ${PROJECT_SOURCE_DIR}/web/i18n.mjs
-            ${PROJECT_SOURCE_DIR}/web/locale-ja.json
-            ${PROJECT_SOURCE_DIR}/web/audio-output.mjs
-            ${PROJECT_SOURCE_DIR}/web/basic-boot-profile.mjs
-            ${PROJECT_SOURCE_DIR}/web/lcd-indicator-view.mjs
-            ${PROJECT_SOURCE_DIR}/web/lcd-panel-view.mjs
-            ${PROJECT_SOURCE_DIR}/web/keyboard-input.mjs
-            ${PROJECT_SOURCE_DIR}/web/virtual-keyboard-input.mjs
-            ${PROJECT_SOURCE_DIR}/web/virtual-keyboard-legends.mjs
-            ${PROJECT_SOURCE_DIR}/web/jr800-worker.mjs
-            ${PROJECT_SOURCE_DIR}/web/wasm-machine.mjs
+            ${JR800_WEB_ASSET_SOURCES}
+        BYPRODUCTS ${JR800_WEB_ASSET_OUTPUTS}
         VERBATIM
     )
 endif()

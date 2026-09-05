@@ -57,6 +57,61 @@ int main() {
     bool passed = true;
 
     {
+        Jr800Bus strict;
+        passed &= expect(
+            strict.write8(0x0300U, 0x12U).fault == BusFault::unsupported_access
+                && strict.read8(0x0300U, AccessKind::data_read).fault
+                    == BusFault::unsupported_access
+                && !strict.ignored_io_access_count().has_value(),
+            "Strict unmapped I/O handling changed"
+        );
+        jr800::core::Jr800ExperimentalMachineConfiguration configuration;
+        configuration.ignore_unsupported_io = true;
+        Jr800Bus bus{configuration};
+        RecordingObserver observer;
+        passed &= expect(bus.set_observer(&observer), "I/O observer attach failed");
+        const auto written = bus.write8(0x0300U, 0x12U);
+        const auto read = bus.read8(0x0300U, AccessKind::data_read);
+        const auto discarded = bus.read8_discard(0x0300U);
+        const auto inspected = bus.inspect8(0x0300U);
+        passed &= expect(
+            written.succeeded() && !written.previous_value_known
+                && read.succeeded() && read.value == 0xFFU
+                && discarded.succeeded()
+                && inspected.succeeded() && inspected.value == 0xFFU
+                && bus.ignored_io_access_count() == 3U
+                && observer.event_count == 3U
+                && observer.events[0].kind == AccessKind::data_write
+                && observer.events[0].value == 0x12U
+                && observer.events[1].kind == AccessKind::data_read
+                && observer.events[1].value == 0xFFU
+                && observer.events[2].kind == AccessKind::data_read,
+            "Ignored I/O did not discard writes, return FF, or preserve diagnostics"
+        );
+        passed &= expect(
+            bus.read8(0x0300U, AccessKind::instruction_fetch).fault
+                == BusFault::unsupported_access
+                && bus.read8(0x8000U, AccessKind::data_read).fault
+                    == BusFault::backing_store_unavailable
+                && bus.write8(0x8000U, 0U).fault == BusFault::read_only_write
+                && bus.read8(0x0080U, AccessKind::data_read).fault
+                    == BusFault::uninitialized_read
+                && bus.write8(0x6000U, 0U).fault == BusFault::unsupported_access
+                && bus.read8(0x0C00U, AccessKind::data_read).fault
+                    == BusFault::uninitialized_read
+                && bus.ignored_io_access_count() == 3U,
+            "I/O policy hid a fetch, memory, or attached-device fault"
+        );
+        const auto timer = bus.read8(0x000AU, AccessKind::data_read);
+        passed &= expect(timer.succeeded() && timer.value == 0U
+            && bus.ignored_io_access_count() == 3U,
+            "I/O policy replaced an implemented register");
+        bus.reset_cpu_devices();
+        passed &= expect(bus.ignored_io_access_count() == 0U,
+            "I/O diagnostic count survived reset");
+    }
+
+    {
         Jr800Bus bus;
         static_cast<void>(bus.advance_cycles(1U));
         const auto unknown_capture_status = bus.inspect8(0x0008U);

@@ -19,16 +19,16 @@ assert.equal(
     unavailable.summary,
     "LCD experiment is not enabled for this session",
 );
-assert.deepEqual(Array.from(unavailable.rgba.slice(0, 4)), [67, 57, 40, 255]);
+assert.deepEqual(Array.from(unavailable.rgba.slice(0, 4)), [173, 163, 139, 255]);
 
 const dots = new Uint8Array(dotCount);
 dots[0] = 1;
 dots[1] = 2;
 const mixed = lcdPanelImage({width: 192, height: 64, dots});
 assert.equal(mixed.summary, `1 on; 1 off; ${dotCount - 2} unknown`);
-assert.deepEqual(Array.from(mixed.rgba.slice(0, 4)), [17, 42, 34, 255]);
-assert.deepEqual(Array.from(mixed.rgba.slice(4, 8)), [132, 235, 194, 255]);
-assert.deepEqual(Array.from(mixed.rgba.slice(8, 12)), [67, 57, 40, 255]);
+assert.deepEqual(Array.from(mixed.rgba.slice(0, 4)), [177, 181, 168, 255]);
+assert.deepEqual(Array.from(mixed.rgba.slice(4, 8)), [77, 84, 79, 255]);
+assert.deepEqual(Array.from(mixed.rgba.slice(8, 12)), [173, 163, 139, 255]);
 const translated = lcdPanelImage(
     {width: 192, height: 64, dots},
     (source, values = {}) => `translated:${source.replace(

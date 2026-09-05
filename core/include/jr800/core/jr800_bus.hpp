@@ -86,6 +86,7 @@ struct Jr800ExperimentalMachineConfiguration {
     std::optional<Jr800ExperimentalLcdConfiguration> lcd;
     std::optional<Jr800ExperimentalMemoryConfiguration> memory;
     std::optional<Jr800ExperimentalCalendarConfiguration> calendar;
+    bool ignore_unsupported_io{};
 
     bool operator==(const Jr800ExperimentalMachineConfiguration&) const =
         default;
@@ -197,8 +198,11 @@ public:
     ) const noexcept;
     [[nodiscard]] std::optional<std::uint64_t>
     lcd_substituted_data_read_count() const noexcept;
+    [[nodiscard]] std::optional<std::uint64_t>
+    ignored_io_access_count() const noexcept;
 
 private:
+    [[nodiscard]] bool can_ignore_io(std::uint16_t address) const noexcept;
     [[nodiscard]] BusReadResult read_experimental_calendar(
         std::uint16_t address,
         AccessKind kind
@@ -233,8 +237,10 @@ private:
         experimental_lcd_configuration_;
     std::optional<Jr800ExperimentalCalendarConfiguration>
         experimental_calendar_configuration_;
+    bool ignore_unsupported_io_{};
     std::uint8_t calendar_cpu_cycle_remainder_{};
     std::uint64_t lcd_substituted_data_read_count_{};
+    std::uint64_t ignored_io_access_count_{};
 };
 
 }  // namespace jr800::core

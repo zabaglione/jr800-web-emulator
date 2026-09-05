@@ -388,7 +388,7 @@ function jr800StopParity(stop) {
 
 try {
     const initialized = await request("initialize", {moduleUrl});
-    assert.equal(initialized.abiVersion, 36);
+    assert.equal(initialized.abiVersion, 37);
     const initialApplication = application.slice();
     const initialDebugInfo = debugInfo.slice();
     const syntheticLoaded = await request("load", {
@@ -398,6 +398,7 @@ try {
     }, [initialApplication.buffer, initialDebugInfo.buffer]);
     assert.equal(syntheticLoaded.state.port2TimerOutput, "unavailable");
     assert.equal(syntheticLoaded.state.lcdSubstitutedDataReadCount, null);
+    assert.equal(syntheticLoaded.state.ignoredIoAccessCount, null);
 
     const symbolWatch = await request("set-symbol-watch", {
         watchId: 5,
@@ -1161,6 +1162,47 @@ try {
         "rejected raw ROM load changed the active JR-800 machine",
     );
 
+    // Project-authored stores, reads and CLR of an unmapped I/O location.
+    for (const ignoreUnsupportedIo of [false, true]) {
+        const ioRom = makeLogicalRomBytes(Uint8Array.of(
+            0x86, 0x12, 0xb7, 0x03, 0x00, 0xb6, 0x03, 0x00,
+            0x7f, 0x03, 0x00,
+        ));
+        const ioLoaded = await request("load-jr800-raw", {
+            moduleUrl, logicalRom: ioRom,
+            configuration: {ignoreUnsupportedIo},
+            view: {memoryAddress: 0x8000, memoryLength: 16},
+        });
+        assert.equal(ioLoaded.state.ignoredIoAccessCount,
+            ignoreUnsupportedIo ? 0 : null);
+        await request("step");
+        const stored = await request("step");
+        if (!ignoreUnsupportedIo) {
+            assert.equal(stored.stop.reason, "cpu-fault");
+            assert.equal(stored.stop.busFault, "unsupported-access");
+            continue;
+        }
+        assert.equal(stored.stop.reason, "step-complete");
+        assert.equal(stored.snapshot.state.ignoredIoAccessCount, 1);
+        const read = await request("step");
+        assert.equal(read.snapshot.state.a, 0xff);
+        assert.equal(read.snapshot.state.ignoredIoAccessCount, 2);
+        const cleared = await request("step");
+        assert.equal(cleared.snapshot.state.ignoredIoAccessCount, 4);
+        const inspected = await request("snapshot", {
+            view: {memoryAddress: 0x0300, memoryLength: 1},
+        });
+        assert.deepEqual(inspected.memory.bytes, [0xff]);
+        assert.equal(inspected.state.ignoredIoAccessCount, 4);
+        const resetIo = await request("reset");
+        assert.equal(resetIo.state.ignoredIoAccessCount, 0);
+    }
+    await assert.rejects(request("load-jr800-raw", {
+        moduleUrl,
+        logicalRom: makeLogicalRomBytes(Uint8Array.of(0x01)),
+        configuration: {ignoreUnsupportedIo: 1},
+    }), /Ignore unsupported I\/O must be boolean/);
+
     const nopRomBytes = makeLogicalRomBytes(Uint8Array.of(0x01));
     const nopRom = makeJr8romFromSegments([
         [0xc000, nopRomBytes.subarray(0x4000)],
@@ -1189,7 +1231,7 @@ try {
         },
         view: {memoryAddress: 0x8000, memoryLength: 2},
     }, [nopRom.buffer]);
-    assert.equal(jr800Loaded.state.abiVersion, 36);
+    assert.equal(jr800Loaded.state.abiVersion, 37);
     assert.equal(jr800Loaded.state.profile, "hd6301v1");
     assert.equal(jr800Loaded.state.pc, 0x8000);
     assert.equal(jr800Loaded.state.sp, 0x2345);
@@ -2203,13 +2245,43 @@ try {
     await request("reset");
     await audioResetPromise;
 
+    // More writes than the access-history capacity must reach the audio host
+    // exactly once, even though instruction fetches share that same history.
+    const denseAudioRom = makeJr8rom(Uint8Array.of(
+        0x86, 0x00, 0x97, 0x02,
+        0x88, 0x10, 0x97, 0x02, 0x20, 0xfa,
+    ));
+    await request("load-jr800", {romContainer: denseAudioRom}, [denseAudioRom.buffer]);
+    await request("set-audio-enabled", {enabled: true});
+    queuedEvents.splice(0);
+    const denseStopPromise = nextEvent("stopped");
+    await request("run", {instructionLimit: 9002});
+    assert.equal((await denseStopPromise).stop.reason, "instruction-limit");
+    const audioFrames = queuedEvents.filter(message => message.event === "audio-transitions");
+    const denseEdges = audioFrames.flatMap(message => message.transitions);
+    assert.equal(denseEdges.length, 3000);
+    assert.ok(denseEdges.every((edge, index) => edge.level === (index % 2 === 0)));
+    assert.ok(denseEdges.slice(1).every((edge, index) => edge.cycle - denseEdges[index].cycle === 8));
+    assert.equal(audioFrames[0].startCycle, 0);
+    assert.ok(audioFrames.slice(1).every((packet, index) => packet.startCycle === audioFrames[index].endCycle));
+    queuedEvents.splice(0);
+
     const powerOffRom = makeJr8rom(Uint8Array.of(0x20, 0xfe));
     await request(
         "load-jr800",
         {romContainer: powerOffRom},
         [powerOffRom.buffer],
     );
-    await request("run", {instructionLimit: 10_000_000});
+    await assert.rejects(request("run", {realtime: "true"}), /must be a boolean/);
+    await assert.rejects(request("step-over", {realtime: true}), /plain JR-800 run/);
+    const pacedStopPromise = nextEvent("stopped");
+    await request("run", {instructionLimit: 20_000, realtime: true});
+    const pacedStop = await pacedStopPromise;
+    assert.equal(pacedStop.stop.reason, "instruction-limit");
+    assert.equal(pacedStop.stop.totalInstructionsExecuted, 20_000);
+    assert.equal(Number(pacedStop.snapshot.state.cycleCount), 60_000);
+    assert.equal(pacedStop.snapshot.state.pc, 0x8000);
+    await request("run", {instructionLimit: 10_000_000, realtime: true});
     assert.deepEqual(await request("power-off"), {poweredOff: true});
     await new Promise((resolvePromise) => setTimeout(resolvePromise, 10));
     assert.equal(

@@ -48,8 +48,8 @@ assert.match(
 );
 assert.match(
     html,
-    /class="virtual-power-key"[^>]*disabled[^>]*title="Power behavior is not modeled"[\s\S]*class="virtual-power-key virtual-power-key-on"[^>]*disabled/,
-    "Device controls must show power keys without modeling their behavior",
+    /id="power-off"[^>]*class="virtual-power-key"[^>]*disabled[^>]*title="Suspend emulation and retain memory"[\s\S]*id="power-on"[^>]*class="virtual-power-key virtual-power-key-on"[^>]*disabled/,
+    "Power controls must describe retained-session suspension and resumption",
 );
 for (const [left, right] of [
     ['class="virtual-power-key"', 'class="virtual-power-key virtual-power-key-on"'],
@@ -150,6 +150,8 @@ for (const id of [
     "load-rom",
     "resume-machine",
     "pause-basic",
+    "power-on",
+    "power-off",
     "reset-sp-enabled",
     "reset-sp-value",
     "reset-x-enabled",
@@ -226,11 +228,8 @@ assert.deepEqual(lcdIndicators, [
     "control-mode",
     "radian-mode",
     "degree-mode",
+    "battery-warning",
 ]);
-assert.ok(
-    !lcdIndicators.includes("battery-warning"),
-    "Physical-only battery telemetry must not be rendered",
-);
 
 const virtualKeys = [
     ...html.matchAll(/data-jr800-key="([^"]+)"/g),

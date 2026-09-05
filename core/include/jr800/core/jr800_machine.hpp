@@ -129,6 +129,8 @@ public:
     ) const noexcept;
     [[nodiscard]] std::optional<std::uint64_t>
     lcd_substituted_data_read_count() const noexcept;
+    [[nodiscard]] std::optional<std::uint64_t>
+    ignored_io_access_count() const noexcept;
 
     [[nodiscard]] Jr800ResetEntryResult inspect_reset_entry() const noexcept;
     [[nodiscard]] Jr800ResetEntryResult initialize_from_reset_entry() noexcept;

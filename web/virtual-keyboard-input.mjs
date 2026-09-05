@@ -108,3 +108,39 @@ export class Jr800VirtualKeyboardState {
         return null;
     }
 }
+
+// Host typing policy: do not turn overlapping ordinary presses into an
+// unsupported physical matrix chord. Modifier behavior stays separate.
+export class Jr800TypingRollover {
+    #activeKey = null;
+
+    transition({key, pressed}) {
+        requireKey(key);
+        if (typeof pressed !== "boolean") {
+            throw new TypeError("Keyboard pressed state must be boolean");
+        }
+        if (latchKeys.has(key)) {
+            return [{key, pressed}];
+        }
+        if (pressed) {
+            if (this.#activeKey === key) {
+                return [];
+            }
+            const previous = this.#activeKey;
+            this.#activeKey = key;
+            return [
+                ...(previous === null ? [] : [{key: previous, pressed: false}]),
+                {key, pressed: true},
+            ];
+        }
+        if (this.#activeKey !== key) {
+            return [];
+        }
+        this.#activeKey = null;
+        return [{key, pressed: false}];
+    }
+
+    reset() {
+        this.#activeKey = null;
+    }
+}

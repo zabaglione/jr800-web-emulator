@@ -183,6 +183,11 @@ Jr800Machine::lcd_substituted_data_read_count() const noexcept {
     return bus_.lcd_substituted_data_read_count();
 }
 
+std::optional<std::uint64_t>
+Jr800Machine::ignored_io_access_count() const noexcept {
+    return bus_.ignored_io_access_count();
+}
+
 Jr800ResetEntryResult Jr800Machine::inspect_reset_entry() const noexcept {
     constexpr std::uint16_t vector_msb_address = 0xFFFEU;
     constexpr std::uint16_t vector_lsb_address = 0xFFFFU;

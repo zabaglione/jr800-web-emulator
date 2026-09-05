@@ -1,3 +1,7 @@
 /build/
 /local-data/
+/evidence-private/
+/.cache/
+__pycache__/
+*.pyc
 .DS_Store

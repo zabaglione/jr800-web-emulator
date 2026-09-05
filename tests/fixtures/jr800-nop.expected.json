@@ -1,7 +1,7 @@
 {
   "initial": {
     "state": {
-      "abiVersion": 36,
+      "abiVersion": 37,
       "profile": "hd6301v1",
       "pc": 32768,
       "sp": 9029,
@@ -49,7 +49,7 @@
     },
     "snapshot": {
       "state": {
-        "abiVersion": 36,
+        "abiVersion": 37,
         "profile": "hd6301v1",
         "pc": 32769,
         "sp": 9029,

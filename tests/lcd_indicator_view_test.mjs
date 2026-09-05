@@ -14,7 +14,7 @@ const {Jr800VisibleLcdIndicators, lcdIndicatorView} = await import(
     pathToFileURL(modulePath)
 );
 
-assert.equal(Jr800VisibleLcdIndicators.length, 15);
+assert.equal(Jr800VisibleLcdIndicators.length, 16);
 assert.deepEqual(
     Jr800VisibleLcdIndicators.filter(({group}) => group === "page")
         .map(({label}) => label),
@@ -23,7 +23,7 @@ assert.deepEqual(
 assert.deepEqual(
     Jr800VisibleLcdIndicators.filter(({group}) => group === "mode")
         .map(({label}) => label),
-    ["CAP.L", "GRAPH", "KANA", "INS", "CTRL", "RAD", "DEG"],
+    ["CAP.L", "GRAPH", "KANA", "INS", "CTRL", "RAD", "DEG", "Battery life"],
 );
 assert.ok(
     Jr800VisibleLcdIndicators.every(({description}) => (
@@ -55,14 +55,9 @@ assert.match(
         .description,
     /CTRL\+8.*initial state unresolved/,
 );
-assert.ok(
-    Jr800VisibleLcdIndicators.every(
-        ({name}) => name !== "battery-warning",
-    ),
-);
-
 const unavailable = lcdIndicatorView(null);
 assert.ok(unavailable.entries.every(({state}) => state === "unavailable"));
+assert.ok(unavailable.entries.every(({request}) => request === null));
 assert.match(unavailable.summary, /battery telemetry omitted/);
 
 const names = [
@@ -88,6 +83,7 @@ const unknown = lcdIndicatorView(unknownSnapshot);
 assert.ok(unknown.entries.every(({state, valueText}) => (
     state === "unknown" && valueText === "?"
 )));
+assert.ok(unknown.entries.every(({request}) => request === null));
 
 const rawSnapshot = {...unknownSnapshot, "page-1": 0, "capital-lock": 0xff};
 const raw = lcdIndicatorView(rawSnapshot);
@@ -101,6 +97,23 @@ assert.ok(
         .every(({detail}) => detail.includes("drive state unresolved")),
     "Raw zero and nonzero values must not become off/on states",
 );
+// E-389 defines individual BASIC request bits, not a nonzero-byte rule.
+for (const [value, pageRequest, modeRequest] of [
+    [0x00, false, false],
+    [0x04, false, true],
+    [0x08, true, false],
+    [0xfb, true, false],
+    [0xf7, false, true],
+    [0xff, true, true],
+]) {
+    const view = lcdIndicatorView(Object.fromEntries(names.map((name) => [name, value])));
+    for (const entry of view.entries) {
+        assert.equal(entry.request, entry.name === "battery-warning"
+            ? null : entry.group === "page" ? pageRequest : modeRequest);
+        assert.equal(entry.state, "raw");
+        assert.match(entry.detail, /drive state unresolved/);
+    }
+}
 const translated = lcdIndicatorView(
     rawSnapshot,
     (source) => `translated:${source}`,

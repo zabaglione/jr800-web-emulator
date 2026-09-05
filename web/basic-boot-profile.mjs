@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 
 export const Jr800BasicRunSlice = Object.freeze({
-    instructionLimit: 250_000,
+    instructionLimit: 20_000,
+    realtime: true,
     suspendedCycleLimit: 64_000_000,
 });
 
@@ -21,5 +22,5 @@ export function jr800BasicBootExperimentConfiguration() {
 }
 
 export function basicRunCanContinue(stop) {
-    return stop?.reason === "instruction-limit";
+    return stop?.reason === "instruction-limit" || stop?.reason === "sleeping";
 }

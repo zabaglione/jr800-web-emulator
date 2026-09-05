@@ -17,7 +17,8 @@ const {
 } = await import(pathToFileURL(modulePath));
 
 assert.deepEqual(Jr800BasicRunSlice, {
-    instructionLimit: 250_000,
+    instructionLimit: 20_000,
+    realtime: true,
     suspendedCycleLimit: 64_000_000,
 });
 
@@ -42,12 +43,15 @@ assert.notEqual(first.port1Pins, second.port1Pins);
 assert.notEqual(first.port2Pins, second.port2Pins);
 
 assert.equal(basicRunCanContinue({reason: "instruction-limit"}), true);
+assert.equal(basicRunCanContinue({reason: "sleeping"}), true);
 for (const stop of [
     undefined,
     null,
     {},
     {reason: "pause-requested"},
-    {reason: "sleeping"},
+    {reason: "paused"},
+    {reason: "execution-breakpoint"},
+    {reason: "memory-watchpoint"},
     {reason: "cpu-fault"},
 ]) {
     assert.equal(basicRunCanContinue(stop), false);

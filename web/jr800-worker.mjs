@@ -6,7 +6,13 @@ import {
     WasmMachine,
 } from "./wasm-machine.mjs";
 
+import {JR800_CPU_CLOCK_HZ, RUN_TURN_MS, RunPacer} from "./run-pacer.mjs";
+
 const RUN_SLICE_INSTRUCTIONS = 1000;
+// The debugger retains 1024 bus accesses, including fetches. Drain sound
+// before a worst-case instruction batch can evict a Port 1 transition.
+const AUDIO_SLICE_INSTRUCTIONS = 64;
+const RUN_PROGRESS_INTERVAL_MS = 50;
 const SUSPENDED_SLICE_CYCLES = 65_536;
 const DEFAULT_SUSPENDED_CYCLE_LIMIT = SUSPENDED_SLICE_CYCLES;
 const JR800_AUDIO_ACCESS_FILTER = Object.freeze({
@@ -33,6 +39,9 @@ if (typeof self !== "undefined" && typeof self.postMessage === "function") {
 let machine;
 let machineModuleUrl;
 let running = false;
+let runPacer = null;
+let pacedRunEnd = null;
+let lastRunProgressTime = 0;
 let pauseRequested = false;
 let runGeneration = 0;
 let remainingInstructions = 0;
@@ -47,6 +56,9 @@ const symbolWatches = new Map();
 let audioEnabled = false;
 let lastAudioAccessSequence = 0n;
 let lastAudioLevel = null;
+let audioFrameStartCycle = null;
+let audioFrameInitialLevel = null;
+let audioFrameTransitions = [];
 const minimumKeyboardReleaseCycles = new Map();
 const deferredKeyboardReleases = new Set();
 const pendingKeyboardReleaseResponses = new Map();
@@ -97,9 +109,13 @@ function applyDeferredKeyboardReleases(current) {
 function resetAudioCollector() {
     lastAudioAccessSequence = 0n;
     lastAudioLevel = null;
+    audioFrameStartCycle = null;
+    audioFrameInitialLevel = null;
+    audioFrameTransitions = [];
 }
 
 function synchronizeAudioCollector(current) {
+    audioFrameStartCycle = Number(machineCycle(current));
     const records = current.kind === "jr800"
         ? current.accesses(JR800_AUDIO_ACCESS_FILTER)
         : [];
@@ -109,13 +125,13 @@ function synchronizeAudioCollector(current) {
             lastAudioLevel = (record.value & 0x10) !== 0;
         }
     }
+    audioFrameInitialLevel = lastAudioLevel;
 }
 
-function emitAudioTransitions(current) {
+function collectAudioTransitions(current) {
     if (!audioEnabled || current.kind !== "jr800") {
         return;
     }
-    const transitions = [];
     for (const record of current.accesses(JR800_AUDIO_ACCESS_FILTER)) {
         const sequence = BigInt(record.sequence);
         if (sequence <= lastAudioAccessSequence) {
@@ -132,17 +148,28 @@ function emitAudioTransitions(current) {
             : lastAudioLevel;
         lastAudioLevel = level;
         if (previousLevel !== null && previousLevel !== level) {
-            transitions.push({cycle: record.instructionCycle, level});
+            audioFrameTransitions.push({cycle: record.instructionCycle, level});
         }
     }
-    if (transitions.length !== 0) {
+}
+
+function emitAudioFrame(current) {
+    if (!audioEnabled || current.kind !== "jr800") return;
+    const endCycle = Number(machineCycle(current));
+    if (audioFrameStartCycle !== null && endCycle > audioFrameStartCycle) {
         sendToHost({
             type: "event",
             event: "audio-transitions",
-            clockHz: 1_228_800,
-            transitions,
+            clockHz: JR800_CPU_CLOCK_HZ,
+            startCycle: audioFrameStartCycle,
+            endCycle,
+            initialLevel: audioFrameInitialLevel,
+            transitions: audioFrameTransitions,
         });
     }
+    audioFrameStartCycle = endCycle;
+    audioFrameInitialLevel = lastAudioLevel;
+    audioFrameTransitions = [];
 }
 
 function response(id, result) {
@@ -248,6 +275,14 @@ function emitStopped(
 }
 
 function finishRun(stop, memoryAddress, memoryLength, traceFilter) {
+    emitAudioFrame(requireMachine());
+    pacedRunEnd = runPacer !== null
+        && (stop.reason === "instruction-limit" || stop.reason === "sleeping")
+        ? {machine: requireMachine(), cycle: Number(machineCycle(requireMachine()))}
+        : null;
+    if (pacedRunEnd === null) {
+        runPacer = null;
+    }
     running = false;
     pauseRequested = false;
     runTargetAddress = null;
@@ -302,96 +337,107 @@ function scheduleRunSlice(
         }
 
         try {
-            const slice = Math.min(remainingInstructions, RUN_SLICE_INSTRUCTIONS);
-            const current = requireMachine();
-            let stop;
-            if (stepOutState !== null) {
-                const result = current.stepOut(slice, stepOutState);
-                stop = result.stop;
-                if (stop.reason === "instruction-limit"
-                    || stop.reason === "sleeping") {
-                    stepOutState = result.state;
-                    stop = {...stop, stepOutState: result.state};
+            const deadline = performance.now() + RUN_TURN_MS;
+            do {
+                const slice = Math.min(remainingInstructions,
+                    audioEnabled ? AUDIO_SLICE_INSTRUCTIONS : RUN_SLICE_INSTRUCTIONS);
+                const current = requireMachine();
+                let stop;
+                if (stepOutState !== null) {
+                    const result = current.stepOut(slice, stepOutState);
+                    stop = result.stop;
+                    if (stop.reason === "instruction-limit"
+                        || stop.reason === "sleeping") {
+                        stepOutState = result.state;
+                        stop = {...stop, stepOutState: result.state};
+                    } else {
+                        stepOutState = null;
+                    }
+                } else if (stepOverPending) {
+                    stepOverPending = false;
+                    stop = current.stepOver(slice);
+                    if (stop.continuationAddress !== null) {
+                        runTargetAddress = stop.continuationAddress;
+                    }
                 } else {
-                    stepOutState = null;
+                    stop = runTargetAddress === null
+                        ? current.run(slice)
+                        : current.runTo(runTargetAddress, slice);
                 }
-            } else if (stepOverPending) {
-                stepOverPending = false;
-                stop = current.stepOver(slice);
-                if (stop.continuationAddress !== null) {
-                    runTargetAddress = stop.continuationAddress;
+                applyDeferredKeyboardReleases(current);
+                collectAudioTransitions(current);
+                const executed = Number(stop.instructionsExecuted);
+                executedInstructions += executed;
+                remainingInstructions -= executed;
+                if (current.kind === "jr800" && stop.reason === "sleeping"
+                    && remainingInstructions > 0) {
+                    if (remainingSuspendedCycles === 0) {
+                        finishRun(stop, memoryAddress, memoryLength, traceFilter);
+                        return;
+                    }
+                    const cycleSlice = Math.min(
+                        remainingSuspendedCycles,
+                        SUSPENDED_SLICE_CYCLES,
+                        runPacer === null ? SUSPENDED_SLICE_CYCLES
+                            : Math.max(1, runPacer.cycleBudget(
+                                Number(machineCycle(current)), performance.now(),
+                            )),
+                    );
+                    const suspended = current.advanceSuspendedCycles(
+                        cycleSlice,
+                    );
+                    applyDeferredKeyboardReleases(current);
+                    suspendedCyclesElapsed += suspended.cyclesElapsed;
+                    remainingSuspendedCycles -= suspended.cyclesElapsed;
+                    if (suspended.busFault !== "none") {
+                        finishRun(
+                            {
+                                ...stop,
+                                reason: "cpu-fault",
+                                fault: "bus-advance",
+                                busFault: suspended.busFault,
+                                suspendedAdvance: suspended,
+                            },
+                            memoryAddress,
+                            memoryLength,
+                            traceFilter,
+                        );
+                        return;
+                    }
+                    if (!suspended.interruptKnown
+                        || suspended.interruptSource !== "none") {
+                        continue;
+                    }
+                    if (remainingSuspendedCycles > 0) {
+                        continue;
+                    }
+                    finishRun(
+                        {...stop, suspendedAdvance: suspended},
+                        memoryAddress,
+                        memoryLength,
+                        traceFilter,
+                    );
+                    return;
                 }
-            } else {
-                stop = runTargetAddress === null
-                    ? current.run(slice)
-                    : current.runTo(runTargetAddress, slice);
-            }
-            applyDeferredKeyboardReleases(current);
-            emitAudioTransitions(current);
-            const executed = Number(stop.instructionsExecuted);
-            executedInstructions += executed;
-            remainingInstructions -= executed;
-            if (current.kind === "jr800" && stop.reason === "sleeping"
-                && remainingInstructions > 0) {
-                if (remainingSuspendedCycles === 0) {
+                if (stop.reason !== "instruction-limit" || remainingInstructions === 0) {
                     finishRun(stop, memoryAddress, memoryLength, traceFilter);
                     return;
                 }
-                const cycleSlice = Math.min(
-                    remainingSuspendedCycles,
-                    SUSPENDED_SLICE_CYCLES,
-                );
-                const suspended = current.advanceSuspendedCycles(
-                    cycleSlice,
-                );
-                applyDeferredKeyboardReleases(current);
-                suspendedCyclesElapsed += suspended.cyclesElapsed;
-                remainingSuspendedCycles -= suspended.cyclesElapsed;
-                if (suspended.busFault !== "none") {
-                    finishRun(
-                        {
-                            ...stop,
-                            reason: "cpu-fault",
-                            fault: "bus-advance",
-                            busFault: suspended.busFault,
-                            suspendedAdvance: suspended,
-                        },
-                        memoryAddress,
-                        memoryLength,
-                        traceFilter,
-                    );
-                    return;
-                }
-                if (!suspended.interruptKnown
-                    || suspended.interruptSource !== "none") {
-                    scheduleRunSlice(
-                        generation,
-                        memoryAddress,
-                        memoryLength,
-                        traceFilter,
-                    );
-                    return;
-                }
-                if (remainingSuspendedCycles > 0) {
-                    scheduleRunSlice(
-                        generation,
-                        memoryAddress,
-                        memoryLength,
-                        traceFilter,
-                    );
-                    return;
-                }
-                finishRun(
-                    {...stop, suspendedAdvance: suspended},
-                    memoryAddress,
-                    memoryLength,
-                    traceFilter,
-                );
-                return;
-            }
-            if (stop.reason !== "instruction-limit" || remainingInstructions === 0) {
-                finishRun(stop, memoryAddress, memoryLength, traceFilter);
-                return;
+            } while (performance.now() < deadline
+                && (runPacer === null || runPacer.cycleBudget(
+                    Number(machineCycle(requireMachine())), performance.now(),
+                ) > 0));
+            emitAudioFrame(requireMachine());
+            const now = performance.now();
+            if (runPacer !== null && now - lastRunProgressTime >= RUN_PROGRESS_INTERVAL_MS) {
+                sendToHost({
+                    type: "event",
+                    event: "progress",
+                    snapshot: snapshotWithWatches(requireMachine(), {
+                        memoryAddress, memoryLength, traceFilter,
+                    }),
+                });
+                lastRunProgressTime = now;
             }
             scheduleRunSlice(
                 generation,
@@ -401,6 +447,7 @@ function scheduleRunSlice(
             );
         } catch (error) {
             running = false;
+            runPacer = null;
             pauseRequested = false;
             runTargetAddress = null;
             stepOverPending = false;
@@ -408,7 +455,9 @@ function scheduleRunSlice(
             const detail = error instanceof Error ? error.stack ?? error.message : String(error);
             sendToHost({type: "event", event: "error", error: detail});
         }
-    }, 0);
+    }, runPacer === null ? 0 : runPacer.delay(
+        Number(machineCycle(requireMachine())), performance.now(),
+    ));
 }
 
 function startRun(
@@ -420,6 +469,13 @@ function startRun(
     } = {},
 ) {
     const current = requireMachine();
+    if (message.realtime !== undefined && typeof message.realtime !== "boolean") {
+        throw new TypeError("Realtime pacing must be a boolean");
+    }
+    if (message.realtime && (current.kind !== "jr800"
+        || targetAddress !== null || pendingStepOver || initialStepOutState !== null)) {
+        throw new Error("Realtime pacing requires a plain JR-800 run");
+    }
     const instructionLimit = message.instructionLimit ?? 1_000_000;
     if (!Number.isSafeInteger(instructionLimit) || instructionLimit < 1) {
         throw new RangeError("Instruction limit must be a positive safe integer");
@@ -436,7 +492,17 @@ function startRun(
     const view = normalizeReadableMachineView(current, message.view);
     if (current.kind === "jr800") {
         current.clearKeyboardActivity();
+        if (audioEnabled && audioFrameStartCycle === null) {
+            synchronizeAudioCollector(current);
+        }
     }
+    const cycle = Number(machineCycle(current));
+    runPacer = message.realtime
+        ? (pacedRunEnd?.machine === current && pacedRunEnd.cycle === cycle
+            ? runPacer : new RunPacer(cycle, performance.now()))
+        : null;
+    pacedRunEnd = null;
+    lastRunProgressTime = performance.now();
     remainingInstructions = instructionLimit;
     executedInstructions = 0;
     remainingSuspendedCycles = requestedSuspendedCycleLimit;
@@ -601,10 +667,14 @@ async function dispatch(message) {
         case "step": {
             requireIdle();
             const current = requireMachine();
+            if (audioEnabled && audioFrameStartCycle === null) {
+                synchronizeAudioCollector(current);
+            }
             const view = normalizeReadableMachineView(current, message.view);
             const stop = current.step();
             applyDeferredKeyboardReleases(current);
-            emitAudioTransitions(current);
+            collectAudioTransitions(current);
+            emitAudioFrame(current);
             response(id, {
                 stop,
                 snapshot: snapshotWithWatches(current, {
@@ -616,10 +686,11 @@ async function dispatch(message) {
         }
         case "set-audio-enabled": {
             const current = requireMachine();
-            audioEnabled = Boolean(message.enabled);
-            resetAudioCollector();
-            if (audioEnabled) {
-                synchronizeAudioCollector(current);
+            const enabled = Boolean(message.enabled);
+            if (enabled !== audioEnabled || audioFrameStartCycle === null) {
+                audioEnabled = enabled;
+                resetAudioCollector();
+                if (audioEnabled) synchronizeAudioCollector(current);
             }
             response(id, {enabled: audioEnabled});
             break;
@@ -858,6 +929,8 @@ async function dispatch(message) {
             response(id, {cleared: true});
             break;
         case "power-off": {
+            runPacer = null;
+            pacedRunEnd = null;
             const current = requireMachine();
             running = false;
             pauseRequested = false;
@@ -881,6 +954,8 @@ async function dispatch(message) {
         }
         case "dispose":
             requireIdle();
+            runPacer = null;
+            pacedRunEnd = null;
             if (machine) {
                 machine.destroy();
             }

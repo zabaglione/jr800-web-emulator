@@ -88,7 +88,8 @@ Jr800Bus::Jr800Bus(
     Jr800ExperimentalMachineConfiguration configuration
 ) noexcept
     : experimental_lcd_configuration_(configuration.lcd),
-      experimental_calendar_configuration_(configuration.calendar) {
+      experimental_calendar_configuration_(configuration.calendar),
+      ignore_unsupported_io_(configuration.ignore_unsupported_io) {
     if (configuration.internal_ram.has_value()) {
         static_cast<void>(memory_.initialize_ram(
             Jr800MemoryRegion::cpu_internal_ram,
@@ -141,6 +142,7 @@ Jr800MemoryStatus Jr800Bus::host_fill_ram(
 }
 
 void Jr800Bus::reset_cpu_devices() noexcept {
+    ignored_io_access_count_ = 0U;
     ports_.reset();
     ram_control_.reset();
     sci_.reset();
@@ -381,6 +383,12 @@ BusReadResult Jr800Bus::read8(
 
     const auto read = memory_.read8(address);
     if (!read.succeeded()) {
+        if (read.status == Jr800MemoryStatus::unsupported_region
+            && kind == AccessKind::data_read && can_ignore_io(address)) {
+            ++ignored_io_access_count_;
+            notify_read(address, 0xFFU, kind);
+            return {BusFault::none, 0xFFU};
+        }
         return {bus_fault(read.status), std::nullopt};
     }
     const auto value = *read.value;
@@ -466,6 +474,12 @@ BusDiscardedReadResult Jr800Bus::read8_discard(
         return {BusFault::none};
     }
     if (!read.succeeded()) {
+        if (read.status == Jr800MemoryStatus::unsupported_region
+            && can_ignore_io(address)) {
+            ++ignored_io_access_count_;
+            notify_read(address, 0xFFU, AccessKind::data_read);
+            return {BusFault::none};
+        }
         return {bus_fault(read.status)};
     }
     notify_read(address, *read.value, AccessKind::data_read);
@@ -558,6 +572,10 @@ BusReadResult Jr800Bus::inspect8(std::uint16_t address) const noexcept {
 
     const auto read = memory_.read8(address);
     if (!read.succeeded()) {
+        if (read.status == Jr800MemoryStatus::unsupported_region
+            && can_ignore_io(address)) {
+            return {BusFault::none, 0xFFU};
+        }
         return {bus_fault(read.status), std::nullopt};
     }
     return {BusFault::none, *read.value};
@@ -657,6 +675,12 @@ BusWriteResult Jr800Bus::write8(
     const auto previous = memory_.read8(address);
     const auto write = memory_.write8(address, value);
     if (!write.succeeded()) {
+        if (write.status == Jr800MemoryStatus::unsupported_region
+            && can_ignore_io(address)) {
+            ++ignored_io_access_count_;
+            notify_write(address, value, std::nullopt);
+            return {BusFault::none, 0U, false};
+        }
         return {bus_fault(write.status), 0U, false};
     }
 
@@ -676,6 +700,30 @@ BusWriteResult Jr800Bus::write8(
 
 bool Jr800Bus::rom_loaded() const noexcept {
     return memory_.rom_loaded();
+}
+
+bool Jr800Bus::can_ignore_io(std::uint16_t address) const noexcept {
+    if (!ignore_unsupported_io_) {
+        return false;
+    }
+    // E-418 is an explicit host policy, not an open-bus hardware model.
+    switch (jr800_memory_region(address)) {
+    case Jr800MemoryRegion::cpu_internal_registers:
+    case Jr800MemoryRegion::reserved:
+    case Jr800MemoryRegion::calendar_clock:
+    case Jr800MemoryRegion::lcd:
+    case Jr800MemoryRegion::keyboard:
+        return true;
+    default:
+        return false;
+    }
+}
+
+std::optional<std::uint64_t>
+Jr800Bus::ignored_io_access_count() const noexcept {
+    return ignore_unsupported_io_
+        ? std::optional<std::uint64_t>{ignored_io_access_count_}
+        : std::nullopt;
 }
 
 BusReadResult Jr800Bus::read_experimental_calendar(

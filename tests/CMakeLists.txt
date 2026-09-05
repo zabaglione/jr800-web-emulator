@@ -1,4 +1,4 @@
-if(EXISTS "${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v36.md")
+if(EXISTS "${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v37.md")
     add_test(
         NAME abi_version_contract
         COMMAND
@@ -6,7 +6,7 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v36.md")
             ${CMAKE_CURRENT_SOURCE_DIR}/abi_version_contract_test.py
             --header ${PROJECT_SOURCE_DIR}/wasm/include/jr800/wasm/api.h
             --adapter ${PROJECT_SOURCE_DIR}/web/wasm-machine.mjs
-            --document ${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v36.md
+            --document ${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v37.md
     )
     set_tests_properties(
         abi_version_contract
@@ -17,6 +17,13 @@ endif()
 
 if(EMSCRIPTEN)
     find_program(NODE_EXECUTABLE node REQUIRED)
+    add_test(
+        NAME web_bundle
+        COMMAND
+            ${Python3_EXECUTABLE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/web_bundle_test.py
+            ${PROJECT_SOURCE_DIR}/tools/build_web_bundle.py
+    )
     add_test(
         NAME wasm_worker_vertical_slice
         COMMAND
@@ -35,7 +42,7 @@ if(EMSCRIPTEN)
         COMMAND
             ${NODE_EXECUTABLE}
             ${CMAKE_CURRENT_SOURCE_DIR}/web_ui_contract_test.mjs
-            $<TARGET_FILE_DIR:jr800_wasm>/index.html
+            ${CMAKE_BINARY_DIR}/web/index.html
             $<TARGET_FILE_DIR:jr800_wasm>/app.mjs
             $<TARGET_FILE_DIR:jr800_wasm>/styles.css
     )
@@ -53,6 +60,13 @@ if(EMSCRIPTEN)
             ${NODE_EXECUTABLE}
             ${CMAKE_CURRENT_SOURCE_DIR}/audio_output_test.mjs
             $<TARGET_FILE_DIR:jr800_wasm>/audio-output.mjs
+    )
+    add_test(
+        NAME run_pacer
+        COMMAND
+            ${NODE_EXECUTABLE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/run_pacer_test.mjs
+            $<TARGET_FILE_DIR:jr800_wasm>/run-pacer.mjs
     )
     add_test(
         NAME basic_boot_profile
