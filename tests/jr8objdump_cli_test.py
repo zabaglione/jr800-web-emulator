@@ -305,7 +305,7 @@ def main() -> int:
         require(
             len(application_lines[0].split(" integrity=")) == 2
             and application_lines[0].startswith(
-                "JR8APP 1.0 target=hd6301v1 entry=$0200 integrity="
+                "JR8APP 1.0 target=hd6301v1 kind=machine-code entry=$0200 integrity="
             )
             and re.fullmatch(
                 r"[0-9A-F]{64}",

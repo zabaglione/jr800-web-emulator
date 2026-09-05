@@ -142,6 +142,13 @@ public:
     ) noexcept;
 
 protected:
+    // Copy trace counters for an isolated machine transaction, never observers.
+    void copy_execution_context(const Bus& source) noexcept {
+        access_sequence_ = source.access_sequence_;
+        instruction_cycle_ = source.instruction_cycle_;
+        instruction_pc_ = source.instruction_pc_;
+    }
+
     void notify_read(
         std::uint16_t address,
         std::optional<std::uint8_t> value,

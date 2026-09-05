@@ -179,10 +179,7 @@ int main() {
             externally_detached_debugger.attach(externally_detached_machine),
             "Debugger did not attach for observer replacement test"
         );
-        passed &= expect(
-            externally_detached_machine.set_observer(nullptr),
-            "Observer removal was rejected"
-        );
+        externally_detached_machine.clear_observers();
         passed &= expect(
             externally_detached_debugger.machine() == nullptr,
             "Observer replacement left a stale machine pointer"
@@ -195,13 +192,13 @@ int main() {
         {
             ShortLivedObserver short_lived_observer;
             passed &= expect(
-                machine_outliving_observer.set_observer(&short_lived_observer)
-                    && machine_outliving_observer.observer() == &short_lived_observer,
+                machine_outliving_observer.add_observer(&short_lived_observer)
+                    && machine_outliving_observer.has_observer(&short_lived_observer),
                 "Short-lived observer did not attach"
             );
         }
         passed &= expect(
-            machine_outliving_observer.observer() == nullptr,
+            !machine_outliving_observer.has_observers(),
             "Destroyed observer remained attached to machine"
         );
     }
@@ -213,13 +210,13 @@ int main() {
         auto& second_machine = second_host.execution();
         ShortLivedObserver observer;
         passed &= expect(
-            first_machine.set_observer(&observer),
+            first_machine.add_observer(&observer),
             "Observer did not attach to first machine"
         );
         passed &= expect(
-            !second_machine.set_observer(&observer)
-                && first_machine.observer() == &observer
-                && second_machine.observer() == nullptr,
+            !second_machine.add_observer(&observer)
+                && first_machine.has_observer(&observer)
+                && !second_machine.has_observers(),
             "Observer attached to two machines"
         );
     }

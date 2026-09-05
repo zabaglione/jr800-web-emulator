@@ -1,6 +1,6 @@
 # jr8objdumpでJROとJR8APPを調べる
 
-`jr8objdump`はJROバージョン1またはJR8APPバージョン1を検証し、構造と格納済みバイトを表示します。
+`jr8objdump`はJROバージョン1またはJR8APPバージョン2を検証し、構造と格納済みバイトを表示します。
 
 ```sh
 jr8objdump input.jro

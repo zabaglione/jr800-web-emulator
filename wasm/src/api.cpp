@@ -28,7 +28,10 @@
 #include "jr800/formats/native_msave.hpp"
 #include "jr800/isa/instruction_metadata.hpp"
 #include "jr800/runtime/application_loader.hpp"
+#include "jr800/runtime/program_save_capture.hpp"
 
+static_assert(sizeof(jr800_program_info) == 28U);
+static_assert(sizeof(jr800_program_saves_state) == 8U);
 static_assert(sizeof(jr800_machine_state) == JR800_STATE_WORD_COUNT * sizeof(std::uint32_t));
 static_assert(sizeof(jr800_stop_info) == JR800_STOP_WORD_COUNT * sizeof(std::uint32_t));
 static_assert(
@@ -86,10 +89,12 @@ struct jr800_machine {
     MachineKind kind{MachineKind::synthetic_application};
     std::unique_ptr<jr800::core::SyntheticMachine> synthetic_machine;
     std::unique_ptr<jr800::core::Jr800Machine> hardware_machine;
+    std::unique_ptr<jr800::core::Jr800Machine> initial_hardware_state;
     jr800::debugger::Debugger debugger{256U, 1024U};
     std::optional<jr800::formats::jr8app::Application> application;
     std::uint16_t initial_stack_pointer{0x01FFU};
     bool logical_rom_loaded{};
+    std::unique_ptr<jr800::runtime::ProgramSaveCapture> program_saves;
 
     jr800_machine()
         : synthetic_machine(
@@ -889,6 +894,10 @@ bool apply_jr800_inputs(
 jr800_status load_status(jr800::runtime::LoadApplicationResult result) noexcept {
     using jr800::runtime::LoadApplicationResult;
     switch (result) {
+    case LoadApplicationResult::unsupported_basic_rom: return JR800_STATUS_UNSUPPORTED_BASIC_ROM;
+    case LoadApplicationResult::basic_not_ready: return JR800_STATUS_BASIC_NOT_READY;
+    case LoadApplicationResult::invalid_basic_program: return JR800_STATUS_INVALID_BASIC_PROGRAM;
+    case LoadApplicationResult::basic_load_failed: return JR800_STATUS_BASIC_LOAD_FAILED;
     case LoadApplicationResult::loaded:
         return JR800_STATUS_OK;
     case LoadApplicationResult::invalid_format:
@@ -899,6 +908,8 @@ jr800_status load_status(jr800::runtime::LoadApplicationResult result) noexcept 
         return JR800_STATUS_UNREVIEWED_PROFILE;
     case LoadApplicationResult::segment_out_of_range:
         return JR800_STATUS_SEGMENT_OUT_OF_RANGE;
+    case LoadApplicationResult::entry_point_not_loaded:
+        return JR800_STATUS_ENTRY_POINT_NOT_LOADED;
     case LoadApplicationResult::target_mismatch:
         return JR800_STATUS_TARGET_MISMATCH;
     }
@@ -907,14 +918,23 @@ jr800_status load_status(jr800::runtime::LoadApplicationResult result) noexcept 
 
 jr800_status load_jr800_application(
     jr800_machine& machine,
-    const jr800::formats::jr8app::Application& application
+    const jr800::formats::jr8app::Application& application,
+    bool run_after_load, jr800_program_info* info
 ) {
     const auto loaded = jr800::runtime::load_application(
         *machine.hardware_machine,
-        application
+        application, run_after_load
     );
     if (loaded != jr800::runtime::LoadApplicationResult::loaded) {
         return load_status(loaded);
+    }
+    if (info != nullptr) {
+        *info = {};
+        info->kind = static_cast<std::uint32_t>(application.kind);
+        info->name_length = static_cast<std::uint32_t>(application.name.size());
+        std::copy(application.name.begin(), application.name.end(), info->name);
+        info->byte_count = static_cast<std::uint32_t>(application.basic_data.size());
+        for (const auto& segment : application.segments) info->byte_count += segment.logical_size;
     }
     machine.debugger.clear_history();
     machine.debugger.clear_debug_info();
@@ -1213,6 +1233,7 @@ jr800_machine* jr800_machine_create_jr800(
             )) {
             return nullptr;
         }
+        machine->initial_hardware_state = machine->hardware_machine->clone();
         return machine.release();
     } catch (const std::exception&) {
         return nullptr;
@@ -1318,18 +1339,26 @@ jr800_status jr800_machine_load_logical_rom(
         return JR800_STATUS_INVALID_LOGICAL_ROM;
     }
     try {
-        const auto loaded = machine->hardware_machine->load_logical_rom(
+        auto candidate = machine->initial_hardware_state->clone();
+        const auto loaded = candidate->load_logical_rom(
             std::span<const std::uint8_t>{bytes, byte_count}
         );
         if (loaded != jr800::core::Jr800MemoryStatus::ok) {
             return JR800_STATUS_INVALID_LOGICAL_ROM;
         }
         const auto reset =
-            machine->hardware_machine->initialize_from_reset_entry();
+            candidate->initialize_from_reset_entry();
         if (!reset.succeeded()) {
             return inspect_status(reset.fault);
         }
+        machine->hardware_machine->copy_state_from(*candidate);
+        machine->initial_hardware_state = std::move(candidate);
         machine->logical_rom_loaded = true;
+        if (!machine->program_saves) {
+            machine->program_saves = std::make_unique<jr800::runtime::ProgramSaveCapture>(*machine->hardware_machine);
+        } else {
+            machine->program_saves->reset();
+        }
         machine->debugger.clear_history();
         machine->debugger.clear_debug_info();
         machine->debugger.clear_execution_breakpoints();
@@ -1384,9 +1413,10 @@ jr800_status jr800_machine_load_jr8rom(
 jr800_status jr800_machine_load_program(
     jr800_machine* machine,
     const std::uint8_t* bytes,
-    std::uint32_t byte_count
+    std::uint32_t byte_count,
+    std::uint32_t run_after_load, jr800_program_info* info
 ) {
-    if (machine == nullptr || bytes == nullptr || byte_count == 0U) {
+    if (machine == nullptr || bytes == nullptr || byte_count == 0U || run_after_load > 1U) {
         return JR800_STATUS_INVALID_ARGUMENT;
     }
     if (machine->kind != MachineKind::jr800) {
@@ -1399,7 +1429,7 @@ jr800_status jr800_machine_load_program(
         const auto application = jr800::formats::jr8app::read(
             std::span<const std::uint8_t>{bytes, byte_count}
         );
-        return load_jr800_application(*machine, application);
+        return load_jr800_application(*machine, application, run_after_load != 0U, info);
     } catch (const jr800::formats::linked::Error&) {
         return JR800_STATUS_INVALID_APPLICATION;
     } catch (const std::exception&) {
@@ -1411,10 +1441,11 @@ jr800_status jr800_machine_load_native_program_wav(
     jr800_machine* machine,
     const std::uint8_t* bytes,
     std::uint32_t byte_count,
-    jr800_native_program_wav_issue* issue
+    jr800_native_program_wav_issue* issue,
+    std::uint32_t run_after_load, jr800_program_info* info
 ) {
     if (machine == nullptr || bytes == nullptr || byte_count == 0U
-        || issue == nullptr) {
+        || issue == nullptr || run_after_load > 1U) {
         return JR800_STATUS_INVALID_ARGUMENT;
     }
     if (machine->kind != MachineKind::jr800) {
@@ -1440,18 +1471,8 @@ jr800_status jr800_machine_load_native_program_wav(
             return JR800_STATUS_INVALID_NATIVE_PROGRAM_WAV;
         }
 
-        jr800::formats::jr8app::Application application;
-        application.target_profile = "hd6301v1";
-        application.entry_point = decoded.file->execution_address;
-        application.segments = {{
-            jr800::formats::jr8app::SegmentKind::data,
-            decoded.file->start_address,
-            static_cast<std::uint32_t>(decoded.file->payload.size()),
-            decoded.file->payload,
-        }};
-        application.integrity_sha256 =
-            jr800::formats::jr8app::compute_integrity(application);
-        return load_jr800_application(*machine, application);
+        const auto application = jr800::formats::native_program_application(*decoded.file);
+        return load_jr800_application(*machine, application, run_after_load != 0U, info);
     } catch (const std::exception&) {
         return JR800_STATUS_INTERNAL_ERROR;
     }
@@ -1466,12 +1487,11 @@ jr800_status jr800_machine_reset(jr800_machine* machine) {
             if (!machine->logical_rom_loaded) {
                 return JR800_STATUS_NO_ROM;
             }
-            const auto reset =
-                machine->hardware_machine->initialize_from_reset_entry();
-            if (!reset.succeeded()) {
-                return inspect_status(reset.fault);
-            }
+            // E-429: host session restart restores the configured boot state.
+            // The core's physical reset-entry operation is intentionally separate.
+            machine->hardware_machine->copy_state_from(*machine->initial_hardware_state);
             machine->debugger.clear_history();
+            if (machine->program_saves) machine->program_saves->reset();
             return JR800_STATUS_OK;
         }
         if (!machine->application.has_value()) {
@@ -1489,6 +1509,57 @@ jr800_status jr800_machine_reset(jr800_machine* machine) {
     } catch (const std::exception&) {
         return JR800_STATUS_INTERNAL_ERROR;
     }
+}
+
+jr800_status jr800_machine_get_program_saves(const jr800_machine* machine,
+    jr800_program_saves_state* state) {
+    if (machine == nullptr || state == nullptr) return JR800_STATUS_INVALID_ARGUMENT;
+    *state = {};
+    if (machine->program_saves) {
+        state->state = static_cast<std::uint32_t>(machine->program_saves->state());
+        state->count = static_cast<std::uint32_t>(machine->program_saves->files().size());
+    }
+    return JR800_STATUS_OK;
+}
+
+jr800_status jr800_machine_get_saved_program_info(const jr800_machine* machine,
+    std::uint32_t index, jr800_program_info* info) {
+    if (machine == nullptr || info == nullptr) return JR800_STATUS_INVALID_ARGUMENT;
+    if (!machine->program_saves || index >= machine->program_saves->files().size()) return JR800_STATUS_NOT_FOUND;
+    const auto& file = machine->program_saves->files()[index];
+    *info = {};
+    info->kind = static_cast<std::uint32_t>(file.kind);
+    info->byte_count = static_cast<std::uint32_t>(file.payload.size());
+    info->name_length = static_cast<std::uint32_t>(file.filename.size());
+    std::copy(file.filename.begin(), file.filename.end(), info->name);
+    return JR800_STATUS_OK;
+}
+
+jr800_status jr800_machine_export_saved_program(const jr800_machine* machine,
+    std::uint32_t index, std::uint32_t format, std::uint8_t* bytes,
+    std::uint32_t capacity, std::uint32_t* byte_count) {
+    if (machine == nullptr || byte_count == nullptr || (bytes == nullptr && capacity != 0U)
+        || (format != 1U && format != 2U)) return JR800_STATUS_INVALID_ARGUMENT;
+    if (!machine->program_saves || index >= machine->program_saves->files().size()) return JR800_STATUS_NOT_FOUND;
+    try {
+        const auto& file = machine->program_saves->files()[index];
+        const auto output = format == 1U
+            ? jr800::formats::jr8app::write(jr800::formats::native_program_application(file))
+            : jr800::formats::encode_native_program_wav(file);
+        *byte_count = static_cast<std::uint32_t>(output.size());
+        if (bytes == nullptr) return JR800_STATUS_OK;
+        if (capacity < output.size()) return JR800_STATUS_BUFFER_TOO_SMALL;
+        std::copy(output.begin(), output.end(), bytes);
+        return JR800_STATUS_OK;
+    } catch (const std::exception&) { return JR800_STATUS_INTERNAL_ERROR; }
+}
+
+jr800_status jr800_machine_clear_program_saves(jr800_machine* machine) {
+    if (machine == nullptr) return JR800_STATUS_INVALID_ARGUMENT;
+    if (!machine->program_saves) return JR800_STATUS_OK;
+    if (machine->program_saves->state() == jr800::runtime::ProgramSaveState::recording) return JR800_STATUS_INVALID_ARGUMENT;
+    try { machine->program_saves->clear(); return JR800_STATUS_OK; }
+    catch (const std::exception&) { return JR800_STATUS_INTERNAL_ERROR; }
 }
 
 jr800_status jr800_machine_get_state(
@@ -1680,6 +1751,32 @@ jr800_status jr800_machine_adjust_calendar_seconds(jr800_machine* machine) {
     }
     return calendar_operation_status(
         machine->hardware_machine->adjust_calendar_seconds()
+    );
+}
+
+jr800_status jr800_machine_set_calendar_datetime(
+    jr800_machine* machine,
+    const jr800_calendar_datetime* value
+) {
+    if (machine == nullptr || value == nullptr
+        || value->year > 2099U || value->month > 12U || value->day > 31U
+        || value->hour > 23U || value->minute > 59U || value->second > 59U) {
+        return JR800_STATUS_INVALID_ARGUMENT;
+    }
+    if (machine->kind != MachineKind::jr800) {
+        return JR800_STATUS_WRONG_MACHINE_KIND;
+    }
+    const jr800::core::CalendarDateTime datetime{
+        static_cast<std::uint16_t>(value->year),
+        static_cast<std::uint8_t>(value->month),
+        static_cast<std::uint8_t>(value->day),
+        static_cast<std::uint8_t>(value->hour),
+        static_cast<std::uint8_t>(value->minute),
+        static_cast<std::uint8_t>(value->second),
+    };
+    if (!datetime.valid()) return JR800_STATUS_INVALID_ARGUMENT;
+    return calendar_operation_status(
+        machine->hardware_machine->set_calendar_datetime(datetime)
     );
 }
 

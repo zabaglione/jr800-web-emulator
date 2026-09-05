@@ -2,6 +2,8 @@
 
 #include "jr800/core/rp5c01_register_file.hpp"
 
+#include <chrono>
+
 #include <array>
 #include <cstddef>
 
@@ -152,6 +154,37 @@ std::optional<bool> three_state_or(
 }
 
 }  // namespace
+
+bool CalendarDateTime::valid() const noexcept {
+    return year >= 2000U && year <= 2099U
+        && hour < 24U && minute < 60U && second < 60U
+        && std::chrono::year_month_day{
+            std::chrono::year{year}, std::chrono::month{month},
+            std::chrono::day{day},
+        }.ok();
+}
+
+bool Rp5c01RegisterFile::set_datetime(CalendarDateTime value) noexcept {
+    if (!value.valid()) return false;
+    store_decimal_counter(time_registers_, 0U, 1U, value.second);
+    store_decimal_counter(time_registers_, 2U, 3U, value.minute);
+    store_decimal_counter(time_registers_, 4U, 5U, value.hour);
+    store_decimal_counter(time_registers_, 7U, 8U, value.day);
+    store_decimal_counter(time_registers_, 9U, 10U, value.month);
+    store_decimal_counter(time_registers_, 11U, 12U,
+        static_cast<std::uint8_t>(value.year - 2000U));
+    const auto date = std::chrono::year{value.year}
+        / std::chrono::month{value.month} / std::chrono::day{value.day};
+    time_registers_[6U] = static_cast<std::uint8_t>(
+        std::chrono::weekday{std::chrono::sys_days{date}}.c_encoding());
+    alarm_registers_[10U] = 1U;  // 24-hour clock.
+    alarm_registers_[11U] = static_cast<std::uint8_t>(value.year % 4U);
+    mode_register_ = 8U;  // Time bank, timer enabled, alarm disabled.
+    oscillator_divider_ticks_ = 0U;
+    clock_hold_pending_ = false;
+    clock_hold_read_guard_ticks_ = 0U;
+    return true;
+}
 
 void Rp5c01RegisterFile::initialize_zero() noexcept {
     time_registers_.fill(0U);

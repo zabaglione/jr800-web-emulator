@@ -13,6 +13,7 @@ if (!modulePath) {
 const {
     Jr800BasicRunSlice,
     basicRunCanContinue,
+    browserCalendarDateTime,
     jr800BasicBootExperimentConfiguration,
 } = await import(pathToFileURL(modulePath));
 
@@ -29,6 +30,7 @@ const expectedConfiguration = {
     lcdUnknownDataReadValue: 0x00,
     calendarAddressSource: "a0-a3",
     calendarUpperRead: "zero",
+    calendarCpuCycleRatio: "e030-nominal-1.2288mhz",
     port1Pins: {value: 0xff, knownMask: 0xff},
     port2Pins: {value: 0x1e, knownMask: 0x1f},
     ramStandbyPowerValid: false,
@@ -55,4 +57,11 @@ for (const stop of [
     {reason: "cpu-fault"},
 ]) {
     assert.equal(basicRunCanContinue(stop), false);
+}
+
+assert.deepEqual(browserCalendarDateTime(new Date(2026, 8, 5, 12, 34, 56)), {
+    year: 2026, month: 9, day: 5, hour: 12, minute: 34, second: 56,
+});
+for (const value of [new Date(NaN), new Date(1999, 11, 31), new Date(2100, 0, 1)]) {
+    assert.throws(() => browserCalendarDateTime(value), /2000-2099/);
 }

@@ -40,17 +40,7 @@ struct Alignment {
     int score{std::numeric_limits<int>::min()};
 };
 
-void append_le16(std::vector<std::uint8_t>& bytes, std::uint16_t value) {
-    bytes.push_back(static_cast<std::uint8_t>(value & 0xFFU));
-    bytes.push_back(static_cast<std::uint8_t>((value >> 8U) & 0xFFU));
-}
 
-void append_le32(std::vector<std::uint8_t>& bytes, std::uint32_t value) {
-    bytes.push_back(static_cast<std::uint8_t>(value & 0xFFU));
-    bytes.push_back(static_cast<std::uint8_t>((value >> 8U) & 0xFFU));
-    bytes.push_back(static_cast<std::uint8_t>((value >> 16U) & 0xFFU));
-    bytes.push_back(static_cast<std::uint8_t>((value >> 24U) & 0xFFU));
-}
 
 std::uint32_t read_be32(std::span<const std::uint8_t> bytes, std::size_t offset) {
     return (static_cast<std::uint32_t>(bytes[offset]) << 24U)
@@ -66,10 +56,6 @@ void append_be32(std::vector<std::uint8_t>& bytes, std::uint32_t value) {
     bytes.push_back(static_cast<std::uint8_t>(value & 0xFFU));
 }
 
-void append_pcm16(std::vector<std::uint8_t>& bytes, std::int16_t sample) {
-    const auto value = static_cast<std::uint16_t>(sample);
-    append_le16(bytes, value);
-}
 
 void append_uart_byte(
     std::vector<std::int16_t>& samples,
@@ -492,30 +478,7 @@ std::vector<std::uint8_t> encode_fsk_wav(
         }
         pcm.insert(pcm.end(), silence_samples, 0);
     }
-    if (pcm.size() > (std::numeric_limits<std::uint32_t>::max() - 36U) / 2U) {
-        throw std::length_error("WAV output is too large");
-    }
-    const auto data_size = static_cast<std::uint32_t>(pcm.size() * 2U);
-
-    std::vector<std::uint8_t> wav;
-    wav.reserve(44U + data_size);
-    wav.insert(wav.end(), {'R', 'I', 'F', 'F'});
-    append_le32(wav, 36U + data_size);
-    wav.insert(wav.end(), {'W', 'A', 'V', 'E'});
-    wav.insert(wav.end(), {'f', 'm', 't', ' '});
-    append_le32(wav, 16U);
-    append_le16(wav, 1U);
-    append_le16(wav, 1U);
-    append_le32(wav, parameters.sample_rate);
-    append_le32(wav, parameters.sample_rate * 2U);
-    append_le16(wav, 2U);
-    append_le16(wav, 16U);
-    wav.insert(wav.end(), {'d', 'a', 't', 'a'});
-    append_le32(wav, data_size);
-    for (const auto sample : pcm) {
-        append_pcm16(wav, sample);
-    }
-    return wav;
+    return detail::encode_pcm16_wav(pcm, parameters.sample_rate);
 }
 
 FskWavDecodeResult decode_fsk_wav(

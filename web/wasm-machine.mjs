@@ -27,6 +27,11 @@ export const Status = Object.freeze({
     invalidJr8rom: 23,
     incompleteJr8rom: 24,
     invalidNativeProgramWav: 25,
+    unsupportedBasicRom: 26,
+    basicNotReady: 27,
+    invalidBasicProgram: 28,
+    basicLoadFailed: 29,
+    entryPointNotLoaded: 30,
 });
 
 export const MAX_LINKED_BINARY_BYTES = 64 * 1024 * 1024;
@@ -73,6 +78,10 @@ const STATUS_NAMES = [
     "invalid-jr8rom",
     "incomplete-jr8rom",
     "invalid-native-program-wav",
+    "unsupported-basic-rom",
+    "basic-not-ready",
+    "invalid-basic-program",
+    "basic-load-failed",
 ];
 
 const NATIVE_PROGRAM_WAV_ISSUE_NAMES = [
@@ -89,6 +98,8 @@ const NATIVE_PROGRAM_WAV_ISSUE_NAMES = [
     "invalid-length",
     "invalid-program-range",
     "ambiguous-header-byte-order",
+    "invalid-basic-program",
+    "unexpected-trailing-blocks",
 ];
 
 const PROFILE_NAMES = ["jr800_unresolved", "mc6801", "hd6301v1"];
@@ -302,7 +313,7 @@ const SYMBOL_WATCH_WORDS = 6;
 const KEYBOARD_ACTIVITY_WORDS = 4;
 const LCD_INDICATOR_RAW_WORDS = 2;
 const NATIVE_PROGRAM_WAV_ISSUE_WORDS = 2;
-const WASM_ABI_VERSION = 37;
+const WASM_ABI_VERSION = 41;
 
 function checkedWatchpointMode(mode) {
     if (typeof mode !== "string"
@@ -790,13 +801,17 @@ export class WasmMachine {
             loadProgram: bind(
                 "jr800_machine_load_program",
                 "number",
-                ["number", "number", "number"],
+                ["number", "number", "number", "number", "number"],
             ),
             loadNativeProgramWav: bind(
                 "jr800_machine_load_native_program_wav",
                 "number",
-                ["number", "number", "number", "number"],
+                ["number", "number", "number", "number", "number", "number"],
             ),
+            getProgramSaves: bind("jr800_machine_get_program_saves", "number", ["number", "number"]),
+            getSavedProgramInfo: bind("jr800_machine_get_saved_program_info", "number", ["number", "number", "number"]),
+            exportSavedProgram: bind("jr800_machine_export_saved_program", "number", ["number", "number", "number", "number", "number", "number"]),
+            clearProgramSaves: bind("jr800_machine_clear_program_saves", "number", ["number"]),
             reset: bind("jr800_machine_reset", "number", ["number"]),
             getState: bind("jr800_machine_get_state", "number", ["number", "number"]),
             step: bind("jr800_machine_step", "number", ["number", "number"]),
@@ -830,6 +845,11 @@ export class WasmMachine {
                 "jr800_machine_adjust_calendar_seconds",
                 "number",
                 ["number"],
+            ),
+            setCalendarDateTime: bind(
+                "jr800_machine_set_calendar_datetime",
+                "number",
+                ["number", "number"],
             ),
             setKeyboardBusResponse: bind(
                 "jr800_machine_set_keyboard_bus_response",
@@ -1064,47 +1084,26 @@ export class WasmMachine {
         });
     }
 
-    #loadProgram(binary) {
-        this.#withInput(binary, (pointer, size) => {
-            this.#check(
-                "load-program",
-                this.functions.loadProgram(this.handle, pointer, size),
-            );
-        });
-    }
-
-    #loadNativeProgramWav(binary) {
-        this.#withInput(binary, (pointer, size) => {
-            this.#allocate(
-                NATIVE_PROGRAM_WAV_ISSUE_WORDS * WORD_BYTES,
-                (issuePointer) => {
-                    this.module.HEAPU32.fill(
-                        0,
-                        issuePointer / WORD_BYTES,
-                        issuePointer / WORD_BYTES
-                            + NATIVE_PROGRAM_WAV_ISSUE_WORDS,
-                    );
-                    const status = this.functions.loadNativeProgramWav(
-                        this.handle,
-                        pointer,
-                        size,
-                        issuePointer,
-                    );
-                    if (status === Status.invalidNativeProgramWav) {
-                        const issue = this.#readWords(
-                            issuePointer,
-                            NATIVE_PROGRAM_WAV_ISSUE_WORDS,
-                        );
-                        throw new NativeProgramWavError(
-                            status,
-                            issue[0],
-                            issue[1],
-                        );
-                    }
-                    this.#check("load-native-program-wav", status);
-                },
-            );
-        });
+    #loadHardwareProgram(binary, runAfterLoad, wav) {
+        if (typeof runAfterLoad !== "boolean") throw new TypeError("Program run option must be boolean");
+        return this.#withInput(binary, (pointer, size) => this.#allocate(36, (scratch) => {
+            this.module.HEAPU8.fill(0, scratch, scratch + 36);
+            const infoPointer = scratch + 8;
+            const status = wav
+                ? this.functions.loadNativeProgramWav(this.handle, pointer, size, scratch, Number(runAfterLoad), infoPointer)
+                : this.functions.loadProgram(this.handle, pointer, size, Number(runAfterLoad), infoPointer);
+            if (status === Status.invalidNativeProgramWav) {
+                const issue = this.#readWords(scratch, NATIVE_PROGRAM_WAV_ISSUE_WORDS);
+                throw new NativeProgramWavError(status, issue[0], issue[1]);
+            }
+            this.#check(wav ? "load-native-program-wav" : "load-program", status);
+            const info = this.#readWords(infoPointer, 3);
+            return {
+                kind: ["unknown", "machine-code", "basic-text", "basic-binary"][info[0]],
+                byteLength: info[1],
+                nameBytes: Array.from(this.module.HEAPU8.slice(infoPointer + 12, infoPointer + 12 + info[2])),
+            };
+        }));
     }
 
     load(application, {debugInfo, initialStackPointer = 0x01ff, view} = {}) {
@@ -1190,7 +1189,7 @@ export class WasmMachine {
         }
     }
 
-    loadProgram(application, {view} = {}) {
+    loadProgram(application, {view, runAfterLoad = true} = {}) {
         this.#requireHandle();
         if (this.kind !== "jr800") {
             throw new WasmApiError(
@@ -1199,11 +1198,11 @@ export class WasmMachine {
             );
         }
         const applicationBytes = checkedInputBytes(application);
-        this.#loadProgram(applicationBytes);
-        return this.snapshot(view);
+        const program = this.#loadHardwareProgram(applicationBytes, runAfterLoad, false);
+        return {...this.snapshot(view), program};
     }
 
-    loadNativeProgramWav(wav, {view} = {}) {
+    loadNativeProgramWav(wav, {view, runAfterLoad = true} = {}) {
         this.#requireHandle();
         if (this.kind !== "jr800") {
             throw new WasmApiError(
@@ -1212,8 +1211,8 @@ export class WasmMachine {
             );
         }
         const wavBytes = checkedInputBytes(wav);
-        this.#loadNativeProgramWav(wavBytes);
-        return this.snapshot(view);
+        const program = this.#loadHardwareProgram(wavBytes, runAfterLoad, true);
+        return {...this.snapshot(view), program};
     }
 
     reset() {
@@ -1445,6 +1444,23 @@ export class WasmMachine {
                 checkedTicks,
             ),
         );
+    }
+
+    setCalendarDateTime(value) {
+        this.#requireHandle();
+        const keys = ["year", "month", "day", "hour", "minute", "second"];
+        if (!value || Object.keys(value).length !== keys.length
+            || keys.some((key) => !Number.isInteger(value[key])
+                || value[key] < 0 || value[key] > 0xffff_ffff)) {
+            throw new TypeError("Calendar datetime requires six unsigned integer fields");
+        }
+        this.#allocate(keys.length * WORD_BYTES, (pointer) => {
+            this.module.HEAPU32.set(
+                Uint32Array.from(keys.map((key) => value[key])), pointer / WORD_BYTES,
+            );
+            this.#check("set-calendar-datetime",
+                this.functions.setCalendarDateTime(this.handle, pointer));
+        });
     }
 
     adjustCalendarSeconds() {
@@ -2029,6 +2045,42 @@ export class WasmMachine {
         });
     }
 
+    programSaves() {
+        this.#requireHandle();
+        return this.#allocate(28, (pointer) => {
+            this.#check("get-program-saves", this.functions.getProgramSaves(this.handle, pointer));
+            const [state, count] = this.#readWords(pointer, 2);
+            const files = [];
+            for (let index = 0; index < count; ++index) {
+                this.#check("get-saved-program-info", this.functions.getSavedProgramInfo(this.handle, index, pointer));
+                const info = this.#readWords(pointer, 3);
+                files.push({index, kind: ["unknown", "machine-code", "basic-text", "basic-binary"][info[0]],
+                    byteLength: info[1], nameBytes: Array.from(this.module.HEAPU8.slice(pointer + 12, pointer + 12 + info[2]))});
+            }
+            return {state: ["unavailable", "idle", "recording", "failed", "full"][state], files};
+        });
+    }
+
+    exportSavedProgram(index, format) {
+        this.#requireHandle();
+        checkedUint32(index, "Saved program index");
+        if (!["j8a", "wav"].includes(format)) throw new TypeError("Unsupported save format");
+        const kind = format === "j8a" ? 1 : 2;
+        return this.#allocate(4, (sizePointer) => {
+            this.#check("export-saved-program", this.functions.exportSavedProgram(this.handle, index, kind, 0, 0, sizePointer));
+            const size = this.#readWords(sizePointer, 1)[0];
+            return this.#allocate(size, (pointer) => {
+                this.#check("export-saved-program", this.functions.exportSavedProgram(this.handle, index, kind, pointer, size, sizePointer));
+                return this.module.HEAPU8.slice(pointer, pointer + size);
+            });
+        });
+    }
+
+    clearProgramSaves() {
+        this.#requireHandle();
+        this.#check("clear-program-saves", this.functions.clearProgramSaves(this.handle));
+    }
+
     snapshot(view) {
         const normalizedView = view === undefined && this.kind === "jr800"
             ? {memoryAddress: 0x8000}
@@ -2050,6 +2102,7 @@ export class WasmMachine {
             keyboardActivity: this.keyboardActivity(),
             lcdPanel: this.lcdPanel(),
             lcdIndicators: this.lcdIndicators(),
+            programSaves: this.programSaves(),
         };
     }
 

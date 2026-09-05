@@ -200,11 +200,8 @@ bool Debugger::attach(core::Machine& machine) noexcept {
     if (impl_->machine == &machine) {
         return true;
     }
-    if (machine.observer() != nullptr) {
-        return false;
-    }
     detach();
-    if (!machine.set_observer(this)) {
+    if (!machine.add_observer(this)) {
         return false;
     }
     impl_->machine = &machine;
@@ -212,8 +209,8 @@ bool Debugger::attach(core::Machine& machine) noexcept {
 }
 
 void Debugger::detach() noexcept {
-    if (impl_->machine != nullptr && impl_->machine->observer() == this) {
-        static_cast<void>(impl_->machine->set_observer(nullptr));
+    if (impl_->machine != nullptr && impl_->machine->has_observer(this)) {
+        impl_->machine->remove_observer(*this);
     }
     impl_->machine = nullptr;
     impl_->debug_info.reset();

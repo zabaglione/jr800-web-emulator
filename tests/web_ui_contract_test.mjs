@@ -83,12 +83,12 @@ assert.match(
 );
 assert.match(
     html,
-    /data-jr800-key="keypad-divide"[^>]*><span>\/<\/span>/,
+    /data-jr800-key="keypad-divide"[^>]*><span[^>]*>\/<\/span>/,
     "The keypad divide key must retain the documented slash legend",
 );
 assert.match(
     html,
-    /data-jr800-key="keypad-multiply"[^>]*><span>\*<\/span>/,
+    /data-jr800-key="keypad-multiply"[^>]*><span[^>]*>\*<\/span>/,
     "The keypad multiply key must retain the documented asterisk legend",
 );
 assert.doesNotMatch(html, /[÷×✖]/, "Keypad legends must not be substituted");
@@ -317,7 +317,7 @@ assert.equal(new Set(virtualKeys).size, 77);
 const legendKeys = [
     ...html.matchAll(/data-legend-key="([^"]+)"/g),
 ].map((match) => match[1]);
-assert.equal(legendKeys.length, 57);
+assert.equal(legendKeys.length, 73);
 assert.equal(new Set(legendKeys).size, legendKeys.length);
 assert.doesNotMatch(
     html,
@@ -356,7 +356,7 @@ assert.match(
 );
 assert.match(
     app,
-    /function renderVirtualKeyboardLegends\(\)[\s\S]*virtualKeyboardState\.isPressed\("shift"\)[\s\S]*virtualKeyboardState\.isPressed\("control"\)[\s\S]*virtualKeyboardLegend\(key, modifiers\)[\s\S]*target\.textContent = label/,
+    /function renderVirtualKeyboardLegends\(\)[\s\S]*virtualKeyboardState\.isPressed\("shift"\)[\s\S]*virtualKeyboardState\.isPressed\("control"\)[\s\S]*virtualKeyboardLegend\(key, modifiers\)[\s\S]*target\.textContent = blank \? "" : label/,
     "Modifier state must drive the visible keyboard legends",
 );
 assert.match(
@@ -482,8 +482,8 @@ assert.ok(
 );
 assert.equal(
     [...app.matchAll(/window\.confirm\(\s*translate\(/g)].length,
-    2,
-    "Both confirmations must use the shared localizer",
+    3,
+    "All confirmations must use the shared localizer",
 );
 assert.match(
     app,
@@ -530,11 +530,9 @@ assert.match(
     /id="hardware-program-file"[^>]*accept="\.wav,\.j8a,audio\/wav,application\/octet-stream"[^>]*disabled/,
     "JR-800 WAV and JR8APP RAM-program selection contract is missing",
 );
-assert.match(
-    app,
-    /elements\["load-program"\]\.addEventListener\("click"[\s\S]*"load-native-program-wav"[\s\S]*"load-program"[\s\S]*client\.request\(command[\s\S]*startBasicRun\("RAM program running"\)/,
-    "JR-800 WAV and JR8APP loading must continue from the recorded entry",
-);
+assert.match(app, /function loadHardwareProgram\(runAfterLoad\)[\s\S]*"load-native-program-wav"[\s\S]*client\.request\(command[\s\S]*if \(runAfterLoad\) await startBasicRun/, "Program loading must honor the run option");
+assert.match(html, /id="load-program-only"[^>]*disabled/, "Load-only program action is missing");
+assert.match(app, /loadHardwareProgram\(false\)/, "Load-only action must not run the program");
 assert.match(
     app,
     /nativeProgramWavIssueMessages[\s\S]*"checksum-mismatch"[\s\S]*localizedErrorMessage\(error\)/,
@@ -562,7 +560,7 @@ assert.match(
 );
 assert.match(
     app,
-    /elements\["boot-basic"\]\.addEventListener\("click"[\s\S]*applyBasicBootExperimentControls\(\)[\s\S]*loadJr800Machine\(romFile, configuration\)[\s\S]*startBasicRun\(\)/,
+    /elements\["boot-basic"\]\.addEventListener\("click"[\s\S]*applyBasicBootExperimentControls\(\)[\s\S]*loadJr800Machine\(romFile, configuration, calendarDateTime\)[\s\S]*startBasicRun\(\)/,
     "Boot BASIC must apply the explicit profile, load the ROM, and start execution",
 );
 assert.match(
@@ -786,7 +784,7 @@ assert.match(
 
 assert.match(
     html,
-    /The JR8ROM and RAM program stay in local Worker memory\./,
+    /ROMs are remembered only in this browser; programs and working RAM last only for this session\./,
     "The owner-local file boundary is not visible in the UI",
 );
 assert.match(

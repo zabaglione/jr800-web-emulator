@@ -550,9 +550,18 @@ void render_application(
     if (debug_info != nullptr) {
         annotations = make_debug_annotation_index(*debug_info);
     }
-    output << "JR8APP 1.0 target=" << application.target_profile
-           << " entry=" << hex_value(application.entry_point, 4)
-           << " integrity=" << digest_text(application.integrity_sha256) << '\n';
+    output << "JR8APP " << jr800::formats::jr8app::format_major_version
+           << '.' << jr800::formats::jr8app::format_minor_version
+           << " target=" << application.target_profile
+           << " kind=" << jr800::formats::jr8app::program_kind_name(application.kind);
+    if (application.kind == jr800::formats::jr8app::ProgramKind::machine_code) {
+        output << " entry=" << hex_value(application.entry_point, 4);
+    }
+    output << " integrity=" << digest_text(application.integrity_sha256) << '\n';
+    if (application.kind != jr800::formats::jr8app::ProgramKind::machine_code) {
+        output << "BASIC size=" << application.basic_data.size() << '\n';
+        return;
+    }
     if (debug_info != nullptr) {
         output << "DEBUG JR8DBG 1.0 matched sources="
                << debug_info->source_files.size()
@@ -671,6 +680,10 @@ int main(int argc, char* argv[]) {
             }
             std::optional<jr800::formats::jr8dbg::DebugInfo> debug_info;
             if (options->debug.has_value()) {
+                if (application.kind != jr800::formats::jr8app::ProgramKind::machine_code) {
+                    std::cerr << "jr8objdump: --debug requires a machine-code JR8APP\n";
+                    return 1;
+                }
                 const auto debug_bytes = read_binary(*options->debug);
                 if (!debug_bytes.has_value()) {
                     return 2;

@@ -154,6 +154,8 @@ public:
     advance_calendar_oscillator_ticks(std::uint32_t ticks) noexcept;
     [[nodiscard]] Jr800CalendarOperationStatus
     adjust_calendar_seconds() noexcept;
+    [[nodiscard]] Jr800CalendarOperationStatus
+    set_calendar_datetime(CalendarDateTime value) noexcept;
     [[nodiscard]] Jr800CalendarAlarmTerminalState
     calendar_alarm_terminal_state() const noexcept;
     [[nodiscard]] Hd6301v1Port2TimerOutputState
@@ -202,6 +204,9 @@ public:
     ignored_io_access_count() const noexcept;
 
 private:
+    friend class Jr800Machine;
+    Jr800Bus(const Jr800Bus& source) noexcept;
+    void copy_state_from(const Jr800Bus& source) noexcept;
     [[nodiscard]] bool can_ignore_io(std::uint16_t address) const noexcept;
     [[nodiscard]] BusReadResult read_experimental_calendar(
         std::uint16_t address,

@@ -3,11 +3,13 @@ add_library(
     STATIC
         src/jro.cpp
         src/jr8app.cpp
+        src/basic_program.cpp
         src/jr8dbg.cpp
         src/jr8rom.cpp
         src/rom_dump.cpp
         src/fsk_wav.cpp
         src/native_msave.cpp
+        src/native_program_wav.cpp
         src/wav_pcm.cpp
         src/linked_error.cpp
         src/sha256.cpp

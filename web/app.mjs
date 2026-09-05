@@ -2,6 +2,7 @@
 
 import {
     AccessTraceMask,
+    Status,
     JR800_LOGICAL_ROM_BYTES,
     Jr800KeyboardKey,
     Jr800LcdDotState,
@@ -20,6 +21,8 @@ import {
     normalizeLcdAppearance,
 } from "./lcd-panel-view.mjs";
 import {jr800KeyForHostCode} from "./keyboard-input.mjs";
+import {savedProgramFilename} from "./program-save-view.mjs";
+import {readSavedRom, writeSavedRom, deleteSavedRom} from "./rom-storage.mjs";
 import {
     Jr800VirtualKeyboardState,
     Jr800TypingRollover,
@@ -28,9 +31,11 @@ import {
 import {
     Jr800VirtualLegendKeys,
     virtualKeyboardLegend,
+    virtualKeyboardModes,
 } from "./virtual-keyboard-legends.mjs";
 import {
     Jr800BasicRunSlice,
+    browserCalendarDateTime,
     basicRunCanContinue,
     jr800BasicBootExperimentConfiguration,
 } from "./basic-boot-profile.mjs";
@@ -85,6 +90,7 @@ class WorkerClient {
                 pending.resolve(message.result);
             } else {
                 const error = new Error(message.error);
+                error.status = message.status;
                 if (message.errorCode !== undefined) {
                     error.code = message.errorCode;
                     error.issue = message.issue;
@@ -114,7 +120,10 @@ class WorkerClient {
     request(command, fields = {}, transfer = []) {
         const id = this.nextId++;
         return new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => {
+            // ROM text LOAD grows with line count. The core bounds it by instructions;
+            // a wall-clock timeout could report failure before a successful commit.
+            const importing = command === "load-program" || command === "load-native-program-wav";
+            const timeout = importing ? undefined : setTimeout(() => {
                 this.pending.delete(id);
                 reject(new Error(`Worker command timed out: ${command}`));
             }, 20_000);
@@ -136,9 +145,11 @@ const elements = Object.fromEntries(
         "status", "language-toggle", "sound-toggle", "application-file", "debug-file",
         "stack-pointer", "load",
         "jr8rom-file", "raw-rom-warning", "boot-basic", "load-rom",
-        "ignore-unsupported-io", "ignored-io-access-count",
+        "saved-rom-status", "forget-rom",
+        "ignore-unsupported-io", "ignored-io-access-count", "browser-calendar-startup",
         "resume-machine", "pause-basic", "power-on", "power-off",
-        "hardware-program-file", "load-program",
+        "hardware-program-file", "load-program", "load-program-only", "program-info",
+        "program-saves-status", "program-saves-list", "clear-program-saves",
         "reset-sp-enabled", "reset-sp-value",
         "reset-x-enabled", "reset-x-value",
         "reset-a-enabled", "reset-a-value",
@@ -219,10 +230,16 @@ let loaded = false;
 let running = false;
 let machineKind = "synthetic";
 let calendarAttached = false;
+let restartWithBrowserCalendar = false;
+let savedRom = null;
+let rememberedRomSelection = null;
+let romStorageMessage = "No ROM remembered in this browser.";
+let romOperationPending = false;
 let basicRunContinuous = false;
 let nextExpressionWatchId = 1;
 let nextSymbolWatchId = 1;
 let lastSnapshot = null;
+let keyboardGlyphs = null;
 let statusMessage = {
     source: "Initializing worker",
     values: {},
@@ -329,6 +346,7 @@ function switchLanguage() {
     );
     updateLanguageToggle();
     updateSoundToggle();
+    renderSavedRom();
     applyLcdAppearance();
     if (lastSnapshot !== null) {
         render(lastSnapshot);
@@ -350,7 +368,8 @@ function hostKeyboardTargetIsInteractive(target) {
 }
 
 function virtualKeyLabel(button) {
-    return button.querySelector("span")?.textContent?.trim()
+    return button.getAttribute("aria-label")
+        ?? button.querySelector("span")?.textContent?.trim()
         ?? button.dataset.jr800Key;
 }
 
@@ -358,15 +377,36 @@ function renderVirtualKeyboardLegends() {
     const modifiers = {
         shift: virtualKeyboardState.isPressed("shift"),
         control: virtualKeyboardState.isPressed("control"),
+        ...virtualKeyboardModes(lastSnapshot?.lcdIndicators ?? null),
     };
     for (const [key, button] of virtualLegendButtons) {
-        const label = virtualKeyboardLegend(key, modifiers);
+        const {label, characterCode, blank} = virtualKeyboardLegend(key, modifiers);
         const target = button.querySelector("[data-key-legend]");
         if (target === null) {
             throw new Error("Virtual keyboard legend target is missing");
         }
-        target.textContent = label;
-        button.dataset.legendSize = label.length > 5 ? "compact" : "normal";
+        const path = characterCode === null ? undefined : keyboardGlyphs?.[characterCode];
+        const signature = JSON.stringify([label, blank, path]);
+        if (target.dataset.face === signature) {
+            continue;
+        }
+        target.dataset.face = signature;
+        button.setAttribute("aria-label", label);
+        button.title = label;
+        if (path !== undefined) {
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("viewBox", "0 0 6 8");
+            svg.setAttribute("class", "virtual-key-glyph");
+            svg.setAttribute("aria-hidden", "true");
+            const pixels = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            pixels.setAttribute("d", path);
+            svg.append(pixels);
+            target.replaceChildren(svg);
+        } else {
+            target.textContent = blank ? "" : label;
+        }
+        button.dataset.legendSize = path === undefined && label.length > 5
+            ? "compact" : "normal";
     }
 }
 
@@ -447,16 +487,21 @@ function releaseAllVirtualKeys(sendToMachine = true) {
 }
 
 function setControls() {
-    elements.load.disabled = !initialized || running;
-    elements["load-rom"].disabled = !initialized || running;
-    elements["boot-basic"].disabled = !initialized || running;
+    elements.load.disabled = !initialized || running || romOperationPending;
+    elements["load-rom"].disabled = !initialized || running || romOperationPending;
+    elements["boot-basic"].disabled = elements["load-rom"].disabled;
+    elements["forget-rom"].disabled = !initialized || romOperationPending;
     elements["load-program"].disabled = !loaded || running
         || machineKind !== "jr800";
+    elements["load-program-only"].disabled = elements["load-program"].disabled;
     for (const id of [
         "application-file", "debug-file", "stack-pointer", "jr8rom-file",
-        "ignore-unsupported-io",
+        "ignore-unsupported-io", "browser-calendar-startup",
     ]) {
         elements[id].disabled = !initialized || running;
+    }
+    for (const id of ["jr8rom-file", "ignore-unsupported-io", "browser-calendar-startup"]) {
+        elements[id].disabled ||= romOperationPending;
     }
     elements["hardware-program-file"].disabled = !loaded || running
         || machineKind !== "jr800";
@@ -786,7 +831,7 @@ function applyBasicBootExperimentControls() {
     elements["calendar-address-source"].value =
         configuration.calendarAddressSource;
     elements["calendar-upper-read"].value = configuration.calendarUpperRead;
-    elements["calendar-cpu-cycle-ratio-enabled"].checked = false;
+    elements["calendar-cpu-cycle-ratio-enabled"].checked = true;
 
     for (const [prefix, pins] of [
         ["port1", configuration.port1Pins],
@@ -1033,6 +1078,71 @@ function renderSymbolWatches(watches) {
     );
 }
 
+let savedProgramsSignature = "";
+let preparingSavedFiles = 0;
+function renderProgramSaves(saves = {state: "unavailable", files: []}) {
+    const messages = {
+        unavailable: "Start a supported BASIC ROM to capture saves.",
+        idle: saves.files.length ? "{count} saved programs are available to download." : "No saved data yet. Run SAVE or MSAVE in BASIC.",
+        recording: "Recording SAVE / MSAVE output. Wait for saving to finish.",
+        failed: "The save was interrupted or could not be captured. Previous saves have been kept. Run SAVE or MSAVE again.",
+        full: "The saved data list is full. Download and clear the list before saving again.",
+    };
+    elements["program-saves-status"].textContent = translate(messages[saves.state], {count: saves.files.length});
+    elements["clear-program-saves"].disabled = !saves.files.length || saves.state === "recording" || preparingSavedFiles > 0;
+    const signature = JSON.stringify([saves.files, translate("Download .J8A")]);
+    if (signature === savedProgramsSignature) return;
+    savedProgramsSignature = signature;
+    elements["program-saves-list"].replaceChildren(...saves.files.map((file) => {
+        const row = document.createElement("li");
+        const label = document.createElement("span");
+        label.textContent = translate("{name} · {kind} · {size} bytes", {
+            name: savedProgramFilename(file.nameBytes, "j8a").slice(0, -4),
+            kind: translate({"machine-code": "Machine code", "basic-text": "BASIC text", "basic-binary": "BASIC binary"}[file.kind]),
+            size: file.byteLength,
+        });
+        row.append(label);
+        for (const format of ["j8a", "wav"]) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.dataset.savedIndex = String(file.index);
+            button.dataset.saveFormat = format;
+            button.textContent = translate(format === "j8a" ? "Download .J8A" : "Download .WAV");
+            button.addEventListener("click", () => {
+                void perform(async () => {
+                    ++preparingSavedFiles;
+                    button.disabled = true;
+                    elements["clear-program-saves"].disabled = true;
+                    try {
+                        const {data} = await client.request("export-saved-program", {index: file.index, format});
+                        const url = URL.createObjectURL(new Blob([data], {type: format === "wav" ? "audio/wav" : "application/octet-stream"}));
+                        const link = document.createElement("a");
+                        link.href = url;
+                        link.download = savedProgramFilename(file.nameBytes, format);
+                        document.body.append(link);
+                        link.click(); link.remove();
+                        setTimeout(() => URL.revokeObjectURL(url), 1000);
+                    } finally {
+                        --preparingSavedFiles;
+                        button.disabled = false;
+                        renderProgramSaves(lastSnapshot?.programSaves);
+                    }
+                }).catch(() => {});
+            });
+            row.append(button);
+        }
+        return row;
+    }));
+}
+
+elements["clear-program-saves"].addEventListener("click", () => {
+    void perform(async () => {
+        const saves = await client.request("clear-program-saves");
+        if (lastSnapshot) lastSnapshot.programSaves = saves;
+        renderProgramSaves(saves);
+    }).catch(() => {});
+});
+
 function render(snapshot) {
     lastSnapshot = snapshot;
     const {state} = snapshot;
@@ -1068,15 +1178,18 @@ function render(snapshot) {
     renderMemory(snapshot.memory);
     renderLcdPanel(snapshot.lcdPanel);
     renderLcdIndicators(snapshot.lcdIndicators);
+    renderVirtualKeyboardState();
     renderKeyboardActivity(snapshot.keyboardActivity);
     renderHistory(snapshot.history);
     renderTrace(snapshot.accesses);
     renderExpressionWatches(snapshot.expressionWatches ?? []);
     renderSymbolWatches(snapshot.symbolWatches ?? []);
+    renderProgramSaves(snapshot.programSaves);
 }
 
 function renderPoweredOff() {
     lastSnapshot = null;
+    keyboardGlyphs = null;
     elements.profile.textContent = translate("Power off");
     elements["register-pc"].textContent = "----";
     elements["register-sp"].textContent = "----";
@@ -1096,11 +1209,14 @@ function renderPoweredOff() {
     renderMemory({address: 0, bytes: []});
     renderLcdPanel(null);
     renderLcdIndicators(null);
+    renderVirtualKeyboardState();
     renderKeyboardActivity(null);
     renderHistory([]);
     renderTrace([]);
     renderExpressionWatches([]);
     renderSymbolWatches([]);
+    renderProgramSaves();
+    elements["program-info"].textContent = "";
 }
 
 function stopText(stop) {
@@ -1161,6 +1277,8 @@ async function perform(operation, pendingText) {
 }
 
 const nativeProgramWavIssueMessages = Object.freeze({
+    "invalid-basic-program": "The BASIC program data is invalid or incomplete.",
+    "unexpected-trailing-blocks": "The recording contains unexpected blocks after the program.",
     "invalid-wav": "The file is not a valid WAV file.",
     "unsupported-wav": "The WAV encoding is not supported.",
     "no-signal": "No JR-800 cassette signal was detected.",
@@ -1181,6 +1299,15 @@ const nativeProgramWavIssueMessages = Object.freeze({
 });
 
 function localizedErrorMessage(error) {
+    const programErrors = {
+        [Status.invalidApplication]: "The J8A file is invalid or uses an unsupported format. Recreate it from the original WAV with the latest tools.",
+        [Status.unsupportedBasicRom]: "BASIC loading requires a supported JR-HuBASIC 1.0 or 2.0 ROM.",
+        [Status.basicNotReady]: "Return to the BASIC command prompt before loading a program.",
+        [Status.invalidBasicProgram]: "The BASIC program data is invalid or incomplete.",
+        [Status.entryPointNotLoaded]: "The execution address is outside the saved data. Use Load program to restore data without running it.",
+        [Status.basicLoadFailed]: "BASIC could not load the program. Check its format and available memory. The previous session has been kept.",
+    };
+    if (programErrors[error?.status]) return translate(programErrors[error.status]);
     if (error?.code !== "native-program-wav") {
         return translate(error instanceof Error ? error.message : String(error));
     }
@@ -1258,39 +1385,113 @@ function selectedRomFile() {
 
 function rawRomLoadApproved() {
     const pendingFile = elements["jr8rom-file"].files?.[0];
-    return !pendingFile?.name.toLowerCase().endsWith(".rom")
+    return pendingFile === rememberedRomSelection
+        || !pendingFile?.name.toLowerCase().endsWith(".rom")
         || window.confirm(translate(
             "Follow the documentation to convert the WAV file recorded from the physical machine to .j8r. Continue?",
         ));
 }
 
-async function loadJr800Machine(romFile, configuration) {
-    const format = romFileFormat(romFile);
-    const romData = format === "jr8rom"
-        ? await readJr8rom(romFile)
-        : await readRawRom(romFile);
-    const initialView = {memoryAddress: 0x8000, memoryLength: 32};
-    const command = format === "jr8rom" ? "load-jr800" : "load-jr800-raw";
-    const romField = format === "jr8rom"
-        ? {romContainer: romData}
-        : {logicalRom: romData};
-    const result = await client.request(command, {
-        ...romField,
-        configuration,
-        view: initialView,
-    }, [romData]);
-    machineKind = "jr800";
-    calendarAttached = configuration.calendarAddressSource !== undefined;
-    loaded = true;
-    releaseAllVirtualKeys(false);
-    nextExpressionWatchId = 1;
-    nextSymbolWatchId = 1;
-    elements["memory-address"].value = "$8000";
-    elements["breakpoint-address"].value = "$8000";
-    elements["run-to-address"].value = "$8000";
-    render(result);
+async function loadJr800Machine(romFile, configuration, calendarDateTime) {
+    romOperationPending = true;
     setControls();
+    try {
+        const format = romFileFormat(romFile);
+        const romData = format === "jr8rom"
+            ? await readJr8rom(romFile)
+            : await readRawRom(romFile);
+        const initialView = {memoryAddress: 0x8000, memoryLength: 32};
+        const command = format === "jr8rom" ? "load-jr800" : "load-jr800-raw";
+        const romField = format === "jr8rom"
+            ? {romContainer: romData}
+            : {logicalRom: romData};
+        const result = await client.request(command, {
+            ...romField,
+            configuration,
+            calendarDateTime,
+            view: initialView,
+        }, [romData]);
+        machineKind = "jr800";
+        elements["program-info"].textContent = "";
+        keyboardGlyphs = await client.request("keyboard-glyphs");
+        calendarAttached = configuration.calendarAddressSource !== undefined;
+        restartWithBrowserCalendar = calendarDateTime !== undefined;
+        loaded = true;
+        releaseAllVirtualKeys(false);
+        nextExpressionWatchId = 1;
+        nextSymbolWatchId = 1;
+        elements["memory-address"].value = "$8000";
+        elements["breakpoint-address"].value = "$8000";
+        elements["run-to-address"].value = "$8000";
+        render(result);
+        await rememberRom(romFile);
+    } finally {
+        romOperationPending = false;
+        setControls();
+    }
 }
+
+function renderSavedRom() {
+    elements["saved-rom-status"].textContent = translate(romStorageMessage, {
+        name: savedRom?.file.name ?? "",
+    });
+}
+
+async function rememberRom(file) {
+    const record = {
+        file,
+        ignoreUnsupportedIo: elements["ignore-unsupported-io"].checked,
+        browserCalendarStartup: elements["browser-calendar-startup"].checked,
+    };
+    try {
+        await writeSavedRom(location.pathname, record);
+        savedRom = record;
+        rememberedRomSelection = file;
+        romStorageMessage = "Remembered ROM: {name}. Press Start BASIC to load it.";
+    } catch {
+        romStorageMessage = "The ROM is loaded, but could not be remembered. Select it again on your next visit.";
+    }
+    renderSavedRom();
+}
+
+async function restoreSavedRom() {
+    try {
+        savedRom = await readSavedRom(location.pathname);
+        if (savedRom) {
+            const selection = new DataTransfer();
+            selection.items.add(savedRom.file);
+            elements["jr8rom-file"].files = selection.files;
+            rememberedRomSelection = elements["jr8rom-file"].files[0];
+            elements["ignore-unsupported-io"].checked = savedRom.ignoreUnsupportedIo;
+            elements["browser-calendar-startup"].checked = savedRom.browserCalendarStartup;
+            romStorageMessage = "Remembered ROM: {name}. Press Start BASIC to load it.";
+        }
+    } catch {
+        romStorageMessage = "Remembered ROM is unavailable. Select a local ROM to continue.";
+    }
+    renderSavedRom();
+}
+
+elements["forget-rom"].addEventListener("click", () => {
+    void perform(async () => {
+        romOperationPending = true;
+        setControls();
+        try {
+            await deleteSavedRom(location.pathname);
+            if (elements["jr8rom-file"].files?.[0] === rememberedRomSelection) {
+                elements["jr8rom-file"].value = "";
+            }
+            rememberedRomSelection = null;
+            savedRom = null;
+            romStorageMessage = "No ROM remembered in this browser.";
+            renderSavedRom();
+            setStatus("Remembered ROM removed. The running session is unchanged.", "ready");
+        } finally {
+            romOperationPending = false;
+            setControls();
+        }
+    }).catch(() => {});
+});
 
 elements.load.addEventListener("click", () => {
     void perform(async () => {
@@ -1312,6 +1513,7 @@ elements.load.addEventListener("click", () => {
         }, transfer);
         basicRunContinuous = false;
         machineKind = "synthetic";
+        keyboardGlyphs = null;
         calendarAttached = false;
         loaded = true;
         releaseAllVirtualKeys(false);
@@ -1347,8 +1549,10 @@ elements["boot-basic"].addEventListener("click", () => {
     void perform(async () => {
         const romFile = selectedRomFile();
         const configuration = applyBasicBootExperimentControls();
+        const calendarDateTime = elements["browser-calendar-startup"].checked
+            ? browserCalendarDateTime() : undefined;
         basicRunContinuous = false;
-        await loadJr800Machine(romFile, configuration);
+        await loadJr800Machine(romFile, configuration, calendarDateTime);
         await startBasicRun();
     }, "Starting BASIC experiment").catch(() => {
         basicRunContinuous = false;
@@ -1357,7 +1561,7 @@ elements["boot-basic"].addEventListener("click", () => {
     });
 });
 
-elements["load-program"].addEventListener("click", () => {
+function loadHardwareProgram(runAfterLoad) {
     void perform(async () => {
         const programFile = elements["hardware-program-file"].files?.[0];
         if (!programFile) {
@@ -1374,22 +1578,39 @@ elements["load-program"].addEventListener("click", () => {
         const field = format === "wav" ? {wav: program} : {application: program};
         const result = await client.request(command, {
             ...field,
+            runAfterLoad,
             view: viewOptions(),
         }, [program]);
         basicRunContinuous = false;
         releaseAllVirtualKeys(false);
         render(result);
         setControls();
-        await startBasicRun("RAM program running");
-    }, "Loading RAM program").catch(() => {});
-});
+        const info = result.program;
+        const name = info.nameBytes.map((value) => value >= 32 && value < 127
+            ? String.fromCharCode(value) : `\\x${value.toString(16).padStart(2, "0")}`).join("");
+        elements["program-info"].textContent = translate("Loaded {kind}: {name} ({size} bytes)", {
+            kind: translate({"machine-code": "Machine code", "basic-text": "BASIC text", "basic-binary": "BASIC binary"}[info.kind]),
+            name: name || translate("Unnamed program"), size: info.byteLength,
+        });
+        if (runAfterLoad) await startBasicRun("Program running");
+        else setStatus("Program loaded", "ready");
+    }, "Loading program").catch(() => {});
+}
+elements["load-program"].addEventListener("click", () => loadHardwareProgram(true));
+elements["load-program-only"].addEventListener("click", () => loadHardwareProgram(false));
 
 elements.reset.addEventListener("click", () => {
+    if (machineKind === "jr800" && !window.confirm(translate(
+        "Restart and clear working RAM? Download any unsaved programs first. Completed saves remain available.",
+    ))) return;
     void perform(async () => {
         basicRunContinuous = false;
-        const snapshot = await client.request("reset", {view: viewOptions()});
+        const calendarDateTime = machineKind === "jr800" && restartWithBrowserCalendar
+            ? browserCalendarDateTime() : undefined;
+        const snapshot = await client.request("reset", {view: viewOptions(), calendarDateTime});
+        elements["program-info"].textContent = "";
         render(snapshot);
-        setStatus("Machine reset", "ready");
+        setStatus("Machine restarted", "ready");
     }, "Resetting machine").catch(() => {});
 });
 
@@ -2025,6 +2246,7 @@ setControls();
 void perform(async () => {
     const moduleUrl = new URL("./jr800_wasm.mjs", import.meta.url).href;
     const result = await client.request("initialize", {moduleUrl});
+    await restoreSavedRom();
     initialized = true;
     if (audioOutput.context?.state === "running") {
         await client.request("set-audio-enabled", {enabled: true});

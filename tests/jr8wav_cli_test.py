@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import wave
+from native_basic_wav_fixture import basic_blocks, write_blocks
 
 
 def run(command: list[str]) -> subprocess.CompletedProcess[str]:
@@ -225,6 +226,51 @@ def main() -> int:
         require(decode_collision.returncode == 1, "decode path collision was accepted")
         require(first_wav.read_bytes() == original_wav, "decode collision changed input")
 
+        # BASIC text boundaries, native binary structure and damaged block refusal.
+        cases = [(b"10 PRINT \"" + bytes([0x80, 0xB6]) + b"\"\r20 END\r", False),
+                 (bytes([0, 6, 0, 10, 0xA3, 0, 0, 0]), True),
+                 (b"", False), (b"\0\0", True)]
+        for length in (254, 255, 256, 257, 656):
+            # Build valid, bounded numbered REM lines with an exact total length.
+            remaining = length
+            lines = []
+            number = 10
+            while remaining > 0:
+                size = min(120, remaining)
+                if remaining - size in range(1, 8): size -= 8
+                prefix = f"{number} REM ".encode()
+                line = prefix + b"X" * (size - len(prefix) - 1) + b"\r"
+                lines.append(line); remaining -= len(line); number += 10
+            cases.append((b"".join(lines), False))
+        for index, (source, binary) in enumerate(cases):
+            wav = root / f"basic-{index}.wav"
+            output = root / f"basic-{index}.j8a"
+            blocks = basic_blocks(source, binary)
+            write_blocks(wav, blocks)
+            result = run([str(args.tool), "decode-native-program", str(wav), str(output)])
+            require(result.returncode == 0, result.stderr)
+            encoded = output.read_bytes()
+            require(encoded[8:12] == b"\0\1\0\0", "BASIC output is not J8A v1")
+            require(encoded[12] == (3 if binary else 2), "BASIC kind differs")
+            require(encoded.endswith(source) and f"length={len(source)}" in result.stdout, "BASIC byte payload differs")
+            output.write_bytes(b"unchanged")
+            write_blocks(wav, blocks, bad_checksum=len(blocks)-1)
+            result = run([str(args.tool), "decode-native-program", str(wav), str(output)])
+            require(result.returncode == 2 and "checksum-mismatch" in result.stderr, "Damaged BASIC block accepted")
+            require(output.read_bytes() == b"unchanged", "Failed BASIC conversion changed output")
+        invalid_inputs = [
+            basic_blocks(b"RUN\r"),
+            basic_blocks(b"10 END\r") + basic_blocks(b"10 END\r")[1:],
+            basic_blocks(b"10 END\r")[:-1],
+            basic_blocks(bytes([0, 9, 0, 10, 0xA3, 0, 0, 0]), True),
+        ]
+        for index, blocks in enumerate(invalid_inputs):
+            wav = root / f"bad-basic-{index}.wav"
+            output = root / f"bad-basic-{index}.j8a"
+            write_blocks(wav, blocks)
+            result = run([str(args.tool), "decode-native-program", str(wav), str(output)])
+            require(result.returncode == 2 and not output.exists(), "Invalid BASIC input emitted output")
+
         native_payload_bytes = bytearray(
             (index * 19 + 7) & 0xFF for index in range(256)
         )
@@ -333,15 +379,13 @@ def main() -> int:
                 str(outside_entry_output),
             ]
         )
-        require(outside_entry.returncode == 2, outside_entry.stderr)
-        require(
-            "invalid-program-range" in outside_entry.stderr,
-            outside_entry.stderr,
-        )
-        require(
-            outside_entry_output.read_bytes() == b"unchanged",
-            "invalid program conversion changed output",
-        )
+        require(outside_entry.returncode == 0, outside_entry.stderr)
+        require("execution=$3000" in outside_entry.stdout, outside_entry.stdout)
+        require(outside_entry_output.read_bytes().startswith(b"JR8APP"),
+                "data-only program was not exported")
+        outside_run = run([str(args.runner), str(outside_entry_output)])
+        require(outside_run.returncode != 0 and "entry-point-not-loaded" in outside_run.stderr,
+                outside_run.stderr)
 
         native_verified = root / "native-verified.j8r"
         native_verify = run(

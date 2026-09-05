@@ -41,9 +41,10 @@ public:
 private:
     friend class Machine;
     Machine* machine_{};
+    MachineObserver* next_{};
 };
 
-class Machine final {
+class Machine final : private BusObserver {
 public:
     ~Machine();
 
@@ -67,9 +68,13 @@ public:
         std::uint16_t address
     ) const noexcept;
 
-    [[nodiscard]] bool set_observer(MachineObserver* observer) noexcept;
-    [[nodiscard]] MachineObserver* observer() noexcept;
-    [[nodiscard]] const MachineObserver* observer() const noexcept;
+    // Independent debugger and host-transfer observers share the same events.
+    // Callbacks must not attach or detach observers during event dispatch.
+    [[nodiscard]] bool add_observer(MachineObserver* observer) noexcept;
+    void remove_observer(MachineObserver& observer) noexcept;
+    void clear_observers() noexcept;
+    [[nodiscard]] bool has_observer(const MachineObserver* observer) const noexcept;
+    [[nodiscard]] bool has_observers() const noexcept;
 
     [[nodiscard]] Cpu& cpu() noexcept;
     [[nodiscard]] const Cpu& cpu() const noexcept;
@@ -85,6 +90,7 @@ private:
         CpuState state
     ) noexcept;
     void release_destroying_observer(MachineObserver& observer) noexcept;
+    void on_bus_access(const BusAccessEvent& event) noexcept override;
 
     Cpu cpu_{};
     Bus& bus_;

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 #include "jr800/runtime/application_loader.hpp"
+#include "basic_program_loader.hpp"
 
 #include <algorithm>
 
@@ -18,6 +19,12 @@ LoadApplicationResult load_application(
         static_cast<void>(formats::jr8app::write(application));
     } catch (const formats::linked::Error&) {
         return LoadApplicationResult::invalid_format;
+    }
+    if (application.kind != formats::jr8app::ProgramKind::machine_code) {
+        return LoadApplicationResult::target_mismatch;
+    }
+    if (!formats::jr8app::entry_point_is_loaded(application)) {
+        return LoadApplicationResult::entry_point_not_loaded;
     }
     const auto profile = isa::find_profile(application.target_profile);
     if (!profile.has_value()) {
@@ -53,7 +60,8 @@ LoadApplicationResult load_application(
 
 LoadApplicationResult load_application(
     core::Jr800Machine& machine,
-    const formats::jr8app::Application& application
+    const formats::jr8app::Application& application,
+    bool run_after_load
 ) {
     try {
         static_cast<void>(formats::jr8app::write(application));
@@ -64,6 +72,12 @@ LoadApplicationResult load_application(
         return LoadApplicationResult::target_mismatch;
     }
 
+    if (application.kind != formats::jr8app::ProgramKind::machine_code) {
+        return load_basic_program(machine, application, run_after_load);
+    }
+    if (run_after_load && !formats::jr8app::entry_point_is_loaded(application)) {
+        return LoadApplicationResult::entry_point_not_loaded;
+    }
     for (const auto& segment : application.segments) {
         if (!machine.can_host_load_ram(
                 segment.address,
@@ -84,7 +98,7 @@ LoadApplicationResult load_application(
             return LoadApplicationResult::segment_out_of_range;
         }
     }
-    machine.host_start_program(application.entry_point);
+    if (run_after_load) machine.host_start_program(application.entry_point);
     return LoadApplicationResult::loaded;
 }
 

@@ -34,10 +34,23 @@ struct Rp5c01RegisterWriteResult {
     }
 };
 
+// Host calendar input, independent of a timezone or wall-clock source.
+struct CalendarDateTime {
+    std::uint16_t year{};
+    std::uint8_t month{};
+    std::uint8_t day{};
+    std::uint8_t hour{};
+    std::uint8_t minute{};
+    std::uint8_t second{};
+
+    [[nodiscard]] bool valid() const noexcept;
+};
+
 class Rp5c01RegisterFile final {
 public:
     // Explicit experiment state; not a modeled hardware reset operation.
     void initialize_zero() noexcept;
+    [[nodiscard]] bool set_datetime(CalendarDateTime value) noexcept;
 
     [[nodiscard]] Rp5c01RegisterReadResult read(
         std::uint8_t address

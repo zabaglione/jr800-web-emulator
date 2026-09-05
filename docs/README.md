@@ -3,9 +3,14 @@
 エミュレーターを使う場合は、まずプロジェクトルートの[README](../README.md)を参照してください。
 実機からROMを録音して`.j8r`へ変換し、Web UIでBASICを起動するところまでを説明しています。
 
-## 機械語プログラム
+## プログラムの読み込みと保存
 
 - [WAVで配布された機械語プログラムを実機とエミュレーターで動かす](user/machine-language-wav.md)
+- [BASICプログラムWAVの利用ガイド](user/basic-program-wav.md)
+- [エミュレーターからJ8A・WAVへ保存する](user/program-save-export.md)
+- [BASIC移行の実機テスト手順](user/basic-program-physical-test.md)
+- [対応機能と確認済みの範囲](user/compatibility.md)
+- [GitHub Pagesの設定とROMのブラウザー内保存](user/github-pages.md)
 
 ## アプリ開発
 
@@ -28,7 +33,7 @@
 | `.j8r` | [JR8ROM](formats/jr8rom-v1.md) | アドレスと完全性情報を持つ推奨ROM形式 |
 | `.jro` | [JRO](formats/jro-v1.md) | 再配置可能オブジェクト |
 | `.j8l` | [JR8LD link script](sdk/link-script-v1.md) | メモリー領域とセクション配置 |
-| `.j8a` | [JR8APP](formats/jr8app-v1.md) | ロード可能な機械語アプリ |
+| `.j8a` | [JR8APP](formats/jr8app-v1.md) | ロード可能な機械語／BASICプログラム |
 | `.j8d` | [JR8DBG](formats/jr8dbg-v1.md) | ソース位置とシンボルのデバッグ情報 |
 | `.wav` | [MSAVE録音／FSK](formats/rom-dump-transport-v1.md) | 実機のROMまたはRAMプログラム録音 |
 

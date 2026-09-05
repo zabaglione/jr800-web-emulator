@@ -225,26 +225,11 @@ bool write_jr8rom(
     }
 }
 
-bool write_jr8app(
-    const std::filesystem::path& path,
-    std::uint16_t address,
-    std::uint16_t entry_point,
-    std::span<const std::uint8_t> payload
-) {
+bool write_jr8app(const std::filesystem::path& path,
+    const jr800::formats::NativeMsaveFile& file) {
     try {
-        jr800::formats::jr8app::Application application;
-        application.target_profile = "hd6301v1";
-        application.entry_point = entry_point;
-        application.segments = {{
-            jr800::formats::jr8app::SegmentKind::data,
-            address,
-            static_cast<std::uint32_t>(payload.size()),
-            std::vector<std::uint8_t>{payload.begin(), payload.end()},
-        }};
-        application.integrity_sha256 =
-            jr800::formats::jr8app::compute_integrity(application);
-        const auto encoded = jr800::formats::jr8app::write(application);
-        return write_file(path, encoded);
+        const auto application = jr800::formats::native_program_application(file);
+        return write_file(path, jr800::formats::jr8app::write(application));
     } catch (const std::exception& error) {
         std::cerr << "jr8wav: cannot encode JR8APP: " << error.what() << '\n';
         return false;
@@ -348,11 +333,18 @@ void print_native_summary(
     std::string_view action,
     const jr800::formats::NativeMsaveFile& file
 ) {
-    std::cout << action << " name=\"" << file.filename << "\" address=$"
+    std::cout << action << " kind=" << jr800::formats::jr8app::program_kind_name(file.kind)
+              << " name=\"";
+    for (const unsigned char value : file.filename) {
+        if (value >= 32U && value < 127U && value != '\\' && value != '"') std::cout << value;
+        else std::cout << "\\x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<unsigned>(value) << std::dec;
+    }
+    std::cout << "\"";
+    if (file.kind == jr800::formats::jr8app::ProgramKind::machine_code) std::cout << " address=$"
               << std::uppercase << std::hex << std::setw(4) << std::setfill('0')
               << file.start_address << " execution=$" << std::setw(4)
-              << file.execution_address << std::dec
-              << " length=" << file.payload.size()
+              << file.execution_address << std::dec;
+    std::cout << " length=" << file.payload.size()
               << " channel-index=" << file.source_channel
               << " header-byte-order="
               << (file.header_byte_order
@@ -381,12 +373,7 @@ int decode_native_program(
         std::cerr << "jr8wav: refusing incomplete or unverified native program output\n";
         return 2;
     }
-    if (!write_jr8app(
-            output_path,
-            decoded.file->start_address,
-            decoded.file->execution_address,
-            decoded.file->payload
-        )) {
+    if (!write_jr8app(output_path, *decoded.file)) {
         return 1;
     }
     print_native_summary("decoded-native-program", *decoded.file);

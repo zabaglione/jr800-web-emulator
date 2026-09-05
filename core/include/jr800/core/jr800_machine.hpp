@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <optional>
+#include <memory>
 #include <span>
 
 #include "jr800/core/jr800_bus.hpp"
@@ -61,7 +62,9 @@ public:
         Jr800ExperimentalResetStateConfiguration reset_state_configuration
     ) noexcept;
 
-    Jr800Machine(const Jr800Machine&) = delete;
+    // Isolated host import transactions copy device/CPU state, not observers.
+    [[nodiscard]] std::unique_ptr<Jr800Machine> clone() const;
+    void copy_state_from(const Jr800Machine& source) noexcept;
     Jr800Machine& operator=(const Jr800Machine&) = delete;
     Jr800Machine(Jr800Machine&&) = delete;
     Jr800Machine& operator=(Jr800Machine&&) = delete;
@@ -83,6 +86,9 @@ public:
         std::uint8_t value
     ) noexcept;
     void host_start_program(std::uint16_t program_counter) noexcept;
+    [[nodiscard]] bool host_return_from_subroutine(
+        std::uint8_t accumulator_a, std::uint8_t condition_code
+    ) noexcept;
 
     void set_port1_pin_state(
         std::uint8_t value,
@@ -108,6 +114,8 @@ public:
     advance_calendar_oscillator_ticks(std::uint32_t ticks) noexcept;
     [[nodiscard]] Jr800CalendarOperationStatus
     adjust_calendar_seconds() noexcept;
+    [[nodiscard]] Jr800CalendarOperationStatus
+    set_calendar_datetime(CalendarDateTime value) noexcept;
     [[nodiscard]] Jr800CalendarAlarmTerminalState
     calendar_alarm_terminal_state() const noexcept;
     [[nodiscard]] Hd6301v1Port2TimerOutputState
@@ -139,6 +147,7 @@ public:
     [[nodiscard]] const Machine& execution() const noexcept;
 
 private:
+    Jr800Machine(const Jr800Machine& source) noexcept;
     Jr800Bus bus_{};
     Jr800ExperimentalResetStateConfiguration reset_state_configuration_;
     Machine execution_;

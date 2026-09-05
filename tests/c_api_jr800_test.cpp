@@ -379,13 +379,13 @@ int main() {
             machine,
             ram_application.data(),
             static_cast<std::uint32_t>(ram_application.size())
-        ) == JR800_STATUS_NO_ROM
+        , 1U, nullptr) == JR800_STATUS_NO_ROM
             && jr800_machine_load_program(
                 synthetic,
                 ram_application.data(),
                 static_cast<std::uint32_t>(ram_application.size())
-            ) == JR800_STATUS_WRONG_MACHINE_KIND
-            && jr800_machine_load_program(nullptr, &byte, 1U)
+            , 1U, nullptr) == JR800_STATUS_WRONG_MACHINE_KIND
+            && jr800_machine_load_program(nullptr, &byte, 1U, 1U, nullptr)
                 == JR800_STATUS_INVALID_ARGUMENT,
         "RAM program load accepted an invalid session"
     );
@@ -639,18 +639,18 @@ int main() {
         "Program machine ROM load failed"
     );
     passed &= expect(
-        jr800_machine_load_program(program_machine, &byte, 1U)
+        jr800_machine_load_program(program_machine, &byte, 1U, 1U, nullptr)
                 == JR800_STATUS_INVALID_APPLICATION
             && jr800_machine_load_program(
                 program_machine,
                 wrong_target_application.data(),
                 static_cast<std::uint32_t>(wrong_target_application.size())
-            ) == JR800_STATUS_TARGET_MISMATCH
+            , 1U, nullptr) == JR800_STATUS_TARGET_MISMATCH
             && jr800_machine_load_program(
                 program_machine,
                 rom_application.data(),
                 static_cast<std::uint32_t>(rom_application.size())
-            ) == JR800_STATUS_SEGMENT_OUT_OF_RANGE,
+            , 1U, nullptr) == JR800_STATUS_SEGMENT_OUT_OF_RANGE,
         "Invalid RAM program input was accepted"
     );
     passed &= expect(
@@ -658,7 +658,7 @@ int main() {
             program_machine,
             ram_application.data(),
             static_cast<std::uint32_t>(ram_application.size())
-        ) == JR800_STATUS_OK,
+        , 1U, nullptr) == JR800_STATUS_OK,
         "RAM program load failed"
     );
     std::array<std::uint8_t, 4U> loaded_ram{};
@@ -710,7 +710,7 @@ int main() {
             program_machine,
             mixed_program.data(),
             static_cast<std::uint32_t>(mixed_program.size())
-        ) == JR800_STATUS_SEGMENT_OUT_OF_RANGE
+        , 1U, nullptr) == JR800_STATUS_SEGMENT_OUT_OF_RANGE
             && jr800_machine_read_memory(
                 program_machine,
                 0x2800U,
@@ -736,14 +736,14 @@ int main() {
             invalid_wav.data(),
             static_cast<std::uint32_t>(invalid_wav.size()),
             &wav_issue
-        ) == JR800_STATUS_INVALID_ARGUMENT
+        , 1U, nullptr) == JR800_STATUS_INVALID_ARGUMENT
             && wav_issue.code == 0xFFFFU
             && jr800_machine_load_native_program_wav(
                 synthetic,
                 invalid_wav.data(),
                 static_cast<std::uint32_t>(invalid_wav.size()),
                 &wav_issue
-            ) == JR800_STATUS_WRONG_MACHINE_KIND,
+            , 1U, nullptr) == JR800_STATUS_WRONG_MACHINE_KIND,
         "Invalid native program WAV arguments were accepted"
     );
     passed &= expect(
@@ -752,7 +752,7 @@ int main() {
             invalid_wav.data(),
             static_cast<std::uint32_t>(invalid_wav.size()),
             &wav_issue
-        ) == JR800_STATUS_INVALID_NATIVE_PROGRAM_WAV
+        , 1U, nullptr) == JR800_STATUS_INVALID_NATIVE_PROGRAM_WAV
             && wav_issue.code == JR800_NATIVE_PROGRAM_WAV_ISSUE_INVALID_WAV
             && wav_issue.burst_index == 0U,
         "Invalid native program WAV did not report its decoder issue"
@@ -770,7 +770,7 @@ int main() {
             program_wav.data(),
             static_cast<std::uint32_t>(program_wav.size()),
             &wav_issue
-        ) == JR800_STATUS_OK
+        , 1U, nullptr) == JR800_STATUS_OK
             && wav_issue.code == JR800_NATIVE_PROGRAM_WAV_ISSUE_NONE
             && wav_issue.burst_index == 0U
             && jr800_machine_read_memory(
@@ -1496,6 +1496,10 @@ int main() {
                 ) == JR800_STATUS_OK
                 && internal_ram_value == 0x5CU
                 && jr800_machine_reset(access_machine) == JR800_STATUS_OK
+                && jr800_machine_read_memory(
+                    access_machine, 0x2000U, &incremented, 1U
+                ) == JR800_STATUS_OK
+                && incremented == 0x41U
                 && jr800_machine_get_state(
                     access_machine,
                     &configured_state

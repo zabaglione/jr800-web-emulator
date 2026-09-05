@@ -2,6 +2,9 @@ add_library(
     jr800_runtime
     STATIC
         src/application_loader.cpp
+        src/basic_program_loader.cpp
+        src/basic_rom.cpp
+        src/program_save_capture.cpp
         src/jr800_machine_runner.cpp
 )
 add_library(jr800::runtime ALIAS jr800_runtime)

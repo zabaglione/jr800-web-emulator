@@ -370,7 +370,7 @@ bool test_wai() {
     constexpr std::array<std::uint8_t, 2U> wait_program{0x0EU, 0x3EU};
     passed &= expect(
         interrupt_bus.load(0x5000U, wait_program)
-            && interrupt_machine.set_observer(&interrupt_observer),
+            && interrupt_machine.add_observer(&interrupt_observer),
         "WAI interrupt setup failed"
     );
     interrupt_bus.poke8(0xFFF4U, 0x60U);
@@ -757,7 +757,7 @@ bool test_swi() {
         unknown_machine.load_logical_rom(unknown_rom)
                 == Jr800MemoryStatus::ok
             && unknown_machine.initialize_from_reset_entry().succeeded()
-            && unknown_machine.execution().set_observer(&unknown_observer),
+            && unknown_machine.execution().add_observer(&unknown_observer),
         "Reset-time SWI setup failed"
     );
     const auto unknown_before = unknown_machine.execution().cpu().state();
@@ -5650,7 +5650,7 @@ bool test_ldab_indexed() {
         unknown_x_machine.load_logical_rom(unknown_x_rom)
                 == Jr800MemoryStatus::ok
             && unknown_x_machine.initialize_from_reset_entry().succeeded()
-            && unknown_x_machine.execution().set_observer(
+            && unknown_x_machine.execution().add_observer(
                 &unknown_x_observer
             ),
         "Indexed LDAB unknown-X setup failed"
@@ -7569,7 +7569,7 @@ bool test_ldd_indexed() {
         unknown_x_machine.load_logical_rom(unknown_x_rom)
                 == Jr800MemoryStatus::ok
             && unknown_x_machine.initialize_from_reset_entry().succeeded()
-            && unknown_x_machine.execution().set_observer(
+            && unknown_x_machine.execution().add_observer(
                 &unknown_x_observer
             ),
         "Indexed LDD unknown-X setup failed"
@@ -12132,7 +12132,7 @@ bool test_subd_indexed() {
         unknown_x_machine.load_logical_rom(unknown_x_rom)
                 == Jr800MemoryStatus::ok
             && unknown_x_machine.initialize_from_reset_entry().succeeded()
-            && unknown_x_machine.execution().set_observer(
+            && unknown_x_machine.execution().add_observer(
                 &unknown_x_observer
             ),
         "Indexed SUBD unknown-X setup failed"
@@ -12176,7 +12176,7 @@ bool test_subd_indexed() {
     );
     RecordingMachineObserver unknown_a_observer;
     passed &= expect(
-        unknown_a_machine.execution().set_observer(&unknown_a_observer),
+        unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Indexed SUBD unknown-A observer attach failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -12217,7 +12217,7 @@ bool test_subd_indexed() {
     );
     RecordingMachineObserver unknown_b_observer;
     passed &= expect(
-        unknown_b_machine.execution().set_observer(&unknown_b_observer),
+        unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Indexed SUBD unknown-B observer attach failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -12696,7 +12696,7 @@ bool test_subd_immediate() {
         unknown_a_machine.load_logical_rom(unknown_a_rom)
                 == Jr800MemoryStatus::ok
             && unknown_a_machine.initialize_from_reset_entry().succeeded()
-            && unknown_a_machine.execution().set_observer(
+            && unknown_a_machine.execution().add_observer(
                 &unknown_a_observer
             ),
         "Immediate SUBD unknown-A setup failed"
@@ -12741,7 +12741,7 @@ bool test_subd_immediate() {
     );
     RecordingMachineObserver unknown_b_observer;
     passed &= expect(
-        unknown_b_machine.execution().set_observer(&unknown_b_observer),
+        unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Immediate SUBD unknown-B observer attach failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -13505,7 +13505,7 @@ bool test_addd() {
                 == Jr800MemoryStatus::ok
             && direct_unknown_a_machine.initialize_from_reset_entry()
                 .succeeded()
-            && direct_unknown_a_machine.execution().set_observer(
+            && direct_unknown_a_machine.execution().add_observer(
                 &direct_unknown_a_observer
             ),
         "Direct ADDD unknown-A setup failed"
@@ -13563,7 +13563,7 @@ bool test_addd() {
     );
     RecordingMachineObserver direct_unknown_b_observer;
     passed &= expect(
-        direct_unknown_b_machine.execution().set_observer(
+        direct_unknown_b_machine.execution().add_observer(
             &direct_unknown_b_observer
         ),
         "Direct ADDD unknown-B observer attach failed"
@@ -13824,7 +13824,7 @@ bool test_addd() {
         unknown_a_machine.load_logical_rom(unknown_a_rom)
                 == Jr800MemoryStatus::ok
             && unknown_a_machine.initialize_from_reset_entry().succeeded()
-            && unknown_a_machine.execution().set_observer(
+            && unknown_a_machine.execution().add_observer(
                 &unknown_a_observer
             ),
         "Extended ADDD unknown-A setup failed"
@@ -13875,7 +13875,7 @@ bool test_addd() {
     );
     RecordingMachineObserver unknown_b_observer;
     passed &= expect(
-        unknown_b_machine.execution().set_observer(&unknown_b_observer),
+        unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Extended ADDD unknown-B observer attach failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -14100,7 +14100,7 @@ bool test_addd() {
                 == Jr800MemoryStatus::ok
             && immediate_unknown_a_machine.initialize_from_reset_entry()
                 .succeeded()
-            && immediate_unknown_a_machine.execution().set_observer(
+            && immediate_unknown_a_machine.execution().add_observer(
                 &immediate_unknown_a_observer
             ),
         "Immediate ADDD unknown-A setup failed"
@@ -14151,7 +14151,7 @@ bool test_addd() {
     );
     RecordingMachineObserver immediate_unknown_b_observer;
     passed &= expect(
-        immediate_unknown_b_machine.execution().set_observer(
+        immediate_unknown_b_machine.execution().add_observer(
             &immediate_unknown_b_observer
         ),
         "Immediate ADDD unknown-B observer attach failed"
@@ -14309,7 +14309,7 @@ bool test_addd() {
                 == Jr800MemoryStatus::ok
             && indexed_unknown_x_machine.initialize_from_reset_entry()
                 .succeeded()
-            && indexed_unknown_x_machine.execution().set_observer(
+            && indexed_unknown_x_machine.execution().add_observer(
                 &indexed_unknown_x_observer
             ),
         "Indexed ADDD unknown-X setup failed"
@@ -14359,7 +14359,7 @@ bool test_addd() {
     );
     RecordingMachineObserver indexed_unknown_a_observer;
     passed &= expect(
-        indexed_unknown_a_machine.execution().set_observer(
+        indexed_unknown_a_machine.execution().add_observer(
             &indexed_unknown_a_observer
         ),
         "Indexed ADDD unknown-A observer attach failed"
@@ -14954,7 +14954,7 @@ bool test_subd_extended() {
         unknown_a_machine.load_logical_rom(unknown_a_rom)
                 == Jr800MemoryStatus::ok
             && unknown_a_machine.initialize_from_reset_entry().succeeded()
-            && unknown_a_machine.execution().set_observer(
+            && unknown_a_machine.execution().add_observer(
                 &unknown_a_observer
             ),
         "Extended SUBD unknown-A setup failed"
@@ -15005,7 +15005,7 @@ bool test_subd_extended() {
     );
     RecordingMachineObserver unknown_b_observer;
     passed &= expect(
-        unknown_b_machine.execution().set_observer(&unknown_b_observer),
+        unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Extended SUBD unknown-B observer attach failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -18913,7 +18913,7 @@ bool test_cpx() {
     );
     RecordingMachineObserver direct_unknown_x_observer;
     passed &= expect(
-        direct_unknown_x_machine.execution().set_observer(
+        direct_unknown_x_machine.execution().add_observer(
             &direct_unknown_x_observer
         ),
         "Direct CPX unknown-X observer attach failed"
@@ -19226,7 +19226,7 @@ bool test_cpx() {
     );
     RecordingMachineObserver indexed_unknown_x_observer;
     passed &= expect(
-        indexed_unknown_x_machine.execution().set_observer(
+        indexed_unknown_x_machine.execution().add_observer(
             &indexed_unknown_x_observer
         ),
         "Indexed CPX unknown-X observer attach failed"
@@ -19601,7 +19601,7 @@ bool test_cpx() {
     );
     RecordingMachineObserver extended_unknown_x_observer;
     passed &= expect(
-        extended_unknown_x_machine.execution().set_observer(
+        extended_unknown_x_machine.execution().add_observer(
             &extended_unknown_x_observer
         ),
         "Extended CPX unknown-X observer attach failed"
@@ -20460,7 +20460,7 @@ bool test_adda_direct() {
         unknown_a_machine.load_logical_rom(unknown_a_rom)
                 == Jr800MemoryStatus::ok
             && unknown_a_machine.initialize_from_reset_entry().succeeded()
-            && unknown_a_machine.execution().set_observer(
+            && unknown_a_machine.execution().add_observer(
                 &unknown_a_observer
             ),
         "Direct ADDA unknown-A setup failed"
@@ -20804,7 +20804,7 @@ bool test_adda_indexed() {
         unknown_x_machine.load_logical_rom(unknown_x_rom)
                 == Jr800MemoryStatus::ok
             && unknown_x_machine.initialize_from_reset_entry().succeeded()
-            && unknown_x_machine.execution().set_observer(&unknown_x_observer),
+            && unknown_x_machine.execution().add_observer(&unknown_x_observer),
         "Indexed ADDA unknown-X setup failed"
     );
     const auto unknown_x_before = unknown_x_machine.execution().cpu().state();
@@ -20844,7 +20844,7 @@ bool test_adda_indexed() {
     );
     RecordingMachineObserver unknown_a_observer;
     passed &= expect(
-        unknown_a_machine.execution().set_observer(&unknown_a_observer),
+        unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Indexed ADDA unknown-A observer attach failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -21183,7 +21183,7 @@ bool test_adda_extended() {
         unknown_a_machine.load_logical_rom(unknown_a_rom)
                 == Jr800MemoryStatus::ok
             && unknown_a_machine.initialize_from_reset_entry().succeeded()
-            && unknown_a_machine.execution().set_observer(&unknown_a_observer),
+            && unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Extended ADDA unknown-A setup failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -21936,7 +21936,7 @@ bool test_addb_direct() {
         unknown_b_machine.load_logical_rom(unknown_b_rom)
                 == Jr800MemoryStatus::ok
             && unknown_b_machine.initialize_from_reset_entry().succeeded()
-            && unknown_b_machine.execution().set_observer(
+            && unknown_b_machine.execution().add_observer(
                 &unknown_b_observer
             ),
         "Direct ADDB unknown-B setup failed"
@@ -22281,7 +22281,7 @@ bool test_addb_indexed() {
         unknown_x_machine.load_logical_rom(unknown_x_rom)
                 == Jr800MemoryStatus::ok
             && unknown_x_machine.initialize_from_reset_entry().succeeded()
-            && unknown_x_machine.execution().set_observer(&unknown_x_observer),
+            && unknown_x_machine.execution().add_observer(&unknown_x_observer),
         "Indexed ADDB unknown-X setup failed"
     );
     const auto unknown_x_before = unknown_x_machine.execution().cpu().state();
@@ -22321,7 +22321,7 @@ bool test_addb_indexed() {
     );
     RecordingMachineObserver unknown_b_observer;
     passed &= expect(
-        unknown_b_machine.execution().set_observer(&unknown_b_observer),
+        unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Indexed ADDB unknown-B observer attach failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -22660,7 +22660,7 @@ bool test_addb_extended() {
         unknown_b_machine.load_logical_rom(unknown_b_rom)
                 == Jr800MemoryStatus::ok
             && unknown_b_machine.initialize_from_reset_entry().succeeded()
-            && unknown_b_machine.execution().set_observer(&unknown_b_observer),
+            && unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Extended ADDB unknown-B setup failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -23027,7 +23027,7 @@ bool test_adca_immediate() {
         unknown_a_machine.load_logical_rom(unknown_a_rom)
                 == Jr800MemoryStatus::ok
             && unknown_a_machine.initialize_from_reset_entry().succeeded()
-            && unknown_a_machine.execution().set_observer(&unknown_a_observer),
+            && unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "ADCA unknown-A setup failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -23062,7 +23062,7 @@ bool test_adca_immediate() {
     );
     RecordingMachineObserver unknown_c_observer;
     passed &= expect(
-        unknown_c_machine.execution().set_observer(&unknown_c_observer),
+        unknown_c_machine.execution().add_observer(&unknown_c_observer),
         "ADCA unknown-C observer attach failed"
     );
     const auto unknown_c_before = unknown_c_machine.execution().cpu().state();
@@ -23336,7 +23336,7 @@ bool test_adca_direct() {
         unknown_a_machine.load_logical_rom(unknown_a_rom)
                 == Jr800MemoryStatus::ok
             && unknown_a_machine.initialize_from_reset_entry().succeeded()
-            && unknown_a_machine.execution().set_observer(&unknown_a_observer),
+            && unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Direct ADCA unknown-A setup failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -23372,7 +23372,7 @@ bool test_adca_direct() {
     );
     RecordingMachineObserver unknown_c_observer;
     passed &= expect(
-        unknown_c_machine.execution().set_observer(&unknown_c_observer),
+        unknown_c_machine.execution().add_observer(&unknown_c_observer),
         "Direct ADCA unknown-C observer attach failed"
     );
     const auto unknown_c_before = unknown_c_machine.execution().cpu().state();
@@ -23710,7 +23710,7 @@ bool test_adca_indexed() {
         unknown_x_machine.load_logical_rom(unknown_x_rom)
                 == Jr800MemoryStatus::ok
             && unknown_x_machine.initialize_from_reset_entry().succeeded()
-            && unknown_x_machine.execution().set_observer(&unknown_x_observer),
+            && unknown_x_machine.execution().add_observer(&unknown_x_observer),
         "Indexed ADCA unknown-X setup failed"
     );
     const auto unknown_x_before = unknown_x_machine.execution().cpu().state();
@@ -23750,7 +23750,7 @@ bool test_adca_indexed() {
     );
     RecordingMachineObserver unknown_a_observer;
     passed &= expect(
-        unknown_a_machine.execution().set_observer(&unknown_a_observer),
+        unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Indexed ADCA unknown-A observer attach failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -23790,7 +23790,7 @@ bool test_adca_indexed() {
     );
     RecordingMachineObserver unknown_c_observer;
     passed &= expect(
-        unknown_c_machine.execution().set_observer(&unknown_c_observer),
+        unknown_c_machine.execution().add_observer(&unknown_c_observer),
         "Indexed ADCA unknown-C observer attach failed"
     );
     const auto unknown_c_before = unknown_c_machine.execution().cpu().state();
@@ -24129,7 +24129,7 @@ bool test_adca_extended() {
         unknown_a_machine.load_logical_rom(unknown_a_rom)
                 == Jr800MemoryStatus::ok
             && unknown_a_machine.initialize_from_reset_entry().succeeded()
-            && unknown_a_machine.execution().set_observer(&unknown_a_observer),
+            && unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Extended ADCA unknown-A setup failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -24170,7 +24170,7 @@ bool test_adca_extended() {
     );
     RecordingMachineObserver unknown_c_observer;
     passed &= expect(
-        unknown_c_machine.execution().set_observer(&unknown_c_observer),
+        unknown_c_machine.execution().add_observer(&unknown_c_observer),
         "Extended ADCA unknown-C observer attach failed"
     );
     const auto unknown_c_before = unknown_c_machine.execution().cpu().state();
@@ -24490,7 +24490,7 @@ bool test_adcb_immediate() {
         unknown_b_machine.load_logical_rom(unknown_b_rom)
                 == Jr800MemoryStatus::ok
             && unknown_b_machine.initialize_from_reset_entry().succeeded()
-            && unknown_b_machine.execution().set_observer(&unknown_b_observer),
+            && unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "ADCB unknown-B setup failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -24525,7 +24525,7 @@ bool test_adcb_immediate() {
     );
     RecordingMachineObserver unknown_c_observer;
     passed &= expect(
-        unknown_c_machine.execution().set_observer(&unknown_c_observer),
+        unknown_c_machine.execution().add_observer(&unknown_c_observer),
         "ADCB unknown-C observer attach failed"
     );
     const auto unknown_c_before = unknown_c_machine.execution().cpu().state();
@@ -24801,7 +24801,7 @@ bool test_adcb_direct() {
         unknown_b_machine.load_logical_rom(unknown_b_rom)
                 == Jr800MemoryStatus::ok
             && unknown_b_machine.initialize_from_reset_entry().succeeded()
-            && unknown_b_machine.execution().set_observer(&unknown_b_observer),
+            && unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Direct ADCB unknown-B setup failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -24837,7 +24837,7 @@ bool test_adcb_direct() {
     );
     RecordingMachineObserver unknown_c_observer;
     passed &= expect(
-        unknown_c_machine.execution().set_observer(&unknown_c_observer),
+        unknown_c_machine.execution().add_observer(&unknown_c_observer),
         "Direct ADCB unknown-C observer attach failed"
     );
     const auto unknown_c_before = unknown_c_machine.execution().cpu().state();
@@ -25178,7 +25178,7 @@ bool test_adcb_indexed() {
         unknown_x_machine.load_logical_rom(unknown_x_rom)
                 == Jr800MemoryStatus::ok
             && unknown_x_machine.initialize_from_reset_entry().succeeded()
-            && unknown_x_machine.execution().set_observer(&unknown_x_observer),
+            && unknown_x_machine.execution().add_observer(&unknown_x_observer),
         "Indexed ADCB unknown-X setup failed"
     );
     const auto unknown_x_before = unknown_x_machine.execution().cpu().state();
@@ -25218,7 +25218,7 @@ bool test_adcb_indexed() {
     );
     RecordingMachineObserver unknown_b_observer;
     passed &= expect(
-        unknown_b_machine.execution().set_observer(&unknown_b_observer),
+        unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Indexed ADCB unknown-B observer attach failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -25258,7 +25258,7 @@ bool test_adcb_indexed() {
     );
     RecordingMachineObserver unknown_c_observer;
     passed &= expect(
-        unknown_c_machine.execution().set_observer(&unknown_c_observer),
+        unknown_c_machine.execution().add_observer(&unknown_c_observer),
         "Indexed ADCB unknown-C observer attach failed"
     );
     const auto unknown_c_before = unknown_c_machine.execution().cpu().state();
@@ -25597,7 +25597,7 @@ bool test_adcb_extended() {
         unknown_b_machine.load_logical_rom(unknown_b_rom)
                 == Jr800MemoryStatus::ok
             && unknown_b_machine.initialize_from_reset_entry().succeeded()
-            && unknown_b_machine.execution().set_observer(&unknown_b_observer),
+            && unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Extended ADCB unknown-B setup failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -25638,7 +25638,7 @@ bool test_adcb_extended() {
     );
     RecordingMachineObserver unknown_c_observer;
     passed &= expect(
-        unknown_c_machine.execution().set_observer(&unknown_c_observer),
+        unknown_c_machine.execution().add_observer(&unknown_c_observer),
         "Extended ADCB unknown-C observer attach failed"
     );
     const auto unknown_c_before = unknown_c_machine.execution().cpu().state();
@@ -26243,7 +26243,7 @@ bool test_anda_direct() {
         unknown_a_machine.load_logical_rom(unknown_a_rom)
                 == Jr800MemoryStatus::ok
             && unknown_a_machine.initialize_from_reset_entry().succeeded()
-            && unknown_a_machine.execution().set_observer(
+            && unknown_a_machine.execution().add_observer(
                 &unknown_a_observer
             ),
         "Direct ANDA unknown-A setup failed"
@@ -26587,7 +26587,7 @@ bool test_anda_indexed() {
     );
     RecordingMachineObserver unknown_x_observer;
     passed &= expect(
-        unknown_x_machine.execution().set_observer(&unknown_x_observer),
+        unknown_x_machine.execution().add_observer(&unknown_x_observer),
         "Indexed ANDA unknown-X observer attach failed"
     );
     const auto unknown_x_before = unknown_x_machine.execution().cpu().state();
@@ -26631,7 +26631,7 @@ bool test_anda_indexed() {
     );
     RecordingMachineObserver unknown_a_observer;
     passed &= expect(
-        unknown_a_machine.execution().set_observer(&unknown_a_observer),
+        unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Indexed ANDA unknown-A observer attach failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -27025,7 +27025,7 @@ bool test_anda_extended() {
     );
     RecordingMachineObserver unknown_a_observer;
     passed &= expect(
-        unknown_a_machine.execution().set_observer(&unknown_a_observer),
+        unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Extended ANDA unknown-A observer attach failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -27666,7 +27666,7 @@ bool test_andb_direct() {
         unknown_b_machine.load_logical_rom(unknown_b_rom)
                 == Jr800MemoryStatus::ok
             && unknown_b_machine.initialize_from_reset_entry().succeeded()
-            && unknown_b_machine.execution().set_observer(
+            && unknown_b_machine.execution().add_observer(
                 &unknown_b_observer
             ),
         "Direct ANDB unknown-B setup failed"
@@ -28010,7 +28010,7 @@ bool test_andb_indexed() {
     );
     RecordingMachineObserver unknown_x_observer;
     passed &= expect(
-        unknown_x_machine.execution().set_observer(&unknown_x_observer),
+        unknown_x_machine.execution().add_observer(&unknown_x_observer),
         "Indexed ANDB unknown-X observer attach failed"
     );
     const auto unknown_x_before = unknown_x_machine.execution().cpu().state();
@@ -28054,7 +28054,7 @@ bool test_andb_indexed() {
     );
     RecordingMachineObserver unknown_b_observer;
     passed &= expect(
-        unknown_b_machine.execution().set_observer(&unknown_b_observer),
+        unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Indexed ANDB unknown-B observer attach failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -28448,7 +28448,7 @@ bool test_andb_extended() {
     );
     RecordingMachineObserver unknown_b_observer;
     passed &= expect(
-        unknown_b_machine.execution().set_observer(&unknown_b_observer),
+        unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Extended ANDB unknown-B observer attach failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -29144,7 +29144,7 @@ bool test_bita_direct() {
         unknown_a_machine.load_logical_rom(unknown_a_rom)
                 == Jr800MemoryStatus::ok
             && unknown_a_machine.initialize_from_reset_entry().succeeded()
-            && unknown_a_machine.execution().set_observer(
+            && unknown_a_machine.execution().add_observer(
                 &unknown_a_observer
             ),
         "Direct BITA unknown-A setup failed"
@@ -29489,7 +29489,7 @@ bool test_bita_indexed() {
     );
     RecordingMachineObserver unknown_x_observer;
     passed &= expect(
-        unknown_x_machine.execution().set_observer(&unknown_x_observer),
+        unknown_x_machine.execution().add_observer(&unknown_x_observer),
         "Indexed BITA unknown-X observer attach failed"
     );
     const auto unknown_x_before = unknown_x_machine.execution().cpu().state();
@@ -29533,7 +29533,7 @@ bool test_bita_indexed() {
     );
     RecordingMachineObserver unknown_a_observer;
     passed &= expect(
-        unknown_a_machine.execution().set_observer(&unknown_a_observer),
+        unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Indexed BITA unknown-A observer attach failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -29928,7 +29928,7 @@ bool test_bita_extended() {
     );
     RecordingMachineObserver unknown_a_observer;
     passed &= expect(
-        unknown_a_machine.execution().set_observer(&unknown_a_observer),
+        unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Extended BITA unknown-A observer attach failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -30350,7 +30350,7 @@ bool test_bitb_extended() {
     );
     RecordingMachineObserver unknown_b_observer;
     passed &= expect(
-        unknown_b_machine.execution().set_observer(&unknown_b_observer),
+        unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Extended BITB unknown-B observer attach failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -30982,7 +30982,7 @@ bool test_bitb_direct() {
         unknown_b_machine.load_logical_rom(unknown_b_rom)
                 == Jr800MemoryStatus::ok
             && unknown_b_machine.initialize_from_reset_entry().succeeded()
-            && unknown_b_machine.execution().set_observer(
+            && unknown_b_machine.execution().add_observer(
                 &unknown_b_observer
             ),
         "Direct BITB unknown-B setup failed"
@@ -31369,7 +31369,7 @@ bool test_bitb_indexed() {
     );
     RecordingMachineObserver unknown_x_observer;
     passed &= expect(
-        unknown_x_machine.execution().set_observer(&unknown_x_observer),
+        unknown_x_machine.execution().add_observer(&unknown_x_observer),
         "Indexed BITB unknown-X observer attach failed"
     );
     const auto unknown_x_before = unknown_x_machine.execution().cpu().state();
@@ -31413,7 +31413,7 @@ bool test_bitb_indexed() {
     );
     RecordingMachineObserver unknown_b_observer;
     passed &= expect(
-        unknown_b_machine.execution().set_observer(&unknown_b_observer),
+        unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Indexed BITB unknown-B observer attach failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -32494,7 +32494,7 @@ bool test_suba_indexed() {
     );
     RecordingMachineObserver unknown_x_observer;
     passed &= expect(
-        unknown_x_machine.execution().set_observer(&unknown_x_observer),
+        unknown_x_machine.execution().add_observer(&unknown_x_observer),
         "Indexed SUBA unknown-X observer attach failed"
     );
     const auto unknown_x_before = unknown_x_machine.execution().cpu().state();
@@ -32538,7 +32538,7 @@ bool test_suba_indexed() {
     );
     RecordingMachineObserver unknown_a_observer;
     passed &= expect(
-        unknown_a_machine.execution().set_observer(&unknown_a_observer),
+        unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Indexed SUBA unknown-A observer attach failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -32966,7 +32966,7 @@ bool test_suba_extended() {
     );
     RecordingMachineObserver unknown_a_observer;
     passed &= expect(
-        unknown_a_machine.execution().set_observer(&unknown_a_observer),
+        unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Extended SUBA unknown-A observer attach failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -34111,7 +34111,7 @@ bool test_subb_indexed() {
     );
     RecordingMachineObserver unknown_x_observer;
     passed &= expect(
-        unknown_x_machine.execution().set_observer(&unknown_x_observer),
+        unknown_x_machine.execution().add_observer(&unknown_x_observer),
         "Indexed SUBB unknown-X observer attach failed"
     );
     const auto unknown_x_before = unknown_x_machine.execution().cpu().state();
@@ -34155,7 +34155,7 @@ bool test_subb_indexed() {
     );
     RecordingMachineObserver unknown_b_observer;
     passed &= expect(
-        unknown_b_machine.execution().set_observer(&unknown_b_observer),
+        unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Indexed SUBB unknown-B observer attach failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -34583,7 +34583,7 @@ bool test_subb_extended() {
     );
     RecordingMachineObserver unknown_b_observer;
     passed &= expect(
-        unknown_b_machine.execution().set_observer(&unknown_b_observer),
+        unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Extended SUBB unknown-B observer attach failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -35041,7 +35041,7 @@ bool test_cmpa_extended() {
     );
     RecordingMachineObserver unknown_a_observer;
     passed &= expect(
-        unknown_a_machine.execution().set_observer(&unknown_a_observer),
+        unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Extended CMPA unknown-A observer attach failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -35498,7 +35498,7 @@ bool test_cmpa_indexed() {
     );
     RecordingMachineObserver unknown_x_observer;
     passed &= expect(
-        unknown_x_machine.execution().set_observer(&unknown_x_observer),
+        unknown_x_machine.execution().add_observer(&unknown_x_observer),
         "Indexed CMPA unknown-X observer attach failed"
     );
     const auto unknown_x_before = unknown_x_machine.execution().cpu().state();
@@ -35542,7 +35542,7 @@ bool test_cmpa_indexed() {
     );
     RecordingMachineObserver unknown_a_observer;
     passed &= expect(
-        unknown_a_machine.execution().set_observer(&unknown_a_observer),
+        unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Indexed CMPA unknown-A observer attach failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -36600,7 +36600,7 @@ bool test_eora_immediate() {
         unknown_a_machine.load_logical_rom(unknown_a_rom)
                 == Jr800MemoryStatus::ok
             && unknown_a_machine.initialize_from_reset_entry().succeeded()
-            && unknown_a_machine.execution().set_observer(
+            && unknown_a_machine.execution().add_observer(
                 &unknown_a_observer
             ),
         "Immediate EORA unknown-A setup failed"
@@ -36918,7 +36918,7 @@ bool test_eora_direct() {
         unknown_a_machine.load_logical_rom(unknown_a_rom)
                 == Jr800MemoryStatus::ok
             && unknown_a_machine.initialize_from_reset_entry().succeeded()
-            && unknown_a_machine.execution().set_observer(
+            && unknown_a_machine.execution().add_observer(
                 &unknown_a_observer
             ),
         "Direct EORA unknown-A setup failed"
@@ -37262,7 +37262,7 @@ bool test_eora_indexed() {
     );
     RecordingMachineObserver unknown_x_observer;
     passed &= expect(
-        unknown_x_machine.execution().set_observer(&unknown_x_observer),
+        unknown_x_machine.execution().add_observer(&unknown_x_observer),
         "Indexed EORA unknown-X observer attach failed"
     );
     const auto unknown_x_before = unknown_x_machine.execution().cpu().state();
@@ -37306,7 +37306,7 @@ bool test_eora_indexed() {
     );
     RecordingMachineObserver unknown_a_observer;
     passed &= expect(
-        unknown_a_machine.execution().set_observer(&unknown_a_observer),
+        unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Indexed EORA unknown-A observer attach failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -37700,7 +37700,7 @@ bool test_eora_extended() {
     );
     RecordingMachineObserver unknown_a_observer;
     passed &= expect(
-        unknown_a_machine.execution().set_observer(&unknown_a_observer),
+        unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Extended EORA unknown-A observer attach failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -38103,7 +38103,7 @@ bool test_eorb_immediate() {
         unknown_b_machine.load_logical_rom(unknown_b_rom)
                 == Jr800MemoryStatus::ok
             && unknown_b_machine.initialize_from_reset_entry().succeeded()
-            && unknown_b_machine.execution().set_observer(
+            && unknown_b_machine.execution().add_observer(
                 &unknown_b_observer
             ),
         "Immediate EORB unknown-B setup failed"
@@ -38420,7 +38420,7 @@ bool test_eorb_direct() {
         unknown_b_machine.load_logical_rom(unknown_b_rom)
                 == Jr800MemoryStatus::ok
             && unknown_b_machine.initialize_from_reset_entry().succeeded()
-            && unknown_b_machine.execution().set_observer(
+            && unknown_b_machine.execution().add_observer(
                 &unknown_b_observer
             ),
         "Direct EORB unknown-B setup failed"
@@ -38764,7 +38764,7 @@ bool test_eorb_indexed() {
     );
     RecordingMachineObserver unknown_x_observer;
     passed &= expect(
-        unknown_x_machine.execution().set_observer(&unknown_x_observer),
+        unknown_x_machine.execution().add_observer(&unknown_x_observer),
         "Indexed EORB unknown-X observer attach failed"
     );
     const auto unknown_x_before = unknown_x_machine.execution().cpu().state();
@@ -38808,7 +38808,7 @@ bool test_eorb_indexed() {
     );
     RecordingMachineObserver unknown_b_observer;
     passed &= expect(
-        unknown_b_machine.execution().set_observer(&unknown_b_observer),
+        unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Indexed EORB unknown-B observer attach failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -39203,7 +39203,7 @@ bool test_eorb_extended() {
     );
     RecordingMachineObserver unknown_b_observer;
     passed &= expect(
-        unknown_b_machine.execution().set_observer(&unknown_b_observer),
+        unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Extended EORB unknown-B observer attach failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -39624,7 +39624,7 @@ bool test_oraa_extended() {
     );
     RecordingMachineObserver unknown_a_observer;
     passed &= expect(
-        unknown_a_machine.execution().set_observer(&unknown_a_observer),
+        unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Extended ORAA unknown-A observer attach failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -40027,7 +40027,7 @@ bool test_oraa_immediate() {
         unknown_a_machine.load_logical_rom(unknown_a_rom)
                 == Jr800MemoryStatus::ok
             && unknown_a_machine.initialize_from_reset_entry().succeeded()
-            && unknown_a_machine.execution().set_observer(
+            && unknown_a_machine.execution().add_observer(
                 &unknown_a_observer
             ),
         "Immediate ORAA unknown-A setup failed"
@@ -40345,7 +40345,7 @@ bool test_oraa_direct() {
         unknown_a_machine.load_logical_rom(unknown_a_rom)
                 == Jr800MemoryStatus::ok
             && unknown_a_machine.initialize_from_reset_entry().succeeded()
-            && unknown_a_machine.execution().set_observer(
+            && unknown_a_machine.execution().add_observer(
                 &unknown_a_observer
             ),
         "Direct ORAA unknown-A setup failed"
@@ -40689,7 +40689,7 @@ bool test_oraa_indexed() {
     );
     RecordingMachineObserver unknown_x_observer;
     passed &= expect(
-        unknown_x_machine.execution().set_observer(&unknown_x_observer),
+        unknown_x_machine.execution().add_observer(&unknown_x_observer),
         "Indexed ORAA unknown-X observer attach failed"
     );
     const auto unknown_x_before = unknown_x_machine.execution().cpu().state();
@@ -40733,7 +40733,7 @@ bool test_oraa_indexed() {
     );
     RecordingMachineObserver unknown_a_observer;
     passed &= expect(
-        unknown_a_machine.execution().set_observer(&unknown_a_observer),
+        unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Indexed ORAA unknown-A observer attach failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -41109,7 +41109,7 @@ bool test_orab_immediate() {
         unknown_b_machine.load_logical_rom(unknown_b_rom)
                 == Jr800MemoryStatus::ok
             && unknown_b_machine.initialize_from_reset_entry().succeeded()
-            && unknown_b_machine.execution().set_observer(
+            && unknown_b_machine.execution().add_observer(
                 &unknown_b_observer
             ),
         "Immediate ORAB unknown-B setup failed"
@@ -41427,7 +41427,7 @@ bool test_orab_direct() {
         unknown_b_machine.load_logical_rom(unknown_b_rom)
                 == Jr800MemoryStatus::ok
             && unknown_b_machine.initialize_from_reset_entry().succeeded()
-            && unknown_b_machine.execution().set_observer(
+            && unknown_b_machine.execution().add_observer(
                 &unknown_b_observer
             ),
         "Direct ORAB unknown-B setup failed"
@@ -41771,7 +41771,7 @@ bool test_orab_indexed() {
     );
     RecordingMachineObserver unknown_x_observer;
     passed &= expect(
-        unknown_x_machine.execution().set_observer(&unknown_x_observer),
+        unknown_x_machine.execution().add_observer(&unknown_x_observer),
         "Indexed ORAB unknown-X observer attach failed"
     );
     const auto unknown_x_before = unknown_x_machine.execution().cpu().state();
@@ -41815,7 +41815,7 @@ bool test_orab_indexed() {
     );
     RecordingMachineObserver unknown_b_observer;
     passed &= expect(
-        unknown_b_machine.execution().set_observer(&unknown_b_observer),
+        unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Indexed ORAB unknown-B observer attach failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -42209,7 +42209,7 @@ bool test_orab_extended() {
     );
     RecordingMachineObserver unknown_b_observer;
     passed &= expect(
-        unknown_b_machine.execution().set_observer(&unknown_b_observer),
+        unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Extended ORAB unknown-B observer attach failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -42666,7 +42666,7 @@ bool test_cmpb_extended() {
     );
     RecordingMachineObserver unknown_b_observer;
     passed &= expect(
-        unknown_b_machine.execution().set_observer(&unknown_b_observer),
+        unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Extended CMPB unknown-B observer attach failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -43123,7 +43123,7 @@ bool test_cmpb_indexed() {
     );
     RecordingMachineObserver unknown_x_observer;
     passed &= expect(
-        unknown_x_machine.execution().set_observer(&unknown_x_observer),
+        unknown_x_machine.execution().add_observer(&unknown_x_observer),
         "Indexed CMPB unknown-X observer attach failed"
     );
     const auto unknown_x_before = unknown_x_machine.execution().cpu().state();
@@ -43167,7 +43167,7 @@ bool test_cmpb_indexed() {
     );
     RecordingMachineObserver unknown_b_observer;
     passed &= expect(
-        unknown_b_machine.execution().set_observer(&unknown_b_observer),
+        unknown_b_machine.execution().add_observer(&unknown_b_observer),
         "Indexed CMPB unknown-B observer attach failed"
     );
     const auto unknown_b_before = unknown_b_machine.execution().cpu().state();
@@ -44621,7 +44621,7 @@ bool test_sbc_immediate() {
     );
     RecordingMachineObserver sbcb_unknown_b_observer;
     passed &= expect(
-        sbcb_unknown_b_machine.execution().set_observer(
+        sbcb_unknown_b_machine.execution().add_observer(
             &sbcb_unknown_b_observer
         ),
         "SBCB unknown-B observer attach failed"
@@ -44669,7 +44669,7 @@ bool test_sbc_immediate() {
     );
     RecordingMachineObserver sbcb_unknown_c_observer;
     passed &= expect(
-        sbcb_unknown_c_machine.execution().set_observer(
+        sbcb_unknown_c_machine.execution().add_observer(
             &sbcb_unknown_c_observer
         ),
         "SBCB unknown-C observer attach failed"
@@ -45084,7 +45084,7 @@ bool test_sbc_direct() {
     );
     RecordingMachineObserver unknown_a_observer;
     passed &= expect(
-        unknown_a_machine.execution().set_observer(&unknown_a_observer),
+        unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Direct SBCA unknown-A observer attach failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -45128,7 +45128,7 @@ bool test_sbc_direct() {
     );
     RecordingMachineObserver unknown_c_observer;
     passed &= expect(
-        unknown_c_machine.execution().set_observer(&unknown_c_observer),
+        unknown_c_machine.execution().add_observer(&unknown_c_observer),
         "Direct SBCA unknown-C observer attach failed"
     );
     const auto unknown_c_before = unknown_c_machine.execution().cpu().state();
@@ -45482,7 +45482,7 @@ bool test_sbc_direct() {
     );
     RecordingMachineObserver sbcb_unknown_b_observer;
     passed &= expect(
-        sbcb_unknown_b_machine.execution().set_observer(
+        sbcb_unknown_b_machine.execution().add_observer(
             &sbcb_unknown_b_observer
         ),
         "Direct SBCB unknown-B observer attach failed"
@@ -45534,7 +45534,7 @@ bool test_sbc_direct() {
     );
     RecordingMachineObserver sbcb_unknown_c_observer;
     passed &= expect(
-        sbcb_unknown_c_machine.execution().set_observer(
+        sbcb_unknown_c_machine.execution().add_observer(
             &sbcb_unknown_c_observer
         ),
         "Direct SBCB unknown-C observer attach failed"
@@ -46003,7 +46003,7 @@ bool test_sbc_indexed() {
     );
     RecordingMachineObserver unknown_x_observer;
     passed &= expect(
-        unknown_x_machine.execution().set_observer(&unknown_x_observer),
+        unknown_x_machine.execution().add_observer(&unknown_x_observer),
         "Indexed SBCA unknown-X observer attach failed"
     );
     const auto unknown_x_before = unknown_x_machine.execution().cpu().state();
@@ -46046,7 +46046,7 @@ bool test_sbc_indexed() {
     );
     RecordingMachineObserver unknown_a_observer;
     passed &= expect(
-        unknown_a_machine.execution().set_observer(&unknown_a_observer),
+        unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Indexed SBCA unknown-A observer attach failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -46097,7 +46097,7 @@ bool test_sbc_indexed() {
     );
     RecordingMachineObserver unknown_c_observer;
     passed &= expect(
-        unknown_c_machine.execution().set_observer(&unknown_c_observer),
+        unknown_c_machine.execution().add_observer(&unknown_c_observer),
         "Indexed SBCA unknown-C observer attach failed"
     );
     const auto unknown_c_before = unknown_c_machine.execution().cpu().state();
@@ -46413,7 +46413,7 @@ bool test_sbc_indexed() {
     );
     RecordingMachineObserver sbcb_unknown_x_observer;
     passed &= expect(
-        sbcb_unknown_x_machine.execution().set_observer(
+        sbcb_unknown_x_machine.execution().add_observer(
             &sbcb_unknown_x_observer
         ),
         "Indexed SBCB unknown-X observer attach failed"
@@ -46456,7 +46456,7 @@ bool test_sbc_indexed() {
     );
     RecordingMachineObserver sbcb_unknown_b_observer;
     passed &= expect(
-        sbcb_unknown_b_machine.execution().set_observer(
+        sbcb_unknown_b_machine.execution().add_observer(
             &sbcb_unknown_b_observer
         ),
         "Indexed SBCB unknown-B observer attach failed"
@@ -46507,7 +46507,7 @@ bool test_sbc_indexed() {
     );
     RecordingMachineObserver sbcb_unknown_c_observer;
     passed &= expect(
-        sbcb_unknown_c_machine.execution().set_observer(
+        sbcb_unknown_c_machine.execution().add_observer(
             &sbcb_unknown_c_observer
         ),
         "Indexed SBCB unknown-C observer attach failed"
@@ -46963,7 +46963,7 @@ bool test_sbc_extended() {
     );
     RecordingMachineObserver unknown_a_observer;
     passed &= expect(
-        unknown_a_machine.execution().set_observer(&unknown_a_observer),
+        unknown_a_machine.execution().add_observer(&unknown_a_observer),
         "Extended SBCA unknown-A observer attach failed"
     );
     const auto unknown_a_before = unknown_a_machine.execution().cpu().state();
@@ -47014,7 +47014,7 @@ bool test_sbc_extended() {
     );
     RecordingMachineObserver unknown_c_observer;
     passed &= expect(
-        unknown_c_machine.execution().set_observer(&unknown_c_observer),
+        unknown_c_machine.execution().add_observer(&unknown_c_observer),
         "Extended SBCA unknown-C observer attach failed"
     );
     const auto unknown_c_before = unknown_c_machine.execution().cpu().state();
@@ -47346,7 +47346,7 @@ bool test_sbc_extended() {
     );
     RecordingMachineObserver sbcb_unknown_b_observer;
     passed &= expect(
-        sbcb_unknown_b_machine.execution().set_observer(
+        sbcb_unknown_b_machine.execution().add_observer(
             &sbcb_unknown_b_observer
         ),
         "Extended SBCB unknown-B observer attach failed"
@@ -47391,7 +47391,7 @@ bool test_sbc_extended() {
     );
     RecordingMachineObserver sbcb_unknown_c_observer;
     passed &= expect(
-        sbcb_unknown_c_machine.execution().set_observer(
+        sbcb_unknown_c_machine.execution().add_observer(
             &sbcb_unknown_c_observer
         ),
         "Extended SBCB unknown-C observer attach failed"
@@ -51984,7 +51984,7 @@ bool test_inc_indexed() {
         unknown_x_machine.load_logical_rom(unknown_x_rom)
                 == Jr800MemoryStatus::ok
             && unknown_x_machine.initialize_from_reset_entry().succeeded()
-            && unknown_x_machine.execution().set_observer(
+            && unknown_x_machine.execution().add_observer(
                 &unknown_x_observer
             ),
         "Indexed INC unknown-X setup failed"
@@ -52753,7 +52753,7 @@ bool test_memory_unary(const MemoryUnarySpec& spec) {
             }
             RecordingMachineObserver unknown_c_observer;
             unknown_c_setup = unknown_c_setup
-                && unknown_c_machine.execution().set_observer(
+                && unknown_c_machine.execution().add_observer(
                     &unknown_c_observer
                 );
             passed &= expect(
@@ -52818,7 +52818,7 @@ bool test_memory_unary(const MemoryUnarySpec& spec) {
         unknown_x_machine.load_logical_rom(unknown_x_rom)
                 == Jr800MemoryStatus::ok
             && unknown_x_machine.initialize_from_reset_entry().succeeded()
-            && unknown_x_machine.execution().set_observer(
+            && unknown_x_machine.execution().add_observer(
                 &unknown_x_observer
             ),
         "Indexed memory-unary unknown-X setup failed"
@@ -54922,7 +54922,7 @@ bool test_rti() {
         unknown_sp_machine.load_logical_rom(unknown_sp_rom)
                 == Jr800MemoryStatus::ok
             && unknown_sp_machine.initialize_from_reset_entry().succeeded()
-            && unknown_sp_machine.execution().set_observer(
+            && unknown_sp_machine.execution().add_observer(
                 &unknown_sp_observer
             ),
         "RTI unknown-SP observer setup failed"
@@ -60235,7 +60235,7 @@ bool test_tst_indexed() {
         unknown_x_machine.load_logical_rom(unknown_x_rom)
                 == Jr800MemoryStatus::ok
             && unknown_x_machine.initialize_from_reset_entry().succeeded()
-            && unknown_x_machine.execution().set_observer(
+            && unknown_x_machine.execution().add_observer(
                 &unknown_x_observer
             ),
         "Unknown-X indexed TST setup failed"
@@ -60576,7 +60576,7 @@ bool test_tsta() {
         unknown_a_machine.load_logical_rom(unknown_a_rom)
                 == Jr800MemoryStatus::ok
             && unknown_a_machine.initialize_from_reset_entry().succeeded()
-            && unknown_a_machine.execution().set_observer(
+            && unknown_a_machine.execution().add_observer(
                 &unknown_a_observer
             ),
         "TSTA unknown-A setup failed"
@@ -60845,7 +60845,7 @@ bool test_tstb() {
         unknown_b_machine.load_logical_rom(unknown_b_rom)
                 == Jr800MemoryStatus::ok
             && unknown_b_machine.initialize_from_reset_entry().succeeded()
-            && unknown_b_machine.execution().set_observer(
+            && unknown_b_machine.execution().add_observer(
                 &unknown_b_observer
             ),
         "TSTB unknown-B setup failed"

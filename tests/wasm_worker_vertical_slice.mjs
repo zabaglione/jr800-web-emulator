@@ -61,7 +61,7 @@ worker.on("message", (message) => {
         if (message.ok) {
             request.resolve(message.result);
         } else {
-            request.reject(new Error(message.error));
+            request.reject(Object.assign(new Error(message.error), {status: message.status}));
         }
         return;
     }
@@ -141,64 +141,37 @@ function makeJr8rom(program) {
     return makeJr8romFromSegments([[0x8000, makeLogicalRomBytes(program)]]);
 }
 
-function makeJr8app(
-    address,
-    entryPoint,
-    program,
-    targetProfile = "hd6301v1",
-) {
+function makeJr8app(address, entryPoint, program, targetProfile = "hd6301v1") {
     const target = Buffer.from(targetProfile, "ascii");
-    const text = Buffer.alloc(4 + target.byteLength);
-    text.writeUInt32BE(target.byteLength);
-    target.copy(text, 4);
-
-    const integrityPrefix = Buffer.from("JR8APP-INTEGRITY-V1\0", "ascii");
-    const integrityRecord = Buffer.alloc(1 + 2 + 4 + program.byteLength);
-    integrityRecord.writeUInt8(1, 0);
-    integrityRecord.writeUInt16BE(address, 1);
-    integrityRecord.writeUInt32BE(program.byteLength, 3);
-    Buffer.from(
-        program.buffer,
-        program.byteOffset,
-        program.byteLength,
-    ).copy(integrityRecord, 7);
-    const integrityHeader = Buffer.alloc(2 + 4);
-    integrityHeader.writeUInt16BE(entryPoint, 0);
-    integrityHeader.writeUInt32BE(1, 2);
+    const identity = Buffer.alloc(1 + 4 + target.length + 1);
+    identity[0] = 1;
+    identity.writeUInt32BE(target.length, 1);
+    target.copy(identity, 5);
+    const body = Buffer.alloc(6 + 11 + program.length);
+    body.writeUInt16BE(entryPoint, 0);
+    body.writeUInt32BE(1, 2);
+    body[6] = 1;
+    body.writeUInt16BE(address, 7);
+    body.writeUInt32BE(program.length, 9);
+    body.writeUInt32BE(program.length, 13);
+    Buffer.from(program).copy(body, 17);
     const integrity = createHash("sha256")
-        .update(integrityPrefix)
-        .update(text)
-        .update(integrityHeader)
-        .update(integrityRecord)
-        .digest();
-
-    const header = Buffer.alloc(8 + 2 + 2 + 4);
+        .update(Buffer.from("JR8APP-INTEGRITY-V1\0", "ascii"))
+        .update(identity).update(body).digest();
+    const header = Buffer.alloc(12);
     Buffer.from("JR8APP\0\0", "ascii").copy(header);
     header.writeUInt16BE(1, 8);
-    header.writeUInt16BE(0, 10);
-    header.writeUInt32BE(0, 12);
-    const applicationHeader = Buffer.alloc(2 + 2 + 32 + 4);
-    applicationHeader.writeUInt16BE(entryPoint, 0);
-    applicationHeader.writeUInt16BE(0, 2);
-    integrity.copy(applicationHeader, 4);
-    applicationHeader.writeUInt32BE(1, 36);
-    const segment = Buffer.alloc(1 + 1 + 2 + 4 + 4 + program.byteLength);
-    segment.writeUInt8(1, 0);
-    segment.writeUInt8(0, 1);
-    segment.writeUInt16BE(address, 2);
-    segment.writeUInt32BE(program.byteLength, 4);
-    segment.writeUInt32BE(program.byteLength, 8);
-    Buffer.from(
-        program.buffer,
-        program.byteOffset,
-        program.byteLength,
-    ).copy(segment, 12);
-    return Uint8Array.from(Buffer.concat([
-        header,
-        text,
-        applicationHeader,
-        segment,
-    ]));
+    return Uint8Array.from(Buffer.concat([header, identity, integrity, body]));
+}
+
+function makeBasicJr8app() {
+    const identity = Buffer.concat([Buffer.from([2, 0, 0, 0, 8]), Buffer.from("hd6301v1"), Buffer.from([0])]);
+    const source = Buffer.from("10 END\r");
+    const size = Buffer.alloc(4);
+    size.writeUInt32BE(source.length);
+    const body = Buffer.concat([size, source]);
+    const digest = createHash("sha256").update("JR8APP-INTEGRITY-V1\0").update(identity).update(body).digest();
+    return Uint8Array.from(Buffer.concat([Buffer.from("JR8APP\0\0"), Buffer.from([0, 1, 0, 0]), identity, digest, body]));
 }
 
 function makeNativeProgramWav(address, entryPoint, program) {
@@ -388,7 +361,7 @@ function jr800StopParity(stop) {
 
 try {
     const initialized = await request("initialize", {moduleUrl});
-    assert.equal(initialized.abiVersion, 37);
+    assert.equal(initialized.abiVersion, 41);
     const initialApplication = application.slice();
     const initialDebugInfo = debugInfo.slice();
     const syntheticLoaded = await request("load", {
@@ -1138,6 +1111,10 @@ try {
     );
 
     const acceptedRawRom = makeLogicalRomBytes(Uint8Array.of(0x01));
+    await assert.rejects(request("keyboard-glyphs"), /require a JR-800 session/);
+    // Synthetic font content, deliberately unrelated to the owner ROM.
+    acceptedRawRom.fill(0, 0xf769 - 0x8000, 0xf76f - 0x8000);
+    acceptedRawRom[0xf76e - 0x8000] = 0x80;
     const rawRomLoaded = await request("load-jr800-raw", {
         moduleUrl,
         logicalRom: acceptedRawRom,
@@ -1145,6 +1122,14 @@ try {
     }, [acceptedRawRom.buffer]);
     assert.equal(rawRomLoaded.state.pc, 0x8000);
     assert.deepEqual(rawRomLoaded.memory.bytes, [0x01, 0x01]);
+    const keyboardGlyphs = await request("keyboard-glyphs");
+    assert.equal(Object.keys(keyboardGlyphs).length, 192);
+    assert.equal(keyboardGlyphs[0x80], "M5 7h1v1h-1z");
+    assert.deepEqual(
+        await request("snapshot", {view: {memoryAddress: 0x8000, memoryLength: 2}}),
+        rawRomLoaded,
+        "reading ROM glyphs must not execute instructions or alter bus history",
+    );
 
     const invalidRawRom = new Uint8Array(32 * 1024 - 1);
     await assert.rejects(
@@ -1231,7 +1216,7 @@ try {
         },
         view: {memoryAddress: 0x8000, memoryLength: 2},
     }, [nopRom.buffer]);
-    assert.equal(jr800Loaded.state.abiVersion, 37);
+    assert.equal(jr800Loaded.state.abiVersion, 41);
     assert.equal(jr800Loaded.state.profile, "hd6301v1");
     assert.equal(jr800Loaded.state.pc, 0x8000);
     assert.equal(jr800Loaded.state.sp, 0x2345);
@@ -1777,6 +1762,49 @@ try {
     assert.deepEqual(ratioBoundary.snapshot.memory.bytes, [1, 0]);
 
     // Four instructions align each 1,000-instruction Worker slice before LDAA.
+    const startupProgram = Uint8Array.of(
+        0x86, 0x08, 0xb7, 0x06, 0x0d, // Timer EN, time bank.
+        0x7f, 0x06, 0x06,             // Startup clears weekday.
+        0x1a, 0x20, 0xfe,             // SLP then a bounded loop.
+    );
+    const startupConfiguration = {
+        calendarAddressSource: "a0-a3", calendarUpperRead: "zero",
+        calendarCpuCycleRatio: "e030-nominal-1.2288mhz",
+    };
+    const seeded = await request("load-jr800", {
+        romContainer: makeJr8rom(startupProgram),
+        configuration: startupConfiguration,
+        calendarDateTime: {year: 2026, month: 9, day: 5, hour: 23, minute: 59, second: 59},
+        view: {memoryAddress: 0x0600, memoryLength: 16},
+    });
+    assert.equal(seeded.state.executionState, "sleeping");
+    assert.deepEqual(seeded.memory.bytes.slice(0, 13), [9, 5, 9, 5, 3, 2, 6, 5, 0, 9, 0, 6, 2]);
+    const nextDay = await request("advance-calendar-oscillator", {
+        ticks: 32768, view: {memoryAddress: 0x0600, memoryLength: 16},
+    });
+    assert.deepEqual(nextDay.snapshot.memory.bytes.slice(0, 13), [0, 0, 0, 0, 0, 0, 0, 6, 0, 9, 0, 6, 2]);
+    assert.deepEqual(nextDay.snapshot.history, seeded.history);
+    assert.deepEqual(nextDay.snapshot.accesses, seeded.accesses);
+    await assert.rejects(request("load-jr800", {
+        romContainer: makeJr8rom(startupProgram), configuration: startupConfiguration,
+        calendarDateTime: {year: 2100, month: 1, day: 1, hour: 0, minute: 0, second: 0},
+    }), /set-calendar-datetime failed: invalid-argument/);
+    await assert.rejects(request("load-jr800", {
+        romContainer: makeJr8rom(Uint8Array.of(0x20, 0xfe)),
+        configuration: startupConfiguration,
+        calendarDateTime: {year: 2026, month: 9, day: 5, hour: 0, minute: 0, second: 0},
+    }), /Calendar startup did not reach BASIC wait: instruction-limit/);
+    const retainedCalendar = await request("snapshot", {
+        view: {memoryAddress: 0x0600, memoryLength: 16},
+    });
+    assert.deepEqual(retainedCalendar, nextDay.snapshot);
+    const originalStartup = await request("load-jr800", {
+        romContainer: makeJr8rom(startupProgram), configuration: startupConfiguration,
+        view: {memoryAddress: 0x0600, memoryLength: 16},
+    });
+    assert.equal(originalStartup.state.cycleCount, 0);
+    assert.deepEqual(originalStartup.memory.bytes.slice(0, 13), Array(13).fill(0));
+
     const liveKeyboardRom = makeJr8rom(Uint8Array.of(
         0xb6, 0x0f, 0x7f,
         0xb7, 0x20, 0x00,
@@ -1865,6 +1893,7 @@ try {
         view: {memoryAddress: 0x2800, memoryLength: 4},
     }, [ramProgram.buffer]);
     assert.equal(loadedRamProgram.state.pc, 0x2800);
+    assert.deepEqual(loadedRamProgram.program, {kind: "machine-code", byteLength: 4, nameBytes: []});
     assert.deepEqual(loadedRamProgram.memory.bytes, [0x86, 0x42, 0x20, 0xfe]);
     assert.equal(loadedRamProgram.history.length, 0);
     assert.equal(loadedRamProgram.accesses.length, 0);
@@ -1873,6 +1902,20 @@ try {
     });
     assert.equal(ramProgramStep.snapshot.state.pc, 0x2802);
     assert.equal(ramProgramStep.snapshot.state.a, 0x42);
+
+    const loadOnly = await request("load-program", {
+        application: makeJr8app(0x2900, 0x2900, Uint8Array.of(0x01)),
+        runAfterLoad: false,
+        view: {memoryAddress: 0x2900, memoryLength: 1},
+    });
+    assert.deepEqual(loadOnly.state, ramProgramStep.snapshot.state);
+    assert.deepEqual(loadOnly.memory.bytes, [0x01]);
+    await assert.rejects(request("load-program", {
+        application: makeBasicJr8app(), runAfterLoad: false,
+    }), {status: 26, message: /unsupported-basic-rom/});
+    const afterBasicRejection = await request("snapshot", {view: {memoryAddress: 0x2900, memoryLength: 1}});
+    assert.deepEqual(afterBasicRejection.state, loadOnly.state);
+    assert.deepEqual(afterBasicRejection.memory, loadOnly.memory);
 
     const beforeRejectedWav = await request("snapshot", {
         view: {memoryAddress: 0x2800, memoryLength: 4},
@@ -1903,6 +1946,9 @@ try {
         view: {memoryAddress: 0x2800, memoryLength: 4},
     }, [nativeProgramWav.buffer]);
     assert.equal(loadedNativeProgramWav.state.pc, 0x2800);
+    assert.equal(loadedNativeProgramWav.program.kind, "machine-code");
+    assert.equal(loadedNativeProgramWav.program.byteLength, 4);
+    assert.ok(loadedNativeProgramWav.program.nameBytes.length > 0);
     assert.deepEqual(
         loadedNativeProgramWav.memory.bytes,
         [0x86, 0x43, 0x20, 0xfe],

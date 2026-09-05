@@ -5,6 +5,28 @@
 #include <cstdint>
 
 namespace jr800::core {
+Jr800Bus::Jr800Bus(const Jr800Bus& source) noexcept : Bus() {
+    copy_state_from(source);
+}
+
+void Jr800Bus::copy_state_from(const Jr800Bus& source) noexcept {
+    ports_ = source.ports_;
+    ram_control_ = source.ram_control_;
+    sci_ = source.sci_;
+    timer_ = source.timer_;
+    keyboard_ = source.keyboard_;
+    calendar_ = source.calendar_;
+    lcd_ = source.lcd_;
+    memory_ = source.memory_;
+    experimental_lcd_configuration_ = source.experimental_lcd_configuration_;
+    experimental_calendar_configuration_ = source.experimental_calendar_configuration_;
+    ignore_unsupported_io_ = source.ignore_unsupported_io_;
+    calendar_cpu_cycle_remainder_ = source.calendar_cpu_cycle_remainder_;
+    lcd_substituted_data_read_count_ = source.lcd_substituted_data_read_count_;
+    ignored_io_access_count_ = source.ignored_io_access_count_;
+    copy_execution_context(source);
+}
+
 namespace {
 
 BusFault bus_fault(Jr800MemoryStatus status) noexcept {
@@ -111,6 +133,19 @@ Jr800Bus::Jr800Bus(
     if (experimental_calendar_configuration_.has_value()) {
         calendar_.initialize_zero();
     }
+}
+
+Jr800CalendarOperationStatus Jr800Bus::set_calendar_datetime(
+    CalendarDateTime value
+) noexcept {
+    if (!experimental_calendar_configuration_.has_value()) {
+        return Jr800CalendarOperationStatus::calendar_disconnected;
+    }
+    if (!calendar_.set_datetime(value)) {
+        return Jr800CalendarOperationStatus::unsupported_state;
+    }
+    calendar_cpu_cycle_remainder_ = 0U;
+    return Jr800CalendarOperationStatus::ok;
 }
 
 Jr800MemoryStatus Jr800Bus::load_logical_rom(

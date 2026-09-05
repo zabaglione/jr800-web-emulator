@@ -11,7 +11,7 @@ extern "C" {
 #define JR800_NODISCARD
 #endif
 
-#define JR800_WASM_ABI_VERSION 37U
+#define JR800_WASM_ABI_VERSION 41U
 #define JR800_HARDWARE_CONFIGURATION_WORD_COUNT 32U
 #define JR800_STATE_WORD_COUNT 21U
 #define JR800_STOP_WORD_COUNT 24U
@@ -61,7 +61,12 @@ typedef enum jr800_status {
     JR800_STATUS_SYMBOL_NOT_ADDRESS = 22,
     JR800_STATUS_INVALID_JR8ROM = 23,
     JR800_STATUS_INCOMPLETE_JR8ROM = 24,
-    JR800_STATUS_INVALID_NATIVE_PROGRAM_WAV = 25
+    JR800_STATUS_INVALID_NATIVE_PROGRAM_WAV = 25,
+    JR800_STATUS_UNSUPPORTED_BASIC_ROM = 26,
+    JR800_STATUS_BASIC_NOT_READY = 27,
+    JR800_STATUS_INVALID_BASIC_PROGRAM = 28,
+    JR800_STATUS_BASIC_LOAD_FAILED = 29,
+    JR800_STATUS_ENTRY_POINT_NOT_LOADED = 30
 } jr800_status;
 
 typedef enum jr800_native_program_wav_issue_code {
@@ -77,8 +82,23 @@ typedef enum jr800_native_program_wav_issue_code {
     JR800_NATIVE_PROGRAM_WAV_ISSUE_UNSUPPORTED_HEADER = 9,
     JR800_NATIVE_PROGRAM_WAV_ISSUE_INVALID_LENGTH = 10,
     JR800_NATIVE_PROGRAM_WAV_ISSUE_INVALID_PROGRAM_RANGE = 11,
-    JR800_NATIVE_PROGRAM_WAV_ISSUE_AMBIGUOUS_HEADER_BYTE_ORDER = 12
+    JR800_NATIVE_PROGRAM_WAV_ISSUE_AMBIGUOUS_HEADER_BYTE_ORDER = 12,
+    JR800_NATIVE_PROGRAM_WAV_ISSUE_INVALID_BASIC_PROGRAM = 13,
+    JR800_NATIVE_PROGRAM_WAV_ISSUE_UNEXPECTED_TRAILING_BLOCKS = 14
 } jr800_native_program_wav_issue_code;
+
+typedef struct jr800_program_info {
+    uint32_t kind;
+    uint32_t byte_count;
+    uint32_t name_length;
+    uint8_t name[16];
+} jr800_program_info;
+
+typedef struct jr800_program_saves_state {
+    /* 0 unavailable, 1 idle, 2 recording, 3 failed, 4 list full. */
+    uint32_t state;
+    uint32_t count;
+} jr800_program_saves_state;
 
 typedef struct jr800_native_program_wav_issue {
     uint32_t code;
@@ -378,6 +398,15 @@ typedef struct jr800_hardware_configuration {
     uint32_t ignore_unsupported_io;
 } jr800_hardware_configuration;
 
+typedef struct jr800_calendar_datetime {
+    uint32_t year;
+    uint32_t month;
+    uint32_t day;
+    uint32_t hour;
+    uint32_t minute;
+    uint32_t second;
+} jr800_calendar_datetime;
+
 /* All transport records contain only uint32_t words for a stable WASM layout. */
 typedef struct jr800_machine_state {
     uint32_t abi_version;
@@ -578,15 +607,32 @@ JR800_NODISCARD jr800_status jr800_machine_load_jr8rom(
 JR800_NODISCARD jr800_status jr800_machine_load_program(
     jr800_machine* machine,
     const uint8_t* bytes,
-    uint32_t byte_count
+    uint32_t byte_count,
+    uint32_t run_after_load,
+    jr800_program_info* info
 );
 JR800_NODISCARD jr800_status jr800_machine_load_native_program_wav(
     jr800_machine* machine,
     const uint8_t* bytes,
     uint32_t byte_count,
-    jr800_native_program_wav_issue* issue
+    jr800_native_program_wav_issue* issue,
+    uint32_t run_after_load,
+    jr800_program_info* info
 );
 JR800_NODISCARD jr800_status jr800_machine_reset(jr800_machine* machine);
+
+JR800_NODISCARD jr800_status jr800_machine_get_program_saves(
+    const jr800_machine* machine, jr800_program_saves_state* state
+);
+JR800_NODISCARD jr800_status jr800_machine_get_saved_program_info(
+    const jr800_machine* machine, uint32_t index, jr800_program_info* info
+);
+/* format: 1 J8A v1, 2 native WAV. A null buffer with capacity 0 queries size. */
+JR800_NODISCARD jr800_status jr800_machine_export_saved_program(
+    const jr800_machine* machine, uint32_t index, uint32_t format,
+    uint8_t* bytes, uint32_t capacity, uint32_t* byte_count
+);
+JR800_NODISCARD jr800_status jr800_machine_clear_program_saves(jr800_machine* machine);
 
 JR800_NODISCARD jr800_status jr800_machine_get_state(
     const jr800_machine* machine,
@@ -630,6 +676,11 @@ jr800_machine_advance_calendar_oscillator_ticks(
 );
 JR800_NODISCARD jr800_status jr800_machine_adjust_calendar_seconds(
     jr800_machine* machine
+);
+
+JR800_NODISCARD jr800_status jr800_machine_set_calendar_datetime(
+    jr800_machine* machine,
+    const jr800_calendar_datetime* value
 );
 
 JR800_NODISCARD jr800_status jr800_machine_set_keyboard_bus_response(

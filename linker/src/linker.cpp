@@ -712,6 +712,10 @@ private:
         }
 
         try {
+            if (!formats::jr8app::entry_point_is_loaded(application)) {
+                diagnose("<link>", "L2999", "entry point is outside loaded segments");
+                return std::nullopt;
+            }
             application.integrity_sha256 = formats::jr8app::compute_integrity(application);
             debug_info.application_integrity_sha256 = application.integrity_sha256;
             static_cast<void>(formats::jr8app::write(application));

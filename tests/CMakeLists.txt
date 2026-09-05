@@ -1,4 +1,4 @@
-if(EXISTS "${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v37.md")
+if(EXISTS "${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v41.md")
     add_test(
         NAME abi_version_contract
         COMMAND
@@ -6,7 +6,7 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v37.md")
             ${CMAKE_CURRENT_SOURCE_DIR}/abi_version_contract_test.py
             --header ${PROJECT_SOURCE_DIR}/wasm/include/jr800/wasm/api.h
             --adapter ${PROJECT_SOURCE_DIR}/web/wasm-machine.mjs
-            --document ${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v37.md
+            --document ${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v41.md
     )
     set_tests_properties(
         abi_version_contract
@@ -17,6 +17,11 @@ endif()
 
 if(EMSCRIPTEN)
     find_program(NODE_EXECUTABLE node REQUIRED)
+    add_test(
+        NAME program_save_view
+        COMMAND ${NODE_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/program_save_view_test.mjs
+            $<TARGET_FILE_DIR:jr800_wasm>/program-save-view.mjs
+    )
     add_test(
         NAME web_bundle
         COMMAND
@@ -109,6 +114,13 @@ if(EMSCRIPTEN)
             ${NODE_EXECUTABLE}
             ${CMAKE_CURRENT_SOURCE_DIR}/virtual_keyboard_legends_test.mjs
             $<TARGET_FILE_DIR:jr800_wasm>/virtual-keyboard-legends.mjs
+    )
+    add_test(
+        NAME rom_keyboard_glyphs
+        COMMAND
+            ${NODE_EXECUTABLE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/rom_keyboard_glyphs_test.mjs
+            $<TARGET_FILE_DIR:jr800_wasm>/rom-keyboard-glyphs.mjs
     )
 else()
     find_program(MAKE_EXECUTABLE make REQUIRED)
@@ -215,6 +227,17 @@ else()
     set_target_properties(c_api_smoke PROPERTIES LINKER_LANGUAGE CXX)
     target_link_libraries(c_api_smoke PRIVATE jr800::wasm_api)
     add_test(NAME c_api_smoke COMMAND c_api_smoke)
+
+    add_executable(basic_program_test basic_program_test.cpp)
+    target_link_libraries(basic_program_test PRIVATE jr800::runtime jr800::debugger)
+    add_test(NAME basic_program_test COMMAND basic_program_test)
+    add_executable(program_save_test program_save_test.cpp)
+    target_link_libraries(program_save_test PRIVATE jr800::wasm_api)
+    add_test(NAME program_save_test COMMAND program_save_test)
+
+    add_executable(calendar_startup_test calendar_startup_test.cpp)
+    target_link_libraries(calendar_startup_test PRIVATE jr800::wasm_api)
+    add_test(NAME calendar_startup_test COMMAND calendar_startup_test)
 
     add_executable(c_api_jr800_test c_api_jr800_test.cpp)
     target_link_libraries(c_api_jr800_test PRIVATE jr800::wasm_api)

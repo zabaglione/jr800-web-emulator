@@ -27,6 +27,10 @@ struct WavPcmParseResult {
     WavPcmError error{WavPcmError::none};
 };
 
+[[nodiscard]] std::vector<std::uint8_t> encode_pcm16_wav(
+    std::span<const std::int16_t> samples, std::uint32_t sample_rate
+);
+
 [[nodiscard]] WavPcmParseResult parse_pcm16_wav(
     std::span<const std::uint8_t> bytes
 );

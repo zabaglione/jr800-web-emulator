@@ -511,6 +511,10 @@ std::string_view expression_evaluation_error_name(
 std::string_view load_error_name(jr800::runtime::LoadApplicationResult result) {
     using jr800::runtime::LoadApplicationResult;
     switch (result) {
+    case LoadApplicationResult::unsupported_basic_rom: return "unsupported-basic-rom";
+    case LoadApplicationResult::basic_not_ready: return "basic-not-ready";
+    case LoadApplicationResult::invalid_basic_program: return "invalid-basic-program";
+    case LoadApplicationResult::basic_load_failed: return "basic-load-failed";
     case LoadApplicationResult::loaded:
         return "loaded";
     case LoadApplicationResult::invalid_format:
@@ -521,6 +525,8 @@ std::string_view load_error_name(jr800::runtime::LoadApplicationResult result) {
         return "unreviewed-profile";
     case LoadApplicationResult::segment_out_of_range:
         return "segment-out-of-range";
+    case LoadApplicationResult::entry_point_not_loaded:
+        return "entry-point-not-loaded";
     case LoadApplicationResult::target_mismatch:
         return "target-mismatch";
     }

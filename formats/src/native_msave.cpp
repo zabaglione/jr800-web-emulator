@@ -3,6 +3,8 @@
 #include "jr800/formats/native_msave.hpp"
 
 #include "wav_pcm.hpp"
+#include "jr800/formats/basic_program.hpp"
+#include "jr800/formats/linked_error.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -111,9 +113,7 @@ bool valid_header_fields(const HeaderFields& fields) noexcept {
 bool valid_program_range(const HeaderFields& fields) noexcept {
     const auto begin = static_cast<std::uint32_t>(fields.start_address);
     const auto end = begin + fields.payload_length;
-    return begin >= 0x2000U && end <= 0x8000U
-        && fields.execution_address >= begin
-        && fields.execution_address < end;
+    return begin >= 0x2000U && end <= 0x8000U;
 }
 
 std::uint16_t additive_sum(std::span<const std::uint8_t> bytes) {
@@ -376,7 +376,7 @@ bool verify_block_sum(
     return true;
 }
 
-std::optional<std::string> parse_filename(std::span<const std::uint8_t> field) {
+std::optional<std::string> parse_filename(std::span<const std::uint8_t> field, bool basic = false) {
     std::string filename;
     bool padding_started = false;
     for (const auto byte : field) {
@@ -384,12 +384,12 @@ std::optional<std::string> parse_filename(std::span<const std::uint8_t> field) {
             padding_started = true;
             continue;
         }
-        if (padding_started || byte < 0x20U || byte > 0x7EU) {
+        if (padding_started || byte < 0x20U || (!basic && byte > 0x7EU)) {
             return std::nullopt;
         }
         filename.push_back(static_cast<char>(byte));
     }
-    if (filename.empty()) {
+    if (filename.empty() && !basic) {
         return std::nullopt;
     }
     return filename;
@@ -397,53 +397,93 @@ std::optional<std::string> parse_filename(std::span<const std::uint8_t> field) {
 
 }  // namespace
 
-NativeMsaveDecodeResult decode_msave_wav(
-    std::span<const std::uint8_t> wav_bytes,
-    bool program_input
-) {
+namespace {
+template<class Reader>
+NativeMsaveDecodeResult decode_program_blocks(std::size_t block_count,
+    bool program_input, std::size_t source_channel, Reader read_block) {
     NativeMsaveDecodeResult result;
-    const auto parsed = detail::parse_pcm16_wav(wav_bytes);
-    if (!parsed.wav.has_value()) {
-        result.issues.push_back({
-            parsed.error == detail::WavPcmError::unsupported_wav
-                ? NativeMsaveIssueCode::unsupported_wav
-                : NativeMsaveIssueCode::invalid_wav,
-            0U,
-        });
+    if (block_count == 0U || block_count > 130U) {
+        result.issues.push_back({NativeMsaveIssueCode::unexpected_burst_count, block_count});
         return result;
     }
-
-    std::vector<double> samples;
-    const auto source_channel = strongest_channel(*parsed.wav, samples);
-    const auto bursts = find_bursts(samples, parsed.wav->sample_rate);
-    if (bursts.empty()) {
-        result.issues.push_back({NativeMsaveIssueCode::no_signal, 0U});
-        return result;
-    }
-    if (bursts.size() != 1U && bursts.size() != 2U) {
-        result.issues.push_back({
-            NativeMsaveIssueCode::unexpected_burst_count,
-            bursts.size(),
-        });
-        return result;
-    }
-
-    const auto header = decode_block(
-        samples,
-        bursts[0],
-        parsed.wav->sample_rate,
-        40U,
-        kHeaderBlockSize,
-        0U,
-        result
-    );
+    const auto header = read_block(0U, kHeaderBlockSize, result);
     if (!header.has_value() || !verify_block_sum(*header, 0U, result)) {
         return result;
     }
     const auto header_body = std::span<const std::uint8_t>{*header}.first(
         kHeaderBodySize
     );
-    const auto filename = parse_filename(header_body.subspan(1U, 16U));
+    if (program_input && (header_body[0] == 2U || header_body[0] == 3U)) {
+        const bool text = header_body[0] == 3U;
+        const auto name = parse_filename(header_body.subspan(1U, 16U), true);
+        const auto reserved = text ? 17U : 24U;
+        if (!name.has_value() || header_body[17] != 0U
+            || !std::all_of(header_body.begin() + reserved, header_body.end(), [](auto value) { return value == 0U; })
+            || (!text && (header_body[22] != 0U || header_body[23] != 0U))) {
+            result.issues.push_back({NativeMsaveIssueCode::unsupported_header, 0U});
+            return result;
+        }
+        NativeMsaveFile file;
+        file.kind = text ? jr8app::ProgramKind::basic_text : jr8app::ProgramKind::basic_binary;
+        file.filename = *name;
+        file.source_channel = source_channel;
+        file.header_byte_order = NativeMsaveByteOrder::big_endian;
+        file.header_layout = NativeMsaveHeaderLayout::reserved_byte_before_fields;
+        if (text) {
+            bool final = false;
+            for (std::size_t index = 1; index < block_count; ++index) {
+                if (final) {
+                    result.issues.push_back({NativeMsaveIssueCode::unexpected_trailing_blocks, index});
+                    return result;
+                }
+                const auto data = read_block(index, 259U, result);
+                if (!data.has_value() || !verify_block_sum(*data, index, result)) return result;
+                if ((*data)[0] > 1U) {
+                    result.issues.push_back({NativeMsaveIssueCode::invalid_basic_program, index});
+                    return result;
+                }
+                final = (*data)[0] == 1U;
+                file.payload.insert(file.payload.end(), data->begin() + 1, data->begin() + 257);
+            }
+            const auto terminal = std::find(file.payload.begin(), file.payload.end(), 0x1AU);
+            const auto size = static_cast<std::size_t>(terminal - file.payload.begin());
+            if (!final || terminal == file.payload.end() || size > 32768U
+                || (size + 1U) / 256U + 1U != block_count - 1U
+                || !std::all_of(terminal + 1, file.payload.end(), [](auto value) { return value == 0U; })) {
+                result.issues.push_back({NativeMsaveIssueCode::invalid_basic_program, block_count - 1U});
+                return result;
+            }
+            file.payload.resize(size);
+        } else {
+            const auto length = read_be16(header_body, 18U);
+            const auto start = read_be16(header_body, 20U);
+            file.start_address = start;
+            if (length < 2U || start < 0x2000U || static_cast<std::uint32_t>(start) + length > 0x8000U) {
+                result.issues.push_back({NativeMsaveIssueCode::invalid_basic_program, 0U});
+                return result;
+            }
+            if (block_count > 2U) {
+                result.issues.push_back({NativeMsaveIssueCode::unexpected_trailing_blocks, 2U});
+                return result;
+            }
+            const auto data = read_block(1U, static_cast<std::size_t>(length) + 2U, result);
+            if (!data.has_value() || !verify_block_sum(*data, 1U, result)) return result;
+            file.payload.assign(data->begin(), data->end() - 2);
+        }
+        try {
+            static_cast<void>(native_program_application(file));
+        } catch (const linked::Error&) {
+            result.issues.push_back({NativeMsaveIssueCode::invalid_basic_program, 1U});
+            return result;
+        }
+        result.file = std::move(file);
+        return result;
+    }
+    if (block_count > 2U) {
+        result.issues.push_back({NativeMsaveIssueCode::unexpected_burst_count, block_count});
+        return result;
+    }
+    const auto filename = parse_filename(header_body.subspan(1U, 16U), program_input);
     if (header_body[0] != kMsaveHeaderType || !filename.has_value()) {
         result.issues.push_back({NativeMsaveIssueCode::unsupported_header, 0U});
         return result;
@@ -453,15 +493,7 @@ NativeMsaveDecodeResult decode_msave_wav(
         const HeaderFields& fields,
         NativeMsaveDecodeResult& candidate_result
     ) -> std::optional<NativeMsaveFile> {
-        const auto data = decode_block(
-            samples,
-            bursts.back(),
-            parsed.wav->sample_rate,
-            20U,
-            fields.payload_length + kChecksumSize,
-            1U,
-            candidate_result
-        );
+        const auto data = read_block(1U, fields.payload_length + kChecksumSize, candidate_result);
         if (!data.has_value()
             || !verify_block_sum(*data, 1U, candidate_result)) {
             return std::nullopt;
@@ -574,6 +606,67 @@ NativeMsaveDecodeResult decode_msave_wav(
     return result;
 }
 
+} // namespace
+
+NativeMsaveDecodeResult decode_msave_wav(
+    std::span<const std::uint8_t> wav_bytes,
+    bool program_input
+) {
+    NativeMsaveDecodeResult result;
+    const auto parsed = detail::parse_pcm16_wav(wav_bytes);
+    if (!parsed.wav.has_value()) {
+        result.issues.push_back({
+            parsed.error == detail::WavPcmError::unsupported_wav
+                ? NativeMsaveIssueCode::unsupported_wav
+                : NativeMsaveIssueCode::invalid_wav,
+            0U,
+        });
+        return result;
+    }
+
+    std::vector<double> samples;
+    const auto source_channel = strongest_channel(*parsed.wav, samples);
+    const auto bursts = find_bursts(samples, parsed.wav->sample_rate);
+    if (bursts.empty()) {
+        result.issues.push_back({NativeMsaveIssueCode::no_signal, 0U});
+        return result;
+    }
+    if (bursts.size() > 130U) {
+        result.issues.push_back({
+            NativeMsaveIssueCode::unexpected_burst_count,
+            bursts.size(),
+        });
+        return result;
+    }
+
+    return decode_program_blocks(bursts.size(), program_input, source_channel,
+        [&](std::size_t index, std::size_t length, NativeMsaveDecodeResult& result) {
+            return decode_block(samples, bursts[std::min(index, bursts.size() - 1U)], parsed.wav->sample_rate,
+                index == 0U ? 40U : 20U, length, index, result);
+        });
+}
+
+NativeMsaveDecodeResult decode_native_program_blocks(
+    std::span<const std::vector<std::uint8_t>> blocks) {
+    if (blocks.size() < 2U) {
+        return {std::nullopt, {{NativeMsaveIssueCode::unexpected_burst_count, blocks.size()}}};
+    }
+    return decode_program_blocks(blocks.size(), true, 0U,
+        [&](std::size_t index, std::size_t length, NativeMsaveDecodeResult& result)
+            -> std::optional<std::vector<std::uint8_t>> {
+            if (blocks[index].size() + 2U != length) {
+                result.issues.push_back({NativeMsaveIssueCode::truncated_block, index});
+                return std::nullopt;
+            }
+            auto bytes = blocks[index];
+            std::uint16_t sum = 0U;
+            for (auto value : bytes) sum = static_cast<std::uint16_t>(sum + value);
+            bytes.push_back(static_cast<std::uint8_t>(sum >> 8U));
+            bytes.push_back(static_cast<std::uint8_t>(sum));
+            return bytes;
+        });
+}
+
 NativeMsaveDecodeResult decode_native_msave_wav(
     std::span<const std::uint8_t> wav_bytes
 ) {
@@ -586,8 +679,28 @@ NativeMsaveDecodeResult decode_native_program_wav(
     return decode_msave_wav(wav_bytes, true);
 }
 
+jr8app::Application native_program_application(const NativeMsaveFile& file) {
+    jr8app::Application application;
+    application.target_profile = "hd6301v1";
+    application.kind = file.kind;
+    application.name.assign(file.filename.begin(), file.filename.end());
+    if (file.kind == jr8app::ProgramKind::machine_code) {
+        application.entry_point = file.execution_address;
+        application.segments = {{jr8app::SegmentKind::data, file.start_address,
+            static_cast<std::uint32_t>(file.payload.size()), file.payload}};
+    } else {
+        application.basic_data = file.payload;
+    }
+    application.integrity_sha256 = jr8app::compute_integrity(application);
+    return application;
+}
+
 std::string_view native_msave_issue_name(NativeMsaveIssueCode code) noexcept {
     switch (code) {
+    case NativeMsaveIssueCode::invalid_basic_program:
+        return "invalid-basic-program";
+    case NativeMsaveIssueCode::unexpected_trailing_blocks:
+        return "unexpected-trailing-blocks";
     case NativeMsaveIssueCode::invalid_wav:
         return "invalid-wav";
     case NativeMsaveIssueCode::unsupported_wav:

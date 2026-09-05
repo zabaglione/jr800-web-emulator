@@ -463,6 +463,14 @@ main { width: min(1440px, calc(100% - 2.5rem)); margin: 1.25rem auto 3rem; }
 }
 .virtual-key-wide { flex-grow: 1.48; }
 .virtual-key-space { flex-grow: 2.35; }
+.virtual-key-glyph {
+    display: block;
+    width: 0.9rem;
+    height: 1.2rem;
+    max-width: 100%;
+    fill: currentColor;
+    shape-rendering: crispEdges;
+}
 .virtual-key-return { flex-grow: 1.75; }
 .virtual-key-action, .virtual-key-shift {
     border-color: #16334b;
@@ -616,4 +624,24 @@ td.empty { height: 4rem; color: var(--muted); text-align: center; }
     .watch-controls { grid-template-columns: 1fr; }
     .trace-controls { grid-template-columns: 1fr 1fr; }
     .trace-controls label:nth-child(3), .trace-controls button { grid-column: span 2; }
+}
+.program-saves {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border, #566067);
+}
+.program-saves ul {
+    list-style: none;
+    padding: 0;
+}
+.program-saves li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+}
+.program-saves li span {
+    flex: 1 1 15rem;
+    overflow-wrap: anywhere;
 }

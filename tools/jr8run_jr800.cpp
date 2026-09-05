@@ -438,6 +438,8 @@ std::optional<CliOptions> parse_options(int argc, char* argv[]) {
             core::Jr800ExperimentalCalendarAddressSource::cpu_a0_to_a3;
         options.calendar_upper_read_bits =
             core::Jr800ExperimentalCalendarUpperReadBits::all_zero;
+        options.calendar_cpu_cycle_ratio =
+            core::Jr800ExperimentalCalendarCpuCycleRatio::e030_nominal_1_2288_mhz;
         options.port1_pins = KnownBits{0xFFU, 0xFFU};
         options.port2_pins = KnownBits{0x1EU, 0x1FU};
         options.ram_standby_valid = false;

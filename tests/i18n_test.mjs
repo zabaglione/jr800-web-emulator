@@ -24,7 +24,7 @@ assert.equal(preferredWebUiLanguage("ja"), WebUiLanguage.japanese);
 
 const localizer = createWebUiLocalizer(messages, "ja-JP");
 assert.equal(localizer.language, WebUiLanguage.japanese);
-assert.equal(localizer.text("Boot BASIC experiment"), "BASIC\u3092\u8d77\u52d5");
+assert.equal(localizer.text("Boot BASIC experiment"), "BASIC\u306e\u8d77\u52d5");
 assert.equal(
     localizer.text("Loaded {name}", {name: "sample.j8a"}),
     "sample.j8a\u3092\u8aad\u307f\u8fbc\u307f\u307e\u3057\u305f",

@@ -4,7 +4,9 @@
 
 namespace jr800::core {
 
-Machine::Machine(Bus& bus) noexcept : bus_(bus) {}
+Machine::Machine(Bus& bus) noexcept : bus_(bus) {
+    static_cast<void>(bus_.set_observer(this));
+}
 
 MachineObserver::~MachineObserver() {
     if (machine_ != nullptr) {
@@ -13,7 +15,7 @@ MachineObserver::~MachineObserver() {
 }
 
 Machine::~Machine() {
-    static_cast<void>(set_observer(nullptr));
+    clear_observers();
 }
 
 void Machine::reset() noexcept {
@@ -55,22 +57,22 @@ StepResult Machine::step_instruction() {
             cpu_.state().cycle_count,
             cpu_.state().pc
         );
-        if (observer_ != nullptr) {
-            observer_->on_step_begin(cpu_.state());
+        for (auto* observer = observer_; observer != nullptr; observer = observer->next_) {
+            observer->on_step_begin(cpu_.state());
         }
         const auto result = cpu_.service_maskable_interrupt(bus_, request);
-        if (observer_ != nullptr) {
-            observer_->on_step_end(result, cpu_.state());
+        for (auto* observer = observer_; observer != nullptr; observer = observer->next_) {
+            observer->on_step_end(result, cpu_.state());
         }
         return result;
     }
     bus_.set_instruction_context(cpu_.state().cycle_count, cpu_.state().pc);
-    if (observer_ != nullptr) {
-        observer_->on_step_begin(cpu_.state());
+    for (auto* observer = observer_; observer != nullptr; observer = observer->next_) {
+        observer->on_step_begin(cpu_.state());
     }
     const auto result = cpu_.step_instruction(bus_);
-    if (observer_ != nullptr) {
-        observer_->on_step_end(result, cpu_.state());
+    for (auto* observer = observer_; observer != nullptr; observer = observer->next_) {
+        observer->on_step_end(result, cpu_.state());
     }
     return result;
 }
@@ -123,43 +125,47 @@ BusReadResult Machine::inspect8(std::uint16_t address) const noexcept {
     return bus_.inspect8(address);
 }
 
-bool Machine::set_observer(MachineObserver* observer) noexcept {
-    if (observer_ == observer) {
-        return true;
-    }
-    if (observer != nullptr && observer->machine_ != nullptr
-        && observer->machine_ != this) {
-        return false;
-    }
-    auto* const detached = observer_;
-    if (!bus_.set_observer(observer)) {
-        return false;
-    }
-    observer_ = observer;
-    if (observer != nullptr) {
-        observer->machine_ = this;
-    }
-    if (detached != nullptr) {
-        detached->machine_ = nullptr;
-        detached->on_machine_detached(*this);
-    }
+bool Machine::add_observer(MachineObserver* observer) noexcept {
+    if (observer == nullptr) return false;
+    if (observer->machine_ == this) return true;
+    if (observer->machine_ != nullptr) return false;
+    auto** tail = &observer_;
+    while (*tail != nullptr) tail = &(*tail)->next_;
+    *tail = observer;
+    observer->machine_ = this;
+    observer->next_ = nullptr;
     return true;
 }
 
 void Machine::release_destroying_observer(MachineObserver& observer) noexcept {
-    if (observer_ == &observer) {
-        observer_ = nullptr;
-        static_cast<void>(bus_.set_observer(nullptr));
-    }
+    auto** link = &observer_;
+    while (*link != nullptr && *link != &observer) link = &(*link)->next_;
+    if (*link == nullptr) return;
+    *link = observer.next_;
+    observer.next_ = nullptr;
     observer.machine_ = nullptr;
 }
 
-MachineObserver* Machine::observer() noexcept {
-    return observer_;
+void Machine::remove_observer(MachineObserver& observer) noexcept {
+    if (observer.machine_ != this) return;
+    release_destroying_observer(observer);
+    observer.on_machine_detached(*this);
 }
 
-const MachineObserver* Machine::observer() const noexcept {
-    return observer_;
+void Machine::clear_observers() noexcept {
+    while (observer_ != nullptr) remove_observer(*observer_);
+}
+
+bool Machine::has_observer(const MachineObserver* observer) const noexcept {
+    return observer != nullptr && observer->machine_ == this;
+}
+
+bool Machine::has_observers() const noexcept { return observer_ != nullptr; }
+
+void Machine::on_bus_access(const BusAccessEvent& event) noexcept {
+    for (auto* observer = observer_; observer != nullptr; observer = observer->next_) {
+        observer->on_bus_access(event);
+    }
 }
 
 Cpu& Machine::cpu() noexcept {

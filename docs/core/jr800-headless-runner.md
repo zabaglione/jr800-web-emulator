@@ -47,7 +47,9 @@ jr8run jr800 [--max-instructions <count>]
 これらは処理資源の上限であり、実機の性質ではありません。
 
 `--basic-boot-experiment`は、Web UIの`Boot BASIC experiment`と同じ現在の仮入力を使います。
-CPU内RAM、標準RAM、拡張RAMをゼロ、LCD不明読込値をゼロ、calendarをA0-A3と上位ゼロで接続し、CPUサイクルとの自動連動を無効にします。
+CPU内RAM、標準RAM、拡張RAMをゼロ、LCD不明読込値をゼロ、calendarをA0-A3と上位ゼロで接続し、公称1.2288 MHzのCPU Eサイクルに連動してRTCを進めます。
+Nativeのこの起動フラグは現在日時を取得しません。
+ブラウザーの現在日時による初期化はWebの起動オプションです。
 Port 1は`$FF`、Port 2下位は`$1E`、RAM standbyはinvalid、キーボード範囲は`$FF`です。
 リセット時のレジスター値と実行上限は変更しません。
 

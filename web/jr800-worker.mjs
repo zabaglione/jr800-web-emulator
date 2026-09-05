@@ -7,6 +7,7 @@ import {
 } from "./wasm-machine.mjs";
 
 import {JR800_CPU_CLOCK_HZ, RUN_TURN_MS, RunPacer} from "./run-pacer.mjs";
+import {readRomKeyboardGlyphs} from "./rom-keyboard-glyphs.mjs";
 
 const RUN_SLICE_INSTRUCTIONS = 1000;
 // The debugger retains 1024 bus accesses, including fetches. Drain sound
@@ -25,14 +26,14 @@ let sendToHost;
 let subscribe;
 
 if (typeof self !== "undefined" && typeof self.postMessage === "function") {
-    sendToHost = (message) => self.postMessage(message);
+    sendToHost = (message, transfer = []) => self.postMessage(message, transfer);
     subscribe = (callback) => self.addEventListener("message", (event) => callback(event.data));
 } else {
     const {parentPort} = await import("node:worker_threads");
     if (parentPort === null) {
         throw new Error("Worker transport is unavailable");
     }
-    sendToHost = (message) => parentPort.postMessage(message);
+    sendToHost = (message, transfer = []) => parentPort.postMessage(message, transfer);
     subscribe = (callback) => parentPort.on("message", callback);
 }
 
@@ -172,13 +173,14 @@ function emitAudioFrame(current) {
     audioFrameTransitions = [];
 }
 
-function response(id, result) {
-    sendToHost({type: "response", id, ok: true, result});
+function response(id, result, transfer = []) {
+    sendToHost({type: "response", id, ok: true, result}, transfer);
 }
 
 function failure(id, error) {
     const detail = error instanceof Error ? error.stack ?? error.message : String(error);
     const responseMessage = {type: "response", id, ok: false, error: detail};
+    if (Number.isInteger(error?.status)) responseMessage.status = error.status;
     if (error instanceof NativeProgramWavError) {
         responseMessage.errorCode = "native-program-wav";
         responseMessage.issue = error.issue;
@@ -522,6 +524,15 @@ function startRun(
     return {running: true};
 }
 
+function initializeBasicCalendar(current, dateTime) {
+    // E-421: BASIC initializes before the first keyboard-wait SLP.
+    const stop = current.run(1_000_000);
+    if (stop.reason !== "sleeping") {
+        throw new Error(`Calendar startup did not reach BASIC wait: ${stop.reason} (${stop.busFault})`);
+    }
+    current.setCalendarDateTime(dateTime);
+}
+
 async function dispatch(message) {
     const id = message?.id;
     try {
@@ -608,6 +619,14 @@ async function dispatch(message) {
                     : candidate.loadLogicalRom(message.logicalRom, {
                         view: message.view,
                     });
+                if (message.calendarDateTime !== undefined) {
+                    if (message.configuration?.calendarCpuCycleRatio
+                        !== "e030-nominal-1.2288mhz") {
+                        throw new Error("Calendar startup requires the nominal CPU clock");
+                    }
+                    initializeBasicCalendar(candidate, message.calendarDateTime);
+                    snapshot = candidate.snapshot(message.view);
+                }
             } catch (error) {
                 candidate.destroy();
                 throw error;
@@ -629,25 +648,52 @@ async function dispatch(message) {
             });
             break;
         }
+        case "keyboard-glyphs": {
+            const current = requireMachine();
+            if (current.kind !== "jr800") {
+                throw new TypeError("ROM keyboard glyphs require a JR-800 session");
+            }
+            response(id, readRomKeyboardGlyphs(
+                (address, length) => current.memory(address, length),
+            ));
+            break;
+        }
         case "load-program":
         case "load-native-program-wav": {
             requireIdle();
             const current = requireMachine();
             const view = normalizeReadableMachineView(current, message.view);
+            let loadedProgram;
+            const runAfterLoad = message.runAfterLoad ?? true;
             if (message.command === "load-program") {
-                current.loadProgram(message.application, {view});
+                loadedProgram = current.loadProgram(message.application, {view, runAfterLoad});
             } else {
-                current.loadNativeProgramWav(message.wav, {view});
+                loadedProgram = current.loadNativeProgramWav(message.wav, {view, runAfterLoad});
             }
             clearKeyboardHoldState(current, true);
+            resetAudioCollector();
+            if (audioEnabled) synchronizeAudioCollector(current);
+            sendToHost({type: "event", event: "audio-reset"});
             const snapshot = snapshotWithWatches(current, view);
             expressionWatches.clear();
             symbolWatches.clear();
             response(id, {
                 ...snapshot,
+                program: loadedProgram.program,
                 expressionWatches: [],
                 symbolWatches: [],
             });
+            break;
+        }
+        case "export-saved-program": {
+            const data = requireMachine().exportSavedProgram(message.index, message.format);
+            response(id, {data}, [data.buffer]);
+            break;
+        }
+        case "clear-program-saves": {
+            const current = requireMachine();
+            current.clearProgramSaves();
+            response(id, current.programSaves());
             break;
         }
         case "reset": {
@@ -655,6 +701,9 @@ async function dispatch(message) {
             const current = requireMachine();
             const view = normalizeReadableMachineView(current, message.view);
             current.reset();
+            if (message.calendarDateTime !== undefined) {
+                initializeBasicCalendar(current, message.calendarDateTime);
+            }
             clearKeyboardHoldState(current, true);
             resetAudioCollector();
             if (audioEnabled) {

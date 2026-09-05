@@ -29,6 +29,10 @@ if(EMSCRIPTEN)
         _jr800_machine_load_jr8rom
         _jr800_machine_load_program
         _jr800_machine_load_native_program_wav
+        _jr800_machine_get_program_saves
+        _jr800_machine_get_saved_program_info
+        _jr800_machine_export_saved_program
+        _jr800_machine_clear_program_saves
         _jr800_machine_reset
         _jr800_machine_get_state
         _jr800_machine_step
@@ -39,6 +43,7 @@ if(EMSCRIPTEN)
         _jr800_machine_advance_suspended_cycles
         _jr800_machine_advance_calendar_oscillator_ticks
         _jr800_machine_adjust_calendar_seconds
+        _jr800_machine_set_calendar_datetime
         _jr800_machine_set_keyboard_bus_response
         _jr800_machine_set_keyboard_key_state
         _jr800_machine_get_keyboard_activity
@@ -108,13 +113,21 @@ if(EMSCRIPTEN)
         keyboard-input.mjs
         virtual-keyboard-input.mjs
         virtual-keyboard-legends.mjs
+        rom-keyboard-glyphs.mjs
+        program-save-view.mjs
+        rom-storage.mjs
         run-pacer.mjs
         jr800-worker.mjs
         wasm-machine.mjs
     )
     set(JR800_WEB_ASSET_SOURCES ${JR800_WEB_ASSET_NAMES})
     list(TRANSFORM JR800_WEB_ASSET_SOURCES PREPEND "${PROJECT_SOURCE_DIR}/web/")
+    list(APPEND JR800_WEB_ASSET_SOURCES
+        "${PROJECT_SOURCE_DIR}/LICENSE"
+        "${PROJECT_SOURCE_DIR}/THIRD_PARTY_NOTICES.md"
+    )
     set(JR800_WEB_ASSET_OUTPUTS ${JR800_WEB_ASSET_NAMES})
+    list(APPEND JR800_WEB_ASSET_OUTPUTS LICENSE THIRD_PARTY_NOTICES.md)
     list(TRANSFORM JR800_WEB_ASSET_OUTPUTS PREPEND "${CMAKE_BINARY_DIR}/web-module/")
     add_custom_target(
         jr800_web_bundle ALL

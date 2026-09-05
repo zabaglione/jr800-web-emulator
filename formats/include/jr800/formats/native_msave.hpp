@@ -9,6 +9,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include "jr800/formats/jr8app.hpp"
 
 namespace jr800::formats {
 
@@ -25,6 +26,8 @@ enum class NativeMsaveIssueCode : std::uint8_t {
     invalid_length,
     invalid_program_range,
     ambiguous_header_byte_order,
+    invalid_basic_program,
+    unexpected_trailing_blocks,
 };
 
 enum class NativeMsaveByteOrder : std::uint8_t {
@@ -45,6 +48,7 @@ struct NativeMsaveIssue {
 };
 
 struct NativeMsaveFile {
+    jr8app::ProgramKind kind{jr8app::ProgramKind::machine_code};
     std::string filename;
     std::uint16_t start_address{};
     std::uint16_t execution_address{};
@@ -67,6 +71,17 @@ struct NativeMsaveDecodeResult {
 
 [[nodiscard]] NativeMsaveDecodeResult decode_native_program_wav(
     std::span<const std::uint8_t> wav_bytes
+);
+
+[[nodiscard]] jr8app::Application native_program_application(const NativeMsaveFile& file);
+
+// Native tape block bodies, without their additive checksums. The ROM supplies
+// these to its output services; validation is shared with WAV imports.
+[[nodiscard]] NativeMsaveDecodeResult decode_native_program_blocks(
+    std::span<const std::vector<std::uint8_t>> blocks
+);
+[[nodiscard]] std::vector<std::uint8_t> encode_native_program_wav(
+    const NativeMsaveFile& file
 );
 
 [[nodiscard]] std::string_view native_msave_issue_name(

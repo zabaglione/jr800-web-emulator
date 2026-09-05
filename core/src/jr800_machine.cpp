@@ -32,6 +32,25 @@ void apply_reset_flag(
 
 Jr800Machine::Jr800Machine() noexcept : execution_(bus_) {}
 
+std::unique_ptr<Jr800Machine> Jr800Machine::clone() const {
+    return std::unique_ptr<Jr800Machine>(new Jr800Machine(*this));
+}
+
+Jr800Machine::Jr800Machine(const Jr800Machine& source) noexcept
+    : bus_(source.bus_),
+      reset_state_configuration_(source.reset_state_configuration_),
+      execution_(bus_) {
+    execution_.initialize_known_state(
+        source.execution_.cpu().profile(), source.execution_.cpu().state());
+}
+
+void Jr800Machine::copy_state_from(const Jr800Machine& source) noexcept {
+    bus_.copy_state_from(source.bus_);
+    reset_state_configuration_ = source.reset_state_configuration_;
+    execution_.initialize_known_state(
+        source.execution_.cpu().profile(), source.execution_.cpu().state());
+}
+
 Jr800Machine::Jr800Machine(
     Jr800ExperimentalMachineConfiguration configuration
 ) noexcept : Jr800Machine(configuration, {}) {}
@@ -82,6 +101,29 @@ void Jr800Machine::host_start_program(
     );
     state.execution_state = CpuExecutionState::active;
     execution_.initialize_known_state(isa::CpuProfile::hd6301v1, state);
+}
+
+bool Jr800Machine::host_return_from_subroutine(
+    std::uint8_t accumulator_a, std::uint8_t condition_code
+) noexcept {
+    auto state = execution_.cpu().state();
+    if (!state.knowledge.knows(CpuRegister::stack_pointer) || state.sp > 0xFFFDU) {
+        return false;
+    }
+    bus_.set_instruction_context(state.cycle_count, state.pc);
+    const auto high = bus_.read8(static_cast<std::uint16_t>(state.sp + 1U), AccessKind::data_read);
+    const auto low = bus_.read8(static_cast<std::uint16_t>(state.sp + 2U), AccessKind::data_read);
+    if (!high.succeeded() || !low.succeeded()) return false;
+    state.pc = static_cast<std::uint16_t>((static_cast<std::uint16_t>(*high.value) << 8U) | *low.value);
+    state.sp = static_cast<std::uint16_t>(state.sp + 2U);
+    state.a = accumulator_a;
+    state.condition_code = static_cast<std::uint8_t>(condition_code | fixed_condition_code_bits);
+    state.knowledge.registers = static_cast<std::uint8_t>(state.knowledge.registers
+        | register_mask(CpuRegister::program_counter) | register_mask(CpuRegister::accumulator_a));
+    state.knowledge.condition_code = 0xFFU;
+    state.execution_state = CpuExecutionState::active;
+    execution_.initialize_known_state(isa::CpuProfile::hd6301v1, state);
+    return true;
 }
 
 void Jr800Machine::set_port1_pin_state(
@@ -143,6 +185,12 @@ Jr800Machine::adjust_calendar_seconds() noexcept {
 Jr800CalendarAlarmTerminalState
 Jr800Machine::calendar_alarm_terminal_state() const noexcept {
     return bus_.calendar_alarm_terminal_state();
+}
+
+Jr800CalendarOperationStatus Jr800Machine::set_calendar_datetime(
+    CalendarDateTime value
+) noexcept {
+    return bus_.set_calendar_datetime(value);
 }
 
 Hd6301v1Port2TimerOutputState

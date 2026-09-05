@@ -16,7 +16,12 @@ enum class LoadApplicationResult : std::uint8_t {
     unknown_profile,
     unreviewed_profile,
     segment_out_of_range,
+    entry_point_not_loaded,
     target_mismatch,
+    unsupported_basic_rom,
+    basic_not_ready,
+    invalid_basic_program,
+    basic_load_failed,
 };
 
 [[nodiscard]] LoadApplicationResult load_application(
@@ -27,7 +32,8 @@ enum class LoadApplicationResult : std::uint8_t {
 
 [[nodiscard]] LoadApplicationResult load_application(
     core::Jr800Machine& machine,
-    const formats::jr8app::Application& application
+    const formats::jr8app::Application& application,
+    bool run_after_load = true
 );
 
 }  // namespace jr800::runtime

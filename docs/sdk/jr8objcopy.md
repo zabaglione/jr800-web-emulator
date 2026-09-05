@@ -1,6 +1,6 @@
 # jr8objcopyで格納済みバイトを抽出する
 
-`jr8objcopy`はJR8APPバージョン1またはJROバージョン1を検証し、明示した範囲だけを取り出します。
+`jr8objcopy`はJR8APPバージョン2またはJROバージョン1を検証し、明示した範囲だけを取り出します。
 
 ```sh
 jr8objdump linked.j8a

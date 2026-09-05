@@ -179,22 +179,22 @@
                             <button class="virtual-key" type="button" data-jr800-key="home-cls" data-legend-key="home-cls" disabled><span data-key-legend>CLS</span></button>
                         </div>
                         <div class="virtual-keypad" aria-label="Numeric keypad">
-                            <button class="virtual-key" type="button" data-jr800-key="keypad-7" disabled><span>7</span></button>
-                            <button class="virtual-key" type="button" data-jr800-key="keypad-8" disabled><span>8</span></button>
-                            <button class="virtual-key" type="button" data-jr800-key="keypad-9" disabled><span>9</span></button>
-                            <button class="virtual-key" type="button" data-jr800-key="keypad-divide" disabled><span>/</span></button>
-                            <button class="virtual-key" type="button" data-jr800-key="keypad-4" disabled><span>4</span></button>
-                            <button class="virtual-key" type="button" data-jr800-key="keypad-5" disabled><span>5</span></button>
-                            <button class="virtual-key" type="button" data-jr800-key="keypad-6" disabled><span>6</span></button>
-                            <button class="virtual-key" type="button" data-jr800-key="keypad-multiply" disabled><span>*</span></button>
-                            <button class="virtual-key" type="button" data-jr800-key="keypad-1" disabled><span>1</span></button>
-                            <button class="virtual-key" type="button" data-jr800-key="keypad-2" disabled><span>2</span></button>
-                            <button class="virtual-key" type="button" data-jr800-key="keypad-3" disabled><span>3</span></button>
-                            <button class="virtual-key" type="button" data-jr800-key="keypad-subtract" disabled><span>-</span></button>
-                            <button class="virtual-key" type="button" data-jr800-key="keypad-0" disabled><span>0</span></button>
-                            <button class="virtual-key" type="button" data-jr800-key="keypad-decimal" disabled><span>.</span></button>
-                            <button class="virtual-key" type="button" data-jr800-key="keypad-equal" disabled><span>=</span></button>
-                            <button class="virtual-key" type="button" data-jr800-key="keypad-add" disabled><span>+</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-7" data-legend-key="keypad-7" disabled><span data-key-legend>7</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-8" data-legend-key="keypad-8" disabled><span data-key-legend>8</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-9" data-legend-key="keypad-9" disabled><span data-key-legend>9</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-divide" data-legend-key="keypad-divide" disabled><span data-key-legend>/</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-4" data-legend-key="keypad-4" disabled><span data-key-legend>4</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-5" data-legend-key="keypad-5" disabled><span data-key-legend>5</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-6" data-legend-key="keypad-6" disabled><span data-key-legend>6</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-multiply" data-legend-key="keypad-multiply" disabled><span data-key-legend>*</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-1" data-legend-key="keypad-1" disabled><span data-key-legend>1</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-2" data-legend-key="keypad-2" disabled><span data-key-legend>2</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-3" data-legend-key="keypad-3" disabled><span data-key-legend>3</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-subtract" data-legend-key="keypad-subtract" disabled><span data-key-legend>-</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-0" data-legend-key="keypad-0" disabled><span data-key-legend>0</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-decimal" data-legend-key="keypad-decimal" disabled><span data-key-legend>.</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-equal" data-legend-key="keypad-equal" disabled><span data-key-legend>=</span></button>
+                            <button class="virtual-key" type="button" data-jr800-key="keypad-add" data-legend-key="keypad-add" disabled><span data-key-legend>+</span></button>
                         </div>
                     </div>
                 </div>
@@ -207,7 +207,7 @@
                     <p class="section-index">02</p>
                     <h2 id="load-heading">Target image</h2>
                 </div>
-                <p>Choose a local JR8ROM container, then start BASIC or a RAM program. Files remain in this browser session.</p>
+                <p>Choose a local ROM or use the remembered ROM, then start BASIC or a RAM program.</p>
             </div>
             <div class="loader-grid">
                 <article class="loader-card">
@@ -216,6 +216,9 @@
                         <span class="chip">J8R / RAW</span>
                     </div>
                     <p>Load one owner-provided J8R container or 32 KiB raw ROM for addresses $8000-$FFFF.</p>
+                    <p id="saved-rom-status" role="status">No ROM remembered in this browser.</p>
+                    <button id="forget-rom" type="button" disabled>Forget remembered ROM</button>
+                    <p>After a successful load, the ROM and BASIC startup options are remembered in this browser. On your next visit, press Start BASIC to load the remembered ROM.</p>
                     <span id="raw-rom-warning" hidden>&#12489;&#12461;&#12517;&#12513;&#12531;&#12488;&#12395;&#24467;&#12387;&#12390;&#23455;&#27231;&#12391;&#37682;&#38899;&#12375;&#12383;WAV&#12501;&#12449;&#12452;&#12523;&#12434; .j8r &#12395;&#22793;&#25563;&#12375;&#12390;&#12367;&#12384;&#12373;&#12356;&#12290;&#20966;&#29702;&#12399;&#32154;&#34892;&#12375;&#12414;&#12377;&#12290;</span>
                     <div class="rom-load-grid">
                         <label class="file-field">
@@ -229,20 +232,33 @@
                     </div>
                     <label class="check-field"><input id="ignore-unsupported-io" type="checkbox" checked><span>Continue past unsupported I/O</span></label>
                     <p>Unsupported reads return $FF; writes are discarded. Applies when loading a ROM.</p>
+                    <label class="check-field"><input id="browser-calendar-startup" type="checkbox" checked><span>Start BASIC with the browser's current date and time</span></label>
+                    <p>Sets local date, time, weekday and leap-year state once at BASIC startup (2000-2099). Uncheck to keep the original startup values. WAKE alarm and wake-up are unsupported.</p>
                     <div class="rom-run-actions">
                         <button id="resume-machine" type="button" disabled>Resume emulation</button>
                         <button id="pause-basic" type="button" disabled>Pause</button>
                     </div>
                     <div class="rom-load-grid">
                         <label class="file-field">
-                            <span>RAM program .WAV / .J8A</span>
+                            <span>Program .WAV / .J8A</span>
                             <input id="hardware-program-file" type="file" accept=".wav,.j8a,audio/wav,application/octet-stream" disabled>
                         </label>
                         <div class="rom-load-actions">
-                    <button id="load-program" type="button" disabled>Load and run RAM program</button>
+                            <button id="load-program-only" type="button" disabled>Load program</button>
+                            <button id="load-program" type="button" disabled>Load and run program</button>
                         </div>
                     </div>
-                    <p class="privacy-note">WAV files are converted locally. The JR8ROM and RAM program stay in local Worker memory. They are neither uploaded nor persistently stored by this page.</p>
+                    <p id="program-info" role="status"></p>
+                    <section class="program-saves" aria-labelledby="program-saves-heading">
+                        <h3 id="program-saves-heading">Save data to a file</h3>
+                        <p>Run SAVE or MSAVE in BASIC. When saving finishes, download the result as J8A or WAV. SAVE with the A option is also supported.</p>
+                        <p id="program-saves-status" role="status">Start a supported BASIC ROM to capture saves.</p>
+                        <ul id="program-saves-list"></ul>
+                        <button id="clear-program-saves" type="button" disabled>Clear saved data list</button>
+                        <p>Up to 32 saves are kept in this session. Download them before loading another ROM or closing this page.</p>
+                    </section>
+                    <p class="privacy-note">BASIC and machine-code programs are detected automatically. BASIC loading requires a supported BASIC ROM at its command prompt.</p>
+                    <p class="privacy-note">WAV files are converted locally. ROMs are remembered only in this browser; programs and working RAM last only for this session. These files are never uploaded.</p>
 
                     <details class="configuration">
                         <summary>Explicit experimental configuration</summary>
@@ -326,7 +342,7 @@
             </div>
         </section>
         <section class="control-strip" aria-label="Execution controls">
-            <button id="reset" type="button" disabled>Reset</button>
+            <button id="reset" type="button" disabled>Restart (clear RAM)</button>
             <button id="run" class="primary" type="button" disabled>Run</button>
             <button id="pause" type="button" disabled>Pause</button>
             <button id="step" type="button" disabled>Step</button>
