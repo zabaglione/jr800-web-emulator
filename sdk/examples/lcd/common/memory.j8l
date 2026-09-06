@@ -1,0 +1,9 @@
+target hd6301v1
+entry entry
+region PROGRAM $2800 $1800
+region FRAME $4000 $0600
+region STATE $4600 $0100
+place .text PROGRAM
+place .data PROGRAM
+place .frame FRAME
+place .bss STATE

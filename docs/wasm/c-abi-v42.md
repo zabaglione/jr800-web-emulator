@@ -1,4 +1,4 @@
-# JR-800 WASM C ABI 41
+# JR-800 WASM C ABI 42
 
 ## Purpose
 
@@ -7,7 +7,7 @@ execution boundary. It keeps C++ layouts, exceptions, containers, and debugger
 ownership out of JavaScript while exposing structured records to one module
 Worker.
 
-ABI 41 replaces ABI 40 without a compatibility adapter. It retains the synthetic
+ABI 42 replaces ABI 41 without a compatibility adapter. It retains the synthetic
 JR8APP and explicitly configured JR-800 session kinds and the fixed-size
 three-state LCD matrix snapshot and mode-based memory watchpoints behind the
 same opaque handle. It retains bounded run-to-address, metadata-driven
@@ -77,6 +77,23 @@ program, and BASIC load failed. WAV issues 13/14 mean invalid BASIC data and
 unexpected trailing blocks. The Worker forwards numeric status and native WAV
 issue details for localized user-facing errors, and returns a `program` record
 with `kind`, `byteLength`, and `nameBytes` on successful loading.
+
+## Machine checkpoints in ABI 42
+
+`jr800_machine_export_state(machine, bytes, capacity, byte_count)` exports CPU,
+RAM, LCD, timer, serial and port state. NULL/zero queries the output size.
+`jr800_machine_import_state(machine, bytes, byte_count)` restores it transactionally.
+The format is explicitly versioned and checked with SHA-256. The envelope contains
+a ROM fingerprint, never ROM bytes; a different ROM is rejected.
+RTC state is excluded and remains at the destination's current time and settings.
+The browser can update it from the current browser time on restore.
+Saving during an active SAVE/MSAVE capture is rejected; already exported files,
+debugger configuration and browser audio buffers are not checkpoint contents.
+The machine is paused on restoration. The snapshot remains available until replaced.
+
+The adapter exposes `exportState()` and `importState(bytes)`; corresponding Worker
+commands are `export-state` and `import-state`. Both require idle execution.
+`release-keyboard` clears deferred physical key input before checkpoint capture.
 
 ## Restart and data-only programs in ABI 41
 
@@ -781,6 +798,6 @@ knownness; the browser renders an unknown byte as `??`.
 ## Versioning
 
 `jr800_machine_abi_version` and the state record's `abi_version` word both
-return 41. Any later incompatible layout or semantic change must increment the
+return 42. Any later incompatible layout or semantic change must increment the
 version and update the C header, JavaScript adapter, Worker, and Native/WASM
 tests together.

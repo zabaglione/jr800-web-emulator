@@ -23,6 +23,9 @@ import {
 import {jr800KeyForHostCode} from "./keyboard-input.mjs";
 import {savedProgramFilename} from "./program-save-view.mjs";
 import {readSavedRom, writeSavedRom, deleteSavedRom} from "./rom-storage.mjs";
+import {relicDiveResult, recordRelicDiveGold, RELIC_DIVE_STATE_ADDRESS,
+    RELIC_DIVE_STATE_LENGTH} from "./relic-dive.mjs";
+import {readMachineState, writeMachineState} from "./machine-state-storage.mjs";
 import {
     Jr800VirtualKeyboardState,
     Jr800TypingRollover,
@@ -115,6 +118,7 @@ class WorkerClient {
         const listeners = this.listeners.get(name) ?? [];
         listeners.push(listener);
         this.listeners.set(name, listeners);
+        return () => this.listeners.set(name, (this.listeners.get(name) ?? []).filter(value => value !== listener));
     }
 
     request(command, fields = {}, transfer = []) {
@@ -149,6 +153,7 @@ const elements = Object.fromEntries(
         "ignore-unsupported-io", "ignored-io-access-count", "browser-calendar-startup",
         "resume-machine", "pause-basic", "power-on", "power-off",
         "hardware-program-file", "load-program", "load-program-only", "program-info",
+        "relic-dive-gold", "machine-state-save", "machine-state-restore", "machine-state-status", "relic-dive-status",
         "program-saves-status", "program-saves-list", "clear-program-saves",
         "reset-sp-enabled", "reset-sp-value",
         "reset-x-enabled", "reset-x-value",
@@ -487,6 +492,8 @@ function releaseAllVirtualKeys(sendToMachine = true) {
 }
 
 function setControls() {
+    elements["machine-state-save"].disabled = !loaded || machineKind !== "jr800";
+    elements["machine-state-restore"].disabled = !loaded || machineKind !== "jr800";
     elements.load.disabled = !initialized || running || romOperationPending;
     elements["load-rom"].disabled = !initialized || running || romOperationPending;
     elements["boot-basic"].disabled = elements["load-rom"].disabled;
@@ -1675,6 +1682,47 @@ async function startBasicRun(status = "BASIC running") {
     }
 }
 
+async function pauseForMachineState() {
+    basicRunContinuous = false;
+    if (running) {
+        const stopped = new Promise((resolve, reject) => {
+            const off = client.on("stopped", message => { clearTimeout(timer); off(); resolve(message); });
+            const timer = setTimeout(() => { off(); reject(new Error("Machine did not pause")); }, 20000);
+        });
+        await client.request("pause");
+        await stopped;
+    }
+    releaseAllVirtualKeys(false);
+    await client.request("release-keyboard");
+    await keyboardTransitionTail.catch(() => {});
+    await client.request("release-keyboard");
+}
+
+elements["machine-state-save"].addEventListener("click", () => {
+    void perform(async () => {
+        await pauseForMachineState();
+        const {data} = await client.request("export-state");
+        await writeMachineState(location.pathname, data);
+        elements["machine-state-status"].textContent = "Machine state saved in this browser. The machine is paused.";
+    }, "Saving machine state").catch(error => {
+        elements["machine-state-status"].textContent = `${error.message}. Any previous saved state is unchanged.`;
+    });
+});
+elements["machine-state-restore"].addEventListener("click", () => {
+    void perform(async () => {
+        const data = await readMachineState(location.pathname);
+        if (data === null) throw new Error("No machine state is saved here");
+        await pauseForMachineState();
+        const calendarDateTime = elements["browser-calendar-startup"].checked ? browserCalendarDateTime() : undefined;
+        const result = await client.request("import-state", {data, view: viewOptions(), calendarDateTime});
+        render(result);
+        elements["machine-state-status"].textContent = "Machine state restored. RTC was not rolled back. Press Resume to continue.";
+        setControls();
+    }, "Restoring machine state").catch(error => {
+        elements["machine-state-status"].textContent = error.message;
+    });
+});
+
 for (const id of ["resume-machine", "power-on"]) {
     elements[id].addEventListener("click", () => {
         void perform(() => startBasicRun()).catch(() => {
@@ -2258,3 +2306,21 @@ void perform(async () => {
     );
     setControls();
 }, "Initializing worker").catch(() => {});
+
+elements["relic-dive-gold"].addEventListener("click", () => {
+    void perform(async () => {
+        const snapshot = await client.request("snapshot", {view: {
+            memoryAddress: RELIC_DIVE_STATE_ADDRESS, memoryLength: RELIC_DIVE_STATE_LENGTH,
+        }});
+        const result = relicDiveResult(snapshot.memory.bytes);
+        const best = recordRelicDiveGold(localStorage, location.pathname, result);
+        elements["relic-dive-status"].textContent = `GOLD ${result.gold}. Best: EASY ${best[0]} / NORMAL ${best[1]} / HARD ${best[2]}`;
+    }).catch(error => { elements["relic-dive-status"].textContent = error.message; });
+});
+
+try {
+    const best = recordRelicDiveGold(localStorage, location.pathname);
+    elements["relic-dive-status"].textContent = `Best GOLD: EASY ${best[0]} / NORMAL ${best[1]} / HARD ${best[2]}`;
+} catch (error) {
+    elements["relic-dive-status"].textContent = `GOLD records unavailable: ${error.message}`;
+}

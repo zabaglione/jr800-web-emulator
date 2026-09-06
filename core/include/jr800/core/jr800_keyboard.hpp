@@ -125,6 +125,7 @@ public:
     [[nodiscard]] Jr800KeyboardActivity activity() const noexcept;
 
 private:
+    friend class MachineStateCodec;
     static constexpr std::uint16_t base_address = 0x0C00U;
     static constexpr std::size_t address_count = 0x0400U;
 

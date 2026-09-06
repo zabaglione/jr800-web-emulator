@@ -1,4 +1,4 @@
-if(EXISTS "${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v41.md")
+if(EXISTS "${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v42.md")
     add_test(
         NAME abi_version_contract
         COMMAND
@@ -6,7 +6,7 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v41.md")
             ${CMAKE_CURRENT_SOURCE_DIR}/abi_version_contract_test.py
             --header ${PROJECT_SOURCE_DIR}/wasm/include/jr800/wasm/api.h
             --adapter ${PROJECT_SOURCE_DIR}/web/wasm-machine.mjs
-            --document ${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v41.md
+            --document ${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v42.md
     )
     set_tests_properties(
         abi_version_contract
@@ -17,6 +17,9 @@ endif()
 
 if(EMSCRIPTEN)
     find_program(NODE_EXECUTABLE node REQUIRED)
+    add_test(NAME relic_dive_host COMMAND ${NODE_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/relic_dive_host_test.mjs
+        $<TARGET_FILE_DIR:jr800_wasm>/relic-dive.mjs)
     add_test(
         NAME program_save_view
         COMMAND ${NODE_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/program_save_view_test.mjs
@@ -214,6 +217,10 @@ else()
     add_executable(jr800_bus_test jr800_bus_test.cpp)
     target_link_libraries(jr800_bus_test PRIVATE jr800::core)
     add_test(NAME jr800_bus_test COMMAND jr800_bus_test)
+
+    add_executable(machine_state_test machine_state_test.cpp)
+    target_link_libraries(machine_state_test PRIVATE jr800::core)
+    add_test(NAME machine_state_test COMMAND machine_state_test)
 
     add_executable(jr800_machine_test jr800_machine_test.cpp)
     target_link_libraries(jr800_machine_test PRIVATE jr800::debugger)

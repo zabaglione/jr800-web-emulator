@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: MIT
+import assert from "node:assert/strict";
+import {pathToFileURL} from "node:url";
+const {relicDiveHeader} = await import(pathToFileURL(process.argv[2]).href);
+const header = new Uint8Array(57); header.set([82, 68, 48, 49, 1, 7]); header[55] = 0x29;
+assert.deepEqual(relicDiveHeader(header), {suspended: true, mode: 7, readyAddress: 0x2900});
+header[4] = 0; header[5] = 1; assert.equal(relicDiveHeader(header).suspended, false);
+header[3] = 50; assert.throws(() => relicDiveHeader(header), /compatible/);
+header[3] = 49; header[55] = 0x80; assert.throws(() => relicDiveHeader(header), /checkpoint address/);
+assert.throws(() => relicDiveHeader(new Uint8Array(4)), /compatible/);
+console.log("RELIC DIVE checkpoint protocol and GOLD checks passed");
+const {relicDiveResult, recordRelicDiveGold} = await import(pathToFileURL(process.argv[2]).href);
+header[55] = 0x29; header[5] = 9; header[6] = 2; header[21] = 255; header[22] = 255;
+assert.deepEqual(relicDiveResult(header), {difficulty: 2, gold: 65535, cleared: true});
+const records = new Map();
+const storage = {getItem: key => records.get(key) ?? null, setItem: (key, value) => records.set(key, value)};
+assert.deepEqual(recordRelicDiveGold(storage, '/index.html', relicDiveResult(header)), [0, 0, 65535]);
+header[5] = 8; header[21] = 0; header[22] = 10;
+assert.deepEqual(recordRelicDiveGold(storage, '/', relicDiveResult(header)), [0, 0, 65535]);
+header[6] = 1;
+assert.deepEqual(recordRelicDiveGold(storage, '/', relicDiveResult(header)), [0, 10, 65535]);
+header[5] = 1; assert.throws(() => relicDiveResult(header), /Finish/);
+assert.throws(() => recordRelicDiveGold({getItem: () => '[null,0,0]'}, '/', {difficulty: 0, gold: 1}), /Invalid/);

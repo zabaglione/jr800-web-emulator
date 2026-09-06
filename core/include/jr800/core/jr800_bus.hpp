@@ -204,6 +204,7 @@ public:
     ignored_io_access_count() const noexcept;
 
 private:
+    friend class MachineStateCodec;
     friend class Jr800Machine;
     Jr800Bus(const Jr800Bus& source) noexcept;
     void copy_state_from(const Jr800Bus& source) noexcept;

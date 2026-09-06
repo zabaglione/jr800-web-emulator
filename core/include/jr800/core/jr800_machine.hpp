@@ -7,6 +7,7 @@
 #include <optional>
 #include <memory>
 #include <span>
+#include <vector>
 
 #include "jr800/core/jr800_bus.hpp"
 #include "jr800/core/machine.hpp"
@@ -61,6 +62,10 @@ public:
         Jr800ExperimentalMachineConfiguration configuration,
         Jr800ExperimentalResetStateConfiguration reset_state_configuration
     ) noexcept;
+
+    // Versioned host state. ROM and RTC are deliberately excluded.
+    [[nodiscard]] std::vector<std::uint8_t> save_state() const;
+    void restore_state(std::span<const std::uint8_t> bytes);
 
     // Isolated host import transactions copy device/CPU state, not observers.
     [[nodiscard]] std::unique_ptr<Jr800Machine> clone() const;

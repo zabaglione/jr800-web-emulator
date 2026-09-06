@@ -728,6 +728,30 @@ int main() {
                 == state_before_mixed_program.cycle_count_high,
         "Rejected multi-segment RAM program partially changed the machine"
     );
+    // Complete machine checkpoints are transactional and ROM-bound.
+    std::uint32_t state_size{};
+    passed &= expect(jr800_machine_export_state(program_machine, nullptr, 0, &state_size)
+        == JR800_STATUS_OK && state_size > 68, "State size query failed");
+    std::vector<std::uint8_t> saved_state(state_size, 0xA5);
+    passed &= expect(jr800_machine_export_state(program_machine, saved_state.data(), state_size - 1, &state_size)
+        == JR800_STATUS_BUFFER_TOO_SMALL && saved_state[0] == 0xA5, "Small state buffer modified");
+    passed &= expect(jr800_machine_export_state(program_machine, saved_state.data(), state_size, &state_size)
+        == JR800_STATUS_OK, "State export failed");
+    auto damaged_state = saved_state; damaged_state.back() ^= 1;
+    passed &= expect(jr800_machine_import_state(program_machine, damaged_state.data(), state_size)
+        == JR800_STATUS_INVALID_APPLICATION, "Corrupt state accepted");
+    damaged_state = saved_state; damaged_state[4] ^= 1;
+    passed &= expect(jr800_machine_import_state(program_machine, damaged_state.data(), state_size)
+        == JR800_STATUS_TARGET_MISMATCH, "Wrong ROM state accepted");
+    passed &= expect(jr800_machine_import_state(program_machine, saved_state.data(), state_size)
+        == JR800_STATUS_OK, "State restore failed");
+    std::vector<std::uint8_t> state_again(state_size);
+    passed &= expect(jr800_machine_export_state(program_machine, state_again.data(), state_size, &state_size)
+        == JR800_STATUS_OK && state_again == saved_state, "State round trip changed bytes");
+    passed &= expect(jr800_machine_get_state(program_machine, &program_state) == JR800_STATUS_OK
+        && program_state.pc == state_before_mixed_program.pc
+        && program_state.cycle_count_low == state_before_mixed_program.cycle_count_low,
+        "State restore changed CPU position");
     const std::array<std::uint8_t, 4U> invalid_wav{'R', 'I', 'F', 'F'};
     jr800_native_program_wav_issue wav_issue{0xFFFFU, 0xFFFFU};
     passed &= expect(

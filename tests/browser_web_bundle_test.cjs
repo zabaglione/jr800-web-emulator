@@ -86,7 +86,7 @@ const {chromium} = require('playwright');
         page.on('pageerror', error => pageErrors.push(error.message));
         await page.reload();
         await page.waitForFunction(() => document.querySelector('#status').dataset.tone === 'ready');
-        assert.match(await page.locator('#status').textContent(), /ABI 41/);
+        assert.match(await page.locator('#status').textContent(), /ABI 42/);
         assert.equal(await page.locator('#ignore-unsupported-io').isChecked(), true);
         const rom = Buffer.alloc(32768, 1);
         // LDAA #0; STAA unmapped $0300; BRA-to-self. No owner ROM is used.
@@ -105,7 +105,7 @@ const {chromium} = require('playwright');
         for (const name of ['app.mjs', 'jr800-worker.mjs', 'wasm-machine.mjs', 'jr800_wasm.mjs', 'jr800_wasm.wasm', 'locale-ja.json']) {
             assert.ok(requests.some(item => item.phase === 'published' && item.pathname === prefix + name), name);
         }
-        console.log('Reproduced cached ABI 36; ordinary reload loaded ABI 41 and continued past synthetic I/O');
+        console.log('Reproduced cached ABI 36; ordinary reload loaded ABI 42 and continued past synthetic I/O');
     } finally {
         if (browser) await browser.close();
         await new Promise(resolve => server.close(resolve));

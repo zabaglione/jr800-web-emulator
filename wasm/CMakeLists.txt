@@ -32,6 +32,8 @@ if(EMSCRIPTEN)
         _jr800_machine_get_program_saves
         _jr800_machine_get_saved_program_info
         _jr800_machine_export_saved_program
+        _jr800_machine_export_state
+        _jr800_machine_import_state
         _jr800_machine_clear_program_saves
         _jr800_machine_reset
         _jr800_machine_get_state
@@ -116,6 +118,8 @@ if(EMSCRIPTEN)
         rom-keyboard-glyphs.mjs
         program-save-view.mjs
         rom-storage.mjs
+        machine-state-storage.mjs
+        relic-dive.mjs
         run-pacer.mjs
         jr800-worker.mjs
         wasm-machine.mjs

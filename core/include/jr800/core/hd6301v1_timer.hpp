@@ -64,6 +64,7 @@ public:
         const noexcept;
 
 private:
+    friend class MachineStateCodec;
     static constexpr std::uint16_t control_status_address = 0x0008U;
     static constexpr std::uint16_t free_running_counter_high_address = 0x0009U;
     static constexpr std::uint16_t free_running_counter_low_address = 0x000AU;

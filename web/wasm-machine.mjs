@@ -313,7 +313,7 @@ const SYMBOL_WATCH_WORDS = 6;
 const KEYBOARD_ACTIVITY_WORDS = 4;
 const LCD_INDICATOR_RAW_WORDS = 2;
 const NATIVE_PROGRAM_WAV_ISSUE_WORDS = 2;
-const WASM_ABI_VERSION = 41;
+const WASM_ABI_VERSION = 42;
 
 function checkedWatchpointMode(mode) {
     if (typeof mode !== "string"
@@ -811,6 +811,8 @@ export class WasmMachine {
             getProgramSaves: bind("jr800_machine_get_program_saves", "number", ["number", "number"]),
             getSavedProgramInfo: bind("jr800_machine_get_saved_program_info", "number", ["number", "number", "number"]),
             exportSavedProgram: bind("jr800_machine_export_saved_program", "number", ["number", "number", "number", "number", "number", "number"]),
+            importState: bind("jr800_machine_import_state", "number", ["number", "number", "number"]),
+            exportState: bind("jr800_machine_export_state", "number", ["number", "number", "number", "number"]),
             clearProgramSaves: bind("jr800_machine_clear_program_saves", "number", ["number"]),
             reset: bind("jr800_machine_reset", "number", ["number"]),
             getState: bind("jr800_machine_get_state", "number", ["number", "number"]),
@@ -2059,6 +2061,24 @@ export class WasmMachine {
             }
             return {state: ["unavailable", "idle", "recording", "failed", "full"][state], files};
         });
+    }
+
+    exportState() {
+        this.#requireHandle();
+        return this.#allocate(4, sizePointer => {
+            this.#check("export-state", this.functions.exportState(this.handle, 0, 0, sizePointer));
+            const size = this.#readWords(sizePointer, 1)[0];
+            return this.#allocate(size, pointer => {
+                this.#check("export-state", this.functions.exportState(this.handle, pointer, size, sizePointer));
+                return this.module.HEAPU8.slice(pointer, pointer + size);
+            });
+        });
+    }
+
+    importState(bytes) {
+        this.#requireHandle();
+        return this.#withInput(bytes, (pointer, length) =>
+            this.#check("import-state", this.functions.importState(this.handle, pointer, length)));
     }
 
     exportSavedProgram(index, format) {

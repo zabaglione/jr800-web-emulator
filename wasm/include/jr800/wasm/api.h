@@ -11,7 +11,7 @@ extern "C" {
 #define JR800_NODISCARD
 #endif
 
-#define JR800_WASM_ABI_VERSION 41U
+#define JR800_WASM_ABI_VERSION 42U
 #define JR800_HARDWARE_CONFIGURATION_WORD_COUNT 32U
 #define JR800_STATE_WORD_COUNT 21U
 #define JR800_STOP_WORD_COUNT 24U
@@ -631,6 +631,16 @@ JR800_NODISCARD jr800_status jr800_machine_get_saved_program_info(
 JR800_NODISCARD jr800_status jr800_machine_export_saved_program(
     const jr800_machine* machine, uint32_t index, uint32_t format,
     uint8_t* bytes, uint32_t capacity, uint32_t* byte_count
+);
+
+/* Versioned host checkpoint; includes CPU and devices, excludes ROM and RTC.
+ * Import preserves the current RTC and rejects a different ROM or corrupt data.
+ * Export is unavailable during SAVE/MSAVE capture. NULL/0 queries the size. */
+JR800_NODISCARD jr800_status jr800_machine_export_state(
+    const jr800_machine* machine, uint8_t* bytes, uint32_t capacity, uint32_t* byte_count
+);
+JR800_NODISCARD jr800_status jr800_machine_import_state(
+    jr800_machine* machine, const uint8_t* bytes, uint32_t byte_count
 );
 JR800_NODISCARD jr800_status jr800_machine_clear_program_saves(jr800_machine* machine);
 

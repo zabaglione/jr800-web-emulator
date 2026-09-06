@@ -185,6 +185,7 @@ public:
     ) const noexcept;
 
 private:
+    friend class MachineStateCodec;
     std::array<Hd44102, controller_count> controllers_{};
 };
 

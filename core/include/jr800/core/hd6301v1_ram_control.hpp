@@ -35,6 +35,7 @@ public:
     [[nodiscard]] std::optional<bool> standby_power_valid() const noexcept;
 
 private:
+    friend class MachineStateCodec;
     static constexpr std::uint16_t register_address = 0x0014U;
     static constexpr std::uint8_t standby_mask = 0x80U;
     static constexpr std::uint8_t ram_enable_mask = 0x40U;

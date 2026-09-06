@@ -63,6 +63,7 @@ public:
     ) const noexcept;
 
 private:
+    friend class MachineStateCodec;
     struct PendingDisplayWrite {
         std::uint8_t x{};
         std::uint8_t y{};

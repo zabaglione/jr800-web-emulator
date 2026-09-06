@@ -135,6 +135,7 @@ public:
     [[nodiscard]] bool rom_loaded() const noexcept;
 
 private:
+    friend class MachineStateCodec;
     static constexpr std::uint16_t internal_ram_base = 0x0080U;
     static constexpr std::uint16_t standard_ram_base = 0x2000U;
     static constexpr std::uint16_t expansion_ram_base = 0x6000U;

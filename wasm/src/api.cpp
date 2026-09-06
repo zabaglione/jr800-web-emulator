@@ -1554,6 +1554,55 @@ jr800_status jr800_machine_export_saved_program(const jr800_machine* machine,
     } catch (const std::exception&) { return JR800_STATUS_INTERNAL_ERROR; }
 }
 
+// Host checkpoint envelope: magic/version, ROM hash, payload hash, core payload.
+static auto state_rom_hash(const jr800_machine* machine) {
+    std::vector<std::uint8_t> rom(32768);
+    for (std::size_t i = 0; i < rom.size(); ++i)
+        rom[i] = *machine->execution().inspect8(static_cast<std::uint16_t>(0x8000U + i)).value;
+    return jr800::formats::sha256(rom);
+}
+jr800_status jr800_machine_export_state(const jr800_machine* machine,
+    std::uint8_t* bytes, std::uint32_t capacity, std::uint32_t* byte_count) {
+    if (!machine || !byte_count || (!bytes && capacity)) return JR800_STATUS_INVALID_ARGUMENT;
+    if (machine->kind != MachineKind::jr800) return JR800_STATUS_WRONG_MACHINE_KIND;
+    if (!machine->logical_rom_loaded) return JR800_STATUS_NO_ROM;
+    if (machine->program_saves && machine->program_saves->state() == jr800::runtime::ProgramSaveState::recording)
+        return JR800_STATUS_INVALID_ARGUMENT;
+    try {
+        const auto payload = machine->hardware_machine->save_state();
+        const auto rom_hash = state_rom_hash(machine);
+        const auto hash = jr800::formats::sha256(payload);
+        std::vector<std::uint8_t> encoded{'J','8','S',1};
+        encoded.insert(encoded.end(), rom_hash.begin(), rom_hash.end());
+        encoded.insert(encoded.end(), hash.begin(), hash.end());
+        encoded.insert(encoded.end(), payload.begin(), payload.end());
+        *byte_count = static_cast<std::uint32_t>(encoded.size());
+        if (!bytes) return JR800_STATUS_OK;
+        if (capacity < encoded.size()) return JR800_STATUS_BUFFER_TOO_SMALL;
+        std::copy(encoded.begin(), encoded.end(), bytes);
+        return JR800_STATUS_OK;
+    } catch (const std::exception&) { return JR800_STATUS_INTERNAL_ERROR; }
+}
+jr800_status jr800_machine_import_state(jr800_machine* machine,
+    const std::uint8_t* bytes, std::uint32_t byte_count) {
+    if (!machine || !bytes) return JR800_STATUS_INVALID_ARGUMENT;
+    if (machine->kind != MachineKind::jr800) return JR800_STATUS_WRONG_MACHINE_KIND;
+    if (!machine->logical_rom_loaded) return JR800_STATUS_NO_ROM;
+    try {
+        if (byte_count < 68 || byte_count > 131072 || bytes[0] != 'J' || bytes[1] != '8'
+            || bytes[2] != 'S' || bytes[3] != 1) return JR800_STATUS_INVALID_APPLICATION;
+        const auto rom_hash = state_rom_hash(machine);
+        if (!std::equal(rom_hash.begin(), rom_hash.end(), bytes + 4)) return JR800_STATUS_TARGET_MISMATCH;
+        const std::span<const std::uint8_t> payload(bytes + 68, byte_count - 68);
+        const auto hash = jr800::formats::sha256(payload);
+        if (!std::equal(hash.begin(), hash.end(), bytes + 36)) return JR800_STATUS_INVALID_APPLICATION;
+        machine->hardware_machine->restore_state(payload);
+        machine->debugger.clear_history();
+        if (machine->program_saves) machine->program_saves->reset();
+        return JR800_STATUS_OK;
+    } catch (const std::exception&) { return JR800_STATUS_INVALID_APPLICATION; }
+}
+
 jr800_status jr800_machine_clear_program_saves(jr800_machine* machine) {
     if (machine == nullptr) return JR800_STATUS_INVALID_ARGUMENT;
     if (!machine->program_saves) return JR800_STATUS_OK;

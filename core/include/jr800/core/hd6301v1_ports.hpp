@@ -57,6 +57,7 @@ public:
     [[nodiscard]] std::uint8_t port4_data_direction() const noexcept;
 
 private:
+    friend class MachineStateCodec;
     static constexpr std::uint16_t port1_data_direction_address = 0x0000U;
     static constexpr std::uint16_t port2_data_direction_address = 0x0001U;
     static constexpr std::uint16_t port1_data_address = 0x0002U;

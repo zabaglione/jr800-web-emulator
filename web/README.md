@@ -217,10 +217,15 @@ node tests/browser_web_bundle_test.cjs build/wasm-release/web
 ```
 
 独自の小さなWASMでABI 36のキャッシュを作り、同じURLのファイル差し替えだけではエラーが残ることを確認します。
-続いてキャッシュを消さずに更新後の画面を再読み込みし、ABI 41の起動と合成ROMによる未対応I/Oの継続を検証します。実機ROMは使用しません。
+続いてキャッシュを消さずに更新後の画面を再読み込みし、ABI 42の起動と合成ROMによる未対応I/Oの継続を検証します。実機ROMは使用しません。
 
 ROMの永続保存と配下URLでの動作は、PlaywrightとChromeが利用できる環境で次の検査を実行できます。市販ROMは不要です。
 
 ```sh
 node tests/browser_rom_storage_test.cjs build/wasm-release/web
 ```
+
+## プログラム共通の状態保存
+
+[状態保存の利用手順](../docs/user/machine-state.md)を参照してください。
+CPU・RAM・周辺機器をブラウザー内に保存し、RTCは巻き戻さず別に扱います。

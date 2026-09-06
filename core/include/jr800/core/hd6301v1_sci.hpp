@@ -43,6 +43,7 @@ public:
         const noexcept;
 
 private:
+    friend class MachineStateCodec;
     static constexpr std::uint16_t rate_mode_address = 0x0010U;
     static constexpr std::uint16_t control_status_address = 0x0011U;
     static constexpr std::uint8_t writable_rate_mode_mask = 0x0FU;

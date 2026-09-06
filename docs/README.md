@@ -5,6 +5,8 @@
 
 ## プログラムの読み込みと保存
 
+- [エミュレーターの状態を保存する](user/machine-state.md)
+
 - [WAVで配布された機械語プログラムを実機とエミュレーターで動かす](user/machine-language-wav.md)
 - [BASICプログラムWAVの利用ガイド](user/basic-program-wav.md)
 - [エミュレーターからJ8A・WAVへ保存する](user/program-save-export.md)

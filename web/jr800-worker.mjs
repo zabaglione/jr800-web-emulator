@@ -685,6 +685,28 @@ async function dispatch(message) {
             });
             break;
         }
+        case "export-state": {
+            requireIdle();
+            const data = requireMachine().exportState();
+            response(id, {data}, [data.buffer]);
+            break;
+        }
+        case "import-state": {
+            requireIdle();
+            const current = requireMachine();
+            current.importState(message.data);
+            if (message.calendarDateTime !== undefined) current.setCalendarDateTime(message.calendarDateTime);
+            clearKeyboardHoldState(current, true);
+            resetAudioCollector();
+            sendToHost({type: "event", event: "audio-reset"});
+            response(id, snapshotWithWatches(current, message.view));
+            break;
+        }
+        case "release-keyboard": {
+            clearKeyboardHoldState(requireMachine(), true);
+            response(id, {});
+            break;
+        }
         case "export-saved-program": {
             const data = requireMachine().exportSavedProgram(message.index, message.format);
             response(id, {data}, [data.buffer]);

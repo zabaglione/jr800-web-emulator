@@ -249,6 +249,18 @@
                         </div>
                     </div>
                     <p id="program-info" role="status"></p>
+                    <section class="program-saves" aria-labelledby="machine-state-heading">
+                        <h3 id="machine-state-heading">Machine state</h3>
+                        <p>Save CPU, RAM and devices in this browser. Load the same ROM before restoring. RTC is kept separate and is not rolled back. Restore pauses the machine; press Resume to continue.</p>
+                        <button id="machine-state-save" type="button" disabled>Save machine state</button>
+                        <button id="machine-state-restore" type="button" disabled>Restore machine state</button>
+                        <p id="machine-state-status" role="status"></p>
+                    </section>
+                    <section class="program-saves" aria-labelledby="relic-dive-heading">
+                        <h3 id="relic-dive-heading">RELIC DIVE scores</h3>
+                        <button id="relic-dive-gold" type="button">Record finished adventure GOLD</button>
+                        <p id="relic-dive-status" role="status"></p>
+                    </section>
                     <section class="program-saves" aria-labelledby="program-saves-heading">
                         <h3 id="program-saves-heading">Save data to a file</h3>
                         <p>Run SAVE or MSAVE in BASIC. When saving finishes, download the result as J8A or WAV. SAVE with the A option is also supported.</p>

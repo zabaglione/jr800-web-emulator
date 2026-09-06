@@ -361,7 +361,7 @@ function jr800StopParity(stop) {
 
 try {
     const initialized = await request("initialize", {moduleUrl});
-    assert.equal(initialized.abiVersion, 41);
+    assert.equal(initialized.abiVersion, 42);
     const initialApplication = application.slice();
     const initialDebugInfo = debugInfo.slice();
     const syntheticLoaded = await request("load", {
@@ -1216,7 +1216,7 @@ try {
         },
         view: {memoryAddress: 0x8000, memoryLength: 2},
     }, [nopRom.buffer]);
-    assert.equal(jr800Loaded.state.abiVersion, 41);
+    assert.equal(jr800Loaded.state.abiVersion, 42);
     assert.equal(jr800Loaded.state.profile, "hd6301v1");
     assert.equal(jr800Loaded.state.pc, 0x8000);
     assert.equal(jr800Loaded.state.sp, 0x2345);
