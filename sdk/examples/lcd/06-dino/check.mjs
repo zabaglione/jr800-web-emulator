@@ -19,8 +19,9 @@ const machine = await WasmMachine.createJr800(moduleUrl("jr800_wasm.mjs"),
 let frames = 0;
 let lastCycles;
 const frameCycles = [];
+const playResults = {};
 const read = name => machine.memory(symbols[name], 1)[0];
-const number = name => [...machine.memory(symbols[name], 3)].reduce((value, digit) => value * 10 + digit, 0);
+const number = name => [...machine.memory(symbols[name], name === "distance" ? 3 : 5)].reduce((value, digit) => value * 10 + digit, 0);
 const input = pressed => machine.setKeyboardKeyState("space", pressed);
 
 function frame() {
@@ -87,92 +88,113 @@ try {
     await savePanel("screen.svg", ready);
     const readyHash = createHash("sha256").update(ready.dots).digest("hex");
     if (mode === "test") {
-        assert.deepEqual(frame().dots, ready.dots, "Ready screen must remain still");
-        input(true);
-        // Exact integer jump arc; holding and a second airborne press cannot reset it.
-        const arc = [7, 13, 18, 22, 25, 27, 28, 28, 27, 25, 22, 18, 13, 7, 0];
-        for (let index = 0; index < arc.length; index++) {
-            if (index === 3) input(false);
-            if (index === 4) input(true);
-            frame();
-            assert.equal(read("phase"), 1);
-            assert.equal(read("height"), arc[index]);
-            if (arc[index] > 0) checkDino("dino_air", arc[index]);
-            if (index === 6) await savePanel("jump.svg");
-        }
-        assert.equal(read("velocity"), 0);
-        frame(); assert.equal(read("height"), 0, "Held SPACE repeated the jump");
-        const seenWalkPatterns = new Set();
-        for (let i = 0; i < 5; i++) {
-            frame();
-            const pattern = read("animation") & 2 ? "dino_run_b" : "dino_run_a";
-            checkDino(pattern, 0);
-            seenWalkPatterns.add(pattern);
-        }
-        assert.equal(seenWalkPatterns.size, 2, "Missing walk animation");
-        for (let i = 0; i < 100 && read("phase") === 1; i++) frame();
-        assert.equal(read("phase"), 2, "Ground collision did not stop the game");
-        const firstScore = number("distance");
-        assert.ok(firstScore > 0);
-        assert.equal(number("high_score"), firstScore);
-        await savePanel("game-over.svg");
-        const dead = machine.lcdPanel().dots;
-        for (let i = 0; i < 5; i++) assert.deepEqual(frame().dots, dead, "Held SPACE restarted after death");
-        input(false); frame();
-        input(true); frame();
-        assert.equal(read("phase"), 1);
-        assert.equal(number("distance"), 0);
-        assert.equal(number("high_score"), firstScore, "Retry lost the best score");
-        input(false);
-
-        // Play using actual SPACE events. No writes to gameplay state or PCG RAM.
-        const speeds = new Set(), kinds = new Set();
-        let jumps = 0;
-        const recent = [];
-        for (let i = 0; i < 4050; i++) {
-            const x = read("obstacle_x"), speed = read("speed");
-            const jump = read("height") === 0 && read("gap_wait") === 0
-                && x >= 35 && x <= 35 + speed * 5;
-            input(jump);
-            if (jump) jumps++;
-            recent.push({i, x, speed, height: read("height"), velocity: read("velocity"),
-                gap: read("gap_wait"), previous: read("space_previous"), jump});
-            if (recent.length > 20) recent.shift();
-            frame();
-            assert.equal(read("phase"), 1, `Autoplay collision: ${JSON.stringify(recent)}`);
-            assert.ok(read("height") <= 28);
-            speeds.add(read("speed")); kinds.add(read("obstacle_kind"));
-        }
-        assert.deepEqual([...speeds].sort(), [3, 4, 5], "Difficulty did not increase");
-        assert.deepEqual([...kinds].sort(), [0, 1], "Missing cactus variant");
-        assert.ok(jumps > 40, "Insufficient successful jumps");
-        assert.equal(number("distance"), 999, "Distance did not saturate at 999");
-        input(false);
-        for (let i = 0; i < 150 && read("phase") === 1; i++) frame();
-        assert.equal(read("phase"), 2);
-        assert.equal(number("high_score"), 999);
-        // Sweep short taps across rendering/transfer phases. The hold uses the
-        // same minimum E-cycle duration as ordinary Web keyboard conditioning.
-        function runCycles(count) {
-            const end = Number(machine.state().cycleCount) + count;
-            while (Number(machine.state().cycleCount) < end) {
-                const stop = machine.run(64);
-                assert.equal(stop.reason, "instruction-limit");
+        const objects = () => {
+            const data=machine.memory(symbols.obstacles,9);
+            return [0,3,6].map(i=>({x:(data[i]<<8|data[i+1])<<16>>16,kind:data[i+2]}));
+        };
+        const target = () => objects().filter(o=>o.x>=(o.kind===4?9:17)).sort((a,b)=>a.x-b.x)[0];
+        const reset = () => {
+            input(false);machine.loadProgram(application);lastCycles=undefined;
+            frame();input(true);frame();
+        };
+        assert.ok(objects().every(o=>o.x>=192),"Initial objects must start off-screen");
+        assert.deepEqual(frame().dots,ready.dots,"Title must remain still");
+        const arcs=[];
+        for(const hold of [1,2,3,4]) {
+            reset();
+            // RETURN has no gameplay effect, including during ascent.
+            machine.setKeyboardKeyState("return",true);
+            const heights=[read("height")];
+            for(let i=1;i<20 && read("height")>0;i++) {
+                input(i<hold);frame();heights.push(read("height"));
+                if(read("height")) checkDino("dino_air",read("height"));
+                if(i===6 && hold===4) await savePanel("jump.svg");
             }
+            machine.setKeyboardKeyState("return",false);
+            arcs.push({hold,peak:Math.max(...heights),updates:heights.length,heights});
         }
-        for (let offset = 0; offset < 110_000; offset += 5000) {
-            machine.loadProgram(application);
-            frame();
-            assert.equal(read("phase"), 0);
-            runCycles(offset);
-            input(true); runCycles(49_152); input(false);
-            lastCycles = undefined; // Exclude deliberate mid-frame test advances.
-            frame(); frame();
-            assert.equal(read("phase"), 1, `Missed short SPACE tap at cycle offset ${offset}`);
-            assert.ok(read("height") > 0, "Short SPACE tap did not jump");
+        assert.deepEqual(arcs.map(a=>a.peak),[13,19,24,28]);
+        assert.deepEqual(arcs.map(a=>a.updates),[10,12,14,15]);
+        reset();for(let i=0;i<20;i++)frame();
+        assert.equal(read("height"),0,"Held SPACE repeated the jump");
+        while(read("phase")===1)frame();
+        assert.equal(number("high_score"),number("score"));
+        await savePanel("game-over.svg");
+        const dead=machine.lcdPanel().dots;
+        for(let i=0;i<3;i++)assert.deepEqual(frame().dots,dead,"Held SPACE retried");
+        const best=number("high_score");input(false);frame();input(true);frame();input(false);
+        assert.equal(number("high_score"),best,"Retry lost best score");
+        let holdLeft=0;
+        const act = (style="variable") => {
+            if(holdLeft>0){input(true);holdLeft--;return;}
+            const o=target(),speed=read("speed");
+            const threshold=o?.kind===4?8+speed*10:o?.kind===3?35+speed*2:35+speed*5;
+            if(o && read("height")===0 && !read("space_previous") && o.x<=threshold) {
+                const hold=style==="short"?1:style==="long"?4:(o.kind===3||o.kind===4)?1:4;
+                input(true);holdLeft=hold-1;
+            } else input(false);
+        };
+        reset();input(false);
+        const kinds=new Set(),speeds=new Set(),edgeKinds=new Set();
+        let pairCheckpoint,pitCheckpoint,shorts=0,longs=0;
+        const recent=[];
+        for(let i=0;i<4050;i++) {
+            const before=objects(),speed=read("speed"),o=target();
+            if(read("height")===0 && o?.kind===4 && o.x>=90 && o.x<=110) {
+                if(!pitCheckpoint)pitCheckpoint=machine.exportState();
+                const next=before.filter(n=>n.x>o.x).sort((a,b)=>a.x-b.x)[0];
+                if(!pairCheckpoint && speed===5 && next?.kind===2 && next.x-o.x<80)pairCheckpoint=machine.exportState();
+            }
+            const priorHeight=read("height");
+            act();frame();
+            recent.push({i,objects:before,h:priorHeight,holdLeft});if(recent.length>20)recent.shift();
+            assert.equal(read("phase"),1,`Variable-jump collision: ${JSON.stringify(recent)}`);
+            if(priorHeight===0 && read("height")>0) {if(holdLeft)longs++;else shorts++;}
+            assert.ok(read("height")<=28);
+            objects().forEach((item,slot)=>{
+                if(item.x>before[slot].x)assert.ok(item.x>=192,`Object appeared inside screen: ${item.x}`);
+                else assert.equal(item.x,before[slot].x-speed,"Unexpected horizontal motion");
+                if(before[slot].x>=192 && item.x<192)edgeKinds.add(item.kind);
+                kinds.add(item.kind);
+            });
+            speeds.add(read("speed"));
+            if(o?.kind===4 && o.x>=70 && o.x<76)await savePanel("pit.svg");
         }
+        assert.deepEqual([...kinds].sort(),[0,1,2,3,4]);
+        assert.deepEqual([...edgeKinds].sort(),[0,1,2,3,4]);
+        assert.deepEqual([...speeds].sort(),[3,4,5]);
+        assert.equal(number("distance"),999);assert.ok(number("score")>999);
+        assert.ok(shorts>10 && longs>10);
+        const finalScore=number("score");
+        input(false);while(read("phase")===1)frame();
+        assert.equal(number("high_score"),number("score"));
+        assert.ok(number("high_score")>=finalScore);
+        assert.ok(pairCheckpoint && pitCheckpoint,"Missing pit/rock approach");
+        // At the same takeoff timing, a small jump leaves time for the next rock.
+        for(const style of ["variable","long"]) {
+            machine.importState(pairCheckpoint);lastCycles=undefined;input(false);holdLeft=0;
+            for(let i=0;i<40 && read("phase")===1;i++){act(style);frame();}
+            assert.equal(read("phase"),style==="variable"?1:2,"Height choice must affect the next jump window");
+        }
+        reset();input(false);holdLeft=0;
+        for(let i=0;i<500 && read("phase")===1;i++){act("short");frame();}
+        assert.equal(read("phase"),2,"A low hop must not clear a rock");
+        machine.importState(pitCheckpoint);lastCycles=undefined;input(false);
+        while(read("phase")===1)frame();
+        assert.equal(read("height"),0,"Walking into a pit must cause a fall");
+        function runCycles(count){
+            const end=Number(machine.state().cycleCount)+count;
+            while(Number(machine.state().cycleCount)<end)assert.equal(machine.run(64).reason,"instruction-limit");
+        }
+        for(let offset=0;offset<120000;offset+=5000){
+            input(false);machine.loadProgram(application);frame();
+            runCycles(offset);input(true);runCycles(49152);input(false);lastCycles=undefined;frame();frame();
+            assert.equal(read("phase"),1);assert.ok(read("height")>0,`Missed SPACE at ${offset}`);
+        }
+        Object.assign(playResults,{arcs,shorts,longs,distance:999,score:finalScore,
+            allTypesEnterFromRight:true,heightChoiceEnablesNextJump:true,pitFall:true});
     }
-    const result = {sample, mode, frames, passed: true, firstFrameSha256: readyHash,
+    const result = {sample, mode, frames, playResults, passed: true, firstFrameSha256: readyHash,
         bootstrap: process.env.JR800_SAMPLE_ROM ? "owner-supplied" : "project-authored",
         runningFrameCycles: frameCycles.length ? {
             min: Math.min(...frameCycles), max: Math.max(...frameCycles),

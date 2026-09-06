@@ -119,7 +119,6 @@ if(EMSCRIPTEN)
         program-save-view.mjs
         rom-storage.mjs
         machine-state-storage.mjs
-        relic-dive.mjs
         run-pacer.mjs
         jr800-worker.mjs
         wasm-machine.mjs

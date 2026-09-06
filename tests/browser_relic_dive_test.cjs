@@ -42,7 +42,7 @@ const [url = 'http://127.0.0.1:8765/', output = 'build/sdk-lcd/07-relic-dive', r
         await page.locator('#pause-basic').click();
         await page.locator('#hardware-program-file').setInputFiles(resolve(output, '07-relic-dive.j8a'));
         await page.locator('#load-program').click();
-        assert.equal(await page.locator('#relic-dive-controls').count(), 0);
+        assert.equal(await page.locator('[id^="relic-dive-"]').count(), 0, 'Game-specific emulator UI must be absent');
         await page.locator('#lcd-panel').click();
         const state = async () => (await page.evaluate(() => window.relicDiveSnapshot(0x4800, 64))).memory.bytes;
         async function until(condition) {

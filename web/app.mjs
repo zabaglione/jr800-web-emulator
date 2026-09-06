@@ -23,8 +23,6 @@ import {
 import {jr800KeyForHostCode} from "./keyboard-input.mjs";
 import {savedProgramFilename} from "./program-save-view.mjs";
 import {readSavedRom, writeSavedRom, deleteSavedRom} from "./rom-storage.mjs";
-import {relicDiveResult, recordRelicDiveGold, RELIC_DIVE_STATE_ADDRESS,
-    RELIC_DIVE_STATE_LENGTH} from "./relic-dive.mjs";
 import {readMachineState, writeMachineState} from "./machine-state-storage.mjs";
 import {
     Jr800VirtualKeyboardState,
@@ -153,7 +151,7 @@ const elements = Object.fromEntries(
         "ignore-unsupported-io", "ignored-io-access-count", "browser-calendar-startup",
         "resume-machine", "pause-basic", "power-on", "power-off",
         "hardware-program-file", "load-program", "load-program-only", "program-info",
-        "relic-dive-gold", "machine-state-save", "machine-state-restore", "machine-state-status", "relic-dive-status",
+        "machine-state-save", "machine-state-restore", "machine-state-status",
         "program-saves-status", "program-saves-list", "clear-program-saves",
         "reset-sp-enabled", "reset-sp-value",
         "reset-x-enabled", "reset-x-value",
@@ -2306,21 +2304,3 @@ void perform(async () => {
     );
     setControls();
 }, "Initializing worker").catch(() => {});
-
-elements["relic-dive-gold"].addEventListener("click", () => {
-    void perform(async () => {
-        const snapshot = await client.request("snapshot", {view: {
-            memoryAddress: RELIC_DIVE_STATE_ADDRESS, memoryLength: RELIC_DIVE_STATE_LENGTH,
-        }});
-        const result = relicDiveResult(snapshot.memory.bytes);
-        const best = recordRelicDiveGold(localStorage, location.pathname, result);
-        elements["relic-dive-status"].textContent = `GOLD ${result.gold}. Best: EASY ${best[0]} / NORMAL ${best[1]} / HARD ${best[2]}`;
-    }).catch(error => { elements["relic-dive-status"].textContent = error.message; });
-});
-
-try {
-    const best = recordRelicDiveGold(localStorage, location.pathname);
-    elements["relic-dive-status"].textContent = `Best GOLD: EASY ${best[0]} / NORMAL ${best[1]} / HARD ${best[2]}`;
-} catch (error) {
-    elements["relic-dive-status"].textContent = `GOLD records unavailable: ${error.message}`;
-}

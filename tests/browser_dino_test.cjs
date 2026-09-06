@@ -55,12 +55,15 @@ const [url = 'http://127.0.0.1:8000/', output = 'build/sdk-lcd/06-dino', romPath
         await page.locator('#lcd-panel').click();
 
         async function state() {
-            const snapshot = await page.evaluate(address => window.dinoTestSnapshot(address, 22), symbols.phase);
+            const snapshot = await page.evaluate(address => window.dinoTestSnapshot(address, 45), symbols.phase);
             const get = name => snapshot.memory.bytes[symbols[name] - symbols.phase];
-            const number = name => snapshot.memory.bytes.slice(symbols[name] - symbols.phase, symbols[name] - symbols.phase + 3)
+            const number = (name, length) => snapshot.memory.bytes.slice(symbols[name] - symbols.phase, symbols[name] - symbols.phase + length)
                 .reduce((value, digit) => value * 10 + digit, 0);
-            return {phase: get('phase'), height: get('height'), x: get('obstacle_x'),
-                speed: get('speed'), gap: get('gap_wait'), score: number('distance'), best: number('high_score')};
+            const base = symbols.obstacles - symbols.phase;
+            const data = snapshot.memory.bytes;
+            const objects = [0,3,6].map(i => ({x: (data[base+i]<<8 | data[base+i+1])<<16>>16,kind:data[base+i+2]}));
+            const target = objects.filter(o=>o.x>=(o.kind===4?9:17)).sort((a,b)=>a.x-b.x)[0];
+            return {phase:get('phase'),height:get('height'),speed:get('speed'),score:number('score',5),best:number('high_score',5),objects,target};
         }
         async function until(condition, limit = 10_000) {
             const end = Date.now() + limit;
@@ -92,25 +95,41 @@ const [url = 'http://127.0.0.1:8000/', output = 'build/sdk-lcd/06-dino', romPath
         const restarted = await until(s => s.phase === 1);
         assert.equal(restarted.best, loss.score);
 
-        // Clear three successive obstacles under the normal real-time UI scheduler.
-        let cleared = 0;
-        while (cleared < 3) {
-            const approach = await until(s => s.phase === 2 ||
-                (s.height === 0 && s.gap === 0 && s.x >= 40 && s.x <= 35 + s.speed * 5));
-            assert.equal(approach.phase, 1, 'Collision before the jump window');
-            await page.keyboard.press('Space', {delay: 90});
-            const airborne = await until(s => s.phase === 2 || s.height >= 14);
-            assert.equal(airborne.phase, 1, 'SPACE did not clear the cactus');
-            const passed = await until(s => s.phase === 2 || s.x < 17);
-            assert.equal(passed.phase, 1, 'Collision while passing the cactus');
-            cleared++;
-            await until(s => s.phase === 2 || s.x > 100);
+        // Ordinary SPACE events control both low and high jumps.
+        let passedPit=false,passedRock=false,shorts=0,longs=0;
+        let previous;
+        const end=Date.now()+120000;
+        while(Date.now()<end) {
+            const current=await state();
+            assert.equal(current.phase,1,`Browser collision: ${JSON.stringify({previous,current})}`);
+            if(previous?.target && previous.target.x<35 && current.target?.x>60) {
+                if(previous.target.kind===4)passedPit=true;
+                if(previous.target.kind===2)passedRock=true;
+            }
+            const o=current.target;
+            if(o?.kind===4 && o.x>70 && o.x<95)await page.locator('#lcd-panel-card').screenshot({path:resolve(output,'browser-pit.png')});
+            if(shorts>=3 && longs>=2 && passedPit && passedRock)break;
+            const threshold=o?.kind===4?8+current.speed*10:o?.kind===3?35+current.speed*2:35+current.speed*5;
+            if(o && current.height===0 && o.x<=threshold) {
+                if(o.kind===3||o.kind===4) {await page.keyboard.press('Space',{delay:60});shorts++;}
+                else {
+                    await page.keyboard.down('Space');
+                    const raised=await until(s=>s.phase===2||s.height>=22);
+                    await page.keyboard.up('Space');
+                    assert.equal(raised.phase,1,'High jump failed');longs++;
+                }
+            }
+            previous=current;
+            await page.waitForTimeout(20);
         }
-        assert.equal((await state()).phase, 1);
+        const finished=await state();
+        assert.ok(shorts>=3 && longs>=2 && passedPit && passedRock,JSON.stringify(finished));
+        assert.equal(finished.phase,1);
+        assert.equal(await page.locator('[id^="relic-dive-"]').count(),0);
         await page.locator('#pause-basic').click();
         assert.notEqual(await page.locator('#status').getAttribute('data-tone'), 'error');
         assert.deepEqual(errors, []);
-        const result = {passed: true, cleared, input: 'browser SPACE',
+        const result = {passed: true, shorts,longs,passedPit,passedRock,score:finished.score,input: 'browser SPACE only',
             bootstrap: romPath ? 'owner-supplied' : 'project-authored', errors};
         await writeFile(resolve(output, 'browser-verification.json'), JSON.stringify(result, null, 2) + '\n');
         console.log(JSON.stringify(result));

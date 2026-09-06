@@ -17,9 +17,6 @@ endif()
 
 if(EMSCRIPTEN)
     find_program(NODE_EXECUTABLE node REQUIRED)
-    add_test(NAME relic_dive_host COMMAND ${NODE_EXECUTABLE}
-        ${CMAKE_CURRENT_SOURCE_DIR}/relic_dive_host_test.mjs
-        $<TARGET_FILE_DIR:jr800_wasm>/relic-dive.mjs)
     add_test(
         NAME program_save_view
         COMMAND ${NODE_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/program_save_view_test.mjs

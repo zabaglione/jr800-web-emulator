@@ -1,20 +1,21 @@
 ; SPDX-License-Identifier: MIT
-; Software PCG runner for the existing E-184/E-186 JR-800 LCD model.
-; SPACE: E-392 ROM-expected $0FEF bit 0, requiring the explicit idle base.
+; Software PCG runner using the existing JR-800 LCD and keyboard models.
+; SPACE jumps; releasing SPACE early limits ascent. No ROM routines are called.
 .global entry
 .global frame_ready
 .global phase
 .global height
 .global velocity
-.global obstacle_x
-.global obstacle_kind
 .global speed
 .global distance
+.global score
 .global high_score
 .global tick
-.global space_previous
 .global animation
-.global gap_wait
+.global obstacles
+.global random_state
+.global space_previous
+.global space_pending
 .extern init
 .extern clear
 .extern present
@@ -29,8 +30,11 @@
 .extern cactus_a
 .extern cactus_b
 .extern cloud
+.extern rock
+.extern crate
 .equ hud_dest, $A4
 .equ hud_digits, $A6
+.equ object_ptr, $A8
 
 .section .text, code
 entry:
@@ -41,47 +45,59 @@ entry:
     STAA phase
     STAA space_previous
     STAA space_pending
-    STAA high_score
-    STAA high_score + 1
-    STAA high_score + 2
+    LDX #high_score
+    LDAB #5
+clear_best:
+    STAA 0,X
+    INX
+    DECB
+    BNE clear_best
     LDAA #$A7
     STAA random_state
     JSR reset_run
     JMP render
 
 reset_run:
+    LDX #run_state
+    LDAB #24 ; run_state through the three obstacle records
     CLRA
-    STAA height
-    STAA velocity
-    STAA distance
-    STAA distance + 1
-    STAA distance + 2
-    STAA tick
-    STAA animation
-    STAA obstacle_kind
-    STAA gap_wait
-    STAA ground_offset
-    LDAA #190
-    STAA obstacle_x
+clear_run:
+    STAA 0,X
+    INX
+    DECB
+    BNE clear_run
     LDAA #3
     STAA speed
     LDAA #130
     STAA cloud_x
+    ; Each record is signed 16-bit X followed by kind.
+    LDD #192
+    STD obstacles
+    LDD #280
+    STD obstacles + 3
+    LDD #368
+    STD obstacles + 6
+    LDAA #3
+    STAA obstacles + 2
+    LDAA #2
+    STAA obstacles + 5
+    LDAA #4
+    STAA obstacles + 8
     RTS
 
 frame_ready:
-    ; A short CPU delay leaves room for the LCD transfer (~50k E cycles).
     LDX #2000
 wait_frame:
     DEX
     BNE wait_frame
-    JSR poll_space
+    JSR poll_keys
     LDAA space_pending
     STAA space_edge
     CLR space_pending
     LDAA phase
     CMPA #1
     BEQ update_running
+    JSR next_random
     TST space_edge
     BEQ redraw
     JSR reset_run
@@ -95,10 +111,21 @@ redraw:
 
 update_running:
     TST space_edge
-    BEQ integrate_jump
+    BEQ adjust_ascent
     TST height
-    BNE integrate_jump
+    BNE adjust_ascent
     LDAA #7
+    STAA velocity
+    BRA integrate_jump
+adjust_ascent:
+    TST space_previous
+    BNE integrate_jump
+    LDAA velocity
+    BLE integrate_jump
+    CMPA #3
+    BLS integrate_jump
+    ; Early release cuts upward velocity, but never restarts ascent.
+    LDAA #3
     STAA velocity
 integrate_jump:
     LDAA height
@@ -112,9 +139,8 @@ integrate_jump:
     DEC velocity
     BRA move_world
 landed:
-    CLRA
-    STAA height
-    STAA velocity
+    CLR height
+    CLR velocity
 move_world:
     INC animation
     LDAA ground_offset
@@ -123,68 +149,169 @@ move_world:
     STAA ground_offset
     LDAA animation
     ANDA #3
-    BNE move_obstacle
+    BNE move_objects
     DEC cloud_x
     LDAA cloud_x
     CMPA #240
-    BNE move_obstacle
+    BNE move_objects
     LDAA #191
     STAA cloud_x
-move_obstacle:
-    TST gap_wait
-    BEQ scroll_obstacle
-    DEC gap_wait
-    BNE world_moved
-    LDAA #191
-    STAA obstacle_x
-    BRA world_moved
-scroll_obstacle:
-    LDAA obstacle_x
-    SUBA speed
-    STAA obstacle_x
-    CMPA #192
-    BCS world_moved
-    CMPA #240
-    BCC world_moved
-    ; A nonzero 8-bit LFSR varies cactus shape and the next safe gap.
+move_objects:
+    LDX #obstacles
+    JSR scroll_object
+    LDX #obstacles + 3
+    JSR scroll_object
+    LDX #obstacles + 6
+    JSR scroll_object
+    LDX #obstacles
+    JSR recycle_object
+    LDX #obstacles + 3
+    JSR recycle_object
+    LDX #obstacles + 6
+    JSR recycle_object
+    LDX #obstacles
+    JSR collision
+    LDAA phase
+    CMPA #1
+    BNE running_done
+    LDX #obstacles + 3
+    JSR collision
+    LDAA phase
+    CMPA #1
+    BNE running_done
+    LDX #obstacles + 6
+    JSR collision
+    LDAA phase
+    CMPA #1
+    BNE running_done
+count_distance:
+    JSR advance_score
+running_done:
+    JMP render
+
+scroll_object:
+    LDD 0,X
+    SUBB speed
+    SBCA #0
+    STD 0,X
+    RTS
+
+next_random:
     LDAA random_state
     LSRA
     BCC random_ready
     EORA #$B8
 random_ready:
     STAA random_state
-    ANDA #1
-    STAA obstacle_kind
-    LDAA random_state
-    ANDA #15
-    ADDA #4
-    STAA gap_wait
-world_moved:
-    JSR collision
-    LDAA phase
-    CMPA #1
-    BEQ count_distance
-    JMP render
-count_distance:
-    JSR advance_score
-    JMP render
+    RTS
 
-; Inset collision boxes: dino x=28..37, cactus x+3..x+11, y=42..55.
-; The tail and empty sprite corners are intentionally forgiving.
+recycle_object:
+    STX object_ptr
+    LDAA 0,X
+    CMPA #$FF
+    BNE recycle_done
+    LDAA 1,X
+    CMPA #224
+    BHI recycle_done
+    ; Pick one of eight weights: cactus A/B, rock, crate x3, pit x2.
+    JSR next_random
+    ANDA #7
+    LDX #kind_table
+    TAB
+    ABX
+    LDAA 0,X
+    LDX object_ptr
+    STAA 2,X
+    JSR next_random
+    ANDA #3
+    ASLA
+    ASLA
+    ASLA
+    ADDA #80
+    STAA spawn_gap
+    ; Follow the rightmost object. Some pits lead into a short rock approach.
+    CLR spawn_x
+    CLR spawn_x + 1
+    LDAA #3
+    STAA spawn_count
+    LDX #obstacles
+find_rightmost:
+    LDD 0,X
+    BMI rightmost_next
+    SUBD spawn_x
+    BLE rightmost_next
+    LDD 0,X
+    STD spawn_x
+    LDAA 2,X
+    STAA spawn_kind
+rightmost_next:
+    INX
+    INX
+    INX
+    DEC spawn_count
+    BNE find_rightmost
+    LDAA spawn_kind
+    CMPA #4
+    BNE spawn_position
+    LDAA random_state
+    ANDA #1
+    BEQ spawn_position
+    LDX object_ptr
+    LDAA #2
+    STAA 2,X
+    LDAA #56
+    STAA spawn_gap
+spawn_position:
+    LDD spawn_x
+    ADDB spawn_gap
+    ADCA #0
+    TSTA
+    BNE spawn_store
+    CMPB #192
+    BCC spawn_store
+    LDD #192
+spawn_store:
+    LDX object_ptr
+    STD 0,X
+recycle_done:
+    RTS
+
 collision:
-    TST gap_wait
+    LDAA 0,X
     BNE collision_done
-    LDAA obstacle_x
+    LDAA 1,X
+    LDAB 2,X
+    CMPB #4
+    BEQ pit_collision
     CMPA #17
     BCS collision_done
     CMPA #35
     BCC collision_done
+    LDAA #7
+    CMPB #3
+    BEQ solid_collision
+    LDAA #14
+    CMPB #2
+    BNE solid_collision
+    LDAA #18
+solid_collision:
+    STAA clearance
     LDAA height
-    CMPA #14
+    CMPA clearance
     BCC collision_done
+    BRA collision_fatal
+pit_collision:
+    ; Feet center x=32 must be above the open interval [X, X+24).
+    CMPA #9
+    BCS collision_done
+    CMPA #33
+    BCC collision_done
+    TST height
+    BNE collision_done
+collision_fatal:
     LDAA #2
     STAA phase
-    JSR update_high_score
+    JMP update_high_score
 collision_done:
     RTS
 
@@ -193,17 +320,17 @@ advance_score:
     LDAA tick
     ANDA #3
     BNE score_done
-    ; Saturate at 999; do not wrap the best score.
+    JSR score_point
     LDAA distance
     CMPA #9
-    BNE score_increment
+    BNE distance_increment
     LDAA distance + 1
     CMPA #9
-    BNE score_increment
+    BNE distance_increment
     LDAA distance + 2
     CMPA #9
     BEQ score_done
-score_increment:
+distance_increment:
     INC distance + 2
     LDAA distance + 2
     CMPA #10
@@ -228,31 +355,55 @@ choose_speed:
 score_done:
     RTS
 
+; Five decimal digits, saturating at 99999. Speed depends only on distance.
+score_point:
+    LDX #score
+    LDAB #5
+score_check:
+    LDAA 0,X
+    CMPA #9
+    BNE score_add
+    INX
+    DECB
+    BNE score_check
+    RTS
+score_add:
+    LDX #score + 4
+score_carry:
+    INC 0,X
+    LDAA 0,X
+    CMPA #10
+    BNE score_done
+    CLR 0,X
+    DEX
+    BRA score_carry
+
 update_high_score:
-    LDAA distance
-    CMPA high_score
+    LDX #score
+    LDAB #5
+compare_best:
+    LDAA 0,X
+    CMPA 18,X ; high_score follows score by 18 bytes
     BHI save_high_score
-    BCS high_score_done
-    LDAA distance + 1
-    CMPA high_score + 1
-    BHI save_high_score
-    BCS high_score_done
-    LDAA distance + 2
-    CMPA high_score + 2
-    BLS high_score_done
+    BCS score_done
+    INX
+    DECB
+    BNE compare_best
+    RTS
 save_high_score:
-    LDAA distance
-    STAA high_score
-    LDAA distance + 1
-    STAA high_score + 1
-    LDAA distance + 2
-    STAA high_score + 2
-high_score_done:
+    LDX #score
+    LDAB #5
+copy_best:
+    LDAA 0,X
+    STAA 18,X
+    INX
+    DECB
+    BNE copy_best
     RTS
 
 ; Latch new presses around both CPU drawing and LCD transfer so short taps
 ; survive the Web host's 49,152-cycle minimum hold (E-404).
-poll_space:
+poll_keys:
     LDAA $0FEF
     ANDA #1
     EORA #1
@@ -270,16 +421,27 @@ render:
     LDX #brand
     LDD #framebuffer + 3
     JSR text
-    LDX #hi_label
-    LDD #framebuffer + 96
+    LDX #speed_label
+    LDD #framebuffer + 54
     JSR text
+    LDAA speed
+    ADDA #48
+    LDX #framebuffer + 90
+    JSR glyph
+    LDX #hi_label
+    LDD #framebuffer + 102
+    JSR text
+    LDAA #5
+    STAA digit_count
     LDX #high_score
     LDD #framebuffer + 114
     JSR draw_number
-    LDX #distance
-    LDD #framebuffer + 168
+    LDAA #5
+    STAA digit_count
+    LDX #score
+    LDD #framebuffer + 156
     JSR draw_number
-    JSR poll_space
+    JSR poll_keys
     ; Ground line at y=56, sparse rolling gravel beneath it.
     LDX #framebuffer + 1344
     CLRB
@@ -312,18 +474,16 @@ ground_next:
     LDAB #13
     JSR blit
 cloud_done:
-    LDAA phase
+    TST phase
     BEQ draw_dinosaur
-    TST gap_wait
-    BNE draw_dinosaur
-    LDX #cactus_a
-    TST obstacle_kind
-    BEQ cactus_selected
-    LDX #cactus_b
-cactus_selected:
-    LDAA obstacle_x
-    LDAB #40
-    JSR blit
+    LDX #obstacles
+    JSR draw_object
+    JSR poll_keys
+    LDX #obstacles + 3
+    JSR draw_object
+    JSR poll_keys
+    LDX #obstacles + 6
+    JSR draw_object
 draw_dinosaur:
     LDX #dino_air
     TST height
@@ -351,6 +511,9 @@ dino_alive:
     LDX #start_label
     LDD #framebuffer + 576 + 54
     JSR text
+    LDX #jump_help
+    LDD #framebuffer + 768 + 60
+    JSR text
     BRA draw_complete
 game_over_text:
     LDX #over_label
@@ -360,17 +523,86 @@ game_over_text:
     LDD #framebuffer + 768 + 54
     JSR text
 draw_complete:
-    JSR poll_space
+    JSR poll_keys
     JSR present
-    JSR poll_space
+    JSR poll_keys
     JMP frame_ready
 
-; X = three unpacked decimal digits; D = HUD destination.
+; Draw one obstacle; 16-bit coordinates keep off-screen objects distinct
+; from the negative tail of a tile. Pit pixels clear the ground, not an overlay.
+draw_object:
+    STX object_ptr
+    LDAA 2,X
+    CMPA #4
+    BEQ draw_pit
+    LDAA 0,X
+    BEQ object_positive
+    CMPA #255
+    BNE object_done
+    LDAA 1,X
+    CMPA #241
+    BCS object_done
+    BRA object_visible
+object_positive:
+    LDAA 1,X
+    CMPA #192
+    BCC object_done
+object_visible:
+    STAA draw_x
+    LDAB 2,X
+    LDX #cactus_a
+    TSTB
+    BEQ object_selected
+    LDX #cactus_b
+    CMPB #1
+    BEQ object_selected
+    LDX #rock
+    CMPB #2
+    BEQ object_selected
+    LDX #crate
+object_selected:
+    LDAA draw_x
+    LDAB #40
+    JMP blit
+object_done:
+    RTS
+
+draw_pit:
+    LDD 0,X
+    SUBD #1
+    STD pit_column
+    CLR pit_index
+pit_loop:
+    LDAA pit_column
+    BNE pit_next
+    LDAB pit_column + 1
+    CMPB #192
+    BCC pit_next
+    LDX #framebuffer + 1344
+    ABX
+    LDAA pit_index
+    BEQ pit_edge
+    CMPA #25
+    BEQ pit_edge
+    CLR 0,X
+    BRA pit_next
+pit_edge:
+    LDAA #255
+    STAA 0,X
+pit_next:
+    LDD pit_column
+    ADDD #1
+    STD pit_column
+    INC pit_index
+    LDAA pit_index
+    CMPA #26
+    BNE pit_loop
+    RTS
+
+; X = unpacked decimal digits; D = HUD destination; digit_count set by caller.
 draw_number:
     STX hud_digits
     STD hud_dest
-    LDAA #3
-    STAA digit_count
 number_digit:
     LDX hud_digits
     LDAA 0,X
@@ -389,23 +621,32 @@ number_digit:
 
 .section .bss, bss
 phase: .space 1
-height: .space 1
-velocity: .space 1
-obstacle_x: .space 1
-obstacle_kind: .space 1
-speed: .space 1
-distance: .space 3
-high_score: .space 3
-tick: .space 1
 space_previous: .space 1
 space_pending: .space 1
 space_edge: .space 1
+random_state: .space 1
+run_state:
+height: .space 1
+velocity: .space 1
+speed: .space 1
+distance: .space 3
+score: .space 5
+tick: .space 1
 animation: .space 1
-gap_wait: .space 1
 ground_offset: .space 1
 cloud_x: .space 1
-random_state: .space 1
+obstacles: .space 9
+run_end:
+high_score: .space 5
 digit_count: .space 1
+clearance: .space 1
+spawn_gap: .space 1
+spawn_x: .space 2
+spawn_count: .space 1
+spawn_kind: .space 1
+draw_x: .space 1
+pit_column: .space 2
+pit_index: .space 1
 
 .section .data, data
 brand: .byte 74, 82, 32, 68, 73, 78, 79, 0
@@ -413,3 +654,6 @@ hi_label: .byte 72, 73, 0
 start_label: .byte 83, 80, 65, 67, 69, 32, 84, 79, 32, 83, 84, 65, 82, 84, 0
 over_label: .byte 71, 65, 77, 69, 32, 79, 86, 69, 82, 0
 retry_label: .byte 83, 80, 65, 67, 69, 32, 84, 79, 32, 82, 69, 84, 82, 89, 0
+jump_help: .byte 72, 79, 76, 68, 32, 70, 79, 82, 32, 72, 73, 71, 72, 0
+speed_label: .byte 83, 80, 69, 69, 68, 0
+kind_table: .byte 0, 1, 2, 3, 3, 3, 4, 4
