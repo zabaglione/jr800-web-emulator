@@ -10,7 +10,8 @@
 .global state_begin
 .extern init
 .extern clear
-.extern present
+.extern present_begin
+.extern present_next
 .extern text
 .extern glyph
 .extern framebuffer
@@ -142,7 +143,13 @@ shuffle_done:
 redraw:
     JSR render_screen
     JSR poll_key
-    JSR present
+    JSR present_begin
+transfer_span:
+    JSR present_next
+    BEQ transfer_done
+    JSR poll_key
+    BRA transfer_span
+transfer_done:
     JSR poll_key
 frame_ready:
     ; A stable turn boundary, with no active subroutine frames.

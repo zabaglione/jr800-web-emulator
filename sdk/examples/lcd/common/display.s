@@ -1,5 +1,6 @@
 ; SPDX-License-Identifier: MIT
 ; JR-800 provisional LCD mapping: E-184, E-185, E-186; U-011 remains open.
+; Poll HD44102 status DB7 before each write (E-093/E-094).
 ; Scratch $80-$91; stack $5FFF. All routines clobber A, B, X.
 .equ src, $80
 .equ dest, $82
@@ -8,6 +9,7 @@
 .equ remaining, $88
 .equ text_ptr, $89
 .equ glyph_ptr, $8B
+.equ lcd_status, $8B ; Glyph drawing and LCD transfer never overlap.
 .equ text_dest, $8D
 .equ glyph_count, $8F
 .equ controllers, $90
@@ -15,6 +17,8 @@
 .global init
 .global clear
 .global present
+.global present_begin
+.global present_next
 .global text
 .global glyph
 .global delay
@@ -31,23 +35,29 @@ init:
     STAB controllers
 init_controller:
     LDX port
+    STX lcd_status
     LDAA #$39
-    STAA 0,X
+    JSR lcd_control
     LDAA #$3E
-    STAA 0,X
+    JSR lcd_control
     LDAA #$3B
-    STAA 0,X
+    JSR lcd_control
     CLRA
     STAA page_command
 init_page:
     LDX port
     LDAA page_command
-    STAA 0,X
+    JSR lcd_control
     INC port
     LDX port
     CLRA
     LDAB #50
 init_column:
+    LDX lcd_status
+init_data_wait:
+    TST 0,X
+    BMI init_data_wait
+    LDX port
     STAA 0,X
     DECB
     BNE init_column
@@ -74,11 +84,21 @@ clear_byte:
 ; Flush 8 bands of 192 vertical bytes through 32 LCD spans.
 ; Each descriptor: control port (word), direction, XY command, byte count.
 present:
+    JSR present_begin
+present_all:
+    JSR present_next
+    BNE present_all
+    RTS
+
+; Games may poll input between spans. present_next returns Z=1 when finished.
+; Keep the framebuffer and the shared scratch area intact between calls.
+present_begin:
     LDX #framebuffer
     STX src
     LDX #spans
     STX table
-present_span:
+    RTS
+present_next:
     LDX table
     LDAA 0,X
     STAA port
@@ -88,27 +108,38 @@ present_span:
     STAB remaining
     LDAA 2,X
     LDX port
-    STAA 0,X
+    STX lcd_status
+    JSR lcd_control
     LDX table
     LDAA 3,X
     LDAB #5
     ABX
     STX table
     LDX port
-    STAA 0,X
+    JSR lcd_control
     INC port
 present_byte:
     LDX src
     LDAA 0,X
     INX
     STX src
+    LDX lcd_status
+present_data_wait:
+    TST 0,X
+    BMI present_data_wait
     LDX port
     STAA 0,X
     DEC remaining
     BNE present_byte
     LDX table
     CPX #spans_end
-    BNE present_span
+    RTS
+
+; X selects the control/status register. TST preserves A, B and X.
+lcd_control:
+    TST 0,X
+    BMI lcd_control
+    STAA 0,X
     RTS
 
 ; X = zero-terminated ASCII text; D = destination framebuffer address.

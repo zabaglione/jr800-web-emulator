@@ -171,6 +171,27 @@ else()
     target_link_libraries(jr800_lcd_bus_test PRIVATE jr800::core)
     add_test(NAME jr800_lcd_bus_test COMMAND jr800_lcd_bus_test)
 
+    add_executable(lcd_sample_busy_test lcd_sample_busy_test.cpp)
+    target_link_libraries(
+        lcd_sample_busy_test
+        PRIVATE jr800::assembler jr800::core jr800::linker
+    )
+    add_test(
+        NAME lcd_sample_busy_test
+        COMMAND lcd_sample_busy_test
+            ${PROJECT_SOURCE_DIR}/sdk/examples/lcd/common/display.s
+            ${PROJECT_SOURCE_DIR}/sdk/examples/lcd/common/font.s
+            ${PROJECT_SOURCE_DIR}/sdk/examples/lcd/common/memory.j8l
+    )
+    add_test(
+        NAME lcd_sample_incremental_busy_test
+        COMMAND lcd_sample_busy_test
+            ${PROJECT_SOURCE_DIR}/sdk/examples/lcd/common/display.s
+            ${PROJECT_SOURCE_DIR}/sdk/examples/lcd/common/font.s
+            ${PROJECT_SOURCE_DIR}/sdk/examples/lcd/common/memory.j8l
+            incremental
+    )
+
     add_executable(hd44102_test hd44102_test.cpp)
     target_link_libraries(hd44102_test PRIVATE jr800::core)
     add_test(NAME hd44102_test COMMAND hd44102_test)

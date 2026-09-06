@@ -18,7 +18,8 @@
 .global space_pending
 .extern init
 .extern clear
-.extern present
+.extern present_begin
+.extern present_next
 .extern text
 .extern glyph
 .extern framebuffer
@@ -524,7 +525,13 @@ game_over_text:
     JSR text
 draw_complete:
     JSR poll_keys
-    JSR present
+    JSR present_begin
+transfer_span:
+    JSR present_next
+    BEQ transfer_done
+    JSR poll_keys
+    BRA transfer_span
+transfer_done:
     JSR poll_keys
     JMP frame_ready
 
