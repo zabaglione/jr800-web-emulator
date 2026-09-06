@@ -12,7 +12,6 @@ cmake --build --preset wasm-release
 make -C sdk/examples/lcd/07-relic-dive
 ```
 
-出力は`build/sdk-lcd/07-relic-dive/07-relic-dive.j8a`です。
 ゲーム内の中断識別子は`RD01`です。ブラウザーの状態保存はゲームから独立しています。
 
 ## 構成とメモリー

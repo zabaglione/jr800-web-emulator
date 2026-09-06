@@ -9,6 +9,8 @@
 .global commit_turn
 .global state_begin
 .extern init
+.extern basic_save
+.extern basic_check_break
 .extern clear
 .extern present_begin
 .extern present_next
@@ -19,6 +21,7 @@
 entry:
     SEI
     LDS #$5FFF
+    JSR basic_save
     JSR init
     LDD G_MAGIC
     SUBD #$5244
@@ -275,6 +278,7 @@ end_stay:
 ; 7 northwest, 8 northeast, 9 southwest, 10 southeast, 11 wait.
 ; E-392: active-low key positions, explicit idle $FF is required.
 poll_key:
+    JSR basic_check_break
     CLRB
     LDAA $0FFD
     BITA #1

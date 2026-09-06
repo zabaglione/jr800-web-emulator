@@ -1,6 +1,6 @@
 ; SPDX-License-Identifier: MIT
 ; Software PCG runner using the existing JR-800 LCD and keyboard models.
-; SPACE jumps; releasing SPACE early limits ascent. No ROM routines are called.
+; SPACE jumps; releasing SPACE early limits ascent. BREAK returns to the BASIC command prompt.
 .global entry
 .global frame_ready
 .global phase
@@ -17,6 +17,8 @@
 .global space_previous
 .global space_pending
 .extern init
+.extern basic_save
+.extern basic_check_break
 .extern clear
 .extern present_begin
 .extern present_next
@@ -41,6 +43,7 @@
 entry:
     SEI
     LDS #$5FFF
+    JSR basic_save
     JSR init
     CLRA
     STAA phase
@@ -405,6 +408,7 @@ copy_best:
 ; Latch new presses around both CPU drawing and LCD transfer so short taps
 ; survive the Web host's 49,152-cycle minimum hold (E-404).
 poll_keys:
+    JSR basic_check_break
     LDAA $0FEF
     ANDA #1
     EORA #1

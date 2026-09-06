@@ -2,6 +2,8 @@
 .global entry
 .global frame_ready
 .extern init
+.extern basic_save
+.extern basic_check_break
 .extern clear
 .extern present
 .extern text
@@ -12,6 +14,7 @@
 entry:
     SEI
     LDS #$5FFF
+    JSR basic_save
     JSR init
     JSR clear
     CLRA
@@ -34,6 +37,7 @@ render:
     JSR glyph
     JSR present
 frame_ready:
+    JSR basic_check_break
     JSR delay
     INC ones
     LDAA ones

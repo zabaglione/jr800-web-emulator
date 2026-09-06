@@ -3,7 +3,11 @@ entry entry
 region PROGRAM $2800 $1800
 region FRAME $4000 $0600
 region STATE $4600 $0100
+region RUNTIME $5400 $0400
+region CONTEXT $5800 $0100
 place .text PROGRAM
 place .data PROGRAM
 place .frame FRAME
 place .bss STATE
+place .runtime RUNTIME
+place .context CONTEXT

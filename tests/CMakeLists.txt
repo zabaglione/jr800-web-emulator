@@ -192,6 +192,14 @@ else()
             incremental
     )
 
+    add_executable(lcd_sample_basic_return_test lcd_sample_basic_return_test.cpp)
+    target_link_libraries(lcd_sample_basic_return_test
+        PRIVATE jr800::assembler jr800::core jr800::linker)
+    add_test(NAME lcd_sample_basic_return_test
+        COMMAND lcd_sample_basic_return_test
+            ${PROJECT_SOURCE_DIR}/sdk/examples/lcd/common/basic.s
+            ${PROJECT_SOURCE_DIR}/sdk/examples/lcd/common/memory.j8l)
+
     add_executable(hd44102_test hd44102_test.cpp)
     target_link_libraries(hd44102_test PRIVATE jr800::core)
     add_test(NAME hd44102_test COMMAND hd44102_test)

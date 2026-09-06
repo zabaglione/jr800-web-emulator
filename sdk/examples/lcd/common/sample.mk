@@ -11,7 +11,7 @@ LINK_SCRIPT ?= ../common/memory.j8l
 .DEFAULT_GOAL := all
 .PHONY: all run debug test clean
 
-OBJECTS := $(SOURCES:%.s=$(BUILD_DIR)/%.jro) $(BUILD_DIR)/display.jro $(BUILD_DIR)/font.jro
+OBJECTS := $(SOURCES:%.s=$(BUILD_DIR)/%.jro) $(BUILD_DIR)/display.jro $(BUILD_DIR)/font.jro $(BUILD_DIR)/basic.jro
 
 $(BUILD_DIR):
 	mkdir -p "$@"

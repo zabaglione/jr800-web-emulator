@@ -12,7 +12,6 @@ make -C sdk/examples/lcd/06-dino test
 python3 -m http.server 8000 --bind 127.0.0.1 --directory build/wasm-release/web
 ```
 
-出力先は`build/sdk-lcd/06-dino/06-dino.j8a`です。
 `make run`は開始画面をSVGに出力し、`make debug`はレジスターとシンボルを表示します。
 
 ## 実装
