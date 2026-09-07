@@ -329,9 +329,6 @@ stairs_action:
     BNE stairs_done
     INC G_FLOOR
     JSR generate_world
-    LDAA #4
-    STAA G_X
-    STAA G_Y
     LDAA #1
     STAA G_MODE
     CLR G_MESSAGE

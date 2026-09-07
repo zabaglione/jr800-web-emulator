@@ -11,8 +11,6 @@ enemy_hp: .byte 4,5,9,6,3,4,7,12,5,5,8,10
 enemy_attack: .byte 2,3,4,3,2,2,4,5,2,2,2,4
 enemy_defense: .byte 0,0,1,0,0,0,1,1,0,0,1,0
 bits: .byte 1,2,4,8,16
-room_centers_x: .byte 4,12,20,4,12,20
-room_centers_y: .byte 4,4,4,12,12,12
 direction_dx: .byte 0,0,255,1,0,0,255,1,255,1
 direction_dy: .byte 255,1,0,0,0,0,255,255,1,1
 tiles:

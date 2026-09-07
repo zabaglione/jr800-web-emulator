@@ -11,3 +11,5 @@ place .bss STATE
 place .frame FRAME
 place .runtime RUNTIME
 place .context CONTEXT
+region GENERATION $5900 $0500
+place .generation GENERATION

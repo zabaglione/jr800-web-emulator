@@ -53,6 +53,9 @@ cold_zero:
     STD G_SEED
     LDAA #1
     STAA G_DIFFICULTY
+    ; A held CALL/launch RETURN must be released before starting an adventure.
+    LDAA #5
+    STAA G_PREVIOUS
     JMP redraw
 
 new_game:
@@ -132,11 +135,6 @@ shuffle_done:
     JSR generate_world
     CLR G_FLOOR
     JSR select_floor
-    ; Stairs are at fixed room centers, with varied rooms/corridors around them.
-    LDAA #4
-    STAA G_X
-    LDAA #4
-    STAA G_Y
     LDAA #1
     STAA G_MODE
     CLR G_MESSAGE

@@ -116,3 +116,28 @@
 .equ LOS_END_X, $486F
 .equ LOS_END_Y, $4870
 .equ NEW_SIGHT, $4871
+
+; Terrain generation scratch, outside persistent gameplay fields.
+.equ ROOM_CX, $4880
+.equ ROOM_CY, $4886
+.equ GEN_VISITED, $488C
+.equ GEN_FULL, $488D
+.equ GEN_MASK, $488E
+.equ GEN_EDGE_BIT, $488F
+.equ GEN_A, $4890
+.equ GEN_B, $4891
+.equ GEN_DISTANCE, $4892
+
+.equ GEN_N, $4893
+.equ GEN_TARGET, $4894
+.equ GEN_BIG, $4895
+.equ GEN_CUT, $4896
+.equ GEN_AXIS, $4897
+.equ GEN_ROOMS, $4898
+.equ GEN_OMITTED, $4899
+.equ RECT_X, $48A0
+.equ RECT_Y, $48A6
+.equ RECT_W, $48AC
+.equ RECT_H, $48B2
+.equ GEN_LINKS, $48B8
+.equ GEN_START, $489A

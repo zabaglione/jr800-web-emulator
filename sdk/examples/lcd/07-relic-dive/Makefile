@@ -5,7 +5,7 @@ CHECK_SCRIPT := check.mjs
 LINK_SCRIPT := memory.j8l
 include ../common/sample.mk
 
-MODULES := constants.inc main.s dungeon.s turns.s items.s ui.s assets.s
+MODULES := constants.inc main.s dungeon.s terrain.s turns.s items.s ui.s assets.s
 $(BUILD_DIR)/game.jro: $(MODULES) | $(BUILD_DIR)
 	cat $(MODULES) > "$(BUILD_DIR)/game.s"
 	"$(JR8AS)" --target hd6301v1 --listing "$(BUILD_DIR)/game.lst" -o "$@" "$(BUILD_DIR)/game.s"

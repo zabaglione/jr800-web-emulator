@@ -57,9 +57,7 @@ visible_cell:
     LDX CP
     RTS
 
-; Six sector rooms, joined by a spanning snake and one vertical cross-link.
-; Each room contains its sector center. Corridors can meet room walls only
-; through carved floor; no disconnected edge fragments or hidden doors.
+; Clear the floor, generate connected terrain, then populate it.
 generate_world:
     LDAA G_FLOOR
     STAA GEN_FLOOR
@@ -83,85 +81,7 @@ gen_zero_more:
     CLRA
     BRA gen_zero
 gen_rooms:
-    CLR ROOM
-gen_room:
-    LDAB ROOM
-    LDX #room_centers_x
-    ABX
-    LDAA 0,X
-    SUBA #2
-    STAA ROOM_X
-    LDX #room_centers_y
-    ABX
-    LDAA 0,X
-    SUBA #2
-    STAA ROOM_Y
-    JSR random
-    ANDA #1
-    ADDA #4
-    STAA ROOM_W
-    JSR random
-    ANDA #1
-    ADDA #4
-    STAA ROOM_H
-    LDAA ROOM_Y
-    STAA GY
-gen_room_y:
-    JSR poll_key
-    LDAA ROOM_X
-    STAA GX
-gen_room_x:
-    LDAA GX
-    LDAB GY
-    JSR cell
-    LDAA #1
-    STAA 0,X
-    INC GX
-    LDAA GX
-    SUBA ROOM_X
-    CMPA ROOM_W
-    BNE gen_room_x
-    INC GY
-    LDAA GY
-    SUBA ROOM_Y
-    CMPA ROOM_H
-    BNE gen_room_y
-    INC ROOM
-    LDAA ROOM
-    CMPA #6
-    BNE gen_room
-    ; Horizontal spines connect each row of three rooms.
-    LDAA #4
-    STAA GY
-    JSR carve_horizontal
-    LDAA #12
-    STAA GY
-    JSR carve_horizontal
-    ; Outer vertical connection plus a seeded inner cross-link.
-    LDAA #20
-    STAA GX
-    JSR carve_vertical
-    JSR random
-    ANDA #1
-    ADDA #11
-    STAA GX
-    JSR carve_vertical
-    LDAA #4
-    LDAB #4
-    JSR cell
-    LDAA #1
-    STAA 0,X
-    LDAA #4
-    LDAB #12
-    JSR cell
-    LDAA #3
-    LDAB GEN_FLOOR
-    INCB
-    CMPB G_DEPTH
-    BNE gen_stairs
-    LDAA #4
-gen_stairs:
-    STAA 0,X
+    JSR terrain_layout
     ; Guaranteed resources, then varied consumables, gear, and gold.
     LDAA #1
     TST G_DIFFICULTY
@@ -217,13 +137,13 @@ gen_enemy:
     JSR free_position
     ; Leave an arrival area outside enemy sight, including ranged attackers.
     LDAA NX
-    SUBA #4
+    SUBA G_X
     BPL arrival_dx
     NEGA
 arrival_dx:
     STAA TEMP
     LDAA NY
-    SUBA #4
+    SUBA G_Y
     BPL arrival_dy
     NEGA
 arrival_dy:
@@ -271,37 +191,8 @@ enemy_roll_kind:
     BNE gen_enemy
     RTS
 
-carve_horizontal:
-    LDAA #4
-    STAA GX
-carve_h_next:
-    LDAA GX
-    LDAB GY
-    JSR cell
-    LDAA #1
-    STAA 0,X
-    INC GX
-    LDAA GX
-    CMPA #21
-    BNE carve_h_next
-    RTS
-carve_vertical:
-    LDAA #4
-    STAA GY
-carve_v_next:
-    LDAA GX
-    LDAB GY
-    JSR cell
-    LDAA #1
-    STAA 0,X
-    INC GY
-    LDAA GY
-    CMPA #13
-    BNE carve_v_next
-    RTS
-
 ; A random empty floor cell. Generated
-; maps have over 100 floor cells and at most 45 populated records.
+; Room and corridor cells are reserved before bounded populations are placed.
 free_position:
     JSR poll_key
     JSR random
@@ -325,10 +216,10 @@ free_position:
     CMPA #1
     BNE free_position
     LDAA NX
-    CMPA #4
+    CMPA G_X
     BNE position_not_entry
     LDAA NY
-    CMPA #4
+    CMPA G_Y
     BEQ free_position
 position_not_entry:
     JSR find_enemy
