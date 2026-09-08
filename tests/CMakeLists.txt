@@ -171,6 +171,10 @@ else()
     target_link_libraries(jr800_lcd_bus_test PRIVATE jr800::core)
     add_test(NAME jr800_lcd_bus_test COMMAND jr800_lcd_bus_test)
 
+    add_executable(sdk_library_test sdk_library_test.cpp)
+    target_link_libraries(sdk_library_test PRIVATE jr800::assembler jr800::core jr800::linker)
+    add_test(NAME sdk_library_test COMMAND sdk_library_test ${PROJECT_SOURCE_DIR})
+
     add_executable(lcd_sample_busy_test lcd_sample_busy_test.cpp)
     target_link_libraries(
         lcd_sample_busy_test
