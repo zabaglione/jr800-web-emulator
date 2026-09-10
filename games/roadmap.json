@@ -125,7 +125,7 @@
       "title": "HEX FRONT",
       "genre": "board",
       "style": "modern",
-      "summary": "六角格子で向かい合う辺を接続するCPU対戦。"
+      "summary": "六方向の接続と、1局1回のリレー変換を使うCPU対戦。"
     },
     {
       "id": "knight-tour",

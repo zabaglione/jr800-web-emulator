@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {letters} from './harness.mjs';
+import {checkBoard} from './board_check.mjs';
 export async function data(id,name='solutions') {return JSON.parse(await readFile(new URL(`../${id}/${name}.json`,import.meta.url)));}
 export function moveCursor(g,cell,w){
  while(g.read('cursor')%w<cell%w)g.tap('right');
@@ -98,5 +99,5 @@ export async function checkLibrary(g,id){
    assert.equal(g.read('phase'),4,`Switch puzzle ${stage+1}`);
   }
   assert.ok(undoSwitch&&closedDoor,'Switch undo and closed-door blocking were exercised');
- }else throw new Error(`No library driver for ${id}`);
+ }else await checkBoard(g,id);
 }

@@ -1,6 +1,8 @@
 ; SPDX-License-Identifier: MIT
 .global undo_valid
 .section .text, code
+game_render:
+    JMP grid_render
 game_start:
     JSR grid_reset
     CLR undo_valid

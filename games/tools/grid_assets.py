@@ -25,6 +25,33 @@ def logo(name,kind):
             b.rect(x,6,15,16);b.line(x+3,18,x+11,10);b.line(x+7,22,x+7,50);b.line(x+7,50,96,50)
             b.rect(x,29,15,16)
             for xx in range(x+3,x+14,4):b.line(xx,30,xx,43)
+    elif kind=='line-four':
+        for x in (4,20,158,174):
+            for y in (7,22,37):
+                b.rect(x,y,13,13);b.rect(x+3,y+3,7,7,1,(x+y)%3==0)
+        b.line(3,53,188,53);b.line(28,3,165,51)
+    elif kind=='reversi-mini':
+        for col,x in enumerate((8,23,38,154,169,184)):
+            for row,y in enumerate((10,27,44)):
+                for Y in range(-5,6):
+                    for X in range(-5,6):
+                        if X*X+Y*Y<=25 and ((row+col)%2 or X*X+Y*Y>=13):b.dot(x+X,y+Y)
+        b.line(30,51,161,51);b.line(157,48,161,51);b.line(157,54,161,51)
+    elif kind=='five-stones':
+        for y in (8,20,32,44):b.line(3,y,188,y)
+        for x in (9,21,33,159,171,183):b.line(x,3,x,52)
+        for x,y in ((9,8),(21,20),(33,32),(159,44),(171,32),(183,20)):
+            b.rect(x-4,y-4,9,9,0,True)
+            for Y in range(-3,4):
+                for X in range(-3,4):
+                    if X*X+Y*Y<=10:b.dot(x+X,y+Y)
+    elif kind=='hex-front':
+        for x in (10,27,164,181):
+            for y in (10,28,46):
+                points=[(x-7,y),(x-3,y-6),(x+3,y-6),(x+7,y),(x+3,y+6),(x-3,y+6),(x-7,y)]
+                for p,q in zip(points,points[1:]):b.line(*p,*q)
+                b.line(x-3,y,x+3,y);b.line(x,y-3,x,y+3)
+        b.line(8,52,184,52);b.line(91,49,96,52);b.line(91,55,96,52)
     else:
         raise ValueError('A distinct title motif is required: '+kind)
     for row,word in enumerate(name.split()):

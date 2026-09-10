@@ -60,6 +60,30 @@
       "title": "SWITCH MAZE",
       "genre": "logic",
       "style": "modern"
+    },
+    {
+      "id": "line-four",
+      "title": "LINE FOUR",
+      "genre": "board",
+      "style": "classic"
+    },
+    {
+      "id": "reversi-mini",
+      "title": "REVERSI MINI",
+      "genre": "board",
+      "style": "classic"
+    },
+    {
+      "id": "five-stones",
+      "title": "FIVE STONES",
+      "genre": "board",
+      "style": "classic"
+    },
+    {
+      "id": "hex-front",
+      "title": "HEX FRONT",
+      "genre": "board",
+      "style": "modern"
     }
   ]
 }
