@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [盤上戦略](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Board) · 定番
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/five-stones)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=five-stones) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/five-stones)
 
 ![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/five-stones/title.png)
 

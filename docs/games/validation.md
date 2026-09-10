@@ -8,7 +8,7 @@ LAMP GRID、SLIDE NINE、ICE ROUTE、SWITCH MAZEの各20面を、WASM Releaseと
 
 ## 追加した盤上ゲーム4本
 
-LINE FOURは3難易度の勝敗、REVERSI MINIは勝利・敗北・自動パスを含む3対局、FIVE STONESは攻撃と防御による勝敗、HEX FRONTは接続とリレー変換・取り消しをキー入力で確認しました。いずれも所有するJR-HuBASIC 1.0 ROMで再生しています。
+LINE FOURは3難易度の勝敗、REVERSI MINIは勝利・敗北・自動パスを含む3対局、FIVE STONESは攻撃と防御による勝敗、HEX FRONTは接続とリレー変換・取り消しをキー入力で確認しました。いずれも所有するJR-HuBASIC 1.0 ROMで再生しています。公開リポジトリのNative/WASM・Debug/ReleaseのCIとPages配信が成功しました。公開サイトの14本について、初回ROM設定・保存ROM復元・タイトル画素・物理と仮想キー・音声開始・再読込み・不明IDや整合性エラーでの停止・ROM非送信をChromeで確認しています。
 
 規則の検査では、四目の全69配置と五目の全172配置を両プレイヤー・最後に置いた全位置で照合し、リバーシの全方向の挟み方、Hexの4方向の距離場を独立した計算と比較しました。カーソル移動では経路探索をやり直さず、盤面が変わった場合だけ計算します。
 
@@ -51,4 +51,4 @@ Eクロック1,228,800Hzによる換算です。RAMはコード・画像・状�
 
 拡張RAMを無効にした検証は、独自の最小起動コードを使用しています。所有ROMの起動は既存のBASIC実験プロファイルを使い、ゲーム自体の標準RAM内での動作と区別しています。2.0・実機操作・実際の発音品質は対応確認に含めません。音声確認はブラウザーへの再生データ供給までです。
 
-再現用のテストは[games/tools/check.mjs](../../games/tools/check.mjs)、[Native再生](../../tests/game_replay_test.cpp)、[規則の単体検査](../../tests/game_rules_test.cpp)、[ブラウザー検査](../../tests/browser_program_launch_test.cjs)にあります。`make test`の出力と性能データは`build/games/`へ保存します。公開Pagesで10本すべての自動起動が成功したため、各作品の「遊ぶ」リンクを有効にしました。Wiki原稿と画像はこのリポジトリで公開しています。
+再現用のテストは[games/tools/check.mjs](../../games/tools/check.mjs)、[Native再生](../../tests/game_replay_test.cpp)、[規則の単体検査](../../tests/game_rules_test.cpp)、[ブラウザー検査](../../tests/browser_program_launch_test.cjs)にあります。`make test`の出力と性能データは`build/games/`へ保存します。公開Pagesで14本すべての自動起動が成功したため、各作品の「遊ぶ」リンクを有効にしました。Wiki原稿と画像はこのリポジトリで公開しています。

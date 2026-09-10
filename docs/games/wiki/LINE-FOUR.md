@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [盤上戦略](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Board) · 定番
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/line-four)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=line-four) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/line-four)
 
 ![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/line-four/title.png)
 
