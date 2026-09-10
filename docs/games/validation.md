@@ -11,7 +11,7 @@
 - Nativeの状態を指定した単体検査で、光路循環、カード12種の効果・エナジー不足・防御・毒、工場の合流競合・加工・出荷、左右端の地形破壊を検証しました。
 - テンキー/WASDの同時押し、短い入力、20/6ティックのリピート、タイマーの周回、決定・取消の非リピート、キー解放待ちを検証しました。部分転送はLCD境界とBUSYを0/1/8回遅延する条件で、全画面更新と画素を照合しています。
 - 所有するJR-HuBASIC 1.0 ROMでも6本のキー再生が成功。BREAKから空のBASICへ戻り、計算と新規BASICプログラムを実行する確認は、直接起動・CALL起動の計12ケースで成功しました。
-- ローカル配信のChromeで、所有ROMの初回選択、保存済みROMによる6本の起動、タイトル全画素、物理SPACE・仮想SPACE、音声バッファーの再生開始、再読み込み、不明IDと整合性エラー、通常URLの手動起動を確認しました。ROMを取得・送信するHTTP要求はありませんでした。
+- ローカル配信と公開PagesのChromeで、所有ROMの初回選択、保存済みROMによる6本の起動、タイトル全画素、物理SPACE・仮想SPACE、音声バッファーの再生開始、再読み込み、不明IDと整合性エラー、通常URLの手動起動を確認しました。ROMを取得・送信するHTTP要求はありませんでした。
 
 ## RAMと実行時間
 
@@ -30,4 +30,4 @@ Eクロック1,228,800Hzによる換算です。RAMはコード・画像・状�
 
 拡張RAMを無効にした検証は、独自の最小起動コードを使用しています。所有ROMの起動は既存のBASIC実験プロファイルを使い、ゲーム自体の標準RAM内での動作と区別しています。2.0・実機操作・実際の発音品質は対応確認に含めません。音声確認はブラウザーへの再生データ供給までです。
 
-再現用のテストは[games/tools/check.mjs](../../games/tools/check.mjs)、[Native再生](../../tests/game_replay_test.cpp)、[規則の単体検査](../../tests/game_rules_test.cpp)、[ブラウザー検査](../../tests/browser_program_launch_test.cjs)にあります。`make test`の出力と性能データは`build/games/`へ保存します。公開配信とWikiの確認結果は公開作業後に追記します。
+再現用のテストは[games/tools/check.mjs](../../games/tools/check.mjs)、[Native再生](../../tests/game_replay_test.cpp)、[規則の単体検査](../../tests/game_rules_test.cpp)、[ブラウザー検査](../../tests/browser_program_launch_test.cjs)にあります。`make test`の出力と性能データは`build/games/`へ保存します。公開Pagesで6本すべての自動起動が成功したため、各作品の「遊ぶ」リンクを有効にしました。Wiki原稿と画像はこのリポジトリで公開しています。

@@ -1,6 +1,6 @@
 # MIRROR LINK
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/mirror-link)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=mirror-link) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/mirror-link)
 
 ![タイトル画面](../../docs/games/screenshots/mirror-link/title.png)
 

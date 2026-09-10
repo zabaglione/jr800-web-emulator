@@ -1,6 +1,6 @@
 # STEP STRIKE
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/step-strike)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=step-strike) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/step-strike)
 
 ![タイトル画面](../../docs/games/screenshots/step-strike/title.png)
 

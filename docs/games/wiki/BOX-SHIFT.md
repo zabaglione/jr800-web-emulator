@@ -1,6 +1,6 @@
 # BOX SHIFT
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/box-shift)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=box-shift) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/box-shift)
 
 ![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/box-shift/title.png)
 

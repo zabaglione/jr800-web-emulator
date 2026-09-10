@@ -1,6 +1,6 @@
 # POCKET FACTORY
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/pocket-factory)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=pocket-factory) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/pocket-factory)
 
 ![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/pocket-factory/title.png)
 
