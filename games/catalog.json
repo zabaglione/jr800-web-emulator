@@ -3,27 +3,63 @@
   "programs": [
     {
       "id": "box-shift",
-      "title": "BOX SHIFT"
+      "title": "BOX SHIFT",
+      "genre": "logic",
+      "style": "classic"
     },
     {
       "id": "mirror-link",
-      "title": "MIRROR LINK"
+      "title": "MIRROR LINK",
+      "genre": "logic",
+      "style": "modern"
     },
     {
       "id": "step-strike",
-      "title": "STEP STRIKE"
+      "title": "STEP STRIKE",
+      "genre": "shooting",
+      "style": "modern"
     },
     {
       "id": "circuit-deck",
-      "title": "CIRCUIT DECK"
+      "title": "CIRCUIT DECK",
+      "genre": "cards",
+      "style": "modern"
     },
     {
       "id": "pocket-factory",
-      "title": "POCKET FACTORY"
+      "title": "POCKET FACTORY",
+      "genre": "simulation",
+      "style": "modern"
     },
     {
       "id": "arc-duel",
-      "title": "ARC DUEL"
+      "title": "ARC DUEL",
+      "genre": "shooting",
+      "style": "classic"
+    },
+    {
+      "id": "lamp-grid",
+      "title": "LAMP GRID",
+      "genre": "logic",
+      "style": "classic"
+    },
+    {
+      "id": "slide-nine",
+      "title": "SLIDE NINE",
+      "genre": "logic",
+      "style": "classic"
+    },
+    {
+      "id": "ice-route",
+      "title": "ICE ROUTE",
+      "genre": "logic",
+      "style": "modern"
+    },
+    {
+      "id": "switch-maze",
+      "title": "SWITCH MAZE",
+      "genre": "logic",
+      "style": "modern"
     }
   ]
 }

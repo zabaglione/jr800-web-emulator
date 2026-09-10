@@ -1,5 +1,7 @@
 # ARC DUEL
 
+[ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [シューティング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting) · 定番
+
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=arc-duel) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/arc-duel)
 
 ![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/arc-duel/title.png)

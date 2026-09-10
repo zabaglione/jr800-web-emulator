@@ -1,5 +1,7 @@
 # POCKET FACTORY
 
+[ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [経営・シミュレーション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Simulation) · モダン
+
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=pocket-factory) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/pocket-factory)
 
 ![タイトル画面](../../docs/games/screenshots/pocket-factory/title.png)

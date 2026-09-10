@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {Game,letters} from './harness.mjs';
+import {checkLibrary} from './library_check.mjs';
 const [wasm,out,id,mode='test']=process.argv.slice(2);
 const g=await Game.open(wasm,out,id);
 if(id==='arc-duel'){
@@ -205,7 +206,7 @@ try{
    for(let f=0;g.read('phase')===2&&![0,4].includes(g.read('arc_mode'))&&f<700;f++)g.frame();
   }
   assert.equal(g.read('phase'),5,'Artillery match defeat');g.tap('space');assert.equal(g.read('health'),100);assert.equal(g.read('cpu_wins'),0);
- }else if(mode!=='test'){await g.start();await g.save('gameplay-1');}else throw new Error(`No test driver for ${id}`);
+ }else if(mode!=='test'){await g.start();await g.save('gameplay-1');}else await checkLibrary(g,id);
  if(['test','smoke'].includes(mode)&&!process.env.JR800_GAME_ROM)await writeFile(resolve(out,mode==='smoke'?'smoke-replay.txt':'replay.txt'),[g.symbols.frame_ready,g.symbols.framebuffer,g.symbols.phase,g.symbols.update_begin].join(' ')+'\n'+g.trace.join('\n')+'\n');
  const result={id,mode,passed:true,frames:g.frames,maxFrameCycles:Math.max(...g.cycles),maxDataBytes:Math.max(...g.transfers),idleDataBytes:0,bootstrap:process.env.JR800_GAME_ROM?'owner-supplied':'project-authored'};
  await writeFile(resolve(out,mode==='test'?(process.env.JR800_GAME_ROM?'owner-verification.json':'verification.json'):`${mode}.json`),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "logic",
+    "title": "パズル・論理",
+    "description": "盤面を読み、手順や配置を考えるゲーム。"
+  },
+  {
+    "id": "board",
+    "title": "盤上戦略",
+    "description": "定番の盤上遊戯と、一手ずつ考える対戦。"
+  },
+  {
+    "id": "cards",
+    "title": "カード・ダイス",
+    "description": "手札、確率、リスクと報酬を使うゲーム。"
+  },
+  {
+    "id": "action",
+    "title": "アクション",
+    "description": "移動、回避、ジャンプと空間の判断。"
+  },
+  {
+    "id": "shooting",
+    "title": "シューティング",
+    "description": "射線、照準、弾道を使うゲーム。"
+  },
+  {
+    "id": "adventure",
+    "title": "探索・冒険",
+    "description": "未知の場所を調べ、資源を管理して進むゲーム。"
+  },
+  {
+    "id": "simulation",
+    "title": "経営・シミュレーション",
+    "description": "配置や運用を工夫して目標を達成するゲーム。"
+  },
+  {
+    "id": "sports",
+    "title": "スポーツ・タイミング",
+    "description": "角度、反応、間合いとタイミングを競うゲーム。"
+  }
+]

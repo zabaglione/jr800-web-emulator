@@ -21,16 +21,18 @@ make -C games/box-shift clean
 
 新規ソースとドット画像はMIT Licenseです。ROMは含みません。実機動作・カセット転送は未検証です。
 
-## 6本のゲーム
+## ジャンルから探す
 
-| ゲーム | 内容 |
-|---|---|
-| [BOX SHIFT](box-shift/README.md) | 20面の箱押し |
-| [MIRROR LINK](mirror-link/README.md) | 20面の鏡反射 |
-| [STEP STRIKE](step-strike/README.md) | 20面の時間停止戦術パズル |
-| [CIRCUIT DECK](circuit-deck/README.md) | 12種類のカード・9戦のデッキ構築 |
-| [POCKET FACTORY](pocket-factory/README.md) | 2資源・2加工機・12課題 |
-| [ARC DUEL](arc-duel/README.md) | 6地形・3難易度・2勝先取の弾道対戦 |
+既存6本を含めて計50本を目標に開発しています。動作確認済みの収録作品と制作予定は、[ジャンル別ゲーム一覧](../docs/games/README.md)と[開発一覧](../docs/games/roadmap.md)で区別しています。
+
+- [パズル](../docs/games/wiki/Genre-Logic.md)
+- [盤上戦略](../docs/games/wiki/Genre-Board.md)
+- [カード・ダイス](../docs/games/wiki/Genre-Cards.md)
+- [アクション](../docs/games/wiki/Genre-Action.md)
+- [シューティング](../docs/games/wiki/Genre-Shooting.md)
+- [探索](../docs/games/wiki/Genre-Adventure.md)
+- [経営・シミュレーション](../docs/games/wiki/Genre-Simulation.md)
+- [スポーツ・タイミング](../docs/games/wiki/Genre-Sports.md)
 
 一括実行は `make -C games`、`make -C games test`、`make -C games run`、`make -C games debug`、`make -C games clean` です。
 

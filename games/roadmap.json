@@ -1,0 +1,355 @@
+{
+  "target": 50,
+  "programs": [
+    {
+      "id": "box-shift",
+      "title": "BOX SHIFT",
+      "genre": "logic",
+      "style": "classic",
+      "summary": "箱を押して目標へ運ぶ20面。"
+    },
+    {
+      "id": "mirror-link",
+      "title": "MIRROR LINK",
+      "genre": "logic",
+      "style": "modern",
+      "summary": "複数の光源と鏡を接続する20面。"
+    },
+    {
+      "id": "step-strike",
+      "title": "STEP STRIKE",
+      "genre": "shooting",
+      "style": "modern",
+      "summary": "行動したときだけ世界が進む20面。"
+    },
+    {
+      "id": "circuit-deck",
+      "title": "CIRCUIT DECK",
+      "genre": "cards",
+      "style": "modern",
+      "summary": "手札3枚・12種のカードで9戦。"
+    },
+    {
+      "id": "pocket-factory",
+      "title": "POCKET FACTORY",
+      "genre": "simulation",
+      "style": "modern",
+      "summary": "資源を加工して出荷する12課題。"
+    },
+    {
+      "id": "arc-duel",
+      "title": "ARC DUEL",
+      "genre": "shooting",
+      "style": "classic",
+      "summary": "風と地形破壊のある弾道対戦。"
+    },
+    {
+      "id": "lamp-grid",
+      "title": "LAMP GRID",
+      "genre": "logic",
+      "style": "classic",
+      "summary": "十字に切り替わるランプを消す20面。"
+    },
+    {
+      "id": "slide-nine",
+      "title": "SLIDE NINE",
+      "genre": "logic",
+      "style": "classic",
+      "summary": "空白を動かして8枚の数字を整列する20面。"
+    },
+    {
+      "id": "ice-route",
+      "title": "ICE ROUTE",
+      "genre": "logic",
+      "style": "modern",
+      "summary": "壁まで滑り、結晶を集めて出口を目指す20面。"
+    },
+    {
+      "id": "switch-maze",
+      "title": "SWITCH MAZE",
+      "genre": "logic",
+      "style": "modern",
+      "summary": "スイッチで扉を切り替える20面。"
+    },
+    {
+      "id": "pipe-weave",
+      "title": "PIPE WEAVE",
+      "genre": "logic",
+      "style": "classic",
+      "summary": "管を回して給水口と排水口をつなぐ20面。"
+    },
+    {
+      "id": "number-rail",
+      "title": "NUMBER RAIL",
+      "genre": "logic",
+      "style": "modern",
+      "summary": "同じ数字を合流させて目標値を作る。"
+    },
+    {
+      "id": "mine-field",
+      "title": "MINE FIELD",
+      "genre": "logic",
+      "style": "classic",
+      "summary": "周囲の数字から地雷を推理する。"
+    },
+    {
+      "id": "loop-trace",
+      "title": "LOOP TRACE",
+      "genre": "logic",
+      "style": "modern",
+      "summary": "同じ点を通らず全地点を結ぶ20面。"
+    },
+    {
+      "id": "line-four",
+      "title": "LINE FOUR",
+      "genre": "board",
+      "style": "classic",
+      "summary": "7列の盤に石を落とし、CPUより先に4個を並べる。"
+    },
+    {
+      "id": "reversi-mini",
+      "title": "REVERSI MINI",
+      "genre": "board",
+      "style": "classic",
+      "summary": "6×6の盤で角と辺を争うCPU対戦。"
+    },
+    {
+      "id": "five-stones",
+      "title": "FIVE STONES",
+      "genre": "board",
+      "style": "classic",
+      "summary": "5個の石を並べる攻防をCPUと競う。"
+    },
+    {
+      "id": "hex-front",
+      "title": "HEX FRONT",
+      "genre": "board",
+      "style": "modern",
+      "summary": "六角格子で向かい合う辺を接続するCPU対戦。"
+    },
+    {
+      "id": "knight-tour",
+      "title": "KNIGHT TOUR",
+      "genre": "board",
+      "style": "classic",
+      "summary": "ナイトの動きで全マスを一度ずつ巡る。"
+    },
+    {
+      "id": "peg-rescue",
+      "title": "PEG RESCUE",
+      "genre": "board",
+      "style": "classic",
+      "summary": "石を飛び越して取り、最後の1個を残す。"
+    },
+    {
+      "id": "pawn-race",
+      "title": "PAWN RACE",
+      "genre": "board",
+      "style": "modern",
+      "summary": "前進と斜め取りで敵陣への突破を競う。"
+    },
+    {
+      "id": "dot-claim",
+      "title": "DOT CLAIM",
+      "genre": "board",
+      "style": "classic",
+      "summary": "辺を引き、四角を閉じて陣地を取るCPU対戦。"
+    },
+    {
+      "id": "ace-stack",
+      "title": "ACE STACK",
+      "genre": "cards",
+      "style": "classic",
+      "summary": "合計13になるカードを除くピラミッド遊戯。"
+    },
+    {
+      "id": "suit-run",
+      "title": "SUIT RUN",
+      "genre": "cards",
+      "style": "classic",
+      "summary": "場のカードから数字が隣り合うカードをつなぐ。"
+    },
+    {
+      "id": "dice-hold",
+      "title": "DICE HOLD",
+      "genre": "cards",
+      "style": "classic",
+      "summary": "ダイスを保留して振り直し、役を選んで得点する。"
+    },
+    {
+      "id": "push-luck",
+      "title": "PUSH LUCK",
+      "genre": "cards",
+      "style": "modern",
+      "summary": "得点を確保するか振り続けるかを選ぶCPU対戦。"
+    },
+    {
+      "id": "wall-break",
+      "title": "WALL BREAK",
+      "genre": "action",
+      "style": "classic",
+      "summary": "パドルで球を返し、12種類のブロック配置を崩す。"
+    },
+    {
+      "id": "tail-trail",
+      "title": "TAIL TRAIL",
+      "genre": "action",
+      "style": "classic",
+      "summary": "伸びる尾を避けながら食べ物を集める。"
+    },
+    {
+      "id": "maze-chase",
+      "title": "MAZE CHASE",
+      "genre": "action",
+      "style": "classic",
+      "summary": "追跡者をかわし、迷路内の粒を集める。"
+    },
+    {
+      "id": "river-hop",
+      "title": "RIVER HOP",
+      "genre": "action",
+      "style": "classic",
+      "summary": "車列と流れる足場を横切って対岸へ渡る。"
+    },
+    {
+      "id": "tower-leap",
+      "title": "TOWER LEAP",
+      "genre": "action",
+      "style": "classic",
+      "summary": "足場を選んでジャンプし、塔を上る。"
+    },
+    {
+      "id": "bomb-vault",
+      "title": "BOMB VAULT",
+      "genre": "action",
+      "style": "classic",
+      "summary": "時限爆弾で壁を壊し、敵を避けて出口へ進む。"
+    },
+    {
+      "id": "grid-claim",
+      "title": "GRID CLAIM",
+      "genre": "action",
+      "style": "classic",
+      "summary": "通った跡が壁になる競走でCPUを追い込む。"
+    },
+    {
+      "id": "gravity-run",
+      "title": "GRAVITY RUN",
+      "genre": "action",
+      "style": "modern",
+      "summary": "重力を反転させ、床と天井の障害物をかわす。"
+    },
+    {
+      "id": "star-patrol",
+      "title": "STAR PATROL",
+      "genre": "shooting",
+      "style": "classic",
+      "summary": "敵編隊と弾を避けて進む波状攻撃シューティング。"
+    },
+    {
+      "id": "orbit-guard",
+      "title": "ORBIT GUARD",
+      "genre": "shooting",
+      "style": "modern",
+      "summary": "軌道上を回転して中心へ迫る敵を迎撃する。"
+    },
+    {
+      "id": "target-range",
+      "title": "TARGET RANGE",
+      "genre": "shooting",
+      "style": "classic",
+      "summary": "動く的を狙い、限られた弾で連続命中を競う。"
+    },
+    {
+      "id": "ricochet-ops",
+      "title": "RICOCHET OPS",
+      "genre": "shooting",
+      "style": "modern",
+      "summary": "壁で反射する弾を使い、障害物の奥の標的を狙う。"
+    },
+    {
+      "id": "relay-quest",
+      "title": "RELAY QUEST",
+      "genre": "adventure",
+      "style": "classic",
+      "summary": "鍵と回復資源を集め、敵のいる遺跡を巡る。"
+    },
+    {
+      "id": "echo-cavern",
+      "title": "ECHO CAVERN",
+      "genre": "adventure",
+      "style": "modern",
+      "summary": "音波で周囲を調べ、見えない洞窟を探索する。"
+    },
+    {
+      "id": "micro-rogue",
+      "title": "MICRO ROGUE",
+      "genre": "adventure",
+      "style": "classic",
+      "summary": "地形と道具が変わる小さなダンジョンを踏破する。"
+    },
+    {
+      "id": "signal-ghost",
+      "title": "SIGNAL GHOST",
+      "genre": "adventure",
+      "style": "modern",
+      "summary": "監視範囲を避け、装置を停止する潜入パズル。"
+    },
+    {
+      "id": "rail-dispatch",
+      "title": "RAIL DISPATCH",
+      "genre": "simulation",
+      "style": "classic",
+      "summary": "分岐と信号を操作し、列車を衝突させず届ける。"
+    },
+    {
+      "id": "orchard-days",
+      "title": "ORCHARD DAYS",
+      "genre": "simulation",
+      "style": "modern",
+      "summary": "種まき・水やり・収穫を計画し、期限内の収益を目指す。"
+    },
+    {
+      "id": "market-harbor",
+      "title": "MARKET HARBOR",
+      "genre": "simulation",
+      "style": "classic",
+      "summary": "港の相場を読み、限られた積荷で交易する。"
+    },
+    {
+      "id": "wind-putt",
+      "title": "WIND PUTT",
+      "genre": "sports",
+      "style": "classic",
+      "summary": "角度と強さを決め、壁や風のあるコースを回る。"
+    },
+    {
+      "id": "rally-return",
+      "title": "RALLY RETURN",
+      "genre": "sports",
+      "style": "classic",
+      "summary": "CPUと球を打ち合うパドル対戦。"
+    },
+    {
+      "id": "penalty-arc",
+      "title": "PENALTY ARC",
+      "genre": "sports",
+      "style": "classic",
+      "summary": "方向とタイミングを選んでゴールキーパーをかわす。"
+    },
+    {
+      "id": "beat-step",
+      "title": "BEAT STEP",
+      "genre": "sports",
+      "style": "modern",
+      "summary": "4方向の合図をCPUサイクルに合わせて入力する。"
+    },
+    {
+      "id": "balance-dock",
+      "title": "BALANCE DOCK",
+      "genre": "sports",
+      "style": "modern",
+      "summary": "動く荷物を重ね、重なった幅を保って高く積む。"
+    }
+  ]
+}

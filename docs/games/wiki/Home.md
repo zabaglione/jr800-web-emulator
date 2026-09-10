@@ -1,17 +1,21 @@
-# JR-800 ゲーム
+# JR-800 ゲームライブラリー
 
-SDKサンプルとは別に開発した、6本のオリジナル機械語ゲームです。ゲーム内表示は英語、案内は日本語です。
+定番とモダンな遊びを組み合わせ、**50本**を目標に開発しています。現在の収録は**10本**です。SDKサンプルとは別の独立したゲームで、ゲーム内表示は英語です。
 
-| タイトル | 内容 |
-|---|---|
-| [BOX SHIFT](https://github.com/zabaglione/jr800-web-emulator/wiki/BOX-SHIFT) | 箱を押してすべての丸い目標に置く、全20面の倉庫パズルです。 |
-| [MIRROR LINK](https://github.com/zabaglione/jr800-web-emulator/wiki/MIRROR-LINK) | 鏡を回転させて、すべての受光器へレーザーを導く全20面のパズルです。 |
-| [STEP STRIKE](https://github.com/zabaglione/jr800-web-emulator/wiki/STEP-STRIKE) | 移動・射撃・待機の1手でだけ世界が進む、全20面の戦術パズルです。 |
-| [CIRCUIT DECK](https://github.com/zabaglione/jr800-web-emulator/wiki/CIRCUIT-DECK) | 手札3枚とエナジー3を使う、9戦制のカードバトルです。最終戦にはボスが待っています。 |
-| [POCKET FACTORY](https://github.com/zabaglione/jr800-web-emulator/wiki/POCKET-FACTORY) | 資源A・Bをベルトと加工機で運び、製品2種類を出荷する全12課題の工場パズルです。 |
-| [ARC DUEL](https://github.com/zabaglione/jr800-web-emulator/wiki/ARC-DUEL) | 風を読み、地形を削りながらCPUの砲台と戦う弾道対戦です。6種類の地形と3段階の難易度があります。 |
+## ジャンルから探す
 
-タイトル画面はSPACEで進みます。ROMを同じサイト・パスで保存済みなら、確認済みの「遊ぶ」リンクからタイトル画面へ直接進めます。初回は手元のBASIC ROMを選び、Start BASICを押してください。音声はSPACEや画面内操作で有効になります。通常のエミュレーターURLは手動起動のままです。
+| ジャンル | 収録 / 予定 | 内容 |
+|---|---:|---|
+| [パズル・論理](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Logic) | 6 / 10 | 盤面を読み、手順や配置を考えるゲーム。 |
+| [盤上戦略](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Board) | 0 / 8 | 定番の盤上遊戯と、一手ずつ考える対戦。 |
+| [カード・ダイス](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Cards) | 1 / 5 | 手札、確率、リスクと報酬を使うゲーム。 |
+| [アクション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Action) | 0 / 8 | 移動、回避、ジャンプと空間の判断。 |
+| [シューティング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting) | 2 / 6 | 射線、照準、弾道を使うゲーム。 |
+| [探索・冒険](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Adventure) | 0 / 4 | 未知の場所を調べ、資源を管理して進むゲーム。 |
+| [経営・シミュレーション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Simulation) | 1 / 4 | 配置や運用を工夫して目標を達成するゲーム。 |
+| [スポーツ・タイミング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Sports) | 0 / 5 | 角度、反応、間合いとタイミングを競うゲーム。 |
+
+各作品のページに概要・操作・タイトル画面とゲーム中3場面を掲載します。**公開環境で確認済みの作品だけ「遊ぶ」リンクを付けます。** 同じサイト・パスでROMを保存済みなら、リンクからタイトル画面へ直接進めます。初回は手元のBASIC ROMを選び、Start BASICを押してください。
 
 ## 共通操作
 

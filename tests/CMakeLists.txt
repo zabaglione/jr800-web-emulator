@@ -25,12 +25,21 @@ if(EMSCRIPTEN)
         set(GAME_CHECK_MODE smoke)
         set(GAME_REPLAY_PREFIX "smoke-")
     endif()
-    foreach(game box-shift mirror-link step-strike circuit-deck pocket-factory arc-duel)
+    file(READ "${PROJECT_SOURCE_DIR}/games/catalog.json" GAME_CATALOG)
+    string(JSON GAME_COUNT LENGTH "${GAME_CATALOG}" programs)
+    math(EXPR GAME_LAST "${GAME_COUNT} - 1")
+    set(GAME_IDS "")
+    foreach(index RANGE 0 ${GAME_LAST})
+        string(JSON game GET "${GAME_CATALOG}" programs ${index} id)
+        list(APPEND GAME_IDS ${game})
+    endforeach()
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/games/catalog.json")
+    foreach(game IN LISTS GAME_IDS)
         add_test(NAME game_${game}
             COMMAND ${NODE_EXECUTABLE} ${PROJECT_SOURCE_DIR}/games/tools/check.mjs
                 $<TARGET_FILE_DIR:jr800_wasm> ${PROJECT_SOURCE_DIR}/build/games/${game} ${game} ${GAME_CHECK_MODE})
     endforeach()
-    foreach(game box-shift mirror-link step-strike circuit-deck pocket-factory arc-duel)
+    foreach(game IN LISTS GAME_IDS)
         add_test(NAME native_replay_${game}
             COMMAND ${PROJECT_SOURCE_DIR}/build/native-release/tests/game_replay_test
                 ${PROJECT_SOURCE_DIR}/build/games/${game}/${game}.j8a

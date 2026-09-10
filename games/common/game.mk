@@ -9,14 +9,15 @@ BUILD_DIR ?= $(ROOT)/build/games/$(GAME)
 .DEFAULT_GOAL := all
 COMMON := $(ROOT)/games/common
 SDK := $(ROOT)/sdk/lib
+GAME_SOURCES ?= main.s
 OBJECTS := $(addprefix $(BUILD_DIR)/,game.jro display.jro font.jro basic.jro dirty.jro input.jro sound.jro)
 .PHONY: all run debug test clean
-assets.s: generate.py $(ROOT)/games/tools/art.py $(SDK)/lcd/font.s
+assets.s: generate.py $(wildcard $(ROOT)/games/tools/*.py) $(SDK)/lcd/font.s
 	$(PYTHON) generate.py
 $(BUILD_DIR):
 	mkdir -p "$@"
-$(BUILD_DIR)/game.s: main.s assets.s $(COMMON)/runtime.s $(COMMON)/graphics.s | $(BUILD_DIR)
-	cat $(COMMON)/runtime.s $(COMMON)/graphics.s main.s assets.s > "$@"
+$(BUILD_DIR)/game.s: $(GAME_SOURCES) assets.s $(COMMON)/runtime.s $(COMMON)/graphics.s | $(BUILD_DIR)
+	cat $(COMMON)/runtime.s $(COMMON)/graphics.s $(GAME_SOURCES) assets.s > "$@"
 $(BUILD_DIR)/game.jro: $(BUILD_DIR)/game.s
 	"$(JR8AS)" --target hd6301v1 --listing "$(BUILD_DIR)/game.lst" -o "$@" "$<"
 $(BUILD_DIR)/%.jro: $(SDK)/lcd/%.s | $(BUILD_DIR)
