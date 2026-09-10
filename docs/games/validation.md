@@ -4,7 +4,7 @@
 
 ## 追加4本の検証
 
-LAMP GRID、SLIDE NINE、ICE ROUTE、SWITCH MAZEの各20面を、WASM Releaseと所有するJR-HuBASIC 1.0 ROMでキー入力によりクリアしました。独立した盤面モデルと各操作を照合し、1手戻しと状態復元、無効移動、閉じた扉、結晶・鍵の回収を確認しています。最初の2本は最短解法を生成時に計算しています。Nativeでも同じキー列・CPUサイクル・LCD画素・転送数が一致しました。手数の表示上限を超える260回の操作とUNDO、WASM Debugの8項目、ローカルChromeで10本のROM復元・起動・操作・音声開始も確認しました。追加4本の実機動作は未検証です。
+LAMP GRID、SLIDE NINE、ICE ROUTE、SWITCH MAZEの各20面を、WASM Releaseと所有するJR-HuBASIC 1.0 ROMでキー入力によりクリアしました。独立した盤面モデルと各操作を照合し、1手戻しと状態復元、無効移動、閉じた扉、結晶・鍵の回収を確認しています。最初の2本は最短解法を生成時に計算しています。Nativeでも同じキー列・CPUサイクル・LCD画素・転送数が一致しました。手数の表示上限を超える260回の操作とUNDO、WASM Debugの8項目、ローカルChromeで10本のROM復元・起動・操作・音声開始も確認しました。公開リポジトリのNative/WASM・Debug/ReleaseのCIとPages配信が成功し、公開サイトでも10本の初回ROM設定・保存ROM復元・タイトル画素・物理と仮想SPACE・音声開始・エラー時の停止を確認しました。追加4本の実機動作は未検証です。
 
 ## 最初の6本で確認した基盤とゲーム
 
@@ -40,4 +40,4 @@ Eクロック1,228,800Hzによる換算です。RAMはコード・画像・状�
 
 拡張RAMを無効にした検証は、独自の最小起動コードを使用しています。所有ROMの起動は既存のBASIC実験プロファイルを使い、ゲーム自体の標準RAM内での動作と区別しています。2.0・実機操作・実際の発音品質は対応確認に含めません。音声確認はブラウザーへの再生データ供給までです。
 
-再現用のテストは[games/tools/check.mjs](../../games/tools/check.mjs)、[Native再生](../../tests/game_replay_test.cpp)、[規則の単体検査](../../tests/game_rules_test.cpp)、[ブラウザー検査](../../tests/browser_program_launch_test.cjs)にあります。`make test`の出力と性能データは`build/games/`へ保存します。公開Pagesで6本すべての自動起動が成功したため、各作品の「遊ぶ」リンクを有効にしました。Wiki原稿と画像はこのリポジトリで公開しています。
+再現用のテストは[games/tools/check.mjs](../../games/tools/check.mjs)、[Native再生](../../tests/game_replay_test.cpp)、[規則の単体検査](../../tests/game_rules_test.cpp)、[ブラウザー検査](../../tests/browser_program_launch_test.cjs)にあります。`make test`の出力と性能データは`build/games/`へ保存します。公開Pagesで10本すべての自動起動が成功したため、各作品の「遊ぶ」リンクを有効にしました。Wiki原稿と画像はこのリポジトリで公開しています。
