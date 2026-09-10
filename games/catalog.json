@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "programs": [
+    {
+      "id": "box-shift",
+      "title": "BOX SHIFT"
+    },
+    {
+      "id": "mirror-link",
+      "title": "MIRROR LINK"
+    },
+    {
+      "id": "step-strike",
+      "title": "STEP STRIKE"
+    },
+    {
+      "id": "circuit-deck",
+      "title": "CIRCUIT DECK"
+    },
+    {
+      "id": "pocket-factory",
+      "title": "POCKET FACTORY"
+    },
+    {
+      "id": "arc-duel",
+      "title": "ARC DUEL"
+    }
+  ]
+}

@@ -217,11 +217,52 @@ private:
     std::array<bool, Jr800Lcd::controller_count> pending_{};
 };
 
+constexpr std::array<std::array<unsigned,2>,8> dirty_ranges{{
+    {0,0},{45,46},{95,96},{145,146},{191,191},{0,191},{47,49},{94,146}
+}};
+std::string dirty_render_driver() {
+    std::string code = R"(
+.extern present
+.extern dirty_reset
+.extern dirty_mark
+.extern dirty_begin
+.extern dirty_next
+.extern dirty_bytes
+.global dirty_second_count
+    JSR present
+    JSR dirty_reset
+)";
+    for (unsigned band=0; band<8; ++band) {
+        const auto first=dirty_ranges[band][0], last=dirty_ranges[band][1];
+        code += "    LDX #framebuffer + " + std::to_string(band*192+first) + "\n";
+        for (unsigned x=first; x<=last; ++x) code += "    COM 0,X\n    INX\n";
+        for (const auto x : {first,last}) code += "    LDAA #" + std::to_string(band)
+            + "\n    LDAB #" + std::to_string(x) + "\n    JSR dirty_mark\n";
+    }
+    code += R"(
+    JSR dirty_begin
+dirty_test_transfer:
+    JSR dirty_next
+    BNE dirty_test_transfer
+    LDD dirty_bytes
+    STD dirty_second_count
+    JSR dirty_begin
+dirty_test_idle:
+    JSR dirty_next
+    BNE dirty_test_idle
+.section .bss, bss
+dirty_second_count: .space 2
+.section .text, code
+)";
+    return code;
+}
+
 void run_case(
     const jr800::linker::Output& output,
     unsigned busy_reads,
     bool initially_busy,
-    bool incremental
+    bool incremental,
+    bool dirty
 ) {
     BusyLcdBus bus{busy_reads};
     for (const auto& segment : output.application.segments) {
@@ -268,10 +309,20 @@ void run_case(
                 == (incremental ? 32U : 0U),
             "Incremental transfer did not finish after exactly 32 spans");
     require(bus.rejected_busy_writes == 0U, "Write occurred while BUSY");
+    if (dirty) {
+        const auto count=symbol_address(output,"dirty_second_count");
+        require(bus.memory[count]*256U+bus.memory[count+1] == 256U,
+                "Dirty transfer did not clip the requested ranges");
+        const auto idle=symbol_address(output,"dirty_bytes");
+        require(bus.memory[idle] == 0U && bus.memory[idle+1] == 0U,
+                "Idle dirty transfer wrote LCD data");
+    }
     bus.settle_last_writes();
     for (std::size_t index = 0; index < frame_size; ++index) {
-        require(bus.memory[framebuffer + index]
-                    == static_cast<std::uint8_t>(0x5AU + index * 37U),
+        auto expected_byte=static_cast<std::uint8_t>(0x5AU + index*37U);
+        if (dirty && index%192 >= dirty_ranges[index/192][0]
+            && index%192 <= dirty_ranges[index/192][1]) expected_byte ^= 0xffU;
+        require(bus.memory[framebuffer + index] == expected_byte,
                 "present changed the framebuffer at " + std::to_string(index));
     }
     for (std::size_t row = 0; row < Jr800Lcd::panel_height; ++row) {
@@ -307,17 +358,19 @@ void run_case(
 
 int main(int argc, char** argv) {
     try {
-        require(argc == 4 || (argc == 5 && std::string{argv[4]} == "incremental"),
+        require(argc == 4 || (argc == 5 && std::string{argv[4]} == "incremental") || argc == 6,
                 "Usage: lcd_sample_busy_test display.s font.s memory.j8l [incremental]");
         const bool incremental = argc == 5;
+        const bool dirty = argc == 6;
         const std::string driver = std::string{driver_prefix}
-            + (incremental ? incremental_render : full_render) + driver_suffix;
+            + (dirty ? dirty_render_driver() : (incremental ? incremental_render : full_render)) + driver_suffix;
         std::vector<jr800::linker::InputObject> objects;
-        const std::array sources{
+        std::vector<jr800::assembler::Source> sources{
             jr800::assembler::Source{"lcd-busy-driver.s", driver},
             jr800::assembler::Source{argv[1], read_text(argv[1])},
             jr800::assembler::Source{argv[2], read_text(argv[2])},
         };
+        if (dirty) sources.push_back({argv[5],read_text(argv[5])});
         for (const auto& source : sources) {
             auto result = jr800::assembler::assemble(source, {"hd6301v1", "test"});
             for (const auto& diagnostic : result.diagnostics) {
@@ -338,7 +391,7 @@ int main(int argc, char** argv) {
         for (const unsigned busy_reads : {0U, 1U, 8U}) {
             for (const bool initially_busy : {false, true}) {
                 try {
-                    run_case(*linked.output, busy_reads, initially_busy, incremental);
+                    run_case(*linked.output, busy_reads, initially_busy, incremental, dirty);
                 } catch (const std::exception& error) {
                     std::cerr << "FAIL busy_reads=" << busy_reads
                               << " initially_busy=" << initially_busy << ": "

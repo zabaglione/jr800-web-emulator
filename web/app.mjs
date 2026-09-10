@@ -20,6 +20,7 @@ import {
     lcdPanelImage,
     normalizeLcdAppearance,
 } from "./lcd-panel-view.mjs";
+import {requestedProgram, fetchCatalogProgram} from "./program-launch.mjs";
 import {jr800KeyForHostCode} from "./keyboard-input.mjs";
 import {savedProgramFilename} from "./program-save-view.mjs";
 import {readSavedRom, writeSavedRom, deleteSavedRom} from "./rom-storage.mjs";
@@ -147,7 +148,7 @@ const elements = Object.fromEntries(
         "status", "language-toggle", "sound-toggle", "application-file", "debug-file",
         "stack-pointer", "load",
         "jr8rom-file", "raw-rom-warning", "boot-basic", "load-rom",
-        "saved-rom-status", "forget-rom",
+        "saved-rom-status", "forget-rom", "program-launch-status", "program-launch-source",
         "ignore-unsupported-io", "ignored-io-access-count", "browser-calendar-startup",
         "resume-machine", "pause-basic", "power-on", "power-off",
         "hardware-program-file", "load-program", "load-program-only", "program-info",
@@ -229,6 +230,8 @@ if (virtualLegendButtons.size !== Jr800VirtualLegendKeys.length
 }
 
 let initialized = false;
+let catalogProgram = null;
+let catalogLaunchPending = false;
 let loaded = false;
 let running = false;
 let machineKind = "synthetic";
@@ -1552,6 +1555,10 @@ elements["boot-basic"].addEventListener("click", () => {
         return;
     }
     void perform(async () => {
+        if (catalogProgram && catalogLaunchPending) {
+            await startCatalogProgram(true);
+            return;
+        }
         const romFile = selectedRomFile();
         const configuration = applyBasicBootExperimentControls();
         const calendarDateTime = elements["browser-calendar-startup"].checked
@@ -1565,6 +1572,45 @@ elements["boot-basic"].addEventListener("click", () => {
         setControls();
     });
 });
+
+async function startCatalogProgram(rawApproved = false) {
+    if (!catalogProgram || !catalogLaunchPending) return;
+    if (!rawApproved && !rawRomLoadApproved()) return;
+    const configuration = applyBasicBootExperimentControls();
+    const calendarDateTime = elements["browser-calendar-startup"].checked
+        ? browserCalendarDateTime() : undefined;
+    await loadJr800Machine(selectedRomFile(), configuration, calendarDateTime);
+    const application = catalogProgram.data.slice(0);
+    const result = await client.request("load-program", {
+        application, runAfterLoad: true, view: viewOptions(),
+    }, [application]);
+    releaseAllVirtualKeys(false);
+    render(result);
+    catalogLaunchPending = false;
+    elements["program-launch-status"].textContent = translate("Starting {title}", {title: catalogProgram.entry.title});
+    await startBasicRun("Program running");
+}
+
+async function prepareCatalogLaunch() {
+    let id;
+    try {
+        id = requestedProgram(location.search);
+        if (id === null) return;
+        elements["program-launch-status"].hidden = false;
+        elements["program-launch-source"].hidden = false;
+        catalogProgram = await fetchCatalogProgram(id);
+        const source = elements["program-launch-source"].querySelector("a");
+        source.href = `https://github.com/zabaglione/jr800-web-emulator/tree/main/games/${id}`;
+        catalogLaunchPending = true;
+        if (savedRom) await startCatalogProgram();
+        else elements["program-launch-status"].textContent = translate("Select your local BASIC ROM, then press Start BASIC to launch {title}.", {title: catalogProgram.entry.title});
+    } catch (error) {
+        elements["program-launch-status"].hidden = false;
+        elements["program-launch-source"].hidden = false;
+        elements["program-launch-status"].textContent = translate(error.message);
+        setStatus(error.message, "error");
+    }
+}
 
 function loadHardwareProgram(runAfterLoad) {
     void perform(async () => {
@@ -2303,4 +2349,4 @@ void perform(async () => {
         {version: result.abiVersion},
     );
     setControls();
-}, "Initializing worker").catch(() => {});
+}, "Initializing worker").then(prepareCatalogLaunch).catch(() => {});

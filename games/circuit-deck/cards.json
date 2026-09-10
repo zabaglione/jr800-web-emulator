@@ -1,0 +1,170 @@
+[
+  {
+    "name": "STRIKE",
+    "effect": "HIT 6",
+    "stats": [
+      1,
+      6,
+      0,
+      0,
+      0,
+      0,
+      0,
+      6
+    ]
+  },
+  {
+    "name": "GUARD",
+    "effect": "BLOCK 6",
+    "stats": [
+      1,
+      0,
+      6,
+      0,
+      0,
+      0,
+      0,
+      6
+    ]
+  },
+  {
+    "name": "SPARK",
+    "effect": "HIT 2",
+    "stats": [
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2
+    ]
+  },
+  {
+    "name": "PIERCE",
+    "effect": "HIT 12",
+    "stats": [
+      2,
+      12,
+      0,
+      0,
+      0,
+      0,
+      0,
+      12
+    ]
+  },
+  {
+    "name": "WALL",
+    "effect": "BLOCK12",
+    "stats": [
+      2,
+      0,
+      12,
+      0,
+      0,
+      0,
+      0,
+      12
+    ]
+  },
+  {
+    "name": "HEAL",
+    "effect": "HEAL 5",
+    "stats": [
+      1,
+      0,
+      0,
+      5,
+      0,
+      0,
+      0,
+      5
+    ]
+  },
+  {
+    "name": "VENOM",
+    "effect": "TOXIN 3",
+    "stats": [
+      1,
+      0,
+      0,
+      0,
+      3,
+      0,
+      0,
+      3
+    ]
+  },
+  {
+    "name": "CHARGE",
+    "effect": "ENERGY1",
+    "stats": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1
+    ]
+  },
+  {
+    "name": "DRAIN",
+    "effect": "HIT+HP",
+    "stats": [
+      2,
+      7,
+      0,
+      4,
+      0,
+      0,
+      0,
+      7
+    ]
+  },
+  {
+    "name": "NOVA",
+    "effect": "HIT 20",
+    "stats": [
+      3,
+      20,
+      0,
+      0,
+      0,
+      0,
+      0,
+      20
+    ]
+  },
+  {
+    "name": "FOCUS",
+    "effect": "POWER 2",
+    "stats": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      2
+    ]
+  },
+  {
+    "name": "ECHO",
+    "effect": "HIT+ARM",
+    "stats": [
+      1,
+      4,
+      4,
+      0,
+      0,
+      0,
+      0,
+      4
+    ]
+  }
+]

@@ -316,5 +316,16 @@
     "Machine restarted": "再起動しました",
     "The execution address is outside the saved data. Use Load program to restore data without running it.": "実行開始アドレスが保存データの範囲外です。「プログラムの読み込み」でデータだけを読み込んでください。",
     "WAV files are converted locally. ROMs are remembered only in this browser; programs and working RAM last only for this session. These files are never uploaded.": "WAVはブラウザー内で変換します。ROMはこのブラウザーだけに保存し、プログラムと作業用RAMはページを閉じると消えます。これらのファイルをアップロードすることはありません。",
-    "Choose a local ROM or use the remembered ROM, then start BASIC or a RAM program.": "手元のROMまたは保存済みROMを使い、BASICやRAMプログラムを起動します。"
+    "Choose a local ROM or use the remembered ROM, then start BASIC or a RAM program.": "手元のROMまたは保存済みROMを使い、BASICやRAMプログラムを起動します。",
+    "Buildable source": "ビルド可能なソース",
+    "Starting {title}": "{title}を起動しています",
+    "Select your local BASIC ROM, then press Start BASIC to launch {title}.": "ローカルのBASIC ROMを選び、「BASICの起動」で{title}を起動してください。",
+    "Invalid program ID": "作品IDが不正です",
+    "Unknown program ID": "作品IDが見つかりません",
+    "Program catalog is unavailable": "作品一覧を取得できません",
+    "Invalid program catalog": "作品一覧の形式が不正です",
+    "Invalid program entry": "作品情報が不正です",
+    "Program download failed": "プログラムを取得できません",
+    "Invalid program size": "プログラムのサイズが不正です",
+    "Program integrity check failed": "プログラムの整合性を確認できません"
 }

@@ -105,6 +105,7 @@ if(EMSCRIPTEN)
         JR800_WEB_ASSET_NAMES
         styles.css
         app.mjs
+        program-launch.mjs
         i18n.mjs
         locale-ja.json
         audio-output.mjs
@@ -132,8 +133,19 @@ if(EMSCRIPTEN)
     set(JR800_WEB_ASSET_OUTPUTS ${JR800_WEB_ASSET_NAMES})
     list(APPEND JR800_WEB_ASSET_OUTPUTS LICENSE THIRD_PARTY_NOTICES.md)
     list(TRANSFORM JR800_WEB_ASSET_OUTPUTS PREPEND "${CMAKE_BINARY_DIR}/web-module/")
+    file(READ "${PROJECT_SOURCE_DIR}/games/catalog.json" JR800_PROGRAM_CATALOG)
+    string(JSON JR800_PROGRAM_COUNT LENGTH "${JR800_PROGRAM_CATALOG}" programs)
+    math(EXPR JR800_PROGRAM_LAST "${JR800_PROGRAM_COUNT}-1")
+    set(JR800_PROGRAM_OUTPUTS "${CMAKE_BINARY_DIR}/web-module/program-catalog.json")
+    foreach(index RANGE ${JR800_PROGRAM_LAST})
+        string(JSON program_id GET "${JR800_PROGRAM_CATALOG}" programs ${index} id)
+        list(APPEND JR800_PROGRAM_OUTPUTS "${CMAKE_BINARY_DIR}/web-module/${program_id}.j8a")
+    endforeach()
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/games/catalog.json")
     add_custom_target(
         jr800_web_bundle ALL
+        COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/tools/build_games.py
+            --output ${CMAKE_BINARY_DIR}/web-module
         COMMAND
             ${CMAKE_COMMAND} -E copy_if_different
             ${JR800_WEB_ASSET_SOURCES}
@@ -144,6 +156,7 @@ if(EMSCRIPTEN)
             --index ${PROJECT_SOURCE_DIR}/web/index.html
             --output ${CMAKE_BINARY_DIR}/web
             ${JR800_WEB_ASSET_OUTPUTS}
+            ${JR800_PROGRAM_OUTPUTS}
             $<TARGET_FILE:jr800_wasm>
             $<TARGET_FILE_DIR:jr800_wasm>/jr800_wasm.wasm
         DEPENDS

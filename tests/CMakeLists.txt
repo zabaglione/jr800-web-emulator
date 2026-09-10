@@ -17,6 +17,19 @@ endif()
 
 if(EMSCRIPTEN)
     find_program(NODE_EXECUTABLE node REQUIRED)
+    foreach(game box-shift mirror-link step-strike circuit-deck pocket-factory arc-duel)
+        add_test(NAME game_${game}
+            COMMAND ${NODE_EXECUTABLE} ${PROJECT_SOURCE_DIR}/games/tools/check.mjs
+                $<TARGET_FILE_DIR:jr800_wasm> ${PROJECT_SOURCE_DIR}/build/games/${game} ${game} test)
+    endforeach()
+    foreach(game box-shift mirror-link step-strike circuit-deck pocket-factory arc-duel)
+        add_test(NAME native_replay_${game}
+            COMMAND ${PROJECT_SOURCE_DIR}/build/native-release/tests/game_replay_test
+                ${PROJECT_SOURCE_DIR}/build/games/${game}/${game}.j8a
+                ${PROJECT_SOURCE_DIR}/build/games/${game}/replay.txt
+                ${PROJECT_SOURCE_DIR}/build/games/${game}/metrics.json)
+        set_tests_properties(native_replay_${game} PROPERTIES DEPENDS game_${game})
+    endforeach()
     add_test(
         NAME program_save_view
         COMMAND ${NODE_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/program_save_view_test.mjs
@@ -125,6 +138,19 @@ if(EMSCRIPTEN)
 else()
     find_program(MAKE_EXECUTABLE make REQUIRED)
 
+    add_executable(game_input_test game_input_test.cpp)
+    target_link_libraries(game_input_test PRIVATE jr800::assembler jr800::core jr800::linker)
+    add_test(NAME game_input_test COMMAND game_input_test ${PROJECT_SOURCE_DIR})
+
+    add_executable(game_rules_test game_rules_test.cpp)
+    target_link_libraries(game_rules_test PRIVATE jr800::core jr800::formats)
+    add_test(NAME game_rules_test COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/game_rules_driver.py ${PROJECT_SOURCE_DIR}
+        $<TARGET_FILE:jr8as> $<TARGET_FILE:jr8ld> $<TARGET_FILE:game_rules_test>)
+
+    add_executable(game_replay_test game_replay_test.cpp)
+    target_link_libraries(game_replay_test PRIVATE jr800::core jr800::formats)
+
     add_executable(native_smoke native_smoke.cpp)
     target_link_libraries(
         native_smoke
@@ -183,25 +209,32 @@ else()
     add_test(
         NAME lcd_sample_busy_test
         COMMAND lcd_sample_busy_test
-            ${PROJECT_SOURCE_DIR}/sdk/examples/lcd/common/display.s
-            ${PROJECT_SOURCE_DIR}/sdk/examples/lcd/common/font.s
+            ${PROJECT_SOURCE_DIR}/sdk/lib/lcd/display.s
+            ${PROJECT_SOURCE_DIR}/sdk/lib/lcd/font.s
             ${PROJECT_SOURCE_DIR}/sdk/examples/lcd/common/memory.j8l
     )
     add_test(
         NAME lcd_sample_incremental_busy_test
         COMMAND lcd_sample_busy_test
-            ${PROJECT_SOURCE_DIR}/sdk/examples/lcd/common/display.s
-            ${PROJECT_SOURCE_DIR}/sdk/examples/lcd/common/font.s
+            ${PROJECT_SOURCE_DIR}/sdk/lib/lcd/display.s
+            ${PROJECT_SOURCE_DIR}/sdk/lib/lcd/font.s
             ${PROJECT_SOURCE_DIR}/sdk/examples/lcd/common/memory.j8l
             incremental
     )
+
+    add_test(NAME lcd_dirty_busy_test
+        COMMAND lcd_sample_busy_test
+            ${PROJECT_SOURCE_DIR}/sdk/lib/lcd/display.s
+            ${PROJECT_SOURCE_DIR}/sdk/lib/lcd/font.s
+            ${PROJECT_SOURCE_DIR}/games/common/memory.j8l
+            dirty ${PROJECT_SOURCE_DIR}/sdk/lib/lcd/dirty.s)
 
     add_executable(lcd_sample_basic_return_test lcd_sample_basic_return_test.cpp)
     target_link_libraries(lcd_sample_basic_return_test
         PRIVATE jr800::assembler jr800::core jr800::linker)
     add_test(NAME lcd_sample_basic_return_test
         COMMAND lcd_sample_basic_return_test
-            ${PROJECT_SOURCE_DIR}/sdk/examples/lcd/common/basic.s
+            ${PROJECT_SOURCE_DIR}/sdk/lib/lcd/basic.s
             ${PROJECT_SOURCE_DIR}/sdk/examples/lcd/common/memory.j8l)
 
     add_executable(hd44102_test hd44102_test.cpp)

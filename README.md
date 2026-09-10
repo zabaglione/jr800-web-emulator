@@ -370,3 +370,7 @@ CPU fault、未対応アクセス、停止時間上限などに到達した場�
 新規に作成したプロジェクトコードは、個別の記載がない限りMIT Licenseです。
 JR-800のROM、ROM由来データ、録音WAVは配布対象に含まれません。
 詳細は[LICENSE](LICENSE)、[PROVENANCE.md](PROVENANCE.md)、[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)を参照してください。
+
+## オリジナルゲーム
+
+[6本のゲーム一覧・遊び方](docs/games/README.md)と[ビルド手順](games/README.md)を公開しています。標準16KB RAM向けの独立したJR-800プログラムで、JR-HuBASIC 1.0を基準に検証しています。

@@ -88,7 +88,7 @@ python3 -m http.server 8000 --bind 127.0.0.1 --directory build/wasm-release/web
 
 ## 共通表示処理を読む
 
-[common/display.s](common/display.s)は、画面を作るRAM領域とLCDへの転送を担当します。
+[../../lib/lcd/display.s](../../lib/lcd/display.s)は、画面を作るRAM領域とLCDへの転送を担当します。
 CPUのAとBは8ビットの作業用レジスター、DはAを上位、Bを下位とする16ビットの組、Xは16ビットのアドレス用レジスターです。
 `JSR`は戻り先をスタックへ保存して処理を呼び出し、`RTS`はその位置へ戻ります。
 
@@ -115,10 +115,10 @@ CPUのAとBは8ビットの作業用レジスター、DはAを上位、Bを下�
 RELIC DIVEは専用の[メモリー配置](07-relic-dive/README.md#構成とメモリー)を使用します。
 LCDの表示外領域にBASICの表示が残らないよう、初期化では全コントローラーのRAMを消去します。
 
-字形は[common/font.s](common/font.s)で新規作成した5×7ドットです。
-描画にROMの文字パターンは使用しません。BASICへの終了処理は[common/basic.s](common/basic.s)でROMサービスを呼び出します。
-`text`はゼロ終端のASCII文字列を受け取り、`glyph`は`$20–$5A`を範囲とします。
-用意した字形は空白、ハイフン、数字、大文字英字で、そのほかの位置は空白です。
+字形は[../../lib/lcd/font.s](../../lib/lcd/font.s)で新規作成した5×7ドットです。
+描画にROMの文字パターンは使用しません。BASICへの終了処理は[../../lib/lcd/basic.s](../../lib/lcd/basic.s)でROMサービスを呼び出します。
+`text`はゼロ終端のASCII文字列を受け取り、`glyph`は`$20–$5F`を範囲とします。
+空白・数字・大文字英字と、ハイフン・加算・比較・矢印などの記号を用意しています。一部の未使用記号は空白です。
 横幅は1文字6バイトなので、呼び出し側で文字列を1段192バイト以内に収めてください。
 共通処理はA、B、Xを変更します。
 

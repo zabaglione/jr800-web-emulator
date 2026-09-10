@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: MIT
+ROOT := $(abspath ../..)
+JR8AS ?= $(ROOT)/build/native-release/tools/jr8as
+JR8LD ?= $(ROOT)/build/native-release/tools/jr8ld
+NODE ?= node
+PYTHON ?= python3
+WASM_DIR ?= $(ROOT)/build/wasm-release/web-module
+BUILD_DIR ?= $(ROOT)/build/games/$(GAME)
+.DEFAULT_GOAL := all
+COMMON := $(ROOT)/games/common
+SDK := $(ROOT)/sdk/lib
+OBJECTS := $(addprefix $(BUILD_DIR)/,game.jro display.jro font.jro basic.jro dirty.jro input.jro sound.jro)
+.PHONY: all run debug test clean
+assets.s: generate.py $(ROOT)/games/tools/art.py $(SDK)/lcd/font.s
+	$(PYTHON) generate.py
+$(BUILD_DIR):
+	mkdir -p "$@"
+$(BUILD_DIR)/game.s: main.s assets.s $(COMMON)/runtime.s $(COMMON)/graphics.s | $(BUILD_DIR)
+	cat $(COMMON)/runtime.s $(COMMON)/graphics.s main.s assets.s > "$@"
+$(BUILD_DIR)/game.jro: $(BUILD_DIR)/game.s
+	"$(JR8AS)" --target hd6301v1 --listing "$(BUILD_DIR)/game.lst" -o "$@" "$<"
+$(BUILD_DIR)/%.jro: $(SDK)/lcd/%.s | $(BUILD_DIR)
+	"$(JR8AS)" --target hd6301v1 -o "$@" "$<"
+$(BUILD_DIR)/input.jro: $(SDK)/game-input.s | $(BUILD_DIR)
+	"$(JR8AS)" --target hd6301v1 -o "$@" "$<"
+$(BUILD_DIR)/sound.jro: $(SDK)/sound.s | $(BUILD_DIR)
+	"$(JR8AS)" --target hd6301v1 -o "$@" "$<"
+$(BUILD_DIR)/$(GAME).j8a: $(OBJECTS) $(COMMON)/memory.j8l
+	"$(JR8LD)" --script "$(COMMON)/memory.j8l" -o "$@" --debug "$(BUILD_DIR)/$(GAME).j8d" --map "$(BUILD_DIR)/$(GAME).map" --symbols "$(BUILD_DIR)/$(GAME).sym" $(OBJECTS)
+all: $(BUILD_DIR)/$(GAME).j8a
+run debug test: all
+	"$(NODE)" "$(ROOT)/games/tools/check.mjs" "$(WASM_DIR)" "$(BUILD_DIR)" "$(GAME)" "$@"
+clean:
+	$(PYTHON) -c 'import shutil; shutil.rmtree("$(BUILD_DIR)", ignore_errors=True)'

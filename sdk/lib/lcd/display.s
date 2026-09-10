@@ -23,6 +23,8 @@
 .global glyph
 .global delay
 .global framebuffer
+.global spans
+.global spans_end
 .extern font
 
 .section .text, code
@@ -163,7 +165,7 @@ text_next:
 text_done:
     RTS
 
-; A = ASCII $20-$5A, X = destination; five columns plus one blank.
+; A = ASCII $20-$5F, X = destination; five columns plus one blank.
 glyph:
     STX dest
     SUBA #32

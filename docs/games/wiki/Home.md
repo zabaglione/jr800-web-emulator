@@ -1,0 +1,31 @@
+# JR-800 ゲーム
+
+SDKサンプルとは別に開発した、6本のオリジナル機械語ゲームです。ゲーム内表示は英語、案内は日本語です。
+
+| タイトル | 内容 |
+|---|---|
+| [BOX SHIFT](https://github.com/zabaglione/jr800-web-emulator/wiki/BOX-SHIFT) | 箱を押してすべての丸い目標に置く、全20面の倉庫パズルです。 |
+| [MIRROR LINK](https://github.com/zabaglione/jr800-web-emulator/wiki/MIRROR-LINK) | 鏡を回転させて、すべての受光器へレーザーを導く全20面のパズルです。 |
+| [STEP STRIKE](https://github.com/zabaglione/jr800-web-emulator/wiki/STEP-STRIKE) | 移動・射撃・待機の1手でだけ世界が進む、全20面の戦術パズルです。 |
+| [CIRCUIT DECK](https://github.com/zabaglione/jr800-web-emulator/wiki/CIRCUIT-DECK) | 手札3枚とエナジー3を使う、9戦制のカードバトルです。最終戦にはボスが待っています。 |
+| [POCKET FACTORY](https://github.com/zabaglione/jr800-web-emulator/wiki/POCKET-FACTORY) | 資源A・Bをベルトと加工機で運び、製品2種類を出荷する全12課題の工場パズルです。 |
+| [ARC DUEL](https://github.com/zabaglione/jr800-web-emulator/wiki/ARC-DUEL) | 風を読み、地形を削りながらCPUの砲台と戦う弾道対戦です。6種類の地形と3段階の難易度があります。 |
+
+タイトル画面はSPACEで進みます。ROMを同じサイト・パスで保存済みなら、確認済みの「遊ぶ」リンクからタイトル画面へ直接進めます。初回は手元のBASIC ROMを選び、Start BASICを押してください。音声はSPACEや画面内操作で有効になります。通常のエミュレーターURLは手動起動のままです。
+
+## 共通操作
+
+| 操作 | キー |
+|---|---|
+| 上・下・左・右 | テンキー8・2・4・6、またはW・S・A・D |
+| 決定・開始・主要アクション | SPACE |
+| 取消・戻る・操作メニュー | RETURN |
+| BASICへ終了 | BREAK |
+
+メニューを開いている間はゲームが停止します。決定・取消は押した瞬間だけ反応し、移動だけ長押しできます。
+
+## 確認済み環境
+
+JR-HuBASIC 1.0を使ったWebエミュレーターで確認しています。ゲームは標準16KB RAM内に収まり、拡張RAMなしのNative/WASM再生でも検証しています。ブラウザーのBASIC起動には既存のBASIC実験プロファイルを使用します。2.0は対応未確認です。実機動作・カセット転送・実機のLCD応答と音は未検証です。
+
+BREAKで戻る際には、以前のBASICプログラムと変数が消去されます。必要な内容はゲームを読み込む前に保存してください。途中経過はエミュレーターの汎用状態保存で保存できます。ROMとROM入り状態ファイルは配布しません。

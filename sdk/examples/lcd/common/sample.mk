@@ -19,7 +19,7 @@ $(BUILD_DIR):
 $(BUILD_DIR)/%.jro: %.s | $(BUILD_DIR)
 	"$(JR8AS)" --target hd6301v1 --listing "$(BUILD_DIR)/$*.lst" -o "$@" "$<"
 
-$(BUILD_DIR)/%.jro: ../common/%.s | $(BUILD_DIR)
+$(BUILD_DIR)/%.jro: $(ROOT)/sdk/lib/lcd/%.s | $(BUILD_DIR)
 	"$(JR8AS)" --target hd6301v1 --listing "$(BUILD_DIR)/$*.lst" -o "$@" "$<"
 
 all: $(OBJECTS) $(LINK_SCRIPT)
