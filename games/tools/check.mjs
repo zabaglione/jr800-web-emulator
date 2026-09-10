@@ -16,7 +16,14 @@ if(id==='arc-duel'){
 }
 try{
  await g.save('title');g.frame();assert.equal(g.word('dirty_bytes'),0,'Idle title performs no LCD writes');
- if(mode==='test'&&id==='box-shift'){
+ if(mode==='smoke'){
+  await g.start();g.frame();assert.equal(g.word('dirty_bytes'),0,'Idle play');
+  g.tap('right');g.tap('space');assert.equal(g.read('phase'),2,'First action remains playable');
+  g.tap('return');assert.equal(g.read('phase'),3,'Menu opens');
+  for(let i=0;i<3;i++){g.frame();assert.equal(g.word('dirty_bytes'),0,'Paused menu has no LCD writes');}
+  g.tap('return');assert.equal(g.read('phase'),2,'Menu returns to play');
+  g.tap('return');g.tap('space');assert.equal(g.read('phase'),2,'SPACE resumes play');
+ }else if(mode==='test'&&id==='box-shift'){
   const solutions=JSON.parse(await readFile(new URL('../box-shift/solutions.json',import.meta.url)));
   let completed=0;
   for(let stage=0;stage<20;stage++){
@@ -199,7 +206,7 @@ try{
   }
   assert.equal(g.read('phase'),5,'Artillery match defeat');g.tap('space');assert.equal(g.read('health'),100);assert.equal(g.read('cpu_wins'),0);
  }else if(mode!=='test'){await g.start();await g.save('gameplay-1');}else throw new Error(`No test driver for ${id}`);
- if(mode==='test'&&!process.env.JR800_GAME_ROM)await writeFile(resolve(out,'replay.txt'),[g.symbols.frame_ready,g.symbols.framebuffer,g.symbols.phase,g.symbols.update_begin].join(' ')+'\n'+g.trace.join('\n')+'\n');
+ if(['test','smoke'].includes(mode)&&!process.env.JR800_GAME_ROM)await writeFile(resolve(out,mode==='smoke'?'smoke-replay.txt':'replay.txt'),[g.symbols.frame_ready,g.symbols.framebuffer,g.symbols.phase,g.symbols.update_begin].join(' ')+'\n'+g.trace.join('\n')+'\n');
  const result={id,mode,passed:true,frames:g.frames,maxFrameCycles:Math.max(...g.cycles),maxDataBytes:Math.max(...g.transfers),idleDataBytes:0,bootstrap:process.env.JR800_GAME_ROM?'owner-supplied':'project-authored'};
  await writeFile(resolve(out,mode==='test'?(process.env.JR800_GAME_ROM?'owner-verification.json':'verification.json'):`${mode}.json`),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));
  if(mode==='debug')console.log(JSON.stringify({state:g.machine.state(),symbols:g.symbols},null,2));

@@ -17,17 +17,25 @@ endif()
 
 if(EMSCRIPTEN)
     find_program(NODE_EXECUTABLE node REQUIRED)
+    # Full campaigns run in Release. Unoptimized Debug checks the integration
+    # boundary without repeating thousands of CPU-bound gameplay frames.
+    set(GAME_CHECK_MODE test)
+    set(GAME_REPLAY_PREFIX "")
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(GAME_CHECK_MODE smoke)
+        set(GAME_REPLAY_PREFIX "smoke-")
+    endif()
     foreach(game box-shift mirror-link step-strike circuit-deck pocket-factory arc-duel)
         add_test(NAME game_${game}
             COMMAND ${NODE_EXECUTABLE} ${PROJECT_SOURCE_DIR}/games/tools/check.mjs
-                $<TARGET_FILE_DIR:jr800_wasm> ${PROJECT_SOURCE_DIR}/build/games/${game} ${game} test)
+                $<TARGET_FILE_DIR:jr800_wasm> ${PROJECT_SOURCE_DIR}/build/games/${game} ${game} ${GAME_CHECK_MODE})
     endforeach()
     foreach(game box-shift mirror-link step-strike circuit-deck pocket-factory arc-duel)
         add_test(NAME native_replay_${game}
             COMMAND ${PROJECT_SOURCE_DIR}/build/native-release/tests/game_replay_test
                 ${PROJECT_SOURCE_DIR}/build/games/${game}/${game}.j8a
-                ${PROJECT_SOURCE_DIR}/build/games/${game}/replay.txt
-                ${PROJECT_SOURCE_DIR}/build/games/${game}/metrics.json)
+                ${PROJECT_SOURCE_DIR}/build/games/${game}/${GAME_REPLAY_PREFIX}replay.txt
+                ${PROJECT_SOURCE_DIR}/build/games/${game}/${GAME_REPLAY_PREFIX}metrics.json)
         set_tests_properties(native_replay_${game} PROPERTIES DEPENDS game_${game})
     endforeach()
     add_test(
