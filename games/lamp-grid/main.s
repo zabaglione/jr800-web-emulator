@@ -30,6 +30,8 @@ game_update:
     BEQ lamp_move
     LDAA cursor
     STAA lamp_last
+    LDAA moves
+    STAA lamp_saved_moves
     LDAA #1
     STAA undo_valid
     JSR lamp_toggle
@@ -60,7 +62,8 @@ game_aux:
     LDAA lamp_saved
     STAA cursor
     CLR undo_valid
-    DEC moves
+    LDAA lamp_saved_moves
+    STAA moves
     RTS
 lamp_restart:
     JMP game_start
@@ -115,4 +118,5 @@ lamp_source: .space 2
 lamp_index: .space 1
 lamp_last: .space 1
 lamp_saved: .space 1
+lamp_saved_moves: .space 1
 undo_valid: .space 1

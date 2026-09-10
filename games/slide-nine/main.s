@@ -34,6 +34,8 @@ game_update:
     BEQ slide_idle
     LDAA cursor
     STAA slide_last
+    LDAA moves
+    STAA slide_saved_moves
     LDAA #1
     STAA undo_valid
     JSR slide_swap
@@ -53,7 +55,8 @@ game_aux:
     LDAB slide_last
     JSR slide_swap
     CLR undo_valid
-    DEC moves
+    LDAA slide_saved_moves
+    STAA moves
     JMP slide_count
 slide_restart:
     JMP game_start
@@ -96,4 +99,5 @@ slide_source: .space 2
 slide_index: .space 1
 slide_last: .space 1
 slide_target: .space 1
+slide_saved_moves: .space 1
 undo_valid: .space 1

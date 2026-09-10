@@ -22,6 +22,8 @@ export async function checkLibrary(g,id){
     g.tap('space');g.menu(1);assert.deepEqual(g.read('board',25),before,'Undo restores all five neighbours');assert.equal(g.read('moves'),0);
     g.tap('right');const c=g.read('cursor');g.tap('left');g.tap(letters.right);assert.equal(g.read('cursor'),c);
     g.menu(2);assert.deepEqual(g.read('board',25),before,'Reset restores the puzzle');
+    for(let i=0;i<260;i++)g.tap('space');
+    assert.equal(g.read('moves'),255);g.menu(1);assert.equal(g.read('moves'),255,'Undo restores the saturated counter');g.menu(2);
    }
    for(let i=0;i<solutions[stage].length;i++){
     const cell=solutions[stage][i];moveCursor(g,cell,5);
@@ -42,6 +44,9 @@ export async function checkLibrary(g,id){
     await g.save('gameplay-1');const before=g.read('board',9),blank=g.read('cursor');
     g.tap(solutions[0][0]);g.menu(1);assert.deepEqual(g.read('board',9),before);assert.equal(g.read('cursor'),blank);
     g.tap(letters[solutions[0][0]]);g.menu(2);assert.deepEqual(g.read('board',9),before);
+    const first=solutions[0][0],back={up:'down',down:'up',left:'right',right:'left'}[first];
+    for(let i=0;i<260;i++)g.tap(i%2?back:first);
+    assert.equal(g.read('moves'),255);g.menu(1);assert.equal(g.read('moves'),255,'Undo at the display limit');g.menu(2);
    }
    for(let i=0;i<solutions[stage].length;i++){
     const key=solutions[stage][i],old=g.read('cursor'),board=g.read('board',9),next=old+({up:-3,down:3,left:-1,right:1})[key];
