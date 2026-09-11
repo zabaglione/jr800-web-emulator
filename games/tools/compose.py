@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Select game-owned optional code before invoking the JR-800 assembler."""
 import argparse
+import json
 import re
 from pathlib import Path
 from puzzle_assets import PUZZLES, pack
@@ -33,6 +34,21 @@ def compose(game, sources):
         assert len(pixels) == 1536
         result = result[:title.start()] + asm_bytes('title_art', pack(pixels)) + result[title.end():]
         result += select(Path(__file__).resolve().parents[1].joinpath('common/puzzle.s').read_text(), puzzle, game == 'ice-route')
+    if game != 'ice-route':
+        root = Path(__file__).resolve().parents[1]
+        genre = next(g['genre'] for g in json.loads((root/'catalog.json').read_text())['programs'] if g['id'] == game)
+        melodies = {
+            'logic': [286,226,189,139,189,167,139],
+            'board': [286,254,226,189,226,189,139],
+            'cards': [226,189,169,189,226,189,139],
+            'action': [189,226,189,139,167,139,110],
+            'shooting': [286,189,139,189,139,110,90],
+            'adventure': [339,286,226,189,226,169,139],
+            'simulation': [286,226,254,189,226,169,139],
+            'sports': [226,189,139,189,167,139,110],
+        }
+        result += (root/'common/clear.s').read_text()
+        result += '\n.section .data, data\nclear_notes: .word ' + ','.join(map(str,melodies[genre])) + '\n'
     return result
 
 if __name__ == '__main__':

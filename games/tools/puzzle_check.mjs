@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {iceReady,iceSettle,checkIceIntro} from './ice_check.mjs';
+import {settleMotion} from './motion_check.mjs';
 export const puzzleIds=['box-shift','mirror-link','lamp-grid','slide-nine','ice-route','switch-maze','pipe-weave','number-rail','mine-field','loop-trace','knight-tour','peg-rescue','step-strike','ricochet-ops','pocket-factory'];
 function railMove(board,direction){
  const next=[...board];let points=0;
@@ -49,7 +50,7 @@ function aimPeg(g,target){
 
 function pegJump(g,move){aimPeg(g,move[0]);g.tap('space');assert.equal(g.read('selection_active'),1);aimPeg(g,move[1]);g.tap('space');}
 
-function tacticalKey(g,key){if(key==='wait')g.menu(1);else g.tap(key==='fire'?'space':key);}
+function tacticalKey(g,key){if(key==='wait')g.menu(1);else g.tap(key==='fire'?'space':key);settleMotion(g);}
 function ricoShot(g,[column,angle]){
  while(g.read('cursor')<40+column)g.tap('right');while(g.read('cursor')>40+column)g.tap('left');
  while(g.read('rico_aim')!==angle)g.tap('up');g.tap('space');
@@ -253,7 +254,7 @@ async function route(g,id,stage,actions){
   for(const key of actions){
    const next=railMove(board,['up','down','left','right'].indexOf(key));assert.ok(next.changed);board=next.board;score=Math.min(65535,score+next.points);
    let p;do{seed=(seed>>>1)^((seed&1)?0xb8:0);p=seed&15;}while(board[p]);seed=(seed>>>1)^((seed&1)?0xb8:0);board[p]=(seed&15)?1:2;
-   g.tap(key);assert.deepEqual(g.read('board',16),board);assert.equal(g.read('seed'),seed);assert.equal(g.word('rail_score'),score);
+   g.tap(key);settleMotion(g);assert.deepEqual(g.read('board',16),board);assert.equal(g.read('seed'),seed);assert.equal(g.word('rail_score'),score);
   }
   assert.equal(g.read('challenge_bonus'),Number(board[stage.bonus_cells[0]]>=stage.initial.goal));return;
  }
@@ -271,6 +272,7 @@ async function route(g,id,stage,actions){
   return;
  }
  if(id==='pipe-weave'){
+  settleMotion(g);
   const board=stage.initial.board.slice();assert.deepEqual(g.read('board',36),board);
   for(const cell of actions){
    const m=board[cell];board[cell]=((m&1)<<3)|((m&8)>>2)|((m&2)<<1)|((m&4)>>2);
@@ -284,7 +286,7 @@ async function route(g,id,stage,actions){
     const x=p%6+dx,y=Math.floor(p/6)+dy,q=y*6+x;
     if(x>=0&&x<6&&y>=0&&y<6&&(board[p]&bit)&&(board[q]&opp)&&!wet[q]){wet[q]=1;todo.push(q);}
    }}
-   aim(g,cell,6);g.tap('space');assert.deepEqual(g.read('board',36),board);assert.deepEqual(g.read('pipe_wet',36),wet);assert.equal(g.read('pipe_leaks'),leaks);
+   aim(g,cell,6);g.tap('space');settleMotion(g);assert.deepEqual(g.read('board',36),board);assert.deepEqual(g.read('pipe_wet',36),wet);assert.equal(g.read('pipe_leaks'),leaks);
   }
   assert.equal(g.read('pipe_wet',36)[35],1);return;
  }
@@ -324,6 +326,7 @@ async function route(g,id,stage,actions){
 }
 
 function firstAction(g,id,stage){
+ settleMotion(g);
  if(id==='ice-route')iceReady(g);
  if(id==='lamp-grid'){aim(g,stage.bonus_cells[0],5);g.tap('space');}
  else if(id==='step-strike')tacticalKey(g,stage.normal[0]);
@@ -352,6 +355,7 @@ export async function checkPuzzle(g,id){
  for(let i=0;i<stages.length;i++){
   g.useLetters=Boolean(i%2);
   const stage=stages[i];if(i)g.tap('space');assert.equal(g.read('stage'),i);assert.equal(g.word('challenge_par'),stage.par);
+  settleMotion(g);
   if(id==='ice-route'){if(i===0)await checkIceIntro(g,stage);else iceReady(g);}
   g.frame();assert.equal(g.word('dirty_bytes'),0,'Idle puzzle sends no LCD data');
   if(i===0){

@@ -1,4 +1,7 @@
 ; SPDX-License-Identifier: MIT
+.global step_firing
+.global step_shot_cell
+.global step_shot_clock
 .global board
 .global player
 .global guards
@@ -20,12 +23,35 @@ step_clear_bullets:
     INX
     DECB
     BNE step_clear_bullets
+    CLR step_firing
     CLR facing
     CLR step_help
     CLR turns
     CLR turn_mod
     RTS
 game_update:
+    TST step_firing
+    BEQ step_controls
+    LDAA input_ticks
+    TST resume_pending
+    BEQ step_clock_ready
+    STAA step_shot_clock
+    CLR resume_pending
+step_clock_ready:
+    SUBA step_shot_clock
+    CMPA #4
+    BCC step_shot_tick
+    RTS
+step_shot_tick:
+    LDAA input_ticks
+    STAA step_shot_clock
+    TST step_range
+    BNE step_shot_continue
+    CLR step_firing
+    JMP advance_turn
+step_shot_continue:
+    JMP step_shot
+step_controls:
     LDAA input_event
     BITA #16
     BNE step_fire
@@ -70,6 +96,12 @@ step_fire:
     STAA step_ray
     LDAA #4
     STAA step_range
+    LDAA #1
+    STAA step_firing
+    LDAA player
+    STAA step_shot_cell
+    LDAA input_ticks
+    STAA step_shot_clock
 step_shot:
     LDAB facing
     LDX #step_deltas
@@ -83,13 +115,18 @@ step_shot:
     TST 0,X
     BNE step_shot_end
     LDAA step_ray
+    STAA step_shot_cell
     JSR kill_guard
     TST step_hit
     BNE step_shot_end
     DEC step_range
-    BNE step_shot
+    JMP step_redraw
 step_shot_end:
-    JMP advance_turn
+    CLR step_range
+    JMP step_redraw
+step_redraw:
+    LDAA #1
+    STAA redraw
 step_idle:
     RTS
 kill_guard:
@@ -118,6 +155,10 @@ game_aux:
     STAA step_help
     RTS
 step_wait:
+    TST step_firing
+    BEQ step_wait_ready
+    RTS
+step_wait_ready:
     JMP advance_turn
 advance_turn:
     JSR challenge_step
@@ -268,6 +309,17 @@ step_guard_next:
 guards_fire_done:
     RTS
 game_tile:
+    TST step_firing
+    BEQ step_normal_tile
+    CMPB step_shot_cell
+    BNE step_normal_tile
+    CMPB player
+    BEQ step_normal_tile
+    LDAA facing
+    ANDA #1
+    ADDA #6
+    RTS
+step_normal_tile:
     STAB step_tile_cell
     CMPB player
     BNE step_tile_guard
@@ -317,6 +369,9 @@ game_render:
     JSR paint_board
     JMP visual_hud
 .section .bss, bss
+step_firing: .space 1
+step_shot_cell: .space 1
+step_shot_clock: .space 1
 player: .space 1
 guard_count: .space 1
 guards: .space 4

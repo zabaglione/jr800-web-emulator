@@ -34,8 +34,24 @@ export class Game {
  word(n){const b=this.read(n,2);return b[0]*256+b[1];}
  frame(){assert.equal(this.machine.state().ignoredIoAccessCount,this.initialIgnored,'Game introduces no ignored I/O');if(this.frames)this.machine.step();const before=Number(this.machine.state().cycleCount);const stop=this.machine.runTo(this.symbols.frame_ready,1000000);assert.equal(stop.reason,'address-reached',JSON.stringify(stop));assert.equal(this.machine.state().sp,0x5fff);const panel=this.machine.lcdPanel();const fb=this.machine.memory(this.symbols.framebuffer,1536);for(let y=0;y<64;y++)for(let x=0;x<192;x++)assert.equal(panel.dots[y*192+x],1+((fb[(y>>3)*192+x]>>(y&7))&1),`LCD mismatch ${x},${y}`);this.cycles.push(Number(this.machine.state().cycleCount)-before);this.transfers.push(this.word('dirty_bytes'));let hash=2166136261;for(const b of fb)hash=Math.imul(hash^b,16777619)>>>0;this.trace.push([this.keys,hash,Number(this.machine.state().cycleCount),this.word('dirty_bytes'),this.read('phase')].join(' '));this.frames++;return panel;}
  hold(key,on){key=directions[key]??key;const i=['keypad-8','keypad-2','keypad-4','keypad-6','space','return','letter-w','letter-s','letter-a','letter-d'].indexOf(key);assert.ok(i>=0);this.keys=on?this.keys|(1<<i):this.keys&~(1<<i);this.machine.setKeyboardKeyState(key,on);}
- tap(key){this.hold(key,true);this.frame();this.hold(key,false);this.frame();}
- async save(name){const dots=this.machine.lcdPanel().dots,large=png(dots),actual=png(dots,1);await mkdir(this.out,{recursive:true});await Promise.all([writeFile(resolve(this.out,`${name}.png`),large),writeFile(resolve(this.out,`${name}-1x.png`),actual)]);}
+ tap(key){this.finishClear();this.hold(key,true);this.frame();this.hold(key,false);this.frame();}
+ finishClear(){
+  if(!this.symbols.clear_active||!this.read('clear_active'))return;
+  const before=Number(this.machine.state().cycleCount),stage=this.read('stage'),note=this.read('note_index');
+  const pixels=[...this.machine.memory(this.symbols.framebuffer,1536)];
+  const exercise=!this.clearChecked&&this.keys===0;this.clearChecked=true;
+  this.clearSceneTask??=this.save('clear-scene',false);
+  if(exercise)this.hold('space',true);
+  let frames=0;const heard=new Set();
+  while(this.read('clear_active')&&frames++<150){
+   heard.add(this.read('note_index'));this.frame();
+   if(this.read('clear_active')){assert.deepEqual([...this.machine.memory(this.symbols.framebuffer,1536)],pixels,'The solved scene remains intact throughout the cadence');assert.equal(this.word('dirty_bytes'),0,'Holding the clear scene sends no LCD data');}
+  }
+  assert.equal(this.read('clear_active'),0,'Clear celebration ends');assert.equal(this.read('phase'),4);
+  if(note===0){assert.ok(Number(this.machine.state().cycleCount)-before>1_400_000,'Clear scene lasts over one second');assert.deepEqual([...heard],[0,1,2,3,4,5,6,7,8]);}
+  if(exercise){for(let i=0;i<8;i++)this.frame();assert.equal(this.read('stage'),stage,'Held clear input cannot skip the result');this.hold('space',false);this.frame();}
+ }
+ async save(name,settle=true){if(settle)this.finishClear();const dots=this.machine.lcdPanel().dots,large=png(dots),actual=png(dots,1);await mkdir(this.out,{recursive:true});await Promise.all([writeFile(resolve(this.out,`${name}.png`),large),writeFile(resolve(this.out,`${name}-1x.png`),actual)]);}
  async start(stage=0){this.tap('space');assert.equal(this.read('phase'),1);for(let i=0;i<stage;i++)this.tap('right');this.tap('space');assert.equal(this.read('phase'),2);}
  menu(choice){this.tap('return');assert.equal(this.read('phase'),3);for(let i=0;i<choice;i++)this.tap('down');this.tap('space');}
  destroy(){this.machine.destroy();}

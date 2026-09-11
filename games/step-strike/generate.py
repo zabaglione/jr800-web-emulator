@@ -3,11 +3,31 @@
 import sys,random,json,re,heapq
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
-from art import asm_bytes
+from art import Bitmap,asm_bytes
 from visual_art import title
 from puzzle_assets import campaign,level_records,challenge_data
 out=Path(__file__).parent;levels=campaign(out)
-tiles=[[0]*8,[255,129,189,165,165,189,129,255],[0,24,60,126,90,24,36,0],[0,24,60,126,90,24,36,0],[0,24,60,126,90,24,36,0],[0,24,60,126,90,24,36,0],[0,8,28,8,0,0,0,0],[0,0,0,28,8,0,0,0],[0,60,90,126,24,60,66,0]]
+player=Bitmap.from_rows([
+ '........',
+ '...##...',
+ '..####..',
+ '.######.',
+ '.#.##.#.',
+ '...##...',
+ '..#..#..',
+ '........',
+]).bytes()
+enemy=Bitmap.from_rows([
+ '........',
+ '..####..',
+ '.#.##.#.',
+ '.######.',
+ '...##...',
+ '..####..',
+ '.#....#.',
+ '........',
+]).bytes()
+tiles=[[0]*8,[0]*8]+[player[:] for _ in range(4)]+[[0,8,28,8,0,0,0,0],[0,0,0,28,8,0,0,0],enemy]
 for d in range(4):
  x,y=3,3
  for _ in range(3):

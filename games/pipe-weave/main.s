@@ -1,6 +1,9 @@
 ; SPDX-License-Identifier: MIT
+.global pipe_running
+.global pipe_clock
 .global pipe_wet
 .global pipe_leaks
+.global pipe_visit
 .global pipe_trace
 .global pipe_connections
 .section .text, code
@@ -34,6 +37,23 @@ pipe_expand:
     BPL pipe_expand
     JMP pipe_trace
 game_update:
+    TST pipe_running
+    BEQ pipe_controls
+    LDAA input_ticks
+    TST resume_pending
+    BEQ pipe_clock_ready
+    STAA pipe_clock
+    CLR resume_pending
+pipe_clock_ready:
+    SUBA pipe_clock
+    CMPA #3
+    BCC pipe_flow_tick
+    RTS
+pipe_flow_tick:
+    LDAA input_ticks
+    STAA pipe_clock
+    JMP pipe_visit
+pipe_controls:
     LDAA input_event
     BITA #16
     BNE pipe_turn
@@ -138,6 +158,11 @@ pipe_dry_all:
     STAA pipe_wet
     LDAA #35
     STAA grid_stat
+    LDAA #1
+    STAA pipe_running
+    LDAA input_ticks
+    STAA pipe_clock
+    RTS
 pipe_visit:
     LDAB pipe_head
     LDX #pipe_queue
@@ -178,7 +203,11 @@ pipe_visit_next:
     INC pipe_head
     LDAA pipe_head
     CMPA pipe_tail
-    BNE pipe_visit
+    BEQ pipe_flow_done
+    JMP grid_changed
+pipe_flow_done:
+    CLR pipe_running
+    JSR grid_changed
     TST pipe_wet+35
     BEQ pipe_idle_return
     LDAA #4
@@ -235,6 +264,8 @@ game_render:
     JMP visual_hud
 
 .section .bss, bss
+pipe_running: .space 1
+pipe_clock: .space 1
 pipe_wet: .space 36
 pipe_connections: .space 144
 pipe_queue: .space 36

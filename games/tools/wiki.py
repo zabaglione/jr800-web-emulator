@@ -41,6 +41,8 @@ for game in games:
  page+=f'![タイトル画面]({raw}/{ident}/title.png)\n\n{manual["summary"]}\n\n## 遊び方\n\n{manual["guide"]}\n\n## ゲーム画面\n\n'
  assert len(manual['captions'])==3
  for i,caption in enumerate(manual['captions'],1):page+=f'![{caption}]({raw}/{ident}/gameplay-{i}.png)\n\n{caption}。\n\n'
+ if 'motion_caption' in manual:
+  caption=manual['motion_caption'];page+=f'![{caption}]({raw}/{ident}/motion.png)\n\n{caption}。\n\n'
  if 'animation' in manual:
   animation=manual['animation'];file=animation['file'];caption=animation['caption']
   assert re.fullmatch(r'[a-z-]+\.gif',file)
@@ -51,7 +53,7 @@ for game in games:
  (wiki/(ident.upper()+'.md')).write_text(page)
  (root/'games'/ident/'README.md').write_text(page.replace(raw+'/'+ident,'../../docs/games/screenshots/'+ident))
  dest=root/'docs/games/screenshots'/ident;dest.mkdir(parents=True,exist_ok=True)
- for name in ['title','gameplay-1','gameplay-2','gameplay-3']+(['selection'] if ident in PUZZLES else []):
+ for name in ['title','gameplay-1','gameplay-2','gameplay-3']+(['selection'] if ident in PUZZLES else [])+(['motion'] if 'motion_caption' in manual else []):
   for suffix in ['', '-1x']:
    image=name+suffix+'.png';src=root/'build/games'/ident/image
    if src.exists():shutil.copyfile(src,dest/image)

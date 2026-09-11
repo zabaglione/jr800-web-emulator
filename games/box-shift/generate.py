@@ -3,7 +3,7 @@
 import sys,random,json,re
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
-from art import asm_bytes
+from art import Bitmap,asm_bytes
 from visual_art import title
 out=Path(__file__).parent
 from puzzle_assets import campaign, level_records, challenge_data
@@ -13,7 +13,16 @@ tiles=[
  [0,0,24,36,36,24,0,0],[0]*8,
  [0,126,66,90,90,66,126,0],[0]*8,
  [0,126,90,102,102,90,126,0],[0]*8,
- [0,24,60,126,90,24,36,0],
+ Bitmap.from_rows([
+  '........',
+  '...##...',
+  '..####..',
+  '.######.',
+  '.#.##.#.',
+  '...##...',
+  '..#..#..',
+  '........',
+ ]).bytes(),
 ]
 from depth_art import block8
 tiles[1]=block8('stone').bytes()

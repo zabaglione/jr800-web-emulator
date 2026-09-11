@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 import assert from 'node:assert/strict';
+import {settleMotion} from './motion_check.mjs';
 import {checkReversi} from './reversi_check.mjs';
 import {checkFive} from './five_check.mjs';
 import {checkHex} from './hex_check.mjs';
@@ -34,7 +35,7 @@ export async function checkBoard(g,id){
  }
  function bestColumn(b){let best=-1e9,col=-1;for(const c of order){const p=slot(b,c);if(p<0)continue;b[p]=1;const v=search(b,4,2);b[p]=0;if(v>best){best=v;col=c;}}return col;}
  function drop(col){while(g.read('cursor')<col)g.tap('right');while(g.read('cursor')>col)g.tap('left');
-  const b=g.read('board',42),p=slot(b,col);g.tap('space');const after=g.read('board',42);
+  const b=g.read('board',42),p=slot(b,col);g.tap('space');settleMotion(g);const after=g.read('board',42);
   if(p<0){assert.deepEqual(after,b);return;}
   assert.equal(after[p],1,'Human disk falls to the lowest free cell');
   const changed=after.map((c,i)=>c!==b[i]?i:-1).filter(i=>i>=0);assert.ok(changed.length>=1&&changed.length<=2);

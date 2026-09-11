@@ -264,6 +264,8 @@ int main(int argc,char** argv){try{
     const int x=p%6+d[0],y=p/6+d[1];if(x>=0&&x<6&&y>=0&&y<6&&(cells[static_cast<unsigned>(p)]&static_cast<unsigned>(d[2]))&&(cells[static_cast<unsigned>(y*6+x)]&static_cast<unsigned>(d[3])))wet[static_cast<unsigned>(y*6+x)]=true;
    }
    f.put("phase",2);f.call("pipe_trace");require(f.get("pipe_leaks")==leaks,"Pipe leak counts include every unmatched port and screen edge");
+   for(unsigned tick=0;f.get("pipe_running")&&tick<36;++tick)f.call("pipe_visit");
+   require(f.get("pipe_running")==0,"Animated pipe wave terminates");
    unsigned dry=0;for(unsigned p=0;p<36;++p){require((f.get("pipe_wet",p)!=0)==wet[p],"Pipe wet set terminates on cyclic and disconnected networks");if(!wet[p])++dry;}
    require(f.get("grid_stat")==dry,"Dry pipe count");
   }

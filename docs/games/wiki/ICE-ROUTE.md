@@ -4,29 +4,35 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=ice-route) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/ice-route)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/ice-route/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f5852dd3d1b02680c422dc3c79917b24ee9e9c75/docs/games/screenshots/ice-route/title.png)
 
 止まるまで滑り続ける床で宝石と出口を目指す、全40面の経路パズルです。
 
 ## 遊び方
 
-方向キーを押すと壁まで滑ります。必須の宝石2個を集め、出口で止まればクリアです。追加目標は、2か所の印も通過することです。必須の宝石を集めた状態で出口へ着くと、印が残っていてもクリアになります。
+方向キーを押すと、プレイヤーが1マスずつ滑って壁で止まります。空白は氷の床、黒い人型はプレイヤー、中抜きの菱形は必須の宝石、星形は追加目標です。宝石2個を集めて出口へ着くとクリアです。星形2個の回収はクリアに必須ではありません。
 
-滑走1回を1手と数えます。RETURNメニューから直前の滑走を戻せます。
+開始時は宝石2個、星形2個の順に、効果音とともに1個ずつ出現します。最後にプレイヤーが効果音とともに点滅し、操作できるようになります。クリア時は盤面を残してプレイヤーが手を上げ、専用ジングルと余韻の後に評価を表示します。
+
+滑走1回を1手と数えます。RETURNメニューでは演出と滑走も止まり、直前の滑走を途中からでも戻せます。戻す操作も1手に数えます。
 
 ## ゲーム画面
 
-![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/ice-route/gameplay-1.png)
+![第1面。空白の床、黒いプレイヤー、中抜きの宝石、大きな星形の追加目標](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f5852dd3d1b02680c422dc3c79917b24ee9e9c75/docs/games/screenshots/ice-route/gameplay-1.png)
 
-第1面の初期配置と規定手数。
+第1面。空白の床、黒いプレイヤー、中抜きの宝石、大きな星形の追加目標。
 
-![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/ice-route/gameplay-2.png)
+![第31面の滑走途中。通過するマスと回収の様子を順に表示](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f5852dd3d1b02680c422dc3c79917b24ee9e9c75/docs/games/screenshots/ice-route/gameplay-2.png)
 
-第31面で追加目標に挑戦している場面。
+第31面の滑走途中。通過するマスと回収の様子を順に表示。
 
-![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/ice-route/gameplay-3.png)
+![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f5852dd3d1b02680c422dc3c79917b24ee9e9c75/docs/games/screenshots/ice-route/gameplay-3.png)
 
 第40面を規定手数と追加目標の両方を満たしてクリア。
+
+![開始時のアイテム出現、プレイヤーの点滅、滑走とクリア演出（実プレイ、音声なし）](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f5852dd3d1b02680c422dc3c79917b24ee9e9c75/docs/games/screenshots/ice-route/playthrough.gif)
+
+開始時のアイテム出現、プレイヤーの点滅、滑走とクリア演出（実プレイ、音声なし）。
 
 ## 40面のチャレンジと評価
 
@@ -59,7 +65,7 @@ HUDの **USED** は使った手数、**PAR** は規定手数です。規定手�
 
 コードは**面と評価**を記録します。盤面の途中状態は含みません。BASICへ戻る前にLOAD RECORDを控えると、次回の起動後に記録を復元できます。入力したLOAD RECORDの内容で全40面のBESTが置き換わるため、新しい記録を控えてから復元してください。
 
-![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/ice-route/selection.png)
+![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f5852dd3d1b02680c422dc3c79917b24ee9e9c75/docs/games/screenshots/ice-route/selection.png)
 
 面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。
 

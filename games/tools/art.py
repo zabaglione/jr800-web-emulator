@@ -11,6 +11,13 @@ class Bitmap:
     def __init__(self,w=192,h=64):
         self.w,self.h=w,h
         self.p=[[0]*w for _ in range(h)]
+    @classmethod
+    def from_rows(cls,rows):
+        """Author sprites from top-to-bottom rows; bytes() packs LCD columns."""
+        if not rows or len(rows)%8 or not rows[0] or any(len(r)!=len(rows[0]) or set(r)-set('.#') for r in rows):
+            raise ValueError('Use equally wide .# rows with a height divisible by eight')
+        b=cls(len(rows[0]),len(rows));b.p=[[int(c=='#') for c in r] for r in rows]
+        return b
     def dot(self,x,y,c=1):
         if 0<=x<self.w and 0<=y<self.h:self.p[y][x]=c
     def line(self,x,y,X,Y,c=1):

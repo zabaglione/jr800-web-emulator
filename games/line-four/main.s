@@ -1,9 +1,14 @@
 ; SPDX-License-Identifier: MIT
+.global four_active
+.global four_fall_cell
+.global four_side
+.global four_clock
 .global four_result
 .section .text, code
 game_start:
     JSR grid_reset
     CLR undo_valid
+    CLR four_active
     CLR four_result
     LDAA #3
     STAA cursor
@@ -11,46 +16,106 @@ game_start:
     STAA grid_stat
     RTS
 game_update:
+    TST four_active
+    BEQ four_controls
+    LDAA input_ticks
+    TST resume_pending
+    BEQ four_clock_ready
+    STAA four_clock
+    CLR resume_pending
+four_clock_ready:
+    SUBA four_clock
+    CMPA #4
+    BCC four_fall_tick
+    RTS
+four_fall_tick:
+    LDAA input_ticks
+    STAA four_clock
+    JMP four_fall
+four_controls:
     LDAA input_event
     BITA #16
     BNE four_play
     BITA #4
     BEQ four_right
     TST cursor
-    BEQ four_idle
+    BEQ four_control_idle
     DEC cursor
     JMP grid_changed
 four_right:
     BITA #8
-    BEQ four_idle
+    BEQ four_control_idle
     LDAA cursor
     CMPA #6
-    BEQ four_idle
+    BEQ four_control_idle
     INC cursor
     JMP grid_changed
+four_control_idle:
+    RTS
 four_play:
     LDAB cursor
     JSR four_find
     CMPB #255
-    BEQ four_idle
+    BEQ four_control_idle
     STAB line_last
     JSR grid_snapshot
     LDAB line_last
+    STAB four_target
+    LDAB cursor
+    STAB four_fall_cell
+    LDAA #1
+    STAA four_side
+    JSR four_start_fall
+    JMP grid_count_move
+four_start_fall:
+    LDAA #1
+    STAA four_active
+    LDAA input_ticks
+    STAA four_clock
+    JMP grid_changed
+four_fall:
+    LDAB four_fall_cell
+    CMPB four_target
+    BEQ four_landed
+    ADDB #7
+    STAB four_fall_cell
+    JMP grid_changed
+four_landed:
+    STAB line_last
     LDX #board
     ABX
-    LDAA #1
+    LDAA four_side
     STAA 0,X
+    CLR four_active
     DEC grid_stat
-    JSR grid_count_move
+    JSR grid_changed
     JSR line_score
+    LDAA four_side
+    CMPA #2
+    BEQ four_cpu_landed
     LDAA line_longest
     CMPA #4
     BCC four_human_wins
     TST grid_stat
     BEQ four_draw
     JSR four_cpu
-    DEC grid_stat
-    JSR line_score
+    ; AI selects against the settled board; reveal its choice from the top.
+    LDAB line_last
+    STAB four_target
+    LDX #board
+    ABX
+    CLR 0,X
+four_cpu_column:
+    CMPB #7
+    BCS four_cpu_top
+    SUBB #7
+    BRA four_cpu_column
+four_cpu_top:
+    STAB four_fall_cell
+    LDAA #2
+    STAA four_side
+    JMP four_start_fall
+four_cpu_landed:
     LDAA line_longest
     CMPA #4
     BCC four_cpu_wins
@@ -206,10 +271,18 @@ game_aux:
     CMPA #1
     BNE four_restart
     CLR four_result
+    CLR four_active
     JMP grid_restore
 four_restart:
     JMP game_start
 grid_value:
+    TST four_active
+    BEQ four_board_tile
+    CMPB four_fall_cell
+    BNE four_board_tile
+    LDAA four_side
+    RTS
+four_board_tile:
     LDX #board
     ABX
     LDAA 0,X
@@ -219,6 +292,11 @@ game_render:
     JMP visual_hud
 
 .section .bss, bss
+four_active: .space 1
+four_fall_cell: .space 1
+four_target: .space 1
+four_side: .space 1
+four_clock: .space 1
 four_result: .space 1
 four_column: .space 1
 four_candidate_cell: .space 1

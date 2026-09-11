@@ -59,6 +59,8 @@ frame_ready:
 frame_wait:
 ; @if ice_route
     JSR ice_audio
+; @else
+    JSR clear_audio
 ; @endif
     JSR input_poll
     LDAA input_ticks
@@ -164,6 +166,14 @@ select_redraw:
     BRA flush
 ; @endif
 update_result:
+; @if ice_route
+; @else
+    TST clear_active
+    BEQ result_input
+    JSR clear_update
+    JMP flush
+result_input:
+; @endif
     LDAA input_event
     BITA #32
     BEQ result_confirm
@@ -397,7 +407,7 @@ win_game:
 ; @if ice_route
     ; ICE ROUTE has already played its clear melody over the solved board.
 ; @else
-    JSR fanfare
+    JMP clear_begin
 ; @endif
     LDAA #4
     STAA phase

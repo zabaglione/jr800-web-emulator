@@ -1,4 +1,6 @@
 ; SPDX-License-Identifier: MIT
+.global rail_active
+.global rail_anim_step
 .global rail_score
 .global rail_moves
 .global rail_delta
@@ -10,6 +12,7 @@
 game_start:
     JSR grid_reset
     CLR undo_valid
+    CLR rail_active
     CLR rail_score
     CLR rail_score + 1
     CLR rail_moves
@@ -48,6 +51,23 @@ rail_expand:
     STAA seed
     JMP rail_status
 game_update:
+    TST rail_active
+    BEQ rail_controls
+    LDAA input_ticks
+    TST resume_pending
+    BEQ rail_clock_ready
+    STAA rail_clock
+    CLR resume_pending
+rail_clock_ready:
+    SUBA rail_clock
+    CMPA #3
+    BCC rail_tick
+    RTS
+rail_tick:
+    LDAA input_ticks
+    STAA rail_clock
+    JMP rail_anim_step
+rail_controls:
     LDAA input_event
     CLR rail_direction
     BITA #1
@@ -150,6 +170,21 @@ rail_score_ok:
 rail_moves_capped:
     LDAA seed
     STAA rail_undo_seed
+    LDX #rail_merged
+    LDAB #16
+    CLRA
+rail_clear_merged:
+    STAA 0,X
+    INX
+    DECB
+    BNE rail_clear_merged
+    LDAA #1
+    STAA rail_active
+    LDAA input_ticks
+    STAA rail_clock
+    JMP grid_changed
+rail_anim_commit:
+    CLR rail_active
     LDAB #0
 rail_commit:
     LDX #rail_trial
@@ -164,6 +199,103 @@ rail_commit:
     JSR rail_spawn
     JSR grid_count_move
     JMP rail_status
+; One edgeward cell per tile per tick. Flags prevent a newly merged tile
+; from merging again during this action. The independently computed trial
+; is committed only after the visible movement has settled.
+rail_anim_step:
+    CLR rail_changed_tick
+    LDAA rail_direction
+    LDAB #16
+    MUL
+    ADDD #rail_lines
+    STD rail_pointer
+    CLR rail_line
+rail_anim_line:
+    LDAA #1
+    STAA rail_index
+rail_anim_cell:
+    LDX rail_pointer
+    LDAB rail_index
+    ABX
+    LDAA 0,X
+    STAA rail_cell
+    DEX
+    LDAA 0,X
+    STAA rail_dest
+    LDAB rail_cell
+    LDX #board
+    ABX
+    LDAA 0,X
+    STAA rail_value
+    BEQ rail_anim_next
+    LDAB rail_dest
+    LDX #board
+    ABX
+    LDAB 0,X
+    BEQ rail_anim_move
+    CBA
+    BNE rail_anim_next
+    CMPA #11
+    BCC rail_anim_next
+    LDAB rail_cell
+    LDX #rail_merged
+    ABX
+    TST 0,X
+    BNE rail_anim_next
+    LDAB rail_dest
+    LDX #rail_merged
+    ABX
+    TST 0,X
+    BNE rail_anim_next
+    INC rail_value
+    LDAA #1
+    STAA 0,X
+    BRA rail_anim_store
+rail_anim_move:
+    LDAB rail_cell
+    LDX #rail_merged
+    ABX
+    LDAA 0,X
+    CLR 0,X
+    LDAB rail_dest
+    LDX #rail_merged
+    ABX
+    STAA 0,X
+rail_anim_store:
+    LDAB rail_cell
+    LDX #board
+    ABX
+    CLR 0,X
+    LDAB rail_dest
+    LDX #board
+    ABX
+    LDAA rail_value
+    STAA 0,X
+    INC rail_changed_tick
+rail_anim_next:
+    INC rail_index
+    LDAA rail_index
+    CMPA #4
+    BEQ rail_anim_next_line
+    JMP rail_anim_cell
+rail_anim_next_line:
+    LDX rail_pointer
+    INX
+    INX
+    INX
+    INX
+    STX rail_pointer
+    INC rail_line
+    LDAA rail_line
+    CMPA #4
+    BEQ rail_anim_done
+    JMP rail_anim_line
+rail_anim_done:
+    TST rail_changed_tick
+    BNE rail_anim_draw
+    JMP rail_anim_commit
+rail_anim_draw:
+    JMP grid_changed
 ; Compress four powers, merge each original tile at most once, accumulate points.
 rail_merge:
     CLR rail_index
@@ -321,6 +453,7 @@ game_aux:
     BNE rail_restart
     TST undo_valid
     BEQ rail_available
+    CLR rail_active
     JSR grid_restore
     LDD rail_undo_score
     STD rail_score
@@ -355,6 +488,11 @@ game_render:
     JMP visual_hud
 
 .section .bss, bss
+rail_active: .space 1
+rail_clock: .space 1
+rail_dest: .space 1
+rail_changed_tick: .space 1
+rail_merged: .space 16
 rail_score: .space 2
 rail_moves: .space 2
 rail_delta: .space 2
