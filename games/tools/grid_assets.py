@@ -108,6 +108,27 @@ def logo(name,kind):
             b.rect(x-1,24,8,8,0,True);b.line(x,26,x+7,26);b.line(x+7,26,x+3,22);b.line(x+7,26,x+3,30)
         b.line(24,51,166,51)
         for x,s in ((44,'A'),(92,'B'),(140,'C')):b.rect(x-2,45,9,9,0,True);b.text(s,x,46)
+    elif kind=='ace-stack':
+        for x in (4,164):
+            for n in range(3):b.rect(x+n*4,8+n*4,15,31)
+            b.text('A',x+13,23);b.line(x+11,37,x+17,37)
+        for x in (31,55,137,161):b.line(x,52,96,47)
+    elif kind=='suit-run':
+        for x in (4,169):
+            for i in range(4):
+                b.rect(x,5+i*11,18,18);b.text('A234'[i],x+6,8+i*11)
+        b.line(27,51,164,51);b.line(155,47,164,51);b.line(155,55,164,51)
+    elif kind=='dice-hold':
+        for x in (5,164):
+            for j,y in enumerate((7,31)):
+                b.rect(x,y,22,20)
+                for dx,dy in ((5,4),(16,15),(5,15),(16,4))[:2+j*2]:b.rect(x+dx-1,y+dy-1,3,3,1,True)
+        for x in range(30,162,11):b.line(x,51,x+5,48)
+    elif kind=='push-luck':
+        for x in (4,166):
+            for y in (39,32,25):b.rect(x,y,21,9);b.line(x+3,y+3,x+17,y+3)
+            b.line(x+3,19,x+17,19);b.line(x+10,6,x+10,19);b.line(x+10,6,x+4,12);b.line(x+10,6,x+16,12)
+        b.line(27,51,164,51);b.line(30,48,30,54);b.line(161,48,161,54)
     else:
         raise ValueError('A distinct title motif is required: '+kind)
     for row,word in enumerate(name.split()):
@@ -122,8 +143,9 @@ def logo(name,kind):
     b.rect(48,54,96,8,0,True);b.text('SPACE TO START',57,55)
     return b.bytes()
 
-def assets(path,name,kind,w,h,sx,sy,sprites,stages,data='',stat='LEFT',action='SPACE',aux=('UNDO','RESET')):
+def assets(path,name,kind,w,h,sx,sy,sprites,stages,data='',stat='LEFT',action='SPACE',aux=('UNDO','RESET'),layout=None,navigation=None,cell_count=None):
     assert w*sx<=16 and h*sy<=7 and len(sprites)*sx*sy+1<=128
+    count=cell_count if cell_count is not None else w*h
     cells=[];sub=[];ox=(16-w*sx)//2;oy=(7-h*sy)//2
     for y in range(7):
         for x in range(16):
@@ -131,18 +153,24 @@ def assets(path,name,kind,w,h,sx,sy,sprites,stages,data='',stat='LEFT',action='S
             inside=0<=X<w*sx and 0<=Y<h*sy
             cells.append((Y//sy)*w+X//sx if inside else 255)
             sub.append((Y%sy)*sx+X%sx if inside else 0)
-    neighbors=[]
-    for dx,dy in ((0,-1),(0,1),(-1,0),(1,0)):
-        for i in range(w*h):
-            x,y=i%w+dx,i//w+dy
-            neighbors.append(y*w+x if 0<=x<w and 0<=y<h else 255)
+    if layout is not None:cells,sub=layout
+    assert len(cells)==112 and len(sub)==112 and all(c==255 or 0<=c<count for c in cells)
+    assert all(0<=s<sx*sy for s in sub)
+    neighbors=list(navigation) if navigation is not None else []
+    if navigation is None:
+        assert count==w*h
+        for dx,dy in ((0,-1),(0,1),(-1,0),(1,0)):
+            for i in range(w*h):
+                x,y=i%w+dx,i//w+dy
+                neighbors.append(y*w+x if 0<=x<w and 0<=y<h else 255)
+    assert len(neighbors)==4*count and all(n==255 or 0<=n<count for n in neighbors)
     tiles=[0]*8
     for sprite in sprites:
         raw=sprite.bytes()
         for y in range(sy):
             for x in range(sx):tiles.extend(raw[y*sx*8+x*8:y*sx*8+x*8+8])
     def txt(label,s):return asm_bytes(label,list(s.encode('ascii'))+[0])
-    source='; SPDX-License-Identifier: MIT\n'+f'.equ STAGES,{stages}\n.equ CELLS,{w*h}\n.equ TILE_STRIDE,{sx*sy}\n.section .data, data\n'
+    source='; SPDX-License-Identifier: MIT\n'+f'.equ STAGES,{stages}\n.equ CELLS,{count}\n.equ TILE_STRIDE,{sx*sy}\n.section .data, data\n'
     source+=txt('game_name',name)+txt('aux1_label',aux[0])+txt('aux2_label',aux[1])+txt('grid_stat_label',stat)+txt('grid_action_label',action)
     source+=asm_bytes('title_art',logo(name,kind))+asm_bytes('tiles',tiles)+asm_bytes('view_cells',cells)+asm_bytes('view_subtiles',sub)+asm_bytes('neighbors',neighbors)+data
     Path(path,'assets.s').write_text(source)

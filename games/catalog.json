@@ -132,6 +132,30 @@
       "title": "LOOP TRACE",
       "genre": "logic",
       "style": "modern"
+    },
+    {
+      "id": "ace-stack",
+      "title": "ACE STACK",
+      "genre": "cards",
+      "style": "classic"
+    },
+    {
+      "id": "suit-run",
+      "title": "SUIT RUN",
+      "genre": "cards",
+      "style": "classic"
+    },
+    {
+      "id": "dice-hold",
+      "title": "DICE HOLD",
+      "genre": "cards",
+      "style": "classic"
+    },
+    {
+      "id": "push-luck",
+      "title": "PUSH LUCK",
+      "genre": "cards",
+      "style": "modern"
     }
   ]
 }

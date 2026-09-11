@@ -8,6 +8,10 @@ import {checkPipe} from './pipe_check.mjs';
 import {checkRail} from './rail_check.mjs';
 import {checkMine} from './mine_check.mjs';
 import {checkLoop} from './loop_check.mjs';
+import {checkAce} from './ace_check.mjs';
+import {checkSuit} from './suit_check.mjs';
+import {checkDice} from './dice_check.mjs';
+import {checkLuck} from './luck_check.mjs';
 export async function data(id,name='solutions') {return JSON.parse(await readFile(new URL(`../${id}/${name}.json`,import.meta.url)));}
 export function moveCursor(g,cell,w){
  while(g.read('cursor')%w<cell%w)g.tap('right');
@@ -20,6 +24,10 @@ export async function checkLibrary(g,id){
  if(id==='number-rail')return checkRail(g);
  if(id==='mine-field')return checkMine(g);
  if(id==='loop-trace')return checkLoop(g);
+ if(id==='ace-stack')return checkAce(g);
+ if(id==='suit-run')return checkSuit(g);
+ if(id==='dice-hold')return checkDice(g);
+ if(id==='push-luck')return checkLuck(g);
  if(id==='lamp-grid'){
   const solutions=await data(id);
   for(let stage=0;stage<solutions.length;stage++){

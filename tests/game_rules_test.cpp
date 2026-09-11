@@ -227,5 +227,55 @@ int main(int argc,char** argv){try{
   f.put("input_event",16);f.put("grid_stat",0);f.put("loop_next",4);f.put("cursor",35);f.call("game_update");require(f.get("phase")==2,"A non-adjacent final node cannot close a loop");
   f.put("cursor",1);f.call("game_update");require(f.get("phase")==4&&f.get("loop_paths",0)==8&&f.get("loop_paths",1)==4,"Closing connects both endpoints to the start");
  }
- std::cout<<"PASS: laser cycles, twelve card effects, costs, shield/poison, factory contention/conversion/shipping, crater edges, connect-four windows and tactics, reversi rays, five-stone windows and open ends, hex distance fields, pawn movement boundaries, dot box ownership, pipe loops and leaks, number merges and terminal states, mine first-click safety and flood fill, loop checkpoints and closure\n";return 0;
+ {
+  Fixture f(root,"ace-stack");
+  for(unsigned row=0;row<7;++row)for(unsigned col=0;col<=row;++col)for(unsigned mask=0;mask<4;++mask)for(unsigned rank=1;rank<=13;++rank){
+   const unsigned card=row*(row+1)/2+col;f.fill("board",52,0);f.put("board",rank,card);
+   if(row<6){const unsigned child=(row+1)*(row+2)/2+col;if(mask&1)f.put("board",2,child);if(mask&2)f.put("board",3,child+1);}
+   f.call("ace_available",card);require(f.cpu.state().a==((row==6||mask==0)?rank:0),"Pyramid availability requires both covering cards to be removed");
+  }
+  f.fill("board",52,0);f.put("board",5,21);f.put("board",7,22);f.put("grid_stat",2);f.put("phase",2);f.put("cursor",21);f.put("input_event",16);f.call("game_update");require(f.get("selection_active")==1,"First card is selected");
+  f.put("cursor",22);f.call("game_update");require(f.get("moves")==0&&f.get("board",21)==5&&f.get("board",22)==7,"A pair must total thirteen");
+  f.put("board",8,22);f.call("game_update");require(f.get("phase")==4&&f.get("grid_stat")==0,"A valid pair removes both cards and clears the pyramid");
+  f.fill("board",52,0);f.put("board",1,21);f.put("grid_stat",1);f.put("ace_stock_pos",24);f.put("ace_waste_count",0);f.put("phase",2);f.call("ace_check");require(f.get("phase")==5,"An exhausted stock without any legal pair ends the deal");
+  f.put("board",12,28);f.put("ace_waste_count",1);f.put("phase",2);f.call("ace_check");require(f.get("phase")==2,"The top waste card can keep a tableau pair available");
+ }
+ {
+  Fixture f(root,"suit-run");
+  for(unsigned waste=1;waste<=13;++waste)for(unsigned rank=1;rank<=13;++rank){
+   f.fill("board",35,0);f.put("board",rank,28);f.put("suit_waste",waste);f.put("suit_stock_pos",0);f.put("suit_chain",0);f.put("suit_score",0);f.put("suit_score",0,1);f.put("moves",0);f.put("grid_stat",1);f.put("cursor",28);f.put("input_event",16);f.put("phase",2);f.call("game_update");
+   const int delta=std::abs(static_cast<int>(waste)-static_cast<int>(rank));const bool valid=delta==1||delta==12;
+   require((f.get("phase")==4)==valid,"Golf accepts exactly adjacent ranks, including A/K wrapping");
+   require(f.get("suit_score",1)==(valid?1:0),"Only a removed card scores");
+  }
+  for(unsigned card=0;card<35;++card)for(unsigned covered=0;covered<2;++covered){
+   f.fill("board",35,0);f.put("board",7,card);if(card<28&&covered)f.put("board",8,card+7);f.call("suit_available",card);
+   require(f.cpu.state().a==((card>=28||!covered)?7:0),"Only the exposed end of a golf column is available");
+  }
+  f.fill("board",35,0);f.put("board",7,28);f.put("suit_waste",2);f.put("suit_stock_pos",16);f.put("grid_stat",1);f.put("phase",2);f.call("suit_check");require(f.get("phase")==5,"An exhausted golf stock with no adjacent rank fails");
+ }
+ {
+  Fixture f(root,"dice-hold");
+  for(unsigned code=0;code<7776;++code){
+   unsigned digits=code,sum=0;std::array<unsigned,7> count{};std::array<unsigned,13> score{};
+   for(unsigned i=0;i<5;++i){const unsigned face=digits%6+1;digits/=6;f.put("board",face,i);++count[face];sum+=face;}
+   unsigned longest=0,run=0;bool two=false,three=false;for(unsigned n=1;n<=6;++n){score[n-1]=n*count[n];if(count[n])++run;else run=0;longest=std::max(longest,run);two=two||count[n]==2;three=three||count[n]==3;}
+   const unsigned max=*std::max_element(count.begin(),count.end());score[6]=max>=3?sum:0;score[7]=max>=4?sum:0;score[8]=two&&three?25:0;score[9]=longest>=4?30:0;score[10]=longest>=5?40:0;score[11]=max==5?50:0;score[12]=sum;
+   f.call("dice_evaluate");for(unsigned c=0;c<13;++c)require(f.get("dice_scores",c)==score[c],"All 7776 ordered dice throws match thirteen independent category scores");
+  }
+  f.fill("dice_used",13,0);f.put("dice_upper",60);f.put("dice_total",0);f.put("dice_total",60,1);f.put("dice_bonus",0);f.put("dice_round",12);f.put("dice_category",0);f.put("dice_scores",3,0);f.put("phase",2);f.put("stage",0);f.call("dice_commit");require(f.get("dice_total",1)==98&&f.get("dice_bonus")==35,"The upper bonus is granted once at sixty-three");
+  f.call("dice_commit");require(f.get("dice_total",1)==98&&f.get("dice_round")==13,"An already filled score row is inert");
+ }
+ {
+  Fixture f(root,"push-luck");
+  for(unsigned stage=0;stage<3;++stage)for(unsigned player:{0,79,80,99})for(unsigned cpu:{0,70,95})for(unsigned pot=0;pot<40;++pot)for(unsigned rolls:{0,5,6}){
+   f.put("stage",stage);f.put("luck_scores",player);f.put("luck_scores",cpu,1);f.put("luck_pot",pot);f.put("luck_rolls",rolls);f.call("luck_decide");
+   const unsigned limit=stage==2&&player>=80?32:std::array<unsigned,3>{12,18,24}[stage];const bool stop=pot&&(cpu+pot>=100||rolls>=6||pot>=limit);
+   require((f.cpu.state().a!=0)==stop,"CPU banks using difficulty, goal and turn-risk thresholds");
+  }
+  for(unsigned side=0;side<2;++side){f.put("luck_side",side);f.put("luck_scores",95,side);f.put("luck_pot",7);f.put("phase",2);f.call("luck_bank");require(f.get("phase")==4+side&&f.get("luck_scores",side)==102&&f.get("luck_pot")==0,"A bank of at least one hundred ends the match for the correct side");}
+  f.put("luck_side",0);f.put("luck_scores",250);f.put("luck_pot",20);f.put("phase",2);f.call("luck_bank");require(f.get("luck_scores")==255,"A large bank saturates instead of wrapping");
+  f.put("luck_side",0);f.put("luck_pot",0);f.put("phase",2);f.call("luck_bank");require(f.get("luck_side")==0&&f.get("phase")==2,"Banking an empty pot does not skip a turn");
+ }
+ std::cout<<"PASS: laser cycles, twelve card effects, costs, shield/poison, factory contention/conversion/shipping, crater edges, connect-four windows and tactics, reversi rays, five-stone windows and open ends, hex distance fields, pawn movement boundaries, dot box ownership, pipe loops and leaks, number merges and terminal states, mine first-click safety and flood fill, loop checkpoints and closure, pyramid availability and pairs, golf rank wrapping and coverage, all dice category scores and bonus, risk banking thresholds and limits\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
