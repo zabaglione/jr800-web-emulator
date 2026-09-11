@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [探索・冒険](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Adventure) · モダン
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/signal-ghost)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=signal-ghost) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/signal-ghost)
 
 ![タイトル画面](../../docs/games/screenshots/signal-ghost/title.png)
 
