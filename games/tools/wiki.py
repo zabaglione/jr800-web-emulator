@@ -5,10 +5,12 @@ from pathlib import Path
 root=Path(__file__).resolve().parents[2]
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--live-check',type=Path)
+p.add_argument('--image-revision',default='main',help='Published source revision for immutable screenshot URLs')
 a=p.parse_args()
 site='https://zabaglione.github.io/jr800-web-emulator/'
 repo='https://github.com/zabaglione/jr800-web-emulator'
-raw='https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots'
+if not re.fullmatch(r'[0-9a-f]{40}|main',a.image_revision):raise ValueError('Use a full published commit ID for images')
+raw=f'https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/{a.image_revision}/docs/games/screenshots'
 games=json.loads((root/'games/catalog.json').read_text())['programs']
 genres=json.loads((root/'games/genres.json').read_text())
 plan=json.loads((root/'games/roadmap.json').read_text())

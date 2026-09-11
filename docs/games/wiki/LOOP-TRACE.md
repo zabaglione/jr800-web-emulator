@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=loop-trace) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/loop-trace)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/loop-trace/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/loop-trace/title.png)
 
 A→B→Cの順に通り、全地点を一度ずつ巡って輪を閉じる20面のパズルです。
 
@@ -18,15 +18,15 @@ LEFTが0になったら、Sの隣からSPACEを押して最後の線を結びま
 
 ## ゲーム画面
 
-![開始地点と3つのチェックポイントを確認](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/loop-trace/gameplay-1.png)
+![開始地点と3つのチェックポイントを確認](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/loop-trace/gameplay-1.png)
 
 開始地点と3つのチェックポイントを確認。
 
-![順番を守りながら経路を伸ばす](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/loop-trace/gameplay-2.png)
+![順番を守りながら経路を伸ばす](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/loop-trace/gameplay-2.png)
 
 順番を守りながら経路を伸ばす。
 
-![全地点を巡り最後の線を閉じた完成図](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/loop-trace/gameplay-3.png)
+![全地点を巡り最後の線を閉じた完成図](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/loop-trace/gameplay-3.png)
 
 全地点を巡り最後の線を閉じた完成図。
 

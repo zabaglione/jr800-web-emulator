@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=lamp-grid) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/lamp-grid)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/lamp-grid/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/lamp-grid/title.png)
 
 十字に反転する5×5のランプを、すべて消す全20面の論理パズルです。
 
@@ -16,15 +16,15 @@ RETURNのメニューからUNDOで直前の反転を1回取り消せます。RES
 
 ## ゲーム画面
 
-![最初のランプ配置と反転カーソル](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/lamp-grid/gameplay-1.png)
+![最初のランプ配置と反転カーソル](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/lamp-grid/gameplay-1.png)
 
 最初のランプ配置と反転カーソル。
 
-![第8面で周囲の点灯を整理する場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/lamp-grid/gameplay-2.png)
+![第8面で周囲の点灯を整理する場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/lamp-grid/gameplay-2.png)
 
 第8面で周囲の点灯を整理する場面。
 
-![第17面のランプ配置](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/lamp-grid/gameplay-3.png)
+![第17面のランプ配置](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/lamp-grid/gameplay-3.png)
 
 第17面のランプ配置。
 

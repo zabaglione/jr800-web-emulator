@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=box-shift) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/box-shift)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/box-shift/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/box-shift/title.png)
 
 箱を押してすべての丸い目標に置く、全20面の倉庫パズルです。
 
@@ -16,15 +16,15 @@
 
 ## ゲーム画面
 
-![最初の倉庫と箱・目標](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/box-shift/gameplay-1.png)
+![最初の倉庫と箱・目標](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/box-shift/gameplay-1.png)
 
 最初の倉庫と箱・目標。
 
-![箱を押す順序を考える場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/box-shift/gameplay-2.png)
+![箱を押す順序を考える場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/box-shift/gameplay-2.png)
 
 箱を押す順序を考える場面。
 
-![後半の倉庫配置](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/box-shift/gameplay-3.png)
+![後半の倉庫配置](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/box-shift/gameplay-3.png)
 
 後半の倉庫配置。
 

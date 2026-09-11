@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=five-stones) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/five-stones)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/five-stones/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/five-stones/title.png)
 
 14×7の盤面で5個の石を並べるCPU対戦です。両端が空いた攻め筋と相手のリーチを読む五目並べです。
 
@@ -18,15 +18,15 @@ RETURNからUNDO TURNで自分とCPUの直前の1ターンを戻せます。RESE
 
 ## ゲーム画面
 
-![白と黒が中央から攻める序盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/five-stones/gameplay-1.png)
+![白と黒が中央から攻める序盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/five-stones/gameplay-1.png)
 
 白と黒が中央から攻める序盤。
 
-![複数の方向へ石を伸ばす中盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/five-stones/gameplay-2.png)
+![複数の方向へ石を伸ばす中盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/five-stones/gameplay-2.png)
 
 複数の方向へ石を伸ばす中盤。
 
-![最後の攻め筋を作る場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/five-stones/gameplay-3.png)
+![最後の攻め筋を作る場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/five-stones/gameplay-3.png)
 
 最後の攻め筋を作る場面。
 

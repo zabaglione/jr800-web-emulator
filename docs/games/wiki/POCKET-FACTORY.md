@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=pocket-factory) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/pocket-factory)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/pocket-factory/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/pocket-factory/title.png)
 
 資源A・Bをベルトと加工機で運び、製品2種類を出荷する全12課題の工場パズルです。
 
@@ -16,15 +16,15 @@
 
 ## ゲーム画面
 
-![出荷口を確認して工場を設計](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/pocket-factory/gameplay-1.png)
+![出荷口を確認して工場を設計](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/pocket-factory/gameplay-1.png)
 
 出荷口を確認して工場を設計。
 
-![加工機を通って資源が流れる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/pocket-factory/gameplay-2.png)
+![加工機を通って資源が流れる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/pocket-factory/gameplay-2.png)
 
 加工機を通って資源が流れる。
 
-![別の地形で2系統の製品を出荷](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/pocket-factory/gameplay-3.png)
+![別の地形で2系統の製品を出荷](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/pocket-factory/gameplay-3.png)
 
 別の地形で2系統の製品を出荷。
 

@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=slide-nine) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/slide-nine)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/slide-nine/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/slide-nine/title.png)
 
 3×3の盤面で空きマスを動かし、数字を1から8の順に並べる全20面のスライドパズルです。
 
@@ -16,15 +16,15 @@ LEFTは正しい場所にない数字の数です。MOVESは移動回数（最�
 
 ## ゲーム画面
 
-![大きな数字タイルと空きマス](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/slide-nine/gameplay-1.png)
+![大きな数字タイルと空きマス](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/slide-nine/gameplay-1.png)
 
 大きな数字タイルと空きマス。
 
-![第9面の並べ替え途中](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/slide-nine/gameplay-2.png)
+![第9面の並べ替え途中](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/slide-nine/gameplay-2.png)
 
 第9面の並べ替え途中。
 
-![第19面の終盤パズル](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/slide-nine/gameplay-3.png)
+![第19面の終盤パズル](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/slide-nine/gameplay-3.png)
 
 第19面の終盤パズル。
 

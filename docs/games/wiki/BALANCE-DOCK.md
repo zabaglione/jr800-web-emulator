@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=balance-dock) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/balance-dock)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/balance-dock/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/balance-dock/title.png)
 
 左右に動く荷物を落として高く積むタイミングゲームです。はみ出した部分は切り落とされ、残った幅で次の荷物を受け止めます。
 
@@ -22,15 +22,15 @@ RETURNのメニューでは移動・落下が止まります。FLIPは左右移�
 
 ## ゲーム画面
 
-![はみ出した部分が切れ、次に支えられる幅が小さくなる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/balance-dock/gameplay-1.png)
+![はみ出した部分が切れ、次に支えられる幅が小さくなる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/balance-dock/gameplay-1.png)
 
 はみ出した部分が切れ、次に支えられる幅が小さくなる。
 
-![同じ位置へ正確に重ねて幅と得点を保つ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/balance-dock/gameplay-2.png)
+![同じ位置へ正確に重ねて幅と得点を保つ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/balance-dock/gameplay-2.png)
 
 同じ位置へ正確に重ねて幅と得点を保つ。
 
-![20段を目指し、高くなった積み荷へ次の荷物を合わせる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/balance-dock/gameplay-3.png)
+![20段を目指し、高くなった積み荷へ次の荷物を合わせる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/balance-dock/gameplay-3.png)
 
 20段を目指し、高くなった積み荷へ次の荷物を合わせる。
 

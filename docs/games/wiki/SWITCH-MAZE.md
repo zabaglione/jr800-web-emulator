@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=switch-maze) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/switch-maze)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/switch-maze/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/switch-maze/title.png)
 
 2系統のスイッチと扉を使い、2本の鍵を集めて出口へ向かう全20面の迷路パズルです。
 
@@ -16,15 +16,15 @@
 
 ## ゲーム画面
 
-![2系統のスイッチと鍵がある最初の迷路](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/switch-maze/gameplay-1.png)
+![2系統のスイッチと鍵がある最初の迷路](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/switch-maze/gameplay-1.png)
 
 2系統のスイッチと鍵がある最初の迷路。
 
-![第8面で扉の開閉順序を考える場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/switch-maze/gameplay-2.png)
+![第8面で扉の開閉順序を考える場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/switch-maze/gameplay-2.png)
 
 第8面で扉の開閉順序を考える場面。
 
-![第17面の鍵回収と帰り道](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/switch-maze/gameplay-3.png)
+![第17面の鍵回収と帰り道](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/switch-maze/gameplay-3.png)
 
 第17面の鍵回収と帰り道。
 

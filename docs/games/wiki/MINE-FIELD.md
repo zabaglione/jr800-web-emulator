@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=mine-field) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/mine-field)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/mine-field/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/mine-field/title.png)
 
 周囲の数字から地雷を探す14×7の盤面です。地雷10・15・20個の3難易度を選べます。
 
@@ -18,15 +18,15 @@ RETURNのFLAG MODEに入ると、SPACEで旗を置く・取り除く操作にな
 
 ## ゲーム画面
 
-![最初の安全な場所から空白領域を開放](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/mine-field/gameplay-1.png)
+![最初の安全な場所から空白領域を開放](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/mine-field/gameplay-1.png)
 
 最初の安全な場所から空白領域を開放。
 
-![旗を置いて地雷の位置を整理](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/mine-field/gameplay-2.png)
+![旗を置いて地雷の位置を整理](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/mine-field/gameplay-2.png)
 
 旗を置いて地雷の位置を整理。
 
-![旗の推理違いで地雷が開いた失敗画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/mine-field/gameplay-3.png)
+![旗の推理違いで地雷が開いた失敗画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/mine-field/gameplay-3.png)
 
 旗の推理違いで地雷が開いた失敗画面。
 

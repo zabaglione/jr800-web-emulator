@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=orchard-days) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/orchard-days)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/orchard-days/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/orchard-days/title.png)
 
 1日3回の作業で豆とベリーを育て、期限までの所持金目標を目指す全12課題の農園ゲームです。
 
@@ -24,15 +24,15 @@ RETURNのNEXT DAYでその日の作業を終え、夜の成長を処理して翌
 
 ## ゲーム画面
 
-![18区画から種をまく場所を選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/orchard-days/gameplay-1.png)
+![18区画から種をまく場所を選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/orchard-days/gameplay-1.png)
 
 18区画から種をまく場所を選ぶ。
 
-![作物の成長と水やりを計画する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/orchard-days/gameplay-2.png)
+![作物の成長と水やりを計画する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/orchard-days/gameplay-2.png)
 
 作物の成長と水やりを計画する。
 
-![豆とベリーを収穫して所持金目標へ近づく](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/orchard-days/gameplay-3.png)
+![豆とベリーを収穫して所持金目標へ近づく](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/orchard-days/gameplay-3.png)
 
 豆とベリーを収穫して所持金目標へ近づく。
 

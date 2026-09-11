@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=mirror-link) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/mirror-link)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/mirror-link/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/mirror-link/title.png)
 
 鏡を回転させて、すべての受光器へレーザーを導く全20面のパズルです。
 
@@ -16,15 +16,15 @@
 
 ## ゲーム画面
 
-![1本の光路と鏡](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/mirror-link/gameplay-1.png)
+![1本の光路と鏡](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/mirror-link/gameplay-1.png)
 
 1本の光路と鏡。
 
-![2回の反射を使う面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/mirror-link/gameplay-2.png)
+![2回の反射を使う面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/mirror-link/gameplay-2.png)
 
 2回の反射を使う面。
 
-![複数の光源を接続する後半の面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/mirror-link/gameplay-3.png)
+![複数の光源を接続する後半の面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/mirror-link/gameplay-3.png)
 
 複数の光源を接続する後半の面。
 

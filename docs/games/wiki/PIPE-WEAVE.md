@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=pipe-weave) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/pipe-weave)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/pipe-weave/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/pipe-weave/title.png)
 
 管を回して給水口Sから全36マスと排水口Eへ水を通す20面です。漏れのない配管を組み上げます。
 
@@ -18,15 +18,15 @@ RETURNのUNDOで直前の回転を1手戻し、RESETで現在の面をやり直�
 
 ## ゲーム画面
 
-![給水口と回転前の管の配置](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/pipe-weave/gameplay-1.png)
+![給水口と回転前の管の配置](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/pipe-weave/gameplay-1.png)
 
 給水口と回転前の管の配置。
 
-![上半分へ水を通した配管](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/pipe-weave/gameplay-2.png)
+![上半分へ水を通した配管](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/pipe-weave/gameplay-2.png)
 
 上半分へ水を通した配管。
 
-![残りの未通水部分と漏れを修正する終盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/pipe-weave/gameplay-3.png)
+![残りの未通水部分と漏れを修正する終盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/pipe-weave/gameplay-3.png)
 
 残りの未通水部分と漏れを修正する終盤。
 

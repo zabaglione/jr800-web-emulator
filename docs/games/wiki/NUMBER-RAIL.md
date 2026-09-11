@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=number-rail) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/number-rail)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/number-rail/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/number-rail/title.png)
 
 同じ数字を合流させて大きくする4×4のパズルです。128・512・2048の3段階の目標を選べます。
 
@@ -18,15 +18,15 @@ RETURNのUNDOで1手戻せます。得点・手数・乱数の状態も戻すた
 
 ## ゲーム画面
 
-![2つの数字から始める初期配置](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/number-rail/gameplay-1.png)
+![2つの数字から始める初期配置](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/number-rail/gameplay-1.png)
 
 2つの数字から始める初期配置。
 
-![64を作り次の合流を考える](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/number-rail/gameplay-2.png)
+![64を作り次の合流を考える](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/number-rail/gameplay-2.png)
 
 64を作り次の合流を考える。
 
-![1024を作って2048を目指す終盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/number-rail/gameplay-3.png)
+![1024を作って2048を目指す終盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/number-rail/gameplay-3.png)
 
 1024を作って2048を目指す終盤。
 

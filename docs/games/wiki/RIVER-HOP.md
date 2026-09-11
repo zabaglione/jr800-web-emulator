@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=river-hop) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/river-hop)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/river-hop/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/river-hop/title.png)
 
 車列を避け、流れる丸太を渡って5つの岸へ到着する12面のアクションゲームです。
 
@@ -20,15 +20,15 @@ RETURNでメニューを開くと車・丸太・TIMEが止まります。PAUSE�
 
 ## ゲーム画面
 
-![道路と川の流れを見て開始](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/river-hop/gameplay-1.png)
+![道路と川の流れを見て開始](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/river-hop/gameplay-1.png)
 
 道路と川の流れを見て開始。
 
-![丸太に運ばれながら岸を目指す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/river-hop/gameplay-2.png)
+![丸太に運ばれながら岸を目指す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/river-hop/gameplay-2.png)
 
 丸太に運ばれながら岸を目指す。
 
-![4つの岸へ到着し最後の1つを狙う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/river-hop/gameplay-3.png)
+![4つの岸へ到着し最後の1つを狙う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/river-hop/gameplay-3.png)
 
 4つの岸へ到着し最後の1つを狙う。
 

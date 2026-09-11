@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=peg-rescue) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/peg-rescue)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/peg-rescue/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/peg-rescue/title.png)
 
 独自の31穴盤で石を飛び越して取り、最後の1個を残す20面のパズルです。
 
@@ -16,15 +16,15 @@
 
 ## ゲーム画面
 
-![5個の石から始める最初の課題](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/peg-rescue/gameplay-1.png)
+![5個の石から始める最初の課題](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/peg-rescue/gameplay-1.png)
 
 5個の石から始める最初の課題。
 
-![選んだ石と跳べる空き穴の案内](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/peg-rescue/gameplay-2.png)
+![選んだ石と跳べる空き穴の案内](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/peg-rescue/gameplay-2.png)
 
 選んだ石と跳べる空き穴の案内。
 
-![石が残り6個になった最終課題](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/peg-rescue/gameplay-3.png)
+![石が残り6個になった最終課題](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/peg-rescue/gameplay-3.png)
 
 石が残り6個になった最終課題。
 

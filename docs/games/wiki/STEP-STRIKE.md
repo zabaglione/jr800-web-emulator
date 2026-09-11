@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=step-strike) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/step-strike)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/step-strike/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/step-strike/title.png)
 
 移動・射撃・待機の1手でだけ世界が進む、全20面の戦術パズルです。
 
@@ -16,15 +16,15 @@
 
 ## ゲーム画面
 
-![敵の配置を見て作戦を立てる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/step-strike/gameplay-1.png)
+![敵の配置を見て作戦を立てる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/step-strike/gameplay-1.png)
 
 敵の配置を見て作戦を立てる。
 
-![遮蔽物を使って接近する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/step-strike/gameplay-2.png)
+![遮蔽物を使って接近する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/step-strike/gameplay-2.png)
 
 遮蔽物を使って接近する。
 
-![敵と弾道を見ながら次の1手を選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/step-strike/gameplay-3.png)
+![敵と弾道を見ながら次の1手を選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/step-strike/gameplay-3.png)
 
 敵と弾道を見ながら次の1手を選ぶ。
 

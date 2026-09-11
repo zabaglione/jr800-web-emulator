@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=knight-tour) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/knight-tour)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/knight-tour/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/knight-tour/title.png)
 
 ナイトのL字移動で6×6の全マスを一度ずつ巡る、6種類の開始位置のパズルです。
 
@@ -16,15 +16,15 @@
 
 ## ゲーム画面
 
-![最初の位置と跳べるマスの案内](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/knight-tour/gameplay-1.png)
+![最初の位置と跳べるマスの案内](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/knight-tour/gameplay-1.png)
 
 最初の位置と跳べるマスの案内。
 
-![通った順番を残しながら盤面を巡回](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/knight-tour/gameplay-2.png)
+![通った順番を残しながら盤面を巡回](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/knight-tour/gameplay-2.png)
 
 通った順番を残しながら盤面を巡回。
 
-![残り7マスの終盤で経路を考える](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/knight-tour/gameplay-3.png)
+![残り7マスの終盤で経路を考える](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/knight-tour/gameplay-3.png)
 
 残り7マスの終盤で経路を考える。
 

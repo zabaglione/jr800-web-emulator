@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=ricochet-ops) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/ricochet-ops)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/ricochet-ops/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/ricochet-ops/title.png)
 
 発射位置と8方向の角度を選び、反射する弾で3個の標的を狙う全20面の射撃パズルです。
 
@@ -20,15 +20,15 @@ RETURNでメニューを開くと弾が止まります。UNDO SHOTは直前の�
 
 ## ゲーム画面
 
-![鏡の向きと標的の配置を読む](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/ricochet-ops/gameplay-1.png)
+![鏡の向きと標的の配置を読む](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/ricochet-ops/gameplay-1.png)
 
 鏡の向きと標的の配置を読む。
 
-![鏡で曲がる弾と通過した軌跡](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/ricochet-ops/gameplay-2.png)
+![鏡で曲がる弾と通過した軌跡](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/ricochet-ops/gameplay-2.png)
 
 鏡で曲がる弾と通過した軌跡。
 
-![残りの標的を狙う終盤の射線](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/ricochet-ops/gameplay-3.png)
+![残りの標的を狙う終盤の射線](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/ricochet-ops/gameplay-3.png)
 
 残りの標的を狙う終盤の射線。
 

@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=ice-route) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/ice-route)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/ice-route/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/ice-route/title.png)
 
 壁に当たるまで滑る氷の迷路で、2つの結晶を回収して出口を目指す全20面のパズルです。
 
@@ -16,15 +16,15 @@ RETURNからUNDOで直前の滑走と結晶回収を戻せます。RESETまた�
 
 ## ゲーム画面
 
-![結晶と出口が点在する最初の氷の迷路](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/ice-route/gameplay-1.png)
+![結晶と出口が点在する最初の氷の迷路](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/ice-route/gameplay-1.png)
 
 結晶と出口が点在する最初の氷の迷路。
 
-![第7面で滑走経路を選ぶ場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/ice-route/gameplay-2.png)
+![第7面で滑走経路を選ぶ場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/ice-route/gameplay-2.png)
 
 第7面で滑走経路を選ぶ場面。
 
-![第18面の複雑な停止位置](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/ice-route/gameplay-3.png)
+![第18面の複雑な停止位置](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/ice-route/gameplay-3.png)
 
 第18面の複雑な停止位置。
 
