@@ -215,25 +215,9 @@ grid_value:
     LDAA 0,X
     RTS
 game_render:
-    JSR grid_render
-    LDX #four_drop_label
-    LDAA four_result
-    BEQ four_status
-    LDX #four_win_label
-    CMPA #1
-    BEQ four_status
-    LDX #four_lose_label
-    CMPA #2
-    BEQ four_status
-    LDX #four_draw_label
-four_status:
-    LDAA #138
-    LDAB #5
-    TST four_result
-    BEQ four_status_row
-    LDAB #4
-four_status_row:
-    JMP paint_text
+    JSR paint_board
+    JMP visual_hud
+
 .section .bss, bss
 four_result: .space 1
 four_column: .space 1

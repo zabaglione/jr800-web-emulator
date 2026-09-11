@@ -218,24 +218,9 @@ pipe_exit_tile:
     ADDA #40
     RTS
 game_render:
-    JSR grid_render
-    LDX #pipe_leak_label
-    LDAA #78
-    CLRB
-    JSR paint_text
-    LDAA #108
-    STAA paint_x
-    CLR paint_band
-    LDAA pipe_leaks
-    JSR paint_number
-    LDX #pipe_blank_label
-    LDAA #132
-    LDAB #5
-    JSR paint_text
-    LDX #pipe_turn_label
-    LDAA #138
-    LDAB #5
-    JMP paint_text
+    JSR paint_board
+    JMP visual_hud
+
 .section .bss, bss
 pipe_wet: .space 36
 pipe_connections: .space 144

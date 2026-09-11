@@ -173,22 +173,9 @@ grid_value:
     LDAA 0,X
     RTS
 game_render:
-    JSR grid_render
-    LDAA five_result
-    BEQ five_render_done
-    LDX #five_win_label
-    CMPA #1
-    BEQ five_status
-    LDX #five_lose_label
-    CMPA #2
-    BEQ five_status
-    LDX #five_draw_label
-five_status:
-    LDAA #138
-    LDAB #4
-    JMP paint_text
-five_render_done:
-    RTS
+    JSR paint_board
+    JMP visual_hud
+
 .section .bss, bss
 five_result: .space 1
 five_scan: .space 1

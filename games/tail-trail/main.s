@@ -226,67 +226,7 @@ tail_other_tile:
     RTS
 game_render:
     JSR paint_board
-    TST resume_pending
-    BNE tail_hud_all
-    LDAA tail_eaten
-    CMPA tail_draw_eaten
-    BNE tail_hud_numbers
-    LDAA tail_running
-    CMPA tail_draw_running
-    BNE tail_hud_state
-    RTS
-tail_hud_all:
-    LDX #game_name
-    CLRA
-    CLRB
-    JSR paint_text
-    LDX #tail_goal_label
-    LDAA #138
-    LDAB #3
-    JSR paint_text
-    LDX #tail_size_label
-    LDAA #138
-    LDAB #5
-    JSR paint_text
-    LDX #grid_return_label
-    LDAA #138
-    LDAB #7
-    JSR paint_text
-    LDAA #138
-    STAA paint_x
-    LDAA #4
-    STAA paint_band
-    LDAB stage
-    LDX #tail_goals
-    ABX
-    LDAA 0,X
-    JSR paint_number
-tail_hud_numbers:
-    LDAA tail_eaten
-    STAA tail_draw_eaten
-    LDAA #138
-    STAA paint_x
-    LDAA #2
-    STAA paint_band
-    LDAA tail_eaten
-    JSR paint_number
-    LDAA #138
-    STAA paint_x
-    LDAA #6
-    STAA paint_band
-    LDAA tail_length
-    JSR paint_number
-tail_hud_state:
-    LDAA tail_running
-    STAA tail_draw_running
-    LDX #tail_food_label
-    TSTA
-    BNE tail_state_text
-    LDX #tail_start_label
-tail_state_text:
-    LDAA #132
-    LDAB #1
-    JMP paint_text
+    JMP visual_hud
 .section .bss, bss
 tail_body: .space 98
 tail_length: .space 1

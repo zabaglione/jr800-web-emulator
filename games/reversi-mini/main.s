@@ -253,52 +253,9 @@ grid_value:
 rev_tile_done:
     RTS
 game_render:
-    JSR grid_render
-    LDX #rev_cpu_label
-    LDAA #138
-    LDAB #5
-    JSR paint_text
-    LDAA #162
-    STAA paint_x
-    LDAA #5
-    STAA paint_band
-    LDAA rev_cpu_disks
-    JSR paint_number
-    LDAA rev_result
-    BEQ rev_pass_label
-    STAA rev_saved_result
-    LDX #rev_blank_label
-    LDAA #132
-    LDAB #5
-    JSR paint_text
-    LDAA rev_saved_result
-    LDX #rev_win_label
-    CMPA #1
-    BEQ rev_result_label
-    LDX #rev_loss_label
-    CMPA #2
-    BEQ rev_result_label
-    LDX #rev_draw_label
-rev_result_label:
-    LDAA #138
-    LDAB #4
-    JMP paint_text
-rev_pass_label:
-    LDAA rev_passed
-    BNE rev_has_pass
-    LDX #rev_space_label
-    BRA rev_show_pass
-rev_has_pass:
-    LDX #rev_you_pass
-    CMPA #1
-    BEQ rev_show_pass
-    LDX #rev_cpu_pass
-rev_show_pass:
-    LDAA #132
-    LDAB #6
-    JMP paint_text
-rev_render_done:
-    RTS
+    JSR paint_board
+    JMP visual_hud
+
 .section .bss, bss
 rev_legal: .space 36
 rev_legal_count: .space 1

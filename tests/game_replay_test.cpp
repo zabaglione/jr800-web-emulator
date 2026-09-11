@@ -53,7 +53,7 @@ int main(int argc,char** argv){try {
     for(unsigned a=0x0c00;a<0x1000;++a)require(machine.set_keyboard_bus_response(a,255,true),"Keyboard setup");
     unsigned allocated=0;
     for(const auto& segment:app.segments){
-        require(segment.address>=0x2000&&segment.address+segment.logical_size<=0x5e00,"Standard RAM/stack boundary");
+        require(segment.address>=0x2800&&segment.address+segment.logical_size<=0x5e00,"Preserved BASIC workspace and standard RAM/stack boundary");
         const auto status=segment.kind==jr800::formats::jr8app::SegmentKind::zero_fill
             ? machine.host_fill_ram(segment.address,segment.logical_size,0)
             : machine.host_load_ram(segment.address,segment.data);

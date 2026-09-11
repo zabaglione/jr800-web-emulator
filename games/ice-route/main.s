@@ -1,7 +1,9 @@
 ; SPDX-License-Identifier: MIT
 .section .text, code
 game_render:
-    JMP grid_render
+    JSR paint_board
+    JMP visual_hud
+
 game_start:
     JSR grid_reset
     CLR undo_valid

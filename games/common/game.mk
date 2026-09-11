@@ -16,8 +16,10 @@ assets.s: generate.py $(wildcard $(ROOT)/games/tools/*.py) $(SDK)/lcd/font.s
 	$(PYTHON) generate.py
 $(BUILD_DIR):
 	mkdir -p "$@"
-$(BUILD_DIR)/game.s: $(GAME_SOURCES) assets.s $(COMMON)/runtime.s $(COMMON)/graphics.s | $(BUILD_DIR)
-	cat $(COMMON)/runtime.s $(COMMON)/graphics.s $(GAME_SOURCES) assets.s > "$@"
+visuals.s: $(ROOT)/games/tools/hud_assets.py $(ROOT)/games/tools/hud_layouts.py $(ROOT)/games/tools/hud_custom.py $(ROOT)/games/tools/visual_art.py $(SDK)/lcd/font.s
+	$(PYTHON) $(ROOT)/games/tools/hud_assets.py $(GAME)
+$(BUILD_DIR)/game.s: $(GAME_SOURCES) assets.s visuals.s $(COMMON)/runtime.s $(COMMON)/graphics.s $(COMMON)/visual-hud.s $(COMMON)/game.mk | $(BUILD_DIR)
+	cat visuals.s $(COMMON)/runtime.s $(COMMON)/graphics.s $(COMMON)/visual-hud.s $(GAME_SOURCES) assets.s > "$@"
 $(BUILD_DIR)/game.jro: $(BUILD_DIR)/game.s
 	"$(JR8AS)" --target hd6301v1 --listing "$(BUILD_DIR)/game.lst" -o "$@" "$<"
 $(BUILD_DIR)/%.jro: $(SDK)/lcd/%.s | $(BUILD_DIR)

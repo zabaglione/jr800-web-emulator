@@ -326,11 +326,11 @@ game_render:
     LDX #dice_hold_label
     CLRA
     LDAB #1
-    JSR paint_text
+    JSR hud_play_text
     LDX #dice_roll_label
     CLRA
     LDAB #4
-    JSR paint_text
+    JSR hud_play_text
     LDAA #36
     STAA paint_x
     LDAA #4
@@ -340,7 +340,7 @@ game_render:
     LDX #dice_bonus_label
     CLRA
     LDAB #5
-    JSR paint_text
+    JSR hud_play_text
     LDAA #36
     STAA paint_x
     LDAA #5
@@ -350,13 +350,13 @@ game_render:
     LDX #dice_menu_label
     CLRA
     LDAB #7
-    JSR paint_text
+    JSR hud_play_text
     JMP dice_render_hud
 dice_render_scores:
     LDX #dice_choose_label
     CLRA
     LDAB #1
-    JSR paint_text
+    JSR hud_play_text
     LDAA dice_category
     CLRB
 dice_page:
@@ -437,7 +437,7 @@ dice_line_paint:
     LDX #dice_line
     CLRA
     LDAB dice_row
-    JSR paint_text
+    JSR hud_play_text
 dice_display_next:
     INC dice_display
     INC dice_row
@@ -449,52 +449,9 @@ dice_display_complete:
     LDX #dice_confirm_label
     CLRA
     LDAB #7
-    JSR paint_text
+    JSR hud_play_text
 dice_render_hud:
-    LDX #game_name
-    CLRA
-    CLRB
-    JSR paint_text
-    LDX #dice_total_label
-    LDAA #132
-    LDAB #1
-    JSR paint_text
-    LDAA #138
-    STAA paint_x
-    LDAA #2
-    STAA paint_band
-    LDD dice_total
-    JSR paint_number16
-    LDX #dice_goal_label
-    LDAA #138
-    LDAB #3
-    JSR paint_text
-    LDAA #138
-    STAA paint_x
-    LDAA #4
-    STAA paint_band
-    LDAA stage
-    ASLA
-    TAB
-    LDX #dice_goals
-    ABX
-    LDD 0,X
-    JSR paint_number16
-    LDX #dice_left_label
-    LDAA #138
-    LDAB #5
-    JSR paint_text
-    LDAA #138
-    STAA paint_x
-    LDAA #6
-    STAA paint_band
-    LDAA #13
-    SUBA dice_round
-    JSR paint_number
-    LDX #grid_return_label
-    LDAA #138
-    LDAB #7
-    JMP paint_text
+    JMP visual_hud
 .section .bss, bss
 dice_holds: .space 5
 dice_rolls: .space 1

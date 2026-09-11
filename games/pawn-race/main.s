@@ -385,19 +385,9 @@ pawn_tile_original:
 pawn_tile_done:
     RTS
 game_render:
-    JSR grid_render
-    LDX #pawn_blank_label
-    LDAA #132
-    LDAB #5
-    JSR paint_text
-    LDX #pawn_pick_label
-    TST selection_active
-    BEQ pawn_status
-    LDX #pawn_move_label
-pawn_status:
-    LDAA #138
-    LDAB #5
-    JMP paint_text
+    JSR paint_board
+    JMP visual_hud
+
 .section .bss, bss
 pawn_source: .space 1
 pawn_options: .space 36

@@ -138,19 +138,9 @@ knight_visited:
 knight_tile_done:
     RTS
 game_render:
-    JSR grid_render
-    LDX #knight_blank_label
-    LDAA #132
-    LDAB #5
-    JSR paint_text
-    LDX #knight_jump_label
-    TST knight_stuck
-    BEQ knight_status
-    LDX #knight_stuck_label
-knight_status:
-    LDAA #138
-    LDAB #5
-    JMP paint_text
+    JSR paint_board
+    JMP visual_hud
+
 .section .bss, bss
 knight_player: .space 1
 knight_legal: .space 36

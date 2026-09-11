@@ -46,6 +46,10 @@ cmake --build --preset wasm-release
 ctest --preset wasm-release
 ```
 
-`generate.py`と共通の`tools/art.py`から独自画像・面データを再生成できます。パズルの解答手順は各作品の`solutions.json`にあります。所有ROMでも検査する場合は、`JR800_GAME_ROM`にローカルROMの**絶対パス**を設定してください。ROMの配布やネットワーク送信は行いません。
+`generate.py`と`tools/visual_art.py`から作品ごとのタイトル・面データを、`tools/hud_layouts.py`・`tools/hud_custom.py`からHUDを再生成できます。パズルの解答手順は各作品の`solutions.json`にあります。所有ROMでも検査する場合は、`JR800_GAME_ROM`にローカルROMの**絶対パス**を設定してください。ROMの配布やネットワーク送信は行いません。
 
 タイトル画像とゲーム中3場面は[スクリーンショット](../docs/games/screenshots/)に、[検証範囲と測定値](../docs/games/validation.md)は別紙にまとめています。Wiki原稿は`docs/games/wiki/`で管理し、`python3 games/tools/wiki.py`で更新します。公開サイトでの検査記録を`--live-check`に渡した作品だけ「遊ぶ」リンクを生成します。
+
+## 画面の制作
+
+50作品のタイトルを個別の構図で制作し、HUDも左右の計器、荷札、カード卓、帳簿など作品に合わせて配置しています。[画面設計とメモリー配置](../docs/games/visual-design.md)に制作方針をまとめています。

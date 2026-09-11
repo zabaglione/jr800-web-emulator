@@ -6,6 +6,7 @@
 .global paint_text
 .global paint_number
 paint_clear:
+    CLR hud_ready
     LDX #framebuffer
     STX paint_dest
     LDAA #12
@@ -51,6 +52,7 @@ paint_tile:
     ASLA
     ASLA
     ASLA
+    ADDA #VIEW_X
     STAA paint_x
     LDAA paint_cell
     LSRA

@@ -431,57 +431,25 @@ grid_value:
     LDAA 0,X
     RTS
 game_render:
-    JSR grid_render
+    JSR paint_board
     LDX #hex_left_label
-    LDAA #4
+    LDAA #VIEW_X + 4
     LDAB #3
     JSR paint_text
     LDX #hex_right_label
-    LDAA #118
+    LDAA #VIEW_X + 118
     LDAB #3
     JSR paint_text
-    LDX #hex_top_label
-    LDAA #70
-    CLRB
-    JSR paint_text
     LDX #hex_bottom_label
-    LDAA #70
+    LDAA #VIEW_X + 70
     LDAB #7
     JSR paint_text
-    TST hex_result
-    BNE hex_result_display
-    LDX #hex_relay_label
-    LDAA #138
-    LDAB #5
-    JSR paint_text
-    LDAA #174
-    STAA paint_x
-    LDAA #5
-    STAA paint_band
-    LDAA hex_charge
-    JSR paint_number
-    LDX #hex_space_label
-    TST selection_active
-    BEQ hex_action_label
-    LDX #hex_convert_label
-hex_action_label:
-    LDAA #132
-    LDAB #6
+    JSR visual_hud
+    LDX #hex_bottom_label
+    LDAA #VIEW_X + 70
+    CLRB
     JMP paint_text
-hex_result_display:
-    LDX #hex_blank_label
-    LDAA #132
-    LDAB #5
-    JSR paint_text
-    LDX #hex_win_label
-    LDAA hex_result
-    CMPA #1
-    BEQ hex_result_label
-    LDX #hex_lose_label
-hex_result_label:
-    LDAA #138
-    LDAB #4
-    JMP paint_text
+
 .section .bss, bss
 hex_charge: .space 1
 hex_saved_charge: .space 1

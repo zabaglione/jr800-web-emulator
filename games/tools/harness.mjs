@@ -14,6 +14,8 @@ export function png(dots,scale=4){
  const hdr=Buffer.alloc(13);hdr.writeUInt32BE(w);hdr.writeUInt32BE(h,4);hdr[8]=8;hdr[9]=2;
  return Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),chunk('IHDR',hdr),chunk('IDAT',deflateSync(raw)),chunk('IEND',Buffer.alloc(0))]);
 }
+// Result dialogs occupy this rectangle; physics checks still inspect every exposed pixel.
+export function playPixelVisible(g,x,y){return !([4,5].includes(g.read('phase'))&&x+g.read('view_origin')>=36&&x+g.read('view_origin')<156&&y>=16&&y<48);}
 export class Game {
  static async open(wasm,out,id){
   const url=n=>pathToFileURL(resolve(wasm,n)).href;

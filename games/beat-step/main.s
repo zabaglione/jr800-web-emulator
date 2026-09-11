@@ -364,7 +364,7 @@ beat_note_position:
     STAA beat_note_band
     LDAB #192
     MUL
-    ADDD #framebuffer
+    ADDD #framebuffer + VIEW_X
     ADDB beat_draw_x
     ADCA #0
     STD beat_destination
@@ -383,6 +383,7 @@ beat_arrow_column:
     STAA 0,X
     LDAA beat_note_band
     LDAB beat_draw_x
+    ADDB #VIEW_X
     JSR dirty_mark
 beat_arrow_unchanged:
     LDX beat_destination
@@ -400,94 +401,7 @@ beat_arrow_unchanged:
     STD beat_draw_due
     JMP beat_note_next
 beat_notes_done:
-    TST resume_pending
-    BNE beat_hud_all
-    TST beat_hud
-    BNE beat_hud_values
-    RTS
-beat_hud_all:
-    LDX #game_name
-    CLRA
-    CLRB
-    JSR paint_text
-    LDAA #168
-    STAA paint_x
-    CLR paint_band
-    LDAA stage
-    INCA
-    JSR paint_number
-    LDX #beat_score_label
-    LDAA #132
-    LDAB #1
-    JSR paint_text
-    LDX #beat_life_label
-    LDAA #132
-    LDAB #3
-    JSR paint_text
-    LDX #beat_combo_label
-    LDAA #132
-    LDAB #5
-    JSR paint_text
-beat_hud_values:
-    CLR beat_hud
-    LDX #beat_unmuted_label
-    TST beat_mute
-    BEQ beat_mute_text
-    LDX #beat_muted_label
-beat_mute_text:
-    LDAA #60
-    CLRB
-    JSR paint_text
-    TST beat_active
-    BNE beat_progress_text
-    TST beat_index
-    BNE beat_progress_text
-    LDX #beat_start_label
-    LDAA #78
-    CLRB
-    JSR paint_text
-    BRA beat_score_text
-beat_progress_text:
-    LDAA #78
-    STAA paint_x
-    CLR paint_band
-    LDAA beat_index
-    JSR paint_number
-    LDX #beat_slash_label
-    LDAA #96
-    CLRB
-    JSR paint_text
-    LDAA #102
-    STAA paint_x
-    LDAA beat_total
-    JSR paint_number
-beat_score_text:
-    LDAA #132
-    STAA paint_x
-    LDAA #2
-    STAA paint_band
-    LDD beat_score
-    JSR paint_number16
-    LDAA #132
-    STAA paint_x
-    LDAA #4
-    STAA paint_band
-    LDAA beat_life
-    JSR paint_number
-    LDAA #132
-    STAA paint_x
-    LDAA #6
-    STAA paint_band
-    LDAA beat_combo
-    JSR paint_number
-    LDAB beat_judgement
-    ASLB
-    LDX #beat_judge_labels
-    ABX
-    LDX 0,X
-    LDAA #132
-    LDAB #7
-    JMP paint_text
+    JMP visual_hud
 .section .bss, bss
 beat_notes: .space 64
 beat_interval: .space 1

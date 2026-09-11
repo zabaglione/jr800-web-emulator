@@ -2,7 +2,7 @@
 import sys,json
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
-from grid_assets import logo
+from visual_art import title
 from art import asm_bytes
 root=Path(__file__).parent;bases=[[4,14,18],[10,5,15],[8,12,6],[12,16,22]];season=[[0,-2,1,2,-1,0,1,-1],[0,2,-1,3,-2,1,-3,0],[0,-3,2,4,-2,1,-4,3]]
 def price(port,day,offset,good):return max(1,bases[port][good]+season[good][(day+offset)%8])
@@ -28,7 +28,7 @@ for stage in range(12):
  levels.append({'capacity':cap,'cash':cash,'goal':goal,'limit':limit,'offset':offset});solutions.append(winner)
 source='; SPDX-License-Identifier: MIT\n.equ STAGES,12\n.section .data, data\n'
 for label,text in [('game_name','MARKET HARBOR'),('aux1_label','SAIL'),('aux2_label','SELL ALL')]:source+=asm_bytes(label,list(text.encode())+[0])
-source+=asm_bytes('title_art',logo('MARKET HARBOR','market-harbor'))+asm_bytes('market_bases',sum(bases,[]))+asm_bytes('market_seasons',[n&255 for row in season for n in row])
+source+=asm_bytes('title_art',title('MARKET HARBOR','market-harbor'))+asm_bytes('market_bases',sum(bases,[]))+asm_bytes('market_seasons',[n&255 for row in season for n in row])
 raw=[]
 for l in levels:raw += [l['capacity'],l['cash'],l['goal']>>8,l['goal']&255,l['limit'],l['offset']]
 source+=asm_bytes('market_levels',raw)

@@ -220,10 +220,6 @@ luck_tile_blank:
     RTS
 game_render:
     JSR paint_board
-    LDX #game_name
-    CLRA
-    CLRB
-    JSR paint_text
     LDX #luck_turn_human
     TST luck_side
     BEQ luck_turn_text
@@ -231,11 +227,11 @@ game_render:
 luck_turn_text:
     CLRA
     LDAB #1
-    JSR paint_text
+    JSR hud_play_text
     LDX #luck_pot_label
     CLRA
     LDAB #2
-    JSR paint_text
+    JSR hud_play_text
     CLR paint_x
     LDAA #3
     STAA paint_band
@@ -248,11 +244,11 @@ luck_turn_text:
     XGDX
     CLRA
     LDAB #4
-    JSR paint_text
+    JSR hud_play_text
     LDX #luck_cpu_label
     CLRA
     LDAB #5
-    JSR paint_text
+    JSR hud_play_text
     CLR luck_index
 luck_trail_text:
     LDAB luck_index
@@ -277,7 +273,7 @@ luck_trail_char:
     LDX #luck_trail_line
     CLRA
     LDAB #6
-    JSR paint_text
+    JSR hud_play_text
     LDX #luck_action_label
     LDAA phase
     CMPA #2
@@ -288,41 +284,8 @@ luck_trail_char:
 luck_action_text:
     CLRA
     LDAB #7
-    JSR paint_text
-    LDX #luck_you_label
-    LDAA #138
-    LDAB #1
-    JSR paint_text
-    LDAA #138
-    STAA paint_x
-    LDAA #2
-    STAA paint_band
-    LDAA luck_scores
-    JSR paint_number
-    LDX #luck_cpu_short
-    LDAA #138
-    LDAB #3
-    JSR paint_text
-    LDAA #138
-    STAA paint_x
-    LDAA #4
-    STAA paint_band
-    LDAA luck_scores + 1
-    JSR paint_number
-    LDX #luck_goal_label
-    LDAA #132
-    LDAB #5
-    JSR paint_text
-    LDAA #138
-    STAA paint_x
-    LDAA #6
-    STAA paint_band
-    LDAA #100
-    JSR paint_number
-    LDX #luck_return_label
-    LDAA #138
-    LDAB #7
-    JMP paint_text
+    JSR hud_play_text
+    JMP visual_hud
 .section .bss, bss
 luck_scores: .space 2
 luck_pot: .space 1

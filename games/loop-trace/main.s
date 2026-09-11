@@ -241,34 +241,9 @@ grid_value:
 loop_tile_done:
     RTS
 game_render:
-    JSR grid_render
-    LDX #loop_next_label
-    LDAA #84
-    CLRB
-    JSR paint_text
-    LDAA loop_next
-    ADDA #64
-    CMPA #68
-    BNE loop_checkpoint_letter
-    LDAA #45
-loop_checkpoint_letter:
-    STAA loop_letter
-    LDX #loop_letter
-    LDAA #114
-    CLRB
-    JSR paint_text
-    LDX #loop_blank_label
-    LDAA #132
-    LDAB #5
-    JSR paint_text
-    LDX #loop_draw_label
-    TST grid_stat
-    BNE loop_status
-    LDX #loop_close_label
-loop_status:
-    LDAA #132
-    LDAB #5
-    JMP paint_text
+    JSR paint_board
+    JMP visual_hud
+
 .section .bss, bss
 loop_marks: .space 36
 loop_paths: .space 36

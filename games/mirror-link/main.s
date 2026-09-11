@@ -264,38 +264,7 @@ mirror_tile_done:
     RTS
 game_render:
     JSR paint_board
-    LDX #mirror_heading
-    CLRA
-    CLRB
-    JSR paint_text
-    LDAA #108
-    STAA paint_x
-    CLR paint_band
-    LDAA stage
-    INCA
-    JSR paint_number
-    LDX #mirror_lit_label
-    LDAA #132
-    LDAB #1
-    JSR paint_text
-    LDAA #132
-    STAA paint_x
-    LDAA #2
-    STAA paint_band
-    LDAA lit_count
-    JSR paint_number
-    LDX #mirror_space_label
-    LDAA #132
-    LDAB #4
-    JSR paint_text
-    LDX #mirror_turn_label
-    LDAA #132
-    LDAB #5
-    JSR paint_text
-    LDX #mirror_return_label
-    LDAA #132
-    LDAB #7
-    JMP paint_text
+    JMP visual_hud
 .section .bss, bss
 sources:
 source_count: .space 1

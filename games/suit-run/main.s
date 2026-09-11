@@ -190,73 +190,7 @@ suit_covered:
     RTS
 game_render:
     JSR paint_board
-    LDX #game_name
-    CLRA
-    CLRB
-    JSR paint_text
-    LDX #suit_score_label
-    LDAA #60
-    CLRB
-    JSR paint_text
-    LDAA #96
-    STAA paint_x
-    CLR paint_band
-    LDD suit_score
-    JSR paint_number16
-    LDAA #168
-    STAA paint_x
-    CLR paint_band
-    LDAA stage
-    INCA
-    JSR paint_number
-    LDX #suit_waste_label
-    LDAA #132
-    LDAB #1
-    JSR paint_text
-    LDAB suit_waste
-    LDX #suit_rank_labels
-    ABX
-    LDAA 0,X
-    STAA suit_waste_text + 1
-    LDX #suit_waste_text
-    LDAA #138
-    LDAB #2
-    JSR paint_text
-    LDX #suit_left_label
-    LDAA #138
-    LDAB #3
-    JSR paint_text
-    LDAA #138
-    STAA paint_x
-    LDAA #4
-    STAA paint_band
-    LDAA grid_stat
-    JSR paint_number
-    LDX #suit_deck_label
-    LDAA #132
-    LDAB #5
-    JSR paint_text
-    LDAA #138
-    STAA paint_x
-    LDAA #6
-    STAA paint_band
-    LDAA #16
-    SUBA suit_stock_pos
-    JSR paint_number
-    LDX #suit_chain_label
-    CLRA
-    LDAB #7
-    JSR paint_text
-    LDAA #36
-    STAA paint_x
-    LDAA #7
-    STAA paint_band
-    LDAA suit_chain
-    JSR paint_number
-    LDX #grid_return_label
-    LDAA #138
-    LDAB #7
-    JMP paint_text
+    JMP visual_hud
 .section .bss, bss
 suit_stock: .space 2
 suit_stock_pos: .space 1

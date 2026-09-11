@@ -97,6 +97,7 @@ scene_pixel:
     BCS scene_pixel_done
     CMPB #64
     BCC scene_pixel_done
+    ADDA #VIEW_X
     STAA scene_x
     STAB scene_y
     ANDB #7

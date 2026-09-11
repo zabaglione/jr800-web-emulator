@@ -42,10 +42,10 @@ const {chromium}=require('playwright');
    assert.deepEqual(dots,Array.from({length:12288},(_,i)=>(art[(Math.floor(i/192)>>3)*192+i%192]>>(Math.floor(i/192)&7))&1),`${program.id} automatic title pixels`);
    await fs.writeFile(path.join(output,program.id+'-title.png'),await screen());
    await page.locator('#lcd-panel').click();await page.keyboard.down('Space');await page.waitForTimeout(80);await page.keyboard.up('Space');
-   await page.waitForFunction(()=>{const c=document.querySelector('#lcd-panel'),p=c.getContext('2d').getImageData(0,0,c.width,c.height).data;for(let y=0;y<8;y++)for(let x=0;x<128;x++)if(p[(Math.floor((y+.5)*c.height/64)*c.width+Math.floor((x+.5)*c.width/192))*4]<120)return false;return true;});
+   await page.waitForFunction(()=>{const c=document.querySelector('#lcd-panel'),p=c.getContext('2d').getImageData(0,0,c.width,c.height).data;for(let y=0;y<8;y++)for(let x=0;x<192;x++)if(p[(Math.floor((y+.5)*c.height/64)*c.width+Math.floor((x+.5)*c.width/192))*4]<120)return false;return true;});
    await page.waitForTimeout(180);
    const button=page.locator('[data-jr800-key="space"]');await button.scrollIntoViewIfNeeded();await button.click({delay:140});
-   await page.waitForFunction(()=>{const c=document.querySelector('#lcd-panel'),p=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let n=0;for(let y=0;y<8;y++)for(let x=0;x<128;x++)if(p[(Math.floor((y+.5)*c.height/64)*c.width+Math.floor((x+.5)*c.width/192))*4]<120)n++;return n>20;});
+   await page.waitForFunction(()=>{const c=document.querySelector('#lcd-panel'),p=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let n=0;for(let y=0;y<8;y++)for(let x=0;x<192;x++)if(p[(Math.floor((y+.5)*c.height/64)*c.width+Math.floor((x+.5)*c.width/192))*4]<120)n++;return n>20;});
    await page.waitForFunction(()=>window.audioTest.contexts.some(c=>c.state==='running')&&window.audioTest.started>0);
    await fs.writeFile(path.join(output,program.id+'-play.png'),await screen());
   }

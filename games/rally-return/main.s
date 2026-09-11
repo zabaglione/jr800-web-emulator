@@ -315,72 +315,7 @@ game_render:
     LDAA #116
     LDAB rally_cpu
     JSR rally_draw
-    TST resume_pending
-    BNE rally_hud_all
-    TST rally_hud
-    BNE rally_hud_values
-    RTS
-rally_hud_all:
-    LDX #game_name
-    CLRA
-    CLRB
-    JSR paint_text
-    LDAA #168
-    STAA paint_x
-    CLR paint_band
-    LDAA stage
-    INCA
-    JSR paint_number
-    LDX #rally_you_label
-    LDAA #132
-    LDAB #1
-    JSR paint_text
-    LDX #rally_cpu_label
-    LDAA #132
-    LDAB #3
-    JSR paint_text
-    LDX #rally_spin_label
-    LDAA #132
-    LDAB #5
-    JSR paint_text
-    LDX #rally_space_label
-    LDAA #132
-    LDAB #7
-    JSR paint_text
-rally_hud_values:
-    CLR rally_hud
-    LDAA #132
-    STAA paint_x
-    LDAA #2
-    STAA paint_band
-    LDAA rally_you
-    JSR paint_number
-    LDAA #132
-    STAA paint_x
-    LDAA #4
-    STAA paint_band
-    LDAA rally_them
-    JSR paint_number
-    LDX #rally_spin_zero
-    TST rally_spin
-    BEQ rally_spin_text
-    BMI rally_spin_negative
-    LDX #rally_spin_positive
-    BRA rally_spin_text
-rally_spin_negative:
-    LDX #rally_spin_minus
-rally_spin_text:
-    LDAA #132
-    LDAB #6
-    JSR paint_text
-    LDX #rally_ready_label
-    TST rally_active
-    BEQ rally_ready_text
-    LDX #rally_blank_label
-rally_ready_text:
-    LDAA #78
-    CLRB
-    JMP paint_text
+    JMP visual_hud
 rally_draw:
     STAA rally_draw_x
     STAB rally_draw_y

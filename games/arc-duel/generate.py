@@ -2,7 +2,8 @@
 from pathlib import Path
 import sys,math,json
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
-from art import title,asm_bytes
+from art import asm_bytes
+from visual_art import title
 out=Path(__file__).parent;terrains=[]
 for n in range(6):
  h=[]

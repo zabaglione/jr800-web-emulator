@@ -180,19 +180,9 @@ peg_empty:
 peg_tile_done:
     RTS
 game_render:
-    JSR grid_render
-    LDX #peg_clear_label
-    LDAA #132
-    LDAB #5
-    JSR paint_text
-    LDX #peg_pick_label
-    TST selection_active
-    BEQ peg_status
-    LDX #peg_jump_label
-peg_status:
-    LDAA #138
-    LDAB #5
-    JMP paint_text
+    JSR paint_board
+    JMP visual_hud
+
 .section .bss, bss
 peg_source: .space 1
 peg_middle: .space 49

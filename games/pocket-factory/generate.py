@@ -2,7 +2,8 @@
 from pathlib import Path
 import sys,json,random
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
-from art import title,asm_bytes,Bitmap
+from art import asm_bytes
+from visual_art import title,Bitmap
 out=Path(__file__).parent;levels=[];solutions=[]
 for n in range(12):
  board=[5 if p//16 in (0,6) or p%16 in (0,12,13,14,15) else 0 for p in range(112)]

@@ -366,12 +366,24 @@ lose_game:
 result_draw:
     STX result_label
     JSR input_gate
+    LDX #result_border
+    LDAA #36
+    LDAB #2
+    JSR paint_text
+    LDX #result_blank
+    LDAA #36
+    LDAB #3
+    JSR paint_text
     LDX result_label
-    LDAA #132
+    LDAA #78
     LDAB #3
     JSR paint_text
     LDX #result_again
-    LDAA #132
+    LDAA #36
+    LDAB #4
+    JSR paint_text
+    LDX #result_border
+    LDAA #36
     LDAB #5
     JSR paint_text
     RTS
@@ -442,7 +454,9 @@ menu_title_label: .byte 84,73,84,76,69,0 ; TITLE
 menu_arrow: .byte 45,0 ; -
 result_win: .byte 67,76,69,65,82,0 ; CLEAR
 result_lose: .byte 70,65,73,76,69,68,0 ; FAILED
-result_again: .byte 83,80,65,67,69,0 ; SPACE
+result_again: .byte 124,32,83,80,65,67,69,58,32,67,79,78,84,73,78,85,69,32,32,124,0
+result_border: .byte 43,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,43,0
+result_blank: .byte 124,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,124,0
 menu_labels:
     .word menu_resume_label,aux1_label,aux2_label,menu_retry_label,menu_select_label,menu_title_label
 .section .text, code

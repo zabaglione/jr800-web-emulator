@@ -185,38 +185,7 @@ box_map_tile:
     RTS
 game_render:
     JSR paint_board
-    LDX #box_heading
-    CLRA
-    CLRB
-    JSR paint_text
-    LDAA #108
-    STAA paint_x
-    CLR paint_band
-    LDAA stage
-    INCA
-    JSR paint_number
-    LDX #box_moves_label
-    LDAA #132
-    LDAB #2
-    JSR paint_text
-    LDAA #132
-    STAA paint_x
-    LDAA #3
-    STAA paint_band
-    LDD moves
-    JSR paint_number16
-    LDX #box_menu_label
-    LDAA #132
-    LDAB #6
-    JSR paint_text
-    TST show_help
-    BEQ box_render_done
-    LDX #box_help_label
-    LDAA #132
-    LDAB #4
-    JSR paint_text
-box_render_done:
-    RTS
+    JMP visual_hud
 .section .bss, bss
 board: .space 112
 undo_board: .space 112

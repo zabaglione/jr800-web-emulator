@@ -26,13 +26,13 @@ export async function checkStar(g){
    if(!s.running){g.tap('space');continue;}
    let target=col;
    if(s.bolt!==255&&s.bolt%16===col&&s.bolt>=64&&!s.shields[col])target=col?col-1:1;
-   else if(s.shot===255){let best=-Infinity;for(let x=0;x<16;x++){const n=structuredClone(s);n.p=96+x;fire(n);for(let t=0;t<7&&n.phase===2&&n.shot!==255;t++)world(n);const score=(n.score-s.score)*20-Math.abs(col-x)*2-(n.lives<s.lives?1000:0)-(s.shields[x]?25:0);if(score>best){best=score;target=x;}}}
+   else if(s.shot===255){let best=-Infinity;for(let x=0;x<16;x++){const n=structuredClone(s);for(let step=0;step<Math.abs(col-x)&&n.phase===2;step++){n.p+=x<col?-1:1;contact(n);world(n);}fire(n);for(let t=0;t<7&&n.phase===2&&n.shot!==255;t++)world(n);const score=(n.score-s.score)*20-Math.abs(col-x)*12-(n.lives<s.lives?1000:0)-(s.shields[x]?25:0);if(score>best){best=score;target=x;}}}
    if(target<col)g.tap(stage%2?'letter-a':'left');else if(target>col)g.tap(stage%2?'letter-d':'right');else if(s.shot===255)g.tap('space');else g.frame();
    if(!paused&&action===50){g.tap('return');const frozen=state(g);for(let n=0;n<30;n++)g.frame();g.tap('return');assert.deepEqual(state(g),{...frozen,phase:2});paused=true;}
    if(stage===4&&!second&&g.read('star_left')<=12){await g.save('gameplay-2');second=true;}
    if(stage===11&&!third&&g.read('star_left')<=7){await g.save('gameplay-3');third=true;}
   }
-  assert.equal(g.read('phase'),4,`Patrol ${stage+1}`);assert.equal(g.read('star_left'),0);assert.equal(g.word('star_score'),levels[stage].reduce((a,b)=>a+b,0)*10);console.log(JSON.stringify({stage:stage+1,lives:g.read('star_lives'),score:g.word('star_score')}));
+  assert.equal(g.read('phase'),4,`Patrol ${stage+1}: ${JSON.stringify(state(g))}`);assert.equal(g.read('star_left'),0);assert.equal(g.word('star_score'),levels[stage].reduce((a,b)=>a+b,0)*10);console.log(JSON.stringify({stage:stage+1,lives:g.read('star_lives'),score:g.word('star_score')}));
  }
  assert.ok(second&&third&&paused);
 }

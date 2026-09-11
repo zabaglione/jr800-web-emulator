@@ -3,7 +3,8 @@
 import sys,random,json,re,heapq
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
-from art import title,asm_bytes
+from art import asm_bytes
+from visual_art import title
 D=[1,16,-1,-16];names=['right','down','left','up','fire','wait']
 def advance(board,state,action):
  p,face,guards,bullets,t=state;guards=list(guards);bullets=list(bullets)

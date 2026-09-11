@@ -382,72 +382,7 @@ factory_tile_done:
     RTS
 game_render:
     JSR paint_board
-    LDX #factory_heading
-    CLRA
-    CLRB
-    JSR paint_text
-    LDAA #108
-    STAA paint_x
-    CLR paint_band
-    LDAA stage
-    INCA
-    JSR paint_number
-    LDX #build_label
-    TST running
-    BEQ factory_render_mode
-    LDX #run_label
-factory_render_mode:
-    LDAA #132
-    LDAB #1
-    JSR paint_text
-    LDX #tool_label
-    TST selection_active
-    BEQ factory_render_tool
-    LDX #choose_label
-factory_render_tool:
-    LDAA #132
-    LDAB #2
-    JSR paint_text
-    LDAA tool
-    LDAB #9
-    MUL
-    ADDD #tool_names
-    XGDX
-    LDAA #132
-    LDAB #3
-    JSR paint_text
-    LDX #shipment_label
-    LDAA #132
-    LDAB #4
-    JSR paint_text
-    LDAA #138
-    STAA paint_x
-    LDAA #5
-    STAA paint_band
-    LDAA shipped_a
-    JSR paint_number
-    LDAA #168
-    STAA paint_x
-    LDAA #5
-    STAA paint_band
-    LDAA target_a
-    JSR paint_number
-    LDAA #138
-    STAA paint_x
-    LDAA #6
-    STAA paint_band
-    LDAA shipped_b
-    JSR paint_number
-    LDAA #168
-    STAA paint_x
-    LDAA #6
-    STAA paint_band
-    LDAA target_b
-    JSR paint_number
-    LDX #factory_return
-    LDAA #132
-    LDAB #7
-    JMP paint_text
+    JMP visual_hud
 .section .bss, bss
 target_a: .space 1
 target_b: .space 1

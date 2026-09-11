@@ -34,10 +34,55 @@ struct Fixture {
  void put(const std::string& n,std::uint8_t v,unsigned offset=0){const std::array<std::uint8_t,1> a{v};require(bus.host_load_ram(symbols.at(n)+offset,a)==Jr800MemoryStatus::ok,"Fixture write");}
  std::uint8_t get(const std::string& n,unsigned offset=0){auto r=bus.inspect8(symbols.at(n)+offset);require(r.succeeded(),"Inspect");return *r.value;}
  void fill(const std::string& n,unsigned count,std::uint8_t v){require(bus.host_fill_ram(symbols.at(n),count,v)==Jr800MemoryStatus::ok,"Fill");}
- void call(const std::string& n,std::uint8_t b=0,std::uint8_t a=0){const auto addr=symbols.at(n);const std::array<std::uint8_t,7> driver{0x86,a,0xc6,b,0xbd,static_cast<std::uint8_t>(addr>>8),static_cast<std::uint8_t>(addr)};require(bus.host_load_ram(0x2000,driver)==Jr800MemoryStatus::ok,"Driver");cpu.initialize(jr800::isa::CpuProfile::hd6301v1,0x2000,0x5fff);unsigned steps=0;while(cpu.state().pc!=0x2007&&steps++<300000){bus.set_instruction_context(cpu.state().cycle_count,cpu.state().pc);auto r=cpu.step_instruction(bus);require(r.succeeded(),"CPU at "+std::to_string(r.pc_before));}require(cpu.state().pc==0x2007&&cpu.state().sp==0x5fff,"Bounded routine and balanced stack");}
+ void call(const std::string& n,std::uint8_t b=0,std::uint8_t a=0,unsigned x=0){const auto addr=symbols.at(n);const std::array<std::uint8_t,10> driver{0xce,static_cast<std::uint8_t>(x>>8),static_cast<std::uint8_t>(x),0x86,a,0xc6,b,0xbd,static_cast<std::uint8_t>(addr>>8),static_cast<std::uint8_t>(addr)};require(bus.host_load_ram(0x5e00,driver)==Jr800MemoryStatus::ok,"Driver");cpu.initialize(jr800::isa::CpuProfile::hd6301v1,0x5e00,0x5fff);unsigned steps=0;while(cpu.state().pc!=0x5e0a&&steps++<300000){bus.set_instruction_context(cpu.state().cycle_count,cpu.state().pc);auto r=cpu.step_instruction(bus);require(r.succeeded(),"CPU at "+std::to_string(r.pc_before));}require(cpu.state().pc==0x5e0a&&cpu.state().sp==0x5fff,"Bounded routine and balanced stack");}
 };
 int main(int argc,char** argv){try{
  require(argc==2,"Usage: game_rules_test root");const std::string root=argv[1];
+ // Render the same numbers through four typefaces, at controller boundaries.
+ // Expected strokes derive from the SDK's unscaled glyphs, not the HUD cache.
+ {
+  Fixture f(root,"box-shift");const auto desc=f.symbols.at("hud_field_0");
+  const auto cache=(unsigned(f.get("hud_field_0",6))<<8)|f.get("hud_field_0",7);
+  for(unsigned font=0;font<4;++font)for(unsigned inverse:{0U,128U})for(unsigned x:{0U,45U,94U,137U}){
+   f.put("hud_field_0",x);f.put("hud_field_0",3,1);f.put("hud_field_0",5,2);f.put("hud_field_0",font,3);f.put("hud_field_0",inverse,4);
+   require(f.bus.host_fill_ram(cache,3,0)==Jr800MemoryStatus::ok,"Reset numeric field cache");
+   f.fill("framebuffer",1536,165);
+   for(unsigned value:{65535U,10000U,999U,10U,9U,0U}){
+    std::array<unsigned,1536> before{};for(unsigned i=0;i<1536;++i)before[i]=f.get("framebuffer",i);
+    f.call("hud_number",value&255,value>>8,desc);
+    auto text=std::to_string(value);text=std::string(5-text.size(),' ')+text;
+    const unsigned sx=font==3?2:1,sy=font>=2?2:1,fw=font==0?4:font==3?11:6;
+    for(unsigned band=0;band<8;++band)for(unsigned col=0;col<192;++col){
+     unsigned expected=before[band*192+col];
+     if(band>=3&&band<3+sy&&col>=x&&col<x+5*fw){
+      const unsigned index=(col-x)/fw,gx=(col-x)%fw;expected=0;
+      if(font==0){expected=f.get("hud_font_tiny",(text[index]-32)*4+gx);}
+      else if(gx<5*sx){const unsigned glyph=f.get("font",(text[index]-32)*5+gx/sx);for(unsigned bit=0;bit<8;++bit){const unsigned gy=((band-3)*8+bit)/sy;if(gy<7&&(glyph&(1U<<gy)))expected|=1U<<bit;}}
+      if(inverse)expected^=255;
+     }
+     require(f.get("framebuffer",band*192+col)==expected,"HUD numeric strokes, erasure and controller boundaries");
+    }
+    f.fill("dirty_min",8,192);f.fill("dirty_max",8,0);f.call("hud_number",value&255,value>>8,desc);
+    for(unsigned i=0;i<8;++i)require(f.get("dirty_min",i)==192,"Unchanged numeric value marks no LCD transfer");
+   }
+  }
+ }
+
+ {
+  Fixture f(root,"box-shift");f.fill("framebuffer",1536,165);f.call("result_draw",0,0,f.symbols.at("result_win"));
+  const std::array<std::string,4> lines{{"+------------------+","|      CLEAR       |","| SPACE: CONTINUE  |","+------------------+"}};
+  for(unsigned band=0;band<8;++band)for(unsigned x=0;x<192;++x){unsigned expected=165;if(band>=2&&band<=5&&x>=36&&x<156){const unsigned col=(x-36)%6;expected=col==5?0:f.get("font",(lines[band-2][(x-36)/6]-32)*5+col);}require(f.get("framebuffer",band*192+x)==expected,"Result dialog is opaque and preserves every pixel outside its rectangle");}
+ }
+ {
+  Fixture f(root,"micro-rogue");const auto desc=f.symbols.at("hud_field_0");f.put("hud_field_0",45);f.put("hud_field_0",3,1);f.put("hud_field_0",54,2);f.put("hud_field_0",4,3);f.put("hud_field_0",0,4);f.put("hud_field_0",24,5);
+  for(unsigned value:{0U,1U,12U,24U,25U,256U}){f.call("hud_number",value&255,value>>8,desc);const unsigned filled=52*std::min(value,24U)/24;for(unsigned x=0;x<54;++x){const unsigned expected=x==0||x==53?63:(x<=filled?63:33);require(f.get("framebuffer",3*192+45+x)==expected,"Health gauge saturates, scales and erases exactly");}}
+ }
+ // HUD initialization preserves each game's logical 128-pixel play viewport.
+ for(const auto& game:{"box-shift","mirror-link","micro-rogue","beat-step","balance-dock","pocket-factory"}){
+  Fixture f(root,game);f.put("seed",1);f.call("game_start");f.fill("framebuffer",1536,165);f.put("hud_ready",0);f.call("visual_hud");
+  const unsigned origin=f.get("view_origin");for(unsigned band=1;band<8;++band)for(unsigned x=origin;x<origin+128;++x)require(f.get("framebuffer",band*192+x)==165,"HUD preserves shifted play viewport");
+ }
+
  {
   Fixture f(root,"mirror-link");f.fill("board",112,0);f.put("phase",2);f.put("source_count",1);f.put("source_cells",37);
   f.put("board",2,35);f.put("board",3,41);f.put("board",2,73);f.put("board",3,67);f.put("board",5,37);f.put("board",4,20);
@@ -291,7 +336,7 @@ int main(int argc,char** argv){try{
   }
   for(unsigned x:{0,47,48,95,96,127,128})for(unsigned y:{7,8,15,16,63,64}){
    f.fill("framebuffer",1536,0);f.call("scene_pixel",y,x);
-   for(unsigned i=0;i<1536;++i){const unsigned expected=x<128&&y>=8&&y<64&&i==(y/8)*192+x?(1U<<(y%8)):0;require(f.get("framebuffer",i)==expected,"Sprite pixels clip at the top, bottom and HUD without crossing LCD bands");}
+   for(unsigned i=0;i<1536;++i){const unsigned expected=x<128&&y>=8&&y<64&&i==(y/8)*192+x+f.get("view_origin")?(1U<<(y%8)):0;require(f.get("framebuffer",i)==expected,"Sprite pixels clip at the top, bottom and HUD without crossing LCD bands");}
   }
   f.fill("wall_board",24,0);f.put("wall_x",1);f.put("wall_y",40);f.put("wall_dx",255);f.put("wall_dy",1);f.call("wall_step");require(f.get("wall_x")==1&&f.get("wall_dx")==1,"Left edge reflects without leaving the playfield");
   f.put("wall_x",125);f.put("wall_dx",1);f.call("wall_step");require(f.get("wall_x")==125&&f.get("wall_dx")==255,"Right edge reflects without entering the HUD");
@@ -498,7 +543,7 @@ int main(int argc,char** argv){try{
   for(unsigned width:{1,2,3,8,40,80,128})for(unsigned x=0;x<=128-width;++x)for(unsigned speed=1;speed<=4;++speed)for(int dir:{-1,1}){f.put("dock_mode",1);f.put("dock_x",x);f.put("dock_width",width);f.put("dock_speed",speed);f.put("dock_direction",dir&255);f.call("dock_world");const int candidate=static_cast<int>(x)+dir*static_cast<int>(speed),limit=static_cast<int>(128-width);const unsigned next=static_cast<unsigned>(std::clamp(candidate,0,limit));const int direction=candidate<0?1:candidate>limit?-1:dir;require(f.get("dock_x")==next&&f.get("dock_direction")==static_cast<unsigned>(direction&255),"Crates of every representative width reflect at the visible court boundaries");}
   for(unsigned mode=0;mode<4;++mode)for(unsigned flips:{0,1,3}){f.put("dock_mode",mode);f.put("dock_flips",flips);f.put("dock_direction",1);f.call("game_aux",0,1);const bool used=mode==1&&flips>0;require(f.get("dock_flips")==flips-static_cast<unsigned>(used)&&f.get("dock_direction")==static_cast<unsigned>(used?255:1),"FLIP consumes one token only while a crate is moving horizontally");}
   for(unsigned goal:{12,16,20}){f.put("dock_count",goal-1);f.put("dock_goal",goal);f.put("dock_left",24);f.put("dock_x",24);f.put("dock_width",80);f.put("dock_score",0);f.put("dock_score",250,1);f.put("dock_mode",2);f.put("phase",2);f.call("dock_land");require(f.get("dock_count")==goal&&f.get("phase")==4&&f.get("dock_mode")==3&&word("dock_score")==350&&f.get("dock_layers_width",goal-1)==80,"The last supported crate completes at each difficulty's target height");}
-  for(unsigned width:{1,2,3,8,80,128})for(unsigned left:{0U,(128-width)/2,128-width})for(unsigned y=8;y<=60;y+=2)for(unsigned colour:{0,1}){f.fill("framebuffer",1536,165);f.put("dock_span_left",left);f.put("dock_span_size",width);f.put("dock_span_y",y);f.put("dock_colour",colour);f.put("dock_pattern",1);f.call("dock_span");const unsigned mask=3U<<(y%8),top=1U<<(y%8);for(unsigned band=0;band<8;++band)for(unsigned x=0;x<192;++x){unsigned expected=165;if(band==y/8&&x>=left&&x<left+width)expected=(165&~mask)|(colour?((x+1)%4?mask:top):0);require(f.get("framebuffer",band*192+x)==expected,"Two-pixel spans preserve all other rows, LCD controllers and neighboring HUD columns");}}
+  for(unsigned width:{1,2,3,8,80,128})for(unsigned left:{0U,(128-width)/2,128-width})for(unsigned y=8;y<=60;y+=2)for(unsigned colour:{0,1}){f.fill("framebuffer",1536,165);f.put("dock_span_left",left);f.put("dock_span_size",width);f.put("dock_span_y",y);f.put("dock_colour",colour);f.put("dock_pattern",1);f.call("dirty_reset");f.call("dock_span");bool any_changed=false;for(unsigned q=left;q<left+width;++q){const unsigned mask=3U<<(y%8),top=1U<<(y%8),pixel=(165&~mask)|(colour?((q+1)%4?mask:top):0);any_changed=any_changed||pixel!=165;}for(unsigned band=0;band<8;++band){require(f.get("dirty_min",band)==(any_changed&&band==y/8?left+f.get("view_origin"):192),"Dock LCD range starts at physical shifted x");require(f.get("dirty_max",band)==(any_changed&&band==y/8?left+width-1+f.get("view_origin"):0),"Dock LCD range ends at physical shifted x");}const unsigned mask=3U<<(y%8),top=1U<<(y%8);for(unsigned band=0;band<8;++band)for(unsigned x=0;x<192;++x){unsigned expected=165;if(band==y/8&&x>=left+f.get("view_origin")&&x<left+width+f.get("view_origin"))expected=(165&~mask)|(colour?((x-f.get("view_origin")+1)%4?mask:top):0);require(f.get("framebuffer",band*192+x)==expected,"Two-pixel spans preserve all other rows, LCD controllers and neighboring HUD columns");}}
  }
- std::cout<<"PASS: laser cycles, twelve card effects, costs, shield/poison, factory contention/conversion/shipping, crater edges, connect-four windows and tactics, reversi rays, five-stone windows and open ends, hex distance fields, pawn movement boundaries, dot box ownership, pipe loops and leaks, number merges and terminal states, mine first-click safety and flood fill, loop checkpoints and closure, pyramid availability and pairs, golf rank wrapping and coverage, all dice category scores and bonus, risk banking thresholds and limits, brick and paddle contacts, snake boundaries and vacating tail, maze distance fields and ghost contact, river traffic and home bays, tower landings and checkpoints, bomb rays and vault keys, trail racing CPU and simultaneous contacts, gravity masks and unique stars, patrol projectiles and shield durability, orbital nearest hits and rotating approach, target deadlines and score thresholds, ricochet vectors and cycle guards, quest resources and melee order, sonar occlusion and oxygen ordering, dungeon pursuit and equipment, rotating cameras and network timing, railway queues and merge safety, orchard growth and daily budgets, trading prices and voyage accounting, mini-golf fixed-point contacts, paddle spin and match scoring, penalty power and goalkeeper reach, rhythm edges and timing windows, cargo overlap and exact masked drawing\n";return 0;
+ std::cout<<"PASS: HUD fonts/cache/viewport/dialog/gauges, laser cycles, twelve card effects, costs, shield/poison, factory contention/conversion/shipping, crater edges, connect-four windows and tactics, reversi rays, five-stone windows and open ends, hex distance fields, pawn movement boundaries, dot box ownership, pipe loops and leaks, number merges and terminal states, mine first-click safety and flood fill, loop checkpoints and closure, pyramid availability and pairs, golf rank wrapping and coverage, all dice category scores and bonus, risk banking thresholds and limits, brick and paddle contacts, snake boundaries and vacating tail, maze distance fields and ghost contact, river traffic and home bays, tower landings and checkpoints, bomb rays and vault keys, trail racing CPU and simultaneous contacts, gravity masks and unique stars, patrol projectiles and shield durability, orbital nearest hits and rotating approach, target deadlines and score thresholds, ricochet vectors and cycle guards, quest resources and melee order, sonar occlusion and oxygen ordering, dungeon pursuit and equipment, rotating cameras and network timing, railway queues and merge safety, orchard growth and daily budgets, trading prices and voyage accounting, mini-golf fixed-point contacts, paddle spin and match scoring, penalty power and goalkeeper reach, rhythm edges and timing windows, cargo overlap and exact masked drawing\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

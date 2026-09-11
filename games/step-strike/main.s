@@ -326,44 +326,7 @@ step_tile_enemy:
     RTS
 game_render:
     JSR paint_board
-    LDX #step_heading
-    CLRA
-    CLRB
-    JSR paint_text
-    LDAA #108
-    STAA paint_x
-    CLR paint_band
-    LDAA stage
-    INCA
-    JSR paint_number
-    LDX #step_enemies
-    LDAA #132
-    LDAB #1
-    JSR paint_text
-    LDAA #132
-    STAA paint_x
-    LDAA #2
-    STAA paint_band
-    LDAA guard_count
-    JSR paint_number
-    LDX #step_space
-    LDAA #132
-    LDAB #4
-    JSR paint_text
-    TST step_help
-    BEQ step_normal_help
-    LDX #step_wait_help
-    BRA step_draw_help
-step_normal_help:
-    LDX #step_fire_label
-step_draw_help:
-    LDAA #132
-    LDAB #5
-    JSR paint_text
-    LDX #step_return
-    LDAA #132
-    LDAB #7
-    JMP paint_text
+    JMP visual_hud
 .section .bss, bss
 player: .space 1
 guard_count: .space 1

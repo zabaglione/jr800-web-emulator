@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 import assert from 'node:assert/strict';
+import {playPixelVisible} from './harness.mjs';
 import {readFile} from 'node:fs/promises';
 const fields=['x','height','velocity','grounded','camera','lives','highest','checkpoint'];
 const state=g=>Object.fromEntries(fields.map(k=>[k,g.read('tower_'+k)]));
@@ -14,11 +15,12 @@ function model(s,xs,held){
 function pixels(g){
  const s=state(g),xs=g.read('tower_platforms',12),fb=g.machine.memory(g.symbols.framebuffer,1536),hero=[6,6,15,6,9,9];
  for(let y=8;y<64;y++)for(let x=0;x<128;x++){
+  if(!playPixelVisible(g,x,y))continue;
   const row=(y>>3)-1,col=x>>3,h=s.camera+(6-row)*8,i=h/16;let on=false;
   if(Number.isInteger(i)&&i<12&&col>=xs[i]&&col<xs[i]+3)on=(y&7)===7||((i%4===0)?(y&7)===6:((y&7)===6&&(x%8===0||x%8===7)));
   else if(col===0||col===15)on=y%8===3||y%8===7||(x%8===3&&y%8>=3);
   const a=x-s.x,b=y-(58-s.height+s.camera);if(a>=0&&a<4&&b>=0&&b<6)on ||=!!(hero[b]&(1<<a));
-  assert.equal((fb[(y>>3)*192+x]>>(y&7))&1,on?1:0,`Tower pixels ${x},${y}`);
+  assert.equal((fb[(y>>3)*192+x+g.read('view_origin')]>>(y&7))&1,on?1:0,`Tower pixels ${x},${y}`);
  }
 }
 export async function checkTower(g){

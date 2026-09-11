@@ -376,37 +376,9 @@ mine_covered:
 mine_tile_done:
     RTS
 game_render:
-    JSR grid_render
-    LDX #mine_f_label
-    LDAA #72
-    CLRB
-    JSR paint_text
-    LDAA #84
-    STAA paint_x
-    CLR paint_band
-    LDAA mine_flags
-    JSR paint_number
-    LDX #mine_m_label
-    LDAA #108
-    CLRB
-    JSR paint_text
-    LDAA #120
-    STAA paint_x
-    CLR paint_band
-    LDAA mine_count
-    JSR paint_number
-    LDX #mine_blank_label
-    LDAA #132
-    LDAB #5
-    JSR paint_text
-    LDX #mine_open_label
-    TST selection_active
-    BEQ mine_mode_label
-    LDX #mine_flag_label
-mine_mode_label:
-    LDAA #138
-    LDAB #5
-    JMP paint_text
+    JSR paint_board
+    JMP visual_hud
+
 .section .bss, bss
 mine_armed: .space 1
 mine_count: .space 1

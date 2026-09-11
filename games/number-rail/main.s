@@ -309,68 +309,9 @@ grid_value:
     LDAA 0,X
     RTS
 game_render:
-    JSR grid_render
-    LDAA #132
-    STAA paint_x
-    LDAA #2
-    STAA paint_band
-    LDD rail_moves
-    JSR paint_number16
-    LDAB grid_stat
-    ASLB
-    LDX #rail_values
-    ABX
-    LDD 0,X
-    STD rail_display
-    LDAA #138
-    STAA paint_x
-    LDAA #4
-    STAA paint_band
-    LDD rail_display
-    JSR paint_number16
-    LDX #rail_score_label
-    LDAA #72
-    CLRB
-    JSR paint_text
-    LDAA #48
-    STAA rail_digit
-    LDD rail_score
-rail_score_digit:
-    SUBD #10000
-    BCS rail_score_remainder
-    INC rail_digit
-    BRA rail_score_digit
-rail_score_remainder:
-    ADDD #10000
-    STD rail_display
-    LDX #rail_digit
-    LDAA #84
-    CLRB
-    JSR paint_text
-    LDAA #90
-    STAA paint_x
-    CLR paint_band
-    LDD rail_display
-    JSR paint_number16
-    LDX #rail_goal_label
-    LDAA #132
-    LDAB #5
-    JSR paint_text
-    LDAB stage
-    LDX #rail_goals
-    ABX
-    LDAB 0,X
-    ASLB
-    LDX #rail_values
-    ABX
-    LDD 0,X
-    STD rail_display
-    LDAA #132
-    STAA paint_x
-    LDAA #6
-    STAA paint_band
-    LDD rail_display
-    JMP paint_number16
+    JSR paint_board
+    JMP visual_hud
+
 .section .bss, bss
 rail_score: .space 2
 rail_moves: .space 2

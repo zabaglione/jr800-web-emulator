@@ -314,33 +314,9 @@ dot_node_next:
     LDAA dot_node_value
     RTS
 game_render:
-    JSR grid_render
-    LDX #dot_you_label
-    LDAA #66
-    CLRB
-    JSR paint_text
-    LDAA #78
-    STAA paint_x
-    CLR paint_band
-    LDAA dot_player_score
-    JSR paint_number
-    LDX #dot_cpu_label
-    LDAA #108
-    CLRB
-    JSR paint_text
-    LDAA #120
-    STAA paint_x
-    CLR paint_band
-    LDAA dot_cpu_score
-    JSR paint_number
-    LDX #dot_blank_label
-    LDAA #132
-    LDAB #5
-    JSR paint_text
-    LDX #dot_pick_label
-    LDAA #138
-    LDAB #5
-    JMP paint_text
+    JSR paint_board
+    JMP visual_hud
+
 .section .bss, bss
 dot_cursor: .space 1
 dot_player_score: .space 1

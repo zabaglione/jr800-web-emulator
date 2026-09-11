@@ -426,81 +426,7 @@ dock_remember_cargo:
 dock_hide_cargo:
     CLR dock_old_valid
 dock_hud_check:
-    TST resume_pending
-    BNE dock_hud_all
-    TST dock_hud
-    BNE dock_hud_values
-    RTS
-dock_hud_all:
-    LDX #game_name
-    CLRA
-    CLRB
-    JSR paint_text
-    LDX #dock_score_label
-    LDAA #78
-    CLRB
-    JSR paint_text
-    LDAA #168
-    STAA paint_x
-    CLR paint_band
-    LDAA stage
-    INCA
-    JSR paint_number
-    LDX #dock_height_label
-    LDAA #132
-    LDAB #1
-    JSR paint_text
-    LDX #dock_width_label
-    LDAA #132
-    LDAB #3
-    JSR paint_text
-    LDX #dock_flip_label
-    LDAA #132
-    LDAB #5
-    JSR paint_text
-    LDX #dock_slash_label
-    LDAA #150
-    LDAB #2
-    JSR paint_text
-    LDAA #156
-    STAA paint_x
-    LDAA #2
-    STAA paint_band
-    LDAA dock_goal
-    JSR paint_number
-dock_hud_values:
-    CLR dock_hud
-    LDAA #90
-    STAA paint_x
-    CLR paint_band
-    LDD dock_score
-    JSR paint_number16
-    LDAA #132
-    STAA paint_x
-    LDAA #2
-    STAA paint_band
-    LDAA dock_count
-    JSR paint_number
-    LDAA #132
-    STAA paint_x
-    LDAA #4
-    STAA paint_band
-    LDAA dock_width
-    JSR paint_number
-    LDAA #132
-    STAA paint_x
-    LDAA #6
-    STAA paint_band
-    LDAA dock_flips
-    JSR paint_number
-    LDAB dock_judgement
-    ASLB
-    LDX #dock_status_labels
-    ABX
-    LDX 0,X
-    LDAA #132
-    LDAB #7
-    JMP paint_text
+    JMP visual_hud
 dock_draw_layer:
     STAA dock_pattern
     TAB
@@ -536,7 +462,7 @@ dock_span_begin:
     STAA dock_span_band
     LDAB #192
     MUL
-    ADDD #framebuffer
+    ADDD #framebuffer + VIEW_X
     ADDB dock_span_left
     ADCA #0
     STD dock_destination
@@ -599,10 +525,12 @@ dock_span_finish:
     BEQ dock_span_done
     LDAA dock_span_band
     LDAB dock_span_left
+    ADDB #VIEW_X
     JSR dirty_mark
     LDAA dock_span_band
     LDAB dock_column
     DECB
+    ADDB #VIEW_X
     JMP dirty_mark
 dock_span_done:
     RTS

@@ -7,12 +7,12 @@ import {checkLibrary} from './library_check.mjs';
 const [wasm,out,id,mode='test']=process.argv.slice(2);
 const g=await Game.open(wasm,out,id);
 if(id==='arc-duel'){
- const frame=g.frame.bind(g);
+ const frame=g.frame.bind(g);let instruments;
  g.frame=()=>{const panel=frame();if(g.read('phase')===2){
-  for(const [label,x,band] of [['A',0,0],['P',30,0],['W',60,0],['HP',96,0],['CPU',132,0],['WINS',0,1],['LAND',84,1]]){
-   const expected=[...label].flatMap(c=>[...g.machine.memory(g.symbols.font+(c.charCodeAt(0)-32)*5,5),0]);
-   assert.deepEqual([...g.machine.memory(g.symbols.framebuffer+band*192+x,expected.length)],expected,'Artillery HUD remains intact');
-  }
+  // Headings remain untouched when terrain or projectiles change underneath.
+  const spans=[[1,7],[33,3],[65,3],[96,3],[130,11],[166,7],[194,19],[243,15],[358,23]];
+  const headings=spans.flatMap(([offset,size])=>[...g.machine.memory(g.symbols.framebuffer+offset,size)]);
+  if(instruments)assert.deepEqual(headings,instruments,'Artillery static instrument headings remain intact');else instruments=headings;
  }return panel;};
 }
 try{

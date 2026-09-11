@@ -2,7 +2,8 @@
 from pathlib import Path
 import sys,json
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
-from art import title,asm_bytes
+from art import asm_bytes
+from visual_art import title
 out=Path(__file__).parent
 # cost, damage, block, heal, poison, strength, energy, display magnitude
 cards=[('STRIKE','HIT 6', [1,6,0,0,0,0,0,6]),('GUARD','BLOCK 6',[1,0,6,0,0,0,0,6]),('SPARK','HIT 2',[0,2,0,0,0,0,0,2]),('PIERCE','HIT 12',[2,12,0,0,0,0,0,12]),('WALL','BLOCK12',[2,0,12,0,0,0,0,12]),('HEAL','HEAL 5',[1,0,0,5,0,0,0,5]),('VENOM','TOXIN 3',[1,0,0,0,3,0,0,3]),('CHARGE','ENERGY1',[0,0,0,0,0,0,1,1]),('DRAIN','HIT+HP',[2,7,0,4,0,0,0,7]),('NOVA','HIT 20',[3,20,0,0,0,0,0,20]),('FOCUS','POWER 2',[1,0,0,0,0,2,0,2]),('ECHO','HIT+ARM',[1,4,4,0,0,0,0,4])]

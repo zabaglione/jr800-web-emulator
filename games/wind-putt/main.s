@@ -354,78 +354,7 @@ game_render:
     LDAB putt_marker_y
     JSR putt_ball
 putt_render_hud:
-    TST resume_pending
-    BNE putt_hud_all
-    TST putt_hud
-    BNE putt_hud_values
-    RTS
-putt_hud_all:
-    LDX #game_name
-    CLRA
-    CLRB
-    JSR paint_text
-    LDAA #168
-    STAA paint_x
-    CLR paint_band
-    LDAA stage
-    INCA
-    JSR paint_number
-    LDX #putt_wind_none
-    TST putt_wind
-    BEQ putt_wind_text
-    BMI putt_wind_left
-    LDX #putt_wind_right
-    BRA putt_wind_text
-putt_wind_left:
-    LDX #putt_wind_west
-putt_wind_text:
-    LDAA #78
-    CLRB
-    JSR paint_text
-    LDX #putt_angle_label
-    LDAA #132
-    LDAB #1
-    JSR paint_text
-    LDX #putt_power_label
-    LDAA #132
-    LDAB #3
-    JSR paint_text
-    LDX #putt_shot_label
-    LDAA #132
-    LDAB #5
-    JSR paint_text
-    LDX #putt_space_label
-    LDAA #132
-    LDAB #7
-    JSR paint_text
-    LDX #putt_limit_label
-    LDAA #150
-    LDAB #6
-    JSR paint_text
-putt_hud_values:
-    CLR putt_hud
-    LDAA #132
-    STAA paint_x
-    LDAA #2
-    STAA paint_band
-    LDAB putt_aim
-    ASLB
-    LDX #putt_angles
-    ABX
-    LDD 0,X
-    JSR paint_number16
-    LDAA #132
-    STAA paint_x
-    LDAA #4
-    STAA paint_band
-    LDAA putt_power
-    JSR paint_number
-    LDAA #132
-    STAA paint_x
-    LDAA #6
-    STAA paint_band
-    LDAA putt_shots
-    JMP paint_number
+    JMP visual_hud
 putt_ball:
     STAA putt_draw_x
     STAB putt_draw_y
