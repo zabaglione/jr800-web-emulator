@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [パズル・論理](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Logic) · 定番
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/lamp-grid)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=lamp-grid) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/lamp-grid)
 
 ![タイトル画面](../../docs/games/screenshots/lamp-grid/title.png)
 

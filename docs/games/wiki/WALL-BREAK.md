@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [アクション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Action) · 定番
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/wall-break)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=wall-break) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/wall-break)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/wall-break/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/wall-break/title.png)
 
 パドルでボールを打ち返し、12種類のブロック配置を壊すアクションゲームです。
 
@@ -18,15 +18,15 @@ RETURNでメニューを開くとボールとパドルが止まります。RELAU
 
 ## ゲーム画面
 
-![最初の配置と発射位置](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/wall-break/gameplay-1.png)
+![最初の配置と発射位置](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/wall-break/gameplay-1.png)
 
 最初の配置と発射位置。
 
-![複数回当てるブロックを含む盤面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/wall-break/gameplay-2.png)
+![複数回当てるブロックを含む盤面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/wall-break/gameplay-2.png)
 
 複数回当てるブロックを含む盤面。
 
-![最後に残ったブロックを狙う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/wall-break/gameplay-3.png)
+![最後に残ったブロックを狙う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/wall-break/gameplay-3.png)
 
 最後に残ったブロックを狙う。
 

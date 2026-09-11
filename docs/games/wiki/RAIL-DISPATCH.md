@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [経営・シミュレーション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Simulation) · 定番
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/rail-dispatch)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=rail-dispatch) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/rail-dispatch)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/rail-dispatch/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/rail-dispatch/title.png)
 
 上下から来る列車を2つの信号で合流させ、分岐を切り替えて正しい駅へ届ける全12課題の運行ゲームです。
 
@@ -24,15 +24,15 @@
 
 ## ゲーム画面
 
-![上下の入口信号とA・B駅への分岐を設定する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/rail-dispatch/gameplay-1.png)
+![上下の入口信号とA・B駅への分岐を設定する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/rail-dispatch/gameplay-1.png)
 
 上下の入口信号とA・B駅への分岐を設定する。
 
-![待機列車を残し、中央へ1本ずつ通す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/rail-dispatch/gameplay-2.png)
+![待機列車を残し、中央へ1本ずつ通す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/rail-dispatch/gameplay-2.png)
 
 待機列車を残し、中央へ1本ずつ通す。
 
-![終盤の列車を正しい行き先へ送り出す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/rail-dispatch/gameplay-3.png)
+![終盤の列車を正しい行き先へ送り出す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/rail-dispatch/gameplay-3.png)
 
 終盤の列車を正しい行き先へ送り出す。
 

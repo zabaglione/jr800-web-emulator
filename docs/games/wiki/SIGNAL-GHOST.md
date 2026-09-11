@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [探索・冒険](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Adventure) · モダン
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/signal-ghost)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=signal-ghost) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/signal-ghost)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/signal-ghost/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/signal-ghost/title.png)
 
 90度ずつ回転する監視カメラを避け、2系統の端末を停止して脱出する全20面の潜入パズルです。
 
@@ -22,15 +22,15 @@ RETURNで停止メニューを開きます。WAITは端末を操作せずに1手
 
 ## ゲーム画面
 
-![カメラの向きと監視範囲を読む](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/signal-ghost/gameplay-1.png)
+![カメラの向きと監視範囲を読む](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/signal-ghost/gameplay-1.png)
 
 カメラの向きと監視範囲を読む。
 
-![回転のタイミングを見て端末へ潜入する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/signal-ghost/gameplay-2.png)
+![回転のタイミングを見て端末へ潜入する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/signal-ghost/gameplay-2.png)
 
 回転のタイミングを見て端末へ潜入する。
 
-![片方の系統を止め、残る端末と出口へ進む](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/signal-ghost/gameplay-3.png)
+![片方の系統を止め、残る端末と出口へ進む](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/signal-ghost/gameplay-3.png)
 
 片方の系統を止め、残る端末と出口へ進む。
 

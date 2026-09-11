@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [探索・冒険](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Adventure) · 定番
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/micro-rogue)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=micro-rogue) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/micro-rogue)
 
 ![タイトル画面](../../docs/games/screenshots/micro-rogue/title.png)
 

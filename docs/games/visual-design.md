@@ -2,6 +2,8 @@
 
 全作品のタイトルを、192×64ドットの独立した構図で描き直しました。ロゴの書体・大きさ・位置、白黒の配分、背景の密度を作品ごとに変えています。タイトルと説明画面は分け、タイトルにはSPACEの開始案内を残しています。
 
+箱・壁・カードなどに奥行きを加え、数字も作品ごとに調整しました。50作品それぞれの採用判断と、読みやすい平面表示を保った理由は[奥行きと数字の意匠](depth-design.md)、40面の評価画面とパスワードは[パズルのチャレンジ設計](puzzle-design.md)を参照してください。
+
 | テイスト | 例 | 表現 |
 |---|---|---|
 | 荷札・工業製品 | BOX SHIFT、POCKET FACTORY、BALANCE DOCK | 木箱、ライン、積荷と数字の計器 |
@@ -48,6 +50,8 @@ CIRCUIT DECKは横に3枚のカードを並べた卓、MARKET HARBORは取引と
 ## 編集する場所
 
 - `games/tools/visual_art.py`: 50作品のタイトルの構図とロゴ
+- `games/tools/depth_art.py`: マスの寸法内に収まる陰影・斜めの辺
+- `games/tools/digit_art.py`: 計器風・活字風・丸みのある数字の原画
 - `games/tools/hud_layouts.py`: 盤面型のHUDと表示値
 - `games/tools/hud_custom.py`: カード卓・交易帳簿・砲台計器
 - `games/tools/hud_assets.py`: HUDの画像、書体、値の定義を機械語ソースへ生成

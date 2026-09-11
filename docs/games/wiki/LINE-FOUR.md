@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [盤上戦略](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Board) · 定番
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/line-four)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=line-four) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/line-four)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/line-four/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/line-four/title.png)
 
 7列×6段の盤面にディスクを落とし、先に4個を並べるCPU対戦です。3段階の難易度があります。
 
@@ -18,15 +18,15 @@ RETURNからUNDO TURNで自分とCPUの直前の1ターンを戻し、RESETま�
 
 ## ゲーム画面
 
-![最初のディスク配置と選択中の列](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/line-four/gameplay-1.png)
+![最初のディスク配置と選択中の列](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/line-four/gameplay-1.png)
 
 最初のディスク配置と選択中の列。
 
-![両端のリーチを狙う中盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/line-four/gameplay-2.png)
+![両端のリーチを狙う中盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/line-four/gameplay-2.png)
 
 両端のリーチを狙う中盤。
 
-![最高難易度で縦と斜めを競う場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/line-four/gameplay-3.png)
+![最高難易度で縦と斜めを競う場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/line-four/gameplay-3.png)
 
 最高難易度で縦と斜めを競う場面。
 

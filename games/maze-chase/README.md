@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [アクション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Action) · 定番
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/maze-chase)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=maze-chase) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/maze-chase)
 
 ![タイトル画面](../../docs/games/screenshots/maze-chase/title.png)
 

@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [スポーツ・タイミング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Sports) · モダン
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/beat-step)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=beat-step) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/beat-step)
 
 ![タイトル画面](../../docs/games/screenshots/beat-step/title.png)
 

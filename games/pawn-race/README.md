@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [盤上戦略](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Board) · モダン
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/pawn-race)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=pawn-race) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/pawn-race)
 
 ![タイトル画面](../../docs/games/screenshots/pawn-race/title.png)
 

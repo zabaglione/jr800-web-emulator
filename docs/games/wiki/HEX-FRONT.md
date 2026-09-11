@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [盤上戦略](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Board) · モダン
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/hex-front)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=hex-front) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/hex-front)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/hex-front/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/hex-front/title.png)
 
 六方向につながる6×6の盤面で辺どうしを結ぶCPU対戦です。1局1回だけ相手の拠点を変換するリレーを使えます。
 
@@ -18,15 +18,15 @@ NEEDは通常の配置で接続するために必要な最小の空き拠点数�
 
 ## ゲーム画面
 
-![左右と上下の接続を目指す序盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/hex-front/gameplay-1.png)
+![左右と上下の接続を目指す序盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/hex-front/gameplay-1.png)
 
 左右と上下の接続を目指す序盤。
 
-![リレーで相手拠点を変換する選択画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/hex-front/gameplay-2.png)
+![リレーで相手拠点を変換する選択画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/hex-front/gameplay-2.png)
 
 リレーで相手拠点を変換する選択画面。
 
-![リレーを使った後の接続経路](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/hex-front/gameplay-3.png)
+![リレーを使った後の接続経路](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/hex-front/gameplay-3.png)
 
 リレーを使った後の接続経路。
 

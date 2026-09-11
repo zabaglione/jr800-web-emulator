@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [パズル・論理](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Logic) · 定番
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/pipe-weave)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=pipe-weave) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/pipe-weave)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/pipe-weave/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/pipe-weave/title.png)
 
 分岐・環状経路を組み替えて通水する、全40面の配管パズルです。
 
@@ -16,15 +16,15 @@
 
 ## ゲーム画面
 
-![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/pipe-weave/gameplay-1.png)
+![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/pipe-weave/gameplay-1.png)
 
 第1面の初期配置と規定手数。
 
-![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/pipe-weave/gameplay-2.png)
+![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/pipe-weave/gameplay-2.png)
 
 第31面で追加目標に挑戦している場面。
 
-![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/pipe-weave/gameplay-3.png)
+![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/pipe-weave/gameplay-3.png)
 
 第40面を規定手数と追加目標の両方を満たしてクリア。
 
@@ -59,7 +59,7 @@ HUDの **USED** は使った手数、**PAR** は規定手数です。規定手�
 
 コードは**面と評価**を記録します。盤面の途中状態は含みません。BASICへ戻る前にLOAD RECORDを控えると、次回の起動後に記録を復元できます。入力したLOAD RECORDの内容で全40面のBESTが置き換わるため、新しい記録を控えてから復元してください。
 
-![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/pipe-weave/selection.png)
+![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/pipe-weave/selection.png)
 
 面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。
 

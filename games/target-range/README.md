@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [シューティング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting) · 定番
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/target-range)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=target-range) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/target-range)
 
 ![タイトル画面](../../docs/games/screenshots/target-range/title.png)
 

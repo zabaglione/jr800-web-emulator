@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [盤上戦略](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Board) · 定番
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/reversi-mini)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=reversi-mini) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/reversi-mini)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/reversi-mini/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/reversi-mini/title.png)
 
 6×6の盤面で相手のディスクを挟んで返す、CPU対戦のリバーシです。置ける場所の表示と自動パスがあります。
 
@@ -18,15 +18,15 @@ RETURNからUNDO TURNで自分の前の手番まで戻れます。自動パス�
 
 ## ゲーム画面
 
-![中央の4枚と合法手を示す＋印](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/reversi-mini/gameplay-1.png)
+![中央の4枚と合法手を示す＋印](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/reversi-mini/gameplay-1.png)
 
 中央の4枚と合法手を示す＋印。
 
-![辺を確保して返す範囲が広がった中盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/reversi-mini/gameplay-2.png)
+![辺を確保して返す範囲が広がった中盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/reversi-mini/gameplay-2.png)
 
 辺を確保して返す範囲が広がった中盤。
 
-![残りの空きマスと枚数を読み合う終盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/reversi-mini/gameplay-3.png)
+![残りの空きマスと枚数を読み合う終盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/reversi-mini/gameplay-3.png)
 
 残りの空きマスと枚数を読み合う終盤。
 

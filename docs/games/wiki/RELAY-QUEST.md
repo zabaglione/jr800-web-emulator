@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [探索・冒険](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Adventure) · 定番
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/relay-quest)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=relay-quest) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/relay-quest)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/relay-quest/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/relay-quest/title.png)
 
 鍵と回復薬を集め、2基のリレーを回収して遺跡の出口を目指す全12面の探索ゲームです。
 
@@ -22,15 +22,15 @@ RETURNで停止メニューを開き、RESETまたはRETRYでその面をやり�
 
 ## ゲーム画面
 
-![扉と資源の位置を読み、遺跡の順路を考える](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/relay-quest/gameplay-1.png)
+![扉と資源の位置を読み、遺跡の順路を考える](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/relay-quest/gameplay-1.png)
 
 扉と資源の位置を読み、遺跡の順路を考える。
 
-![守衛へ向かって攻撃し、通路を確保する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/relay-quest/gameplay-2.png)
+![守衛へ向かって攻撃し、通路を確保する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/relay-quest/gameplay-2.png)
 
 守衛へ向かって攻撃し、通路を確保する。
 
-![2基を回収し、残り体力を保って出口へ向かう](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/relay-quest/gameplay-3.png)
+![2基を回収し、残り体力を保って出口へ向かう](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/relay-quest/gameplay-3.png)
 
 2基を回収し、残り体力を保って出口へ向かう。
 

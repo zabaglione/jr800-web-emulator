@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [アクション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Action) · 定番
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/bomb-vault)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=bomb-vault) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/bomb-vault)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/bomb-vault/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/bomb-vault/title.png)
 
 時限爆弾で壁を壊し、3個の鍵を集めて出口を目指す全12面のアクションです。
 
@@ -20,15 +20,15 @@ FUSEが0になると、上下左右へ最大3マスの爆風が広がります�
 
 ## ゲーム画面
 
-![鍵入りの箱と巡回する敵を確認](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/bomb-vault/gameplay-1.png)
+![鍵入りの箱と巡回する敵を確認](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/bomb-vault/gameplay-1.png)
 
 鍵入りの箱と巡回する敵を確認。
 
-![壁に隠れて爆風を避ける](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/bomb-vault/gameplay-2.png)
+![壁に隠れて爆風を避ける](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/bomb-vault/gameplay-2.png)
 
 壁に隠れて爆風を避ける。
 
-![鍵を集めて出口へ向かう](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/bomb-vault/gameplay-3.png)
+![鍵を集めて出口へ向かう](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/bomb-vault/gameplay-3.png)
 
 鍵を集めて出口へ向かう。
 

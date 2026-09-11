@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [パズル・論理](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Logic) · 定番
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/box-shift)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=box-shift) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/box-shift)
 
 ![タイトル画面](../../docs/games/screenshots/box-shift/title.png)
 

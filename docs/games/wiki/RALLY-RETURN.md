@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [スポーツ・タイミング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Sports) · 定番
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/rally-return)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=rally-return) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/rally-return)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/rally-return/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/rally-return/title.png)
 
 打点とスピンで返球の角度を変える、CPUとのパドル対戦です。先に5点取ると勝利します。
 
@@ -22,15 +22,15 @@ RETURNのメニューでは球とCPUが止まります。RESETまたはRETRYで0
 
 ## ゲーム画面
 
-![中央の球をSPACEでサーブし、先に5点を目指す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/rally-return/gameplay-1.png)
+![中央の球をSPACEでサーブし、先に5点を目指す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/rally-return/gameplay-1.png)
 
 中央の球をSPACEでサーブし、先に5点を目指す。
 
-![打点をずらして、CPUが追いにくい角度へ返す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/rally-return/gameplay-2.png)
+![打点をずらして、CPUが追いにくい角度へ返す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/rally-return/gameplay-2.png)
 
 打点をずらして、CPUが追いにくい角度へ返す。
 
-![速いCPUとのラリーで、上下の壁も利用する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/rally-return/gameplay-3.png)
+![速いCPUとのラリーで、上下の壁も利用する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/rally-return/gameplay-3.png)
 
 速いCPUとのラリーで、上下の壁も利用する。
 

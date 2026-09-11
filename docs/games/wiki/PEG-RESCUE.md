@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [盤上戦略](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Board) · 定番
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/peg-rescue)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=peg-rescue) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/peg-rescue)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/peg-rescue/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/peg-rescue/title.png)
 
 ペグを飛び越して最後の1個を残す、全40面の盤面パズルです。6個から29個の配置を収録しています。
 
@@ -16,15 +16,15 @@
 
 ## ゲーム画面
 
-![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/peg-rescue/gameplay-1.png)
+![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/peg-rescue/gameplay-1.png)
 
 第1面の初期配置と規定手数。
 
-![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/peg-rescue/gameplay-2.png)
+![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/peg-rescue/gameplay-2.png)
 
 第31面で追加目標に挑戦している場面。
 
-![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/peg-rescue/gameplay-3.png)
+![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/peg-rescue/gameplay-3.png)
 
 第40面を規定手数と追加目標の両方を満たしてクリア。
 
@@ -59,7 +59,7 @@ HUDの **USED** は使った手数、**PAR** は規定手数です。規定手�
 
 コードは**面と評価**を記録します。盤面の途中状態は含みません。BASICへ戻る前にLOAD RECORDを控えると、次回の起動後に記録を復元できます。入力したLOAD RECORDの内容で全40面のBESTが置き換わるため、新しい記録を控えてから復元してください。
 
-![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/peg-rescue/selection.png)
+![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/peg-rescue/selection.png)
 
 面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。
 

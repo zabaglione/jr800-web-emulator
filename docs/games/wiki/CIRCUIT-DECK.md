@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [カード・ダイス](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Cards) · モダン
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/circuit-deck)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=circuit-deck) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/circuit-deck)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/circuit-deck/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/circuit-deck/title.png)
 
 手札3枚とエナジー3を使う、9戦制のカードバトルです。最終戦にはボスが待っています。
 
@@ -33,15 +33,15 @@
 
 ## ゲーム画面
 
-![手札・エナジー・敵の予告](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/circuit-deck/gameplay-1.png)
+![手札・エナジー・敵の予告](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/circuit-deck/gameplay-1.png)
 
 手札・エナジー・敵の予告。
 
-![勝利後の3択報酬](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/circuit-deck/gameplay-2.png)
+![勝利後の3択報酬](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/circuit-deck/gameplay-2.png)
 
 勝利後の3択報酬。
 
-![最終戦のボス](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/circuit-deck/gameplay-3.png)
+![最終戦のボス](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/circuit-deck/gameplay-3.png)
 
 最終戦のボス。
 

@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [カード・ダイス](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Cards) · モダン
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/push-luck)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=push-luck) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/push-luck)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/push-luck/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/push-luck/title.png)
 
 得点を確定するか、もう一度振るか。1が出ると手番の得点を失う、CPU対戦のリスク判断ゲームです。
 
@@ -20,15 +20,15 @@ CPUの出目は間隔を空けて表示され、下段のCPU ROLLSにその手�
 
 ## ゲーム画面
 
-![1が出てPOTを失いCPUの手番へ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/push-luck/gameplay-1.png)
+![1が出てPOTを失いCPUの手番へ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/push-luck/gameplay-1.png)
 
 1が出てPOTを失いCPUの手番へ。
 
-![CPUが出目を重ねながら確定を判断](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/push-luck/gameplay-2.png)
+![CPUが出目を重ねながら確定を判断](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/push-luck/gameplay-2.png)
 
 CPUが出目を重ねながら確定を判断。
 
-![21点を確定するか続けるかを選ぶ場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/push-luck/gameplay-3.png)
+![21点を確定するか続けるかを選ぶ場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/push-luck/gameplay-3.png)
 
 21点を確定するか続けるかを選ぶ場面。
 
