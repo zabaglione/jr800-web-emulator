@@ -81,6 +81,33 @@ def logo(name,kind):
             b.line(x+2,8,x+18,8);b.line(x+18,8,x+18,46);b.line(x+2,27,x+2,46);b.line(x+2,46,x+18,46)
             b.rect(x+6,31,9,10,1,x==5)
         for x in range(35,159,15):b.rect(x,50,3,3,1,True)
+    elif kind=='pipe-weave':
+        for x in (4,166):
+            b.rect(x,7,21,7);b.rect(x+14,14,7,23);b.rect(x,37,21,7)
+            for y in (5,35):b.rect(x-1,y,5,11)
+            b.rect(x+12,20,11,5)
+        b.line(26,50,166,50);b.line(26,53,166,53)
+        for x in (30,153):b.rect(x,48,5,8)
+    elif kind=='number-rail':
+        for x,n in ((5,'2'),(169,'4')):
+            b.rect(x,7,17,17);b.text(n,x+6,12);b.rect(x,31,17,17);b.text('8',x+6,36)
+        for y in (49,52):b.line(25,y,164,y)
+        for x in range(29,160,10):b.line(x,48,x+3,54)
+        b.line(92,26,99,26);b.line(95,23,99,26);b.line(95,29,99,26)
+    elif kind=='mine-field':
+        for x,y in ((13,15),(176,16)):
+            for dx,dy in ((8,0),(0,8),(6,6),(6,-6)):
+                b.line(x-dx,y-dy,x+dx,y+dy)
+            b.rect(x-4,y-4,9,9,1,True)
+        for x in (5,170):
+            b.line(x,49,x+15,49);b.line(x+4,48,x+4,29);b.line(x+4,29,x+15,34);b.line(x+15,34,x+4,37)
+        for x in range(27,167,7):b.line(x,50,x+4,53)
+    elif kind=='loop-trace':
+        for x in (5,167):
+            b.rect(x,6,19,42);b.rect(x+5,11,9,32)
+            b.rect(x-1,24,8,8,0,True);b.line(x,26,x+7,26);b.line(x+7,26,x+3,22);b.line(x+7,26,x+3,30)
+        b.line(24,51,166,51)
+        for x,s in ((44,'A'),(92,'B'),(140,'C')):b.rect(x-2,45,9,9,0,True);b.text(s,x,46)
     else:
         raise ValueError('A distinct title motif is required: '+kind)
     for row,word in enumerate(name.split()):

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <cstdlib>
 #include <utility>
 #include <fstream>
 #include <iostream>
@@ -163,5 +164,68 @@ int main(int argc,char** argv){try{
    require(f.get("dot_captured")==count,"One edge may claim two boxes");
   }
  }
- std::cout<<"PASS: laser cycles, twelve card effects, costs, shield/poison, factory contention/conversion/shipping, crater edges, connect-four windows and tactics, reversi rays, five-stone windows and open ends, hex distance fields, pawn movement boundaries, dot box ownership\n";return 0;
+ {
+  Fixture f(root,"pipe-weave");std::uint32_t seed=1919;
+  const std::array<std::array<int,4>,4> dirs{{{{0,-1,1,2}},{{0,1,2,1}},{{-1,0,4,8}},{{1,0,8,4}}}};
+  for(unsigned sample=0;sample<32;++sample){
+   std::array<unsigned,36> cells{};std::array<bool,36> wet{};wet[0]=true;unsigned leaks=0;
+   for(unsigned p=0;p<36;++p){seed=seed*1664525U+1013904223U;cells[p]=sample==0?0:sample==1?15:(seed>>28);f.put("board",static_cast<std::uint8_t>(cells[p]),p);}
+   for(int p=0;p<36;++p)for(const auto& d:dirs)if(cells[static_cast<unsigned>(p)]&static_cast<unsigned>(d[2])){
+    const int x=p%6+d[0],y=p/6+d[1];if(x<0||x>=6||y<0||y>=6||(cells[static_cast<unsigned>(y*6+x)]&static_cast<unsigned>(d[3]))==0)++leaks;
+   }
+   for(unsigned pass=0;pass<36;++pass)for(int p=0;p<36;++p)if(wet[static_cast<unsigned>(p)])for(const auto& d:dirs){
+    const int x=p%6+d[0],y=p/6+d[1];if(x>=0&&x<6&&y>=0&&y<6&&(cells[static_cast<unsigned>(p)]&static_cast<unsigned>(d[2]))&&(cells[static_cast<unsigned>(y*6+x)]&static_cast<unsigned>(d[3])))wet[static_cast<unsigned>(y*6+x)]=true;
+   }
+   f.put("phase",2);f.call("pipe_trace");require(f.get("pipe_leaks")==leaks,"Pipe leak counts include every unmatched port and screen edge");
+   unsigned dry=0;for(unsigned p=0;p<36;++p){require((f.get("pipe_wet",p)!=0)==wet[p],"Pipe wet set terminates on cyclic and disconnected networks");if(!wet[p])++dry;}
+   require(f.get("grid_stat")==dry,"Dry pipe count");
+  }
+ }
+ {
+  Fixture f(root,"number-rail");
+  for(unsigned code=0;code<625;++code){
+   std::vector<unsigned> compact;unsigned digits=code;
+   for(unsigned i=0;i<4;++i){const unsigned v=digits%5;digits/=5;f.put("rail_row",v,i);if(v)compact.push_back(v);}
+   std::array<unsigned,4> expected{};unsigned out=0,points=0;
+   for(unsigned i=0;i<compact.size();++i){unsigned v=compact[i];if(i+1<compact.size()&&v==compact[i+1]){++v;++i;points+=1U<<v;}expected[out++]=v;}
+   f.put("rail_delta",0);f.put("rail_delta",0,1);f.call("rail_merge");
+   for(unsigned i=0;i<4;++i)require(f.get("rail_row",i)==expected[i],"Every short number row compresses and merges each tile once");
+   require(f.get("rail_delta")*256U+f.get("rail_delta",1)==points,"Merge points equal the new tile values");
+  }
+  for(unsigned p=0;p<16;++p)f.put("board",static_cast<std::uint8_t>(1+(p/4+p%4)%2),p);
+  f.put("phase",2);f.put("stage",2);f.call("rail_status");require(f.get("phase")==5,"No empty square and no equal neighbours ends the game");
+  f.put("phase",2);f.put("board",0,0);f.call("rail_status");require(f.get("phase")==2,"An empty square keeps the game playable");
+  f.put("board",11,0);f.call("rail_status");require(f.get("phase")==4,"2048 reaches the final goal");
+  for(unsigned p=0;p<16;++p)f.put("board",static_cast<std::uint8_t>(1+p%4),p);
+  f.put("phase",2);f.put("rail_direction",2);f.put("seed",93);f.put("undo_valid",1);f.fill("snapshot_board",112,165);f.put("moves",17);f.put("rail_score",123,1);f.call("rail_slide");
+  require(f.get("moves")==17&&f.get("seed")==93&&f.get("rail_score",1)==123&&f.get("undo_valid")==1,"Invalid slide preserves counters, RNG and undo");
+  for(unsigned p=0;p<112;++p)require(f.get("snapshot_board",p)==165,"Invalid slide cannot overwrite the undo board");
+  f.fill("board",16,0);f.put("board",1,0);f.put("board",1,1);f.put("rail_score",255);f.put("rail_score",254,1);f.call("rail_slide");
+  require(f.get("rail_score")==255&&f.get("rail_score",1)==255,"Five-digit score saturates without wrapping");
+ }
+ {
+  Fixture f(root,"mine-field");
+  for(unsigned count:{10,15,20})for(unsigned start:{0,13,49,84,97})for(unsigned seed:{1,93}){
+   f.fill("board",98,0);f.put("cursor",start);f.put("mine_count",count);f.put("seed",seed);f.call("mine_generate");unsigned actual=0;
+   for(int p=0;p<98;++p){const auto cell=f.get("board",static_cast<unsigned>(p));if(cell&16)++actual;
+    unsigned adjacent=0;for(int q=0;q<98;++q)if(q!=p&&std::abs(p%14-q%14)<=1&&std::abs(p/14-q/14)<=1&&(f.get("board",static_cast<unsigned>(q))&16))++adjacent;
+    if(!(cell&16))require((cell&15)==adjacent,"Mine number equals all eight adjacent mines");
+    if(std::abs(p%14-static_cast<int>(start%14))<=1&&std::abs(p/14-static_cast<int>(start/14))<=1)require((cell&16)==0,"Every first click and its neighbours are safe, including corners");
+    require((cell&128)==0,"Temporary generation markers are cleared");
+   }require(actual==count,"Mine generation places exactly the selected count");
+  }
+  f.fill("board",98,0);f.put("phase",2);f.put("grid_stat",98);f.call("mine_reveal",49);require(f.get("grid_stat")==0,"A zero-region flood visits each of 98 cells exactly once");
+  for(unsigned p=0;p<98;++p)require(f.get("board",p)==32,"Entire zero field is revealed");
+  f.fill("board",98,0);f.put("phase",2);f.put("grid_stat",97);f.put("board",80,0);f.call("mine_reveal",0);require(f.get("phase")==2&&f.get("grid_stat")==97,"Flags prevent reveal even on a mine");
+  f.put("board",16,0);f.call("mine_reveal",0);require(f.get("phase")==5&&f.get("mine_blast")==0,"Opening an unflagged mine records the hit");
+ }
+ {
+  Fixture f(root,"loop-trace");f.fill("board",36,0);f.put("board",5,0);f.put("board",3,1);f.put("cursor",0);f.put("loop_marks",1,0);f.put("loop_next",1);f.put("input_event",8);f.put("phase",2);f.put("grid_stat",1);f.call("game_update");
+  require(f.get("cursor")==0&&f.get("moves")==0,"Checkpoint B cannot be entered before A");
+  f.put("board",2,1);f.call("game_update");require(f.get("cursor")==1&&f.get("loop_next")==2,"Checkpoint A advances the required order");
+  f.call("loop_undo");require(f.get("cursor")==0&&f.get("loop_next")==1&&f.get("loop_paths",0)==0&&f.get("loop_paths",1)==0,"Undo restores checkpoint order and both ends of the line");
+  f.put("input_event",16);f.put("grid_stat",0);f.put("loop_next",4);f.put("cursor",35);f.call("game_update");require(f.get("phase")==2,"A non-adjacent final node cannot close a loop");
+  f.put("cursor",1);f.call("game_update");require(f.get("phase")==4&&f.get("loop_paths",0)==8&&f.get("loop_paths",1)==4,"Closing connects both endpoints to the start");
+ }
+ std::cout<<"PASS: laser cycles, twelve card effects, costs, shield/poison, factory contention/conversion/shipping, crater edges, connect-four windows and tactics, reversi rays, five-stone windows and open ends, hex distance fields, pawn movement boundaries, dot box ownership, pipe loops and leaks, number merges and terminal states, mine first-click safety and flood fill, loop checkpoints and closure\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

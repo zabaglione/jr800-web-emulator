@@ -4,6 +4,10 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {letters} from './harness.mjs';
 import {checkBoard} from './board_check.mjs';
+import {checkPipe} from './pipe_check.mjs';
+import {checkRail} from './rail_check.mjs';
+import {checkMine} from './mine_check.mjs';
+import {checkLoop} from './loop_check.mjs';
 export async function data(id,name='solutions') {return JSON.parse(await readFile(new URL(`../${id}/${name}.json`,import.meta.url)));}
 export function moveCursor(g,cell,w){
  while(g.read('cursor')%w<cell%w)g.tap('right');
@@ -12,6 +16,10 @@ export function moveCursor(g,cell,w){
  while(Math.floor(g.read('cursor')/w)>Math.floor(cell/w))g.tap('up');
 }
 export async function checkLibrary(g,id){
+ if(id==='pipe-weave')return checkPipe(g);
+ if(id==='number-rail')return checkRail(g);
+ if(id==='mine-field')return checkMine(g);
+ if(id==='loop-trace')return checkLoop(g);
  if(id==='lamp-grid'){
   const solutions=await data(id);
   for(let stage=0;stage<solutions.length;stage++){

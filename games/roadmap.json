@@ -76,7 +76,7 @@
       "title": "PIPE WEAVE",
       "genre": "logic",
       "style": "classic",
-      "summary": "管を回して給水口と排水口をつなぐ20面。"
+      "summary": "管を回して全マスと給排水口をつなぎ、漏れをなくす20面。"
     },
     {
       "id": "number-rail",
@@ -97,7 +97,7 @@
       "title": "LOOP TRACE",
       "genre": "logic",
       "style": "modern",
-      "summary": "同じ点を通らず全地点を結ぶ20面。"
+      "summary": "A・B・Cの順に全地点を巡り、一筆で輪を閉じる20面。"
     },
     {
       "id": "line-four",

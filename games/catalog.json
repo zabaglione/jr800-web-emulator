@@ -108,6 +108,30 @@
       "title": "DOT CLAIM",
       "genre": "board",
       "style": "classic"
+    },
+    {
+      "id": "pipe-weave",
+      "title": "PIPE WEAVE",
+      "genre": "logic",
+      "style": "classic"
+    },
+    {
+      "id": "number-rail",
+      "title": "NUMBER RAIL",
+      "genre": "logic",
+      "style": "modern"
+    },
+    {
+      "id": "mine-field",
+      "title": "MINE FIELD",
+      "genre": "logic",
+      "style": "classic"
+    },
+    {
+      "id": "loop-trace",
+      "title": "LOOP TRACE",
+      "genre": "logic",
+      "style": "modern"
     }
   ]
 }
