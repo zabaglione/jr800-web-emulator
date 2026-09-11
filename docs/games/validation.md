@@ -42,7 +42,7 @@ MINE FIELDは3難易度の配置・旗・一括開放・クリアと、誤った
 
 LOOP TRACEは全20面で、A→B→Cの順番、直前へ戻る操作とメニューUNDO、両端の線の更新、最後の閉路を独立した経路モデルと照合しました。順番違いの通過と、開始地点に隣接しない場所での閉路操作を拒否することも確認しています。所有するJR-HuBASIC 1.0 ROMとNative/WASMのキー再生は一致しました。
 
-今回追加した論理パズル4本のWASM DebugとNative再生の8項目が通過しました。ローカルChromeでは22本の初回ROM設定・保存ROM復元・自動起動・タイトル画素・物理と仮想キー・音声開始・再読込み・エラー時の停止・ROM非送信を確認しています。
+今回追加した論理パズル4本のWASM DebugとNative再生の8項目が通過しました。公開リポジトリのNative/WASM・Debug/ReleaseのCIとPages配信が成功し、公開サイトでも22本のROM保存復元・起動・タイトル画素・操作・音声開始・再読込み・エラー時の停止・ROM非送信を確認しました。ローカルChromeでは22本の初回ROM設定・保存ROM復元・自動起動・タイトル画素・物理と仮想キー・音声開始・再読込み・エラー時の停止・ROM非送信を確認しています。
 
 ## 最初の6本で確認した基盤とゲーム
 
@@ -89,4 +89,4 @@ Eクロック1,228,800Hzによる換算です。RAMはコード・画像・状�
 
 拡張RAMを無効にした検証は、独自の最小起動コードを使用しています。所有ROMの起動は既存のBASIC実験プロファイルを使い、ゲーム自体の標準RAM内での動作と区別しています。2.0・実機操作・実際の発音品質は対応確認に含めません。音声確認はブラウザーへの再生データ供給までです。
 
-再現用のテストは[games/tools/check.mjs](../../games/tools/check.mjs)、[Native再生](../../tests/game_replay_test.cpp)、[規則の単体検査](../../tests/game_rules_test.cpp)、[ブラウザー検査](../../tests/browser_program_launch_test.cjs)にあります。`make test`の出力と性能データは`build/games/`へ保存します。公開Pagesで18本すべての自動起動が成功したため、各作品の「遊ぶ」リンクを有効にしました。Wiki原稿と画像はこのリポジトリで公開しています。
+再現用のテストは[games/tools/check.mjs](../../games/tools/check.mjs)、[Native再生](../../tests/game_replay_test.cpp)、[規則の単体検査](../../tests/game_rules_test.cpp)、[ブラウザー検査](../../tests/browser_program_launch_test.cjs)にあります。`make test`の出力と性能データは`build/games/`へ保存します。公開Pagesで22本すべての自動起動が成功したため、各作品の「遊ぶ」リンクを有効にしました。Wiki原稿と画像はこのリポジトリで公開しています。

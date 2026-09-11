@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [パズル・論理](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Logic) · モダン
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/number-rail)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=number-rail) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/number-rail)
 
 ![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/number-rail/title.png)
 
