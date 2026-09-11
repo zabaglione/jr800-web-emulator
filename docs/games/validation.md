@@ -26,6 +26,8 @@ PAWN RACEでは候補探索から空きマスと相手の駒を除き、同じ�
 
 今回追加した4本のWASM DebugとNative再生の8項目も通過し、ローカルChromeで18本のタイトル画素・ROM保存復元・操作・音声開始・再読込み・エラー時の停止を確認しました。
 
+公開リポジトリのNative/WASM・Debug/ReleaseのCIとPages配信が成功しました。公開サイトでも18本の初回ROM設定、保存ROM復元、自動起動、タイトル画素、物理と仮想キー、音声開始、再読込み、エラー時の停止、ROM非送信を確認しています。
+
 ## 最初の6本で確認した基盤とゲーム
 
 - 公開候補のNative Releaseの63項目とWASM Releaseの27項目が成功。後者は6本のゲーム再生とNativeでの同一再生を含みます。
@@ -67,4 +69,4 @@ Eクロック1,228,800Hzによる換算です。RAMはコード・画像・状�
 
 拡張RAMを無効にした検証は、独自の最小起動コードを使用しています。所有ROMの起動は既存のBASIC実験プロファイルを使い、ゲーム自体の標準RAM内での動作と区別しています。2.0・実機操作・実際の発音品質は対応確認に含めません。音声確認はブラウザーへの再生データ供給までです。
 
-再現用のテストは[games/tools/check.mjs](../../games/tools/check.mjs)、[Native再生](../../tests/game_replay_test.cpp)、[規則の単体検査](../../tests/game_rules_test.cpp)、[ブラウザー検査](../../tests/browser_program_launch_test.cjs)にあります。`make test`の出力と性能データは`build/games/`へ保存します。公開Pagesで14本すべての自動起動が成功したため、各作品の「遊ぶ」リンクを有効にしました。Wiki原稿と画像はこのリポジトリで公開しています。
+再現用のテストは[games/tools/check.mjs](../../games/tools/check.mjs)、[Native再生](../../tests/game_replay_test.cpp)、[規則の単体検査](../../tests/game_rules_test.cpp)、[ブラウザー検査](../../tests/browser_program_launch_test.cjs)にあります。`make test`の出力と性能データは`build/games/`へ保存します。公開Pagesで18本すべての自動起動が成功したため、各作品の「遊ぶ」リンクを有効にしました。Wiki原稿と画像はこのリポジトリで公開しています。
