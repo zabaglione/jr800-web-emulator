@@ -96,6 +96,9 @@
       "configurePreset": "wasm-debug",
       "output": {
         "outputOnFailure": true
+      },
+      "execution": {
+        "jobs": 4
       }
     },
     {
@@ -103,6 +106,9 @@
       "configurePreset": "wasm-release",
       "output": {
         "outputOnFailure": true
+      },
+      "execution": {
+        "jobs": 4
       }
     }
   ]
