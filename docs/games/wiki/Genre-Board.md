@@ -1,18 +1,16 @@
-# 盤上戦略
+# 盤上戦略（8作品）
 
 [ゲーム一覧へ](https://github.com/zabaglione/jr800-web-emulator/wiki)
 
-定番の盤上遊戯と、一手ずつ考える対戦。
+CPUとの読み合いから、一人でじっくり解く盤面パズルまで。
 
-## 収録ゲーム
-
-| タイトル | 系統 | 内容 |
-|---|---|---|
-| [LINE FOUR](https://github.com/zabaglione/jr800-web-emulator/wiki/LINE-FOUR) | 定番 | 7列×6段の盤面にディスクを落とし、先に4個を並べるCPU対戦です。3段階の難易度があります。 |
-| [REVERSI MINI](https://github.com/zabaglione/jr800-web-emulator/wiki/REVERSI-MINI) | 定番 | 6×6の盤面で相手のディスクを挟んで返す、CPU対戦のリバーシです。置ける場所の表示と自動パスがあります。 |
-| [FIVE STONES](https://github.com/zabaglione/jr800-web-emulator/wiki/FIVE-STONES) | 定番 | 14×7の盤面で5個の石を並べるCPU対戦です。両端が空いた攻め筋と相手のリーチを読む五目並べです。 |
-| [HEX FRONT](https://github.com/zabaglione/jr800-web-emulator/wiki/HEX-FRONT) | モダン | 六方向につながる6×6の盤面で辺どうしを結ぶCPU対戦です。1局1回だけ相手の拠点を変換するリレーを使えます。 |
-| [KNIGHT TOUR](https://github.com/zabaglione/jr800-web-emulator/wiki/KNIGHT-TOUR) | 定番 | 形の異なる盤面をナイトの動きで巡る、全40面の巡回パズルです。8マスから36マスへ拡大します。 |
-| [PEG RESCUE](https://github.com/zabaglione/jr800-web-emulator/wiki/PEG-RESCUE) | 定番 | ペグを飛び越して最後の1個を残す、全40面の盤面パズルです。6個から29個の配置を収録しています。 |
-| [PAWN RACE](https://github.com/zabaglione/jr800-web-emulator/wiki/PAWN-RACE) | モダン | 前進と斜め取りで敵陣を突破する6×6のCPU対戦です。3段階のCPUを選べます。 |
-| [DOT CLAIM](https://github.com/zabaglione/jr800-web-emulator/wiki/DOT-CLAIM) | 定番 | 点の間に辺を引き、四角を閉じて陣地を取るCPU対戦です。12個の四角を争い、閉じると続けて手を打てます。 |
+| タイトル画面 | ゲーム・楽しみ方 |
+| --- | --- |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/dot-claim/title.png" width="384" alt="DOT CLAIM のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/DOT-CLAIM) | **[DOT CLAIM](https://github.com/zabaglione/jr800-web-emulator/wiki/DOT-CLAIM)**<br>線を1本引いて、四角をもらおう。連続で取れる形を仕込み、CPUと陣地を争う。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=dot-claim) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/DOT-CLAIM) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/five-stones/title.png" width="384" alt="FIVE STONES のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/FIVE-STONES) | **[FIVE STONES](https://github.com/zabaglione/jr800-web-emulator/wiki/FIVE-STONES)**<br>あと1個を置かせるな。相手のリーチを見抜き、縦・横・斜めに5つの石を並べよう。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=five-stones) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/FIVE-STONES) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/hex-front/title.png" width="384" alt="HEX FRONT のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/HEX-FRONT) | **[HEX FRONT](https://github.com/zabaglione/jr800-web-emulator/wiki/HEX-FRONT)**<br>六方向へつながる盤面で、自分の辺どうしを結ぼう。一度だけ使えるリレーが勝負の切り札。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=hex-front) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/HEX-FRONT) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/knight-tour/title.png" width="384" alt="KNIGHT TOUR のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/KNIGHT-TOUR) | **[KNIGHT TOUR](https://github.com/zabaglione/jr800-web-emulator/wiki/KNIGHT-TOUR)**<br>ナイトの跳び方で盤面を巡ろう。行き止まりを作らず全マスを訪ねる、40面のひとり旅。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=knight-tour) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/KNIGHT-TOUR) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/line-four/title.png" width="384" alt="LINE FOUR のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/LINE-FOUR) | **[LINE FOUR](https://github.com/zabaglione/jr800-web-emulator/wiki/LINE-FOUR)**<br>ディスクを落として4つ並べよう。相手のリーチを止めながら、自分の勝ち筋を仕込む一局。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=line-four) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/LINE-FOUR) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/pawn-race/title.png" width="384" alt="PAWN RACE のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/PAWN-RACE) | **[PAWN RACE](https://github.com/zabaglione/jr800-web-emulator/wiki/PAWN-RACE)**<br>前へ進むか、斜めに取るか。相手の隙を突き、6×6の盤面を駆け抜けよう。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=pawn-race) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/PAWN-RACE) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/peg-rescue/title.png" width="384" alt="PEG RESCUE のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/PEG-RESCUE) | **[PEG RESCUE](https://github.com/zabaglione/jr800-web-emulator/wiki/PEG-RESCUE)**<br>飛び越すたびに駒が減る。最後の1個へつながる順番を探す、40面のペグパズル。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=peg-rescue) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/PEG-RESCUE) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/reversi-mini/title.png" width="384" alt="REVERSI MINI のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/REVERSI-MINI) | **[REVERSI MINI](https://github.com/zabaglione/jr800-web-emulator/wiki/REVERSI-MINI)**<br>小さな6×6の盤面で、ひっくり返し合い。角をめぐる読み合いをCPUと楽しもう。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=reversi-mini) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/REVERSI-MINI) |

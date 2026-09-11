@@ -1,4 +1,8 @@
-[ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki)
+[画像付きのゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki)
+
+[タイトル順の全作品](https://github.com/zabaglione/jr800-web-emulator/wiki/All-Games)
+
+[はじめて遊ぶ方へ](https://github.com/zabaglione/jr800-web-emulator/wiki/Controls)
 
 - [パズル・論理 (10)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Logic)
 - [盤上戦略 (8)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Board)

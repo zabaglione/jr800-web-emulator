@@ -1,14 +1,12 @@
-# 経営・シミュレーション
+# 経営・シミュレーション（4作品）
 
 [ゲーム一覧へ](https://github.com/zabaglione/jr800-web-emulator/wiki)
 
-配置や運用を工夫して目標を達成するゲーム。
+工場を動かし、列車をさばき、農園や港で稼ごう。
 
-## 収録ゲーム
-
-| タイトル | 系統 | 内容 |
-|---|---|---|
-| [POCKET FACTORY](https://github.com/zabaglione/jr800-web-emulator/wiki/POCKET-FACTORY) | モダン | 2種類の資源を加工して出荷する、全40課題の工場パズルです。後半は折り返しと迂回を含む長い搬送経路を組みます。 |
-| [RAIL DISPATCH](https://github.com/zabaglione/jr800-web-emulator/wiki/RAIL-DISPATCH) | 定番 | 上下から来る列車を2つの信号で合流させ、分岐を切り替えて正しい駅へ届ける全12課題の運行ゲームです。 |
-| [ORCHARD DAYS](https://github.com/zabaglione/jr800-web-emulator/wiki/ORCHARD-DAYS) | モダン | 1日3回の作業で豆とベリーを育て、期限までの所持金目標を目指す全12課題の農園ゲームです。 |
-| [MARKET HARBOR](https://github.com/zabaglione/jr800-web-emulator/wiki/MARKET-HARBOR) | 定番 | 4つの港で米・鉱石・香辛料を売買し、運賃と積載量を考えて資金を増やす全12課題の交易ゲームです。 |
+| タイトル画面 | ゲーム・楽しみ方 |
+| --- | --- |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/market-harbor/title.png" width="384" alt="MARKET HARBOR のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/MARKET-HARBOR) | **[MARKET HARBOR](https://github.com/zabaglione/jr800-web-emulator/wiki/MARKET-HARBOR)**<br>安い港で仕入れ、高い港で売る。運賃と船の空きを計算し、4つの港を巡って資金を増やそう。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=market-harbor) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/MARKET-HARBOR) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/orchard-days/title.png" width="384" alt="ORCHARD DAYS のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/ORCHARD-DAYS) | **[ORCHARD DAYS](https://github.com/zabaglione/jr800-web-emulator/wiki/ORCHARD-DAYS)**<br>今日は何を育て、何に手をかける？ 1日3回の作業を配分し、収穫で目標の所持金を目指そう。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=orchard-days) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/ORCHARD-DAYS) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/pocket-factory/title.png" width="384" alt="POCKET FACTORY のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/POCKET-FACTORY) | **[POCKET FACTORY](https://github.com/zabaglione/jr800-web-emulator/wiki/POCKET-FACTORY)**<br>資源を運び、加工して、出荷する。つまずいた流れを組み直し、自分の工場を動かそう。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=pocket-factory) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/POCKET-FACTORY) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/rail-dispatch/title.png" width="384" alt="RAIL DISPATCH のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/RAIL-DISPATCH) | **[RAIL DISPATCH](https://github.com/zabaglione/jr800-web-emulator/wiki/RAIL-DISPATCH)**<br>2つの信号と分岐をさばき、列車を正しい駅へ。混み合う線路を滞らせずに運行しよう。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=rail-dispatch) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/RAIL-DISPATCH) |

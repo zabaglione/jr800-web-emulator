@@ -1,15 +1,13 @@
-# カード・ダイス
+# カード・ダイス（5作品）
 
 [ゲーム一覧へ](https://github.com/zabaglione/jr800-web-emulator/wiki)
 
-手札、確率、リスクと報酬を使うゲーム。
+手札と出目を見て、攻めるか引くか。組み合わせと駆け引きを楽しもう。
 
-## 収録ゲーム
-
-| タイトル | 系統 | 内容 |
-|---|---|---|
-| [CIRCUIT DECK](https://github.com/zabaglione/jr800-web-emulator/wiki/CIRCUIT-DECK) | モダン | 手札3枚とエナジー3を使う、9戦制のカードバトルです。最終戦にはボスが待っています。 |
-| [ACE STACK](https://github.com/zabaglione/jr800-web-emulator/wiki/ACE-STACK) | 定番 | 合計13の組を取り除き、28枚のピラミッドを崩すカードパズルです。解ける20種類の配札を収録しています。 |
-| [SUIT RUN](https://github.com/zabaglione/jr800-web-emulator/wiki/SUIT-RUN) | 定番 | 捨て札と前後の数字をつなぎ、連続得点を狙うゴルフ型ソリティアです。解ける20種類の配札を収録しています。 |
-| [DICE HOLD](https://github.com/zabaglione/jr800-web-emulator/wiki/DICE-HOLD) | 定番 | 5個のダイスを保持・振り直しし、13種類の得点欄を埋めるダイスゲームです。3段階の得点目標に挑戦します。 |
-| [PUSH LUCK](https://github.com/zabaglione/jr800-web-emulator/wiki/PUSH-LUCK) | モダン | 得点を確定するか、もう一度振るか。1が出ると手番の得点を失う、CPU対戦のリスク判断ゲームです。 |
+| タイトル画面 | ゲーム・楽しみ方 |
+| --- | --- |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/ace-stack/title.png" width="384" alt="ACE STACK のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/ACE-STACK) | **[ACE STACK](https://github.com/zabaglione/jr800-web-emulator/wiki/ACE-STACK)**<br>足して13になる札を見つけよう。下の札を取り除き、カードのピラミッドを崩していく。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=ace-stack) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/ACE-STACK) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/circuit-deck/title.png" width="384" alt="CIRCUIT DECK のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/CIRCUIT-DECK) | **[CIRCUIT DECK](https://github.com/zabaglione/jr800-web-emulator/wiki/CIRCUIT-DECK)**<br>3枚の手札をどう組み合わせる？ 報酬でデッキを育て、9戦目のボスに挑もう。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=circuit-deck) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/CIRCUIT-DECK) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/dice-hold/title.png" width="384" alt="DICE HOLD のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/DICE-HOLD) | **[DICE HOLD](https://github.com/zabaglione/jr800-web-emulator/wiki/DICE-HOLD)**<br>残すダイスを選び、もう一度。13の得点欄を埋めながら、大きな役を狙おう。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=dice-hold) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/DICE-HOLD) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/push-luck/title.png" width="384" alt="PUSH LUCK のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/PUSH-LUCK) | **[PUSH LUCK](https://github.com/zabaglione/jr800-web-emulator/wiki/PUSH-LUCK)**<br>今の得点を持ち帰る？ もう一振りに賭ける？ 1が出る前に引き際を決めるCPU対戦。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=push-luck) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/PUSH-LUCK) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/suit-run/title.png" width="384" alt="SUIT RUN のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/SUIT-RUN) | **[SUIT RUN](https://github.com/zabaglione/jr800-web-emulator/wiki/SUIT-RUN)**<br>ひとつ上、ひとつ下の数字をつなごう。連続で取れる順番を探すソリティア。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=suit-run) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/SUIT-RUN) |

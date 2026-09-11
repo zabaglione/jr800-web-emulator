@@ -1,15 +1,13 @@
-# スポーツ・タイミング
+# スポーツ・タイミング（5作品）
 
 [ゲーム一覧へ](https://github.com/zabaglione/jr800-web-emulator/wiki)
 
-角度、反応、間合いとタイミングを競うゲーム。
+狙いとタイミングが勝負。ボール、リズム、積み上げに挑戦。
 
-## 収録ゲーム
-
-| タイトル | 系統 | 内容 |
-|---|---|---|
-| [WIND PUTT](https://github.com/zabaglione/jr800-web-emulator/wiki/WIND-PUTT) | 定番 | 風と壁の反射を読み、12コースのカップを狙うミニゴルフです。角度と強さを選び、各コース12打以内のカップインを目指します。 |
-| [RALLY RETURN](https://github.com/zabaglione/jr800-web-emulator/wiki/RALLY-RETURN) | 定番 | 打点とスピンで返球の角度を変える、CPUとのパドル対戦です。先に5点取ると勝利します。 |
-| [PENALTY ARC](https://github.com/zabaglione/jr800-web-emulator/wiki/PENALTY-ARC) | 定番 | コース・高さ・強さと、動くキーパーの位置を見て蹴るタイミングを選ぶPKゲームです。10本のシュートで規定のゴール数を目指します。 |
-| [BEAT STEP](https://github.com/zabaglione/jr800-web-emulator/wiki/BEAT-STEP) | モダン | 流れてくる矢印に合わせて4方向を押すリズムゲームです。3つの譜面を、6回のミスになる前に最後まで進めます。 |
-| [BALANCE DOCK](https://github.com/zabaglione/jr800-web-emulator/wiki/BALANCE-DOCK) | モダン | 左右に動く荷物を落として高く積むタイミングゲームです。はみ出した部分は切り落とされ、残った幅で次の荷物を受け止めます。 |
+| タイトル画面 | ゲーム・楽しみ方 |
+| --- | --- |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/balance-dock/title.png" width="384" alt="BALANCE DOCK のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/BALANCE-DOCK) | **[BALANCE DOCK](https://github.com/zabaglione/jr800-web-emulator/wiki/BALANCE-DOCK)**<br>動く荷物を、ここだという位置で落とそう。残った幅を頼りに、崩さず高く積み上げる。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=balance-dock) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/BALANCE-DOCK) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/beat-step/title.png" width="384" alt="BEAT STEP のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/BEAT-STEP) | **[BEAT STEP](https://github.com/zabaglione/jr800-web-emulator/wiki/BEAT-STEP)**<br>流れてくる矢印にリズムを合わせよう。4方向のキーで3つの譜面を最後までつなぐ。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=beat-step) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/BEAT-STEP) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/penalty-arc/title.png" width="384" alt="PENALTY ARC のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/PENALTY-ARC) | **[PENALTY ARC](https://github.com/zabaglione/jr800-web-emulator/wiki/PENALTY-ARC)**<br>キーパーの動きを見て、狙いを定めてシュート。コース・高さ・強さを選ぶ10本のPK勝負。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=penalty-arc) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/PENALTY-ARC) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/rally-return/title.png" width="384" alt="RALLY RETURN のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/RALLY-RETURN) | **[RALLY RETURN](https://github.com/zabaglione/jr800-web-emulator/wiki/RALLY-RETURN)**<br>打点とスピンで返球を変えよう。CPUの守りを崩し、先に5点を奪うパドル勝負。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=rally-return) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/RALLY-RETURN) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/wind-putt/title.png" width="384" alt="WIND PUTT のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/WIND-PUTT) | **[WIND PUTT](https://github.com/zabaglione/jr800-web-emulator/wiki/WIND-PUTT)**<br>風と壁の跳ね返りを読み、カップへ一打。角度と強さを調整して12コースを攻略しよう。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=wind-putt) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/WIND-PUTT) |

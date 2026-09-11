@@ -1,15 +1,13 @@
-# 探索・冒険
+# 探索・冒険（5作品）
 
 [ゲーム一覧へ](https://github.com/zabaglione/jr800-web-emulator/wiki)
 
-未知の場所を調べ、資源を管理して進むゲーム。
+未知の道へ踏み出し、宝や手掛かりを探して帰還を目指そう。
 
-## 収録ゲーム
-
-| タイトル | 系統 | 内容 |
-|---|---|---|
-| [RELAY QUEST](https://github.com/zabaglione/jr800-web-emulator/wiki/RELAY-QUEST) | 定番 | 鍵と回復薬を集め、2基のリレーを回収して遺跡の出口を目指す全12面の探索ゲームです。 |
-| [ECHO CAVERN](https://github.com/zabaglione/jr800-web-emulator/wiki/ECHO-CAVERN) | モダン | 音波で見えない洞窟を調べ、酸素を管理して結晶3個を持ち帰る全12面の探索ゲームです。 |
-| [MICRO ROGUE](https://github.com/zabaglione/jr800-web-emulator/wiki/MICRO-ROGUE) | 定番 | 地形と配置が変わる5階のダンジョンを、装備と回復薬を集めて踏破する小さなローグライクです。 |
-| [SIGNAL GHOST](https://github.com/zabaglione/jr800-web-emulator/wiki/SIGNAL-GHOST) | モダン | 90度ずつ回転する監視カメラを避け、2系統の端末を停止して脱出する全20面の潜入パズルです。 |
-| [RELIC DIVE GFX](https://github.com/zabaglione/jr800-web-emulator/wiki/RELIC-DIVE-GFX) | 定番 | 元のRELIC DIVEのゲーム内容をすべて引き継ぎ、タイトル・冒険者・12種類の敵・品物・石壁・HUDを描き直した独立版です。EASY 5階、NORMAL 10階、HARD 20階のターン制迷宮を探索します。 |
+| タイトル画面 | ゲーム・楽しみ方 |
+| --- | --- |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/echo-cavern/title.png" width="384" alt="ECHO CAVERN のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/ECHO-CAVERN) | **[ECHO CAVERN](https://github.com/zabaglione/jr800-web-emulator/wiki/ECHO-CAVERN)**<br>暗闇へ音波を放ち、進める道を探ろう。残りの酸素を読み、結晶3個を持ち帰る洞窟探検。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=echo-cavern) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/ECHO-CAVERN) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/micro-rogue/title.png" width="384" alt="MICRO ROGUE のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/MICRO-ROGUE) | **[MICRO ROGUE](https://github.com/zabaglione/jr800-web-emulator/wiki/MICRO-ROGUE)**<br>拾った装備と回復薬を頼りに、毎回変わる迷宮へ。5階の踏破を目指す小さなローグライク。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=micro-rogue) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/MICRO-ROGUE) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/relay-quest/title.png" width="384" alt="RELAY QUEST のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/RELAY-QUEST) | **[RELAY QUEST](https://github.com/zabaglione/jr800-web-emulator/wiki/RELAY-QUEST)**<br>鍵と回復薬を探し、遺跡の奥へ。2基のリレーを回収して出口にたどり着こう。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=relay-quest) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/RELAY-QUEST) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/relic-dive-gfx/title.png" width="384" alt="RELIC DIVE GFX のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/RELIC-DIVE-GFX) | **[RELIC DIVE GFX](https://github.com/zabaglione/jr800-web-emulator/wiki/RELIC-DIVE-GFX)**<br>食料を残して先へ進むか、装備を求めて探索するか。最大20階の迷宮で遺物を探す、RELIC DIVEのグラフィック更新版。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=relic-dive-gfx) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/RELIC-DIVE-GFX) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/signal-ghost/title.png" width="384" alt="SIGNAL GHOST のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/SIGNAL-GHOST) | **[SIGNAL GHOST](https://github.com/zabaglione/jr800-web-emulator/wiki/SIGNAL-GHOST)**<br>カメラがこちらを向く前に移動。監視のすき間を抜け、端末を止めて脱出する潜入パズル。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=signal-ghost) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/SIGNAL-GHOST) |

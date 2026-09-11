@@ -3,11 +3,13 @@
 import argparse,json,re,shutil
 from pathlib import Path
 from puzzle_assets import PUZZLES
+from wiki_index import write_index
 root=Path(__file__).resolve().parents[2]
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--live-check',type=Path)
 p.add_argument('--image-revision',default='main',help='Published source revision for immutable screenshot URLs')
 p.add_argument('--game',action='append',help='Update only these game pages and captures')
+p.add_argument('--index-only',action='store_true',help='Update player gallery, genre lists, and controls only')
 a=p.parse_args()
 site='https://zabaglione.github.io/jr800-web-emulator/'
 repo='https://github.com/zabaglione/jr800-web-emulator'
@@ -25,6 +27,11 @@ if a.live_check:
  check=json.loads(a.live_check.read_text())
  if check.get('passed') is not True or check.get('siteUrl')!=site:raise ValueError('A successful public-site check is required')
  verified=set(check['programs'])
+if a.index_only:
+ if a.game:raise ValueError('Choose index-only or selected game pages')
+ write_index(root,games,genres,verified,raw,site,repo)
+ print(f'Generated gallery indexes for {len(games)} games')
+ raise SystemExit(0)
 common=(root/'games/tools/manual-common.md').read_text()
 puzzle_common=(root/'games/tools/manual-puzzle.md').read_text()
 wiki=root/'docs/games/wiki';wiki.mkdir(parents=True,exist_ok=True)
@@ -65,37 +72,13 @@ for game in games:
 if a.game:
  print(f'Generated {len(set(a.game))} selected game pages')
  raise SystemExit(0)
-home=f'# JR-800 ゲームライブラリー\n\n定番とモダンな遊びを組み合わせた**{len(games)}本**のゲームを収録しています。SDKサンプルとは別の独立したゲームで、ゲーム内表示は英語です。\n\n## ジャンルから探す\n\n| ジャンル | 作品数 | 内容 |\n|---|---:|---|\n'
+write_index(root,games,genres,verified,raw,site,repo)
 roadmap='# ゲーム開発一覧\n\n「収録済み」は実装・検証対象の作品です。「制作予定」は未収録で、遊べる作品数には数えません。各作品の公開サイト確認後に起動リンクを掲載します。\n'
-sidebar=f'[ゲーム一覧]({repo}/wiki)\n\n'
 known={g['id'] for g in games}
 for genre in genres:
- working=[g for g in games if g['genre']==genre['id']]
  planned=[g for g in plan['programs'] if g['genre']==genre['id']]
- home+=f'| [{genre["title"]}]({wiki_link(genre_page(genre))}) | {len(working)} | {genre["description"]} |\n'
- sidebar+=f'- [{genre["title"]} ({len(working)})]({wiki_link(genre_page(genre))})\n'
- page=f'# {genre["title"]}\n\n[ゲーム一覧へ]({repo}/wiki)\n\n{genre["description"]}\n\n## 収録ゲーム\n\n'
- if working:
-  page+='| タイトル | 系統 | 内容 |\n|---|---|---|\n'
-  for game in working:
-   manual=json.loads((root/'games'/game['id']/'manual.json').read_text())
-   page+=f'| [{game["title"]}]({wiki_link(game["id"].upper())}) | {style(game)} | {manual["summary"]} |\n'
- else:page+='このジャンルの作品は制作予定です。\n'
- queued=[g for g in planned if g['id'] not in known]
- if queued:
-  page+='\n## 制作予定\n\n'
-  for game in queued:page+=f'- **{game["title"]}** — {game["summary"]}\n'
- (wiki/(genre_page(genre)+'.md')).write_text(page)
  roadmap+=f'\n## {genre["title"]}\n\n| タイトル | 系統 | 状態 | 実装範囲 |\n|---|---|---|---|\n'
  for game in planned:roadmap+=f'| {game["title"]} | {style(game)} | {"収録済み" if game["id"] in known else "制作予定"} | {game["summary"]} |\n'
-home+='\nパズルを中心とした15作品は各40面、合計600面のチャレンジを収録。規定手数・追加目標・3段階評価と、面や全評価を復元するパスワードに対応しています。対象作品と詳しい説明は[パズルチャレンジ]('+wiki_link('Puzzle-Challenges')+')を参照してください。\n'
 (wiki/'Puzzle-Challenges.md').write_text('# パズルチャレンジ\n\n'+puzzle_common+'\n## 対象の15作品\n\n'+'\n'.join('- ['+g['title']+']('+wiki_link(g['id'].upper())+')' for g in games if g['id'] in PUZZLES)+'\n')
-sidebar+='\n[パズルチャレンジ・パスワード]('+wiki_link('Puzzle-Challenges')+')\n'
-home+='\n箱・建物・駒などは陰影や斜めの辺で奥行きを表現し、数字も作品の雰囲気に合わせています。各作品の採用判断とメモリー方針は[奥行きと数字の意匠]('+repo+'/blob/main/docs/games/depth-design.md)にまとめています。\n'
-home+='\n各作品のページに概要・操作・タイトル画面とゲーム中3場面を掲載します。**公開環境で確認済みの作品だけ「遊ぶ」リンクを付けます。** 同じサイト・パスでROMを保存済みなら、リンクからタイトル画面へ直接進めます。初回は手元のBASIC ROMを選び、Start BASICを押してください。\n\n'+common
-(wiki/'Home.md').write_text(home)
-(wiki/'_Sidebar.md').write_text(sidebar)
-source_home=re.sub(re.escape(repo)+r'/wiki/(Genre-[^)]+)',r'wiki/\1.md',home)
-(root/'docs/games/README.md').write_text(source_home)
 (root/'docs/games/roadmap.md').write_text(roadmap)
 print(f'Generated {len(games)} game manuals and {len(genres)} genre pages; {len(verified & known)} verified launch links')

@@ -1,16 +1,14 @@
-# シューティング
+# シューティング（6作品）
 
 [ゲーム一覧へ](https://github.com/zabaglione/jr800-web-emulator/wiki)
 
-射線、照準、弾道を使うゲーム。
+狙いを定めて一発。反射、風、止まる時間を使いこなそう。
 
-## 収録ゲーム
-
-| タイトル | 系統 | 内容 |
-|---|---|---|
-| [STEP STRIKE](https://github.com/zabaglione/jr800-web-emulator/wiki/STEP-STRIKE) | モダン | 移動・射撃・待機のときだけ世界が進む、全40面の戦術パズルです。扉と遮蔽物を使う後半の部屋を追加しています。 |
-| [ARC DUEL](https://github.com/zabaglione/jr800-web-emulator/wiki/ARC-DUEL) | 定番 | 風を読み、地形を削りながらCPUの砲台と戦う弾道対戦です。6種類の地形と3段階の難易度があります。 |
-| [STAR PATROL](https://github.com/zabaglione/jr800-web-emulator/wiki/STAR-PATROL) | 定番 | 移動する敵編隊と敵弾を避けながら撃つ、全12ステージの固定画面シューティングです。 |
-| [ORBIT GUARD](https://github.com/zabaglione/jr800-web-emulator/wiki/ORBIT-GUARD) | モダン | 中央の砲台を8方向へ回し、軌道から近づく敵を迎撃する全12ウェーブの防衛シューティングです。 |
-| [TARGET RANGE](https://github.com/zabaglione/jr800-web-emulator/wiki/TARGET-RANGE) | 定番 | 丸い標的を撃ち、バツ印は見送る、20回の判断で得点を目指す射撃ゲームです。3段階の難易度があります。 |
-| [RICOCHET OPS](https://github.com/zabaglione/jr800-web-emulator/wiki/RICOCHET-OPS) | モダン | 鏡で弾を反射させて標的を撃つ、全40面の射撃パズルです。後半は最大7標的と13枚の鏡を扱います。 |
+| タイトル画面 | ゲーム・楽しみ方 |
+| --- | --- |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/arc-duel/title.png" width="384" alt="ARC DUEL のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/ARC-DUEL) | **[ARC DUEL](https://github.com/zabaglione/jr800-web-emulator/wiki/ARC-DUEL)**<br>山の向こうへ一発。風を読み、地形を削りながら相手の砲台を狙おう。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=arc-duel) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/ARC-DUEL) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/orbit-guard/title.png" width="384" alt="ORBIT GUARD のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/ORBIT-GUARD) | **[ORBIT GUARD](https://github.com/zabaglione/jr800-web-emulator/wiki/ORBIT-GUARD)**<br>敵は周囲からやってくる。中央の砲台を8方向へ回し、迫る波を迎え撃とう。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=orbit-guard) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/ORBIT-GUARD) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/ricochet-ops/title.png" width="384" alt="RICOCHET OPS のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/RICOCHET-OPS) | **[RICOCHET OPS](https://github.com/zabaglione/jr800-web-emulator/wiki/RICOCHET-OPS)**<br>直接届かない標的へ、鏡を使って一発。反射する弾の道筋を組み立てる40面の射撃パズル。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=ricochet-ops) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/RICOCHET-OPS) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/star-patrol/title.png" width="384" alt="STAR PATROL のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/STAR-PATROL) | **[STAR PATROL](https://github.com/zabaglione/jr800-web-emulator/wiki/STAR-PATROL)**<br>敵編隊のすき間を狙って撃ち込もう。敵弾をかわしながら12ステージを突破する宇宙戦。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=star-patrol) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/STAR-PATROL) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/step-strike/title.png" width="384" alt="STEP STRIKE のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/STEP-STRIKE) | **[STEP STRIKE](https://github.com/zabaglione/jr800-web-emulator/wiki/STEP-STRIKE)**<br>あなたが動くと、敵も動く。止まった時間の中で次の一手を考え、射線を切り抜けよう。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=step-strike) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/STEP-STRIKE) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/target-range/title.png" width="384" alt="TARGET RANGE のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/TARGET-RANGE) | **[TARGET RANGE](https://github.com/zabaglione/jr800-web-emulator/wiki/TARGET-RANGE)**<br>丸なら撃つ、バツなら見送る。20回のチャンスで判断の速さと正確さを試そう。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=target-range) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/TARGET-RANGE) |
