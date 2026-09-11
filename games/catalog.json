@@ -180,6 +180,30 @@
       "title": "RIVER HOP",
       "genre": "action",
       "style": "classic"
+    },
+    {
+      "id": "tower-leap",
+      "title": "TOWER LEAP",
+      "genre": "action",
+      "style": "classic"
+    },
+    {
+      "id": "bomb-vault",
+      "title": "BOMB VAULT",
+      "genre": "action",
+      "style": "classic"
+    },
+    {
+      "id": "grid-claim",
+      "title": "GRID CLAIM",
+      "genre": "action",
+      "style": "classic"
+    },
+    {
+      "id": "gravity-run",
+      "title": "GRAVITY RUN",
+      "genre": "action",
+      "style": "modern"
     }
   ]
 }

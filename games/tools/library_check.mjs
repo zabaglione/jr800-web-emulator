@@ -15,6 +15,10 @@ import {checkLuck} from './luck_check.mjs';
 import {checkWall} from './wall_check.mjs';
 import {checkTail} from './tail_check.mjs';
 import {checkMaze} from './maze_check.mjs';
+import {checkGravity} from './gravity_check.mjs';
+import {checkClaim} from './claim_check.mjs';
+import {checkBomb} from './bomb_check.mjs';
+import {checkTower} from './tower_check.mjs';
 import {checkRiver} from './river_check.mjs';
 export async function data(id,name='solutions') {return JSON.parse(await readFile(new URL(`../${id}/${name}.json`,import.meta.url)));}
 export function moveCursor(g,cell,w){
@@ -36,6 +40,10 @@ export async function checkLibrary(g,id){
  if(id==='tail-trail')return checkTail(g);
  if(id==='maze-chase')return checkMaze(g);
  if(id==='river-hop')return checkRiver(g);
+ if(id==='tower-leap')return checkTower(g);
+ if(id==='bomb-vault')return checkBomb(g);
+ if(id==='grid-claim')return checkClaim(g);
+ if(id==='gravity-run')return checkGravity(g);
  if(id==='lamp-grid'){
   const solutions=await data(id);
   for(let stage=0;stage<solutions.length;stage++){

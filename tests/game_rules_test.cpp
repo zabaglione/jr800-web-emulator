@@ -333,5 +333,53 @@ int main(int argc,char** argv){try{
   for(unsigned x=0;x<14;++x){f.fill("river_homes",5,0);f.put("grid_stat",0);f.put("river_lives",5);f.put("river_time",70);f.put("river_score",0);f.put("river_score",0,1);f.put("cursor",x);f.put("phase",2);f.call("river_check");const bool home=x==1||x==4||x==7||x==10||x==12;require(f.get("grid_stat")==static_cast<unsigned>(home?1:0),"Only one of the five home bays accepts a landing");if(home){require(f.get("river_score",1)==170,"New homes score their remaining time once");f.put("cursor",x);f.call("river_check");require(f.get("grid_stat")==1&&f.get("river_lives")==4,"A filled bay cannot score twice");}}
   for(unsigned row:{1,2,4,5})for(unsigned occupied:{0,1}){f.fill("river_lanes",56,occupied);f.put("cursor",row*14+6);f.put("river_lives",5);f.put("phase",2);f.call("river_check");const bool safe=row<3?occupied!=0:occupied==0;require(f.get("river_lives")==static_cast<unsigned>(safe?5:4),"Water requires a log while roads require an empty cell");}
  }
- std::cout<<"PASS: laser cycles, twelve card effects, costs, shield/poison, factory contention/conversion/shipping, crater edges, connect-four windows and tactics, reversi rays, five-stone windows and open ends, hex distance fields, pawn movement boundaries, dot box ownership, pipe loops and leaks, number merges and terminal states, mine first-click safety and flood fill, loop checkpoints and closure, pyramid availability and pairs, golf rank wrapping and coverage, all dice category scores and bonus, risk banking thresholds and limits, brick and paddle contacts, snake boundaries and vacating tail, maze distance fields and ghost contact, river traffic and home bays\n";return 0;
+ {
+  Fixture f(root,"tower-leap");
+  for(unsigned level:{0,1,4,8,11})for(unsigned dx=0;dx<32;++dx)for(unsigned fall=1;fall<=7;++fall){
+   f.fill("tower_platforms",12,12);f.put("tower_platforms",5,level);f.put("tower_x",32+dx);f.put("tower_height",level*16+3);f.put("tower_velocity",256-fall);f.put("tower_camera",0);f.put("tower_lives",3);f.put("tower_highest",0);f.put("tower_checkpoint",0);f.put("tower_grounded",0);f.put("input_held",0);f.put("phase",2);f.call("tower_step");
+   const bool lands=fall>=3&&32+dx+3>=40&&32+dx<64;
+   require((f.get("tower_grounded")!=0)==(lands||(level==0&&fall>3)),"Descending feet cross only overlapping platform tops, with underflow falling back to the checkpoint");
+   if(lands){require(f.get("tower_height")==level*16&&f.get("tower_velocity")==0,"A landing clamps to the platform height");require(f.get("tower_highest")==level&&f.get("tower_checkpoint")==static_cast<unsigned>(level&~3U),"New highest landings update checkpoint floors");require((f.get("phase")==4)==(level==11),"Only the top floor clears the tower");}
+  }
+  f.put("stage",0);f.call("game_start");f.put("tower_x",50);f.put("tower_height",15);f.put("tower_velocity",3);f.put("tower_grounded",0);f.put("tower_camera",0);f.put("input_held",0);f.call("tower_step");require(f.get("tower_height")==18&&f.get("tower_grounded")==0,"Ascending jumps pass through platform undersides");
+  for(unsigned cp:{0,4,8}){f.put("tower_checkpoint",cp);f.put("tower_lives",2);f.call("tower_die");require(f.get("tower_lives")==1&&f.get("tower_height")==cp*16&&f.get("tower_grounded")==1,"A life restores the chosen checkpoint");f.call("tower_die");require(f.get("phase")==5,"The last fall produces failure");}
+ }
+ {
+  Fixture f(root,"bomb-vault");
+  for(unsigned stage=0;stage<12;++stage){f.put("stage",stage);f.call("game_start");unsigned keys=0;for(unsigned p=0;p<105;++p)keys+=f.get("board",p)==4;require(keys==3&&f.get("board",88)==3,"Every vault has three key crates and a separate exit");}
+  for(unsigned origin:{16,22,28,46,52,58,76,82,88})for(int direction:{-15,15,-1,1})for(unsigned distance=1;distance<=3;++distance)for(unsigned crate:{2,4}){
+   for(unsigned p=0;p<105;++p)f.put("board",p/15==0||p/15==6||p%15==0||p%15==14?1:0,p);
+   const int target=static_cast<int>(origin)+direction*static_cast<int>(distance);if(target<=0||target>=104||target/15==0||target/15==6||target%15==0||target%15==14)continue;
+   f.put("board",crate,static_cast<unsigned>(target));f.fill("bomb_flames",105,0);f.put("bomb_cell",origin);f.put("bomb_score",0);f.put("bomb_score",0,1);std::array<unsigned,105> expected{};expected[origin]=1;unsigned destroyed=0;
+   for(int d:{-15,15,-1,1})for(unsigned n=1;n<=3;++n){const int q=static_cast<int>(origin)+d*static_cast<int>(n);const auto p=static_cast<unsigned>(q);if(f.get("board",p)==1)break;expected[p]=1;if(f.get("board",p)==crate){++destroyed;break;}}
+   f.call("bomb_explode");for(unsigned p=0;p<105;++p)require(f.get("bomb_flames",p)==expected[p],"Blast rays stop at the first wall or crate, including screen edges");
+   require(f.get("board",static_cast<unsigned>(target))==(destroyed?(crate==4?5:0):crate),"Crates reveal keys without burning them away");require(f.get("bomb_score",1)==destroyed*30&&f.get("bomb_flame_time")==4&&f.get("bomb_cell")==255,"One blast scores each crate once and enters its bounded flame interval");
+  }
+  f.put("stage",0);f.call("game_start");f.put("bomb_flames",1,49);f.call("bomb_contact");require(f.get("bomb_enemies")==255&&f.get("bomb_score",1)==100,"Flames defeat a patroller once");f.call("bomb_contact");require(f.get("bomb_score",1)==100,"A removed enemy cannot score again");
+  f.put("cursor",88);f.put("grid_stat",1);f.put("phase",2);f.call("bomb_contact");require(f.get("phase")==2,"The exit stays locked while a key remains");f.put("grid_stat",0);f.call("bomb_contact");require(f.get("phase")==4,"Collecting every key unlocks the exit");
+ }
+ {
+  Fixture f(root,"grid-claim");const std::array<unsigned,4> opposite{1,0,3,2};std::uint32_t rng=0x33112244U;
+  const auto next=[](unsigned p,unsigned d){const int x=static_cast<int>(p%16)+(d==2?-1:d==3?1:0),y=static_cast<int>(p/16)+(d==0?-1:d==1?1:0);return x>=0&&x<16&&y>=0&&y<7?static_cast<unsigned>(y*16+x):255U;};
+  for(unsigned sample=0;sample<420;++sample){std::array<unsigned,112> board{};for(unsigned p=0;p<112;++p){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;board[p]=rng%5==0?1:0;f.put("board",board[p],p);}const unsigned enemy=sample%112,dir=sample%4,stage=sample%3,reserved=(sample*13)%113;f.put("claim_enemy",enemy);f.put("claim_cpu_dir",dir);f.put("stage",stage);f.put("claim_player_next",reserved);
+   unsigned best=255,bestDir=dir,bestScore=0;
+   for(unsigned d=0;d<4;++d){const auto n=next(enemy,d);if(d==opposite[dir]||n==255||board[n])continue;unsigned score=1;
+    if(stage==1){score=0;for(unsigned turn=0;turn<4;++turn){const auto q=next(n,turn);if(q!=255&&!board[q])score+=4;}}
+    if(stage==2){std::array<bool,112> seen{};std::vector<unsigned> queue;if(n!=reserved){queue.push_back(n);seen[n]=true;}for(unsigned i=0;i<queue.size();++i)for(unsigned turn=0;turn<4;++turn){const auto q=next(queue[i],turn);if(q!=255&&q!=reserved&&!board[q]&&!seen[q]){seen[q]=true;queue.push_back(q);}}score=static_cast<unsigned>(queue.size())*2;}
+    score+=d==dir?1:0;if(best==255||score>bestScore){best=n;bestDir=d;bestScore=score;}
+   }
+   f.call("claim_ai");require(f.cpu.state().b==best&&f.get("claim_cpu_dir")==bestDir,"All three trail-racing CPU policies match independent legal-turn and flood-fill evaluation");for(unsigned p=0;p<112;++p)require(f.get("board",p)==board[p],"CPU lookahead does not alter the arena");
+  }
+  for(unsigned kind=0;kind<4;++kind){f.fill("board",112,3);f.put("cursor",50);f.put("claim_enemy",52);f.put("claim_queued",3);f.put("claim_cpu_dir",2);f.put("claim_wins",0);f.put("claim_losses",0);f.put("claim_mode",1);f.put("phase",2);f.put("stage",0);if(kind==0||kind==2)f.put("board",0,51);if(kind==1){f.put("claim_enemy",60);f.put("board",0,59);}if(kind==2)f.put("claim_enemy",60);f.call("claim_step");require(f.get("claim_mode")==std::array<unsigned,4>{4,3,2,4}[kind],"Same-cell contact and simultaneous crashes draw, while one-sided crashes award only the opponent");}
+ }
+ {
+  Fixture f(root,"gravity-run");
+  for(unsigned mask=0;mask<32;++mask)for(unsigned row=1;row<=5;++row)for(int direction:{-1,1}){
+   f.put("stage",0);f.call("game_start");f.fill("gravity_course",80,0);f.put("gravity_course",mask,4);f.put("gravity_row",row);f.put("gravity_direction",direction<0?255:1);f.put("phase",2);f.call("gravity_world");const int y=std::clamp(static_cast<int>(row)+direction,1,5);const bool hit=(mask&(1U<<static_cast<unsigned>(y-1)))!=0;
+   require(f.get("gravity_lives")==static_cast<unsigned>(hit?2:3)&&f.get("gravity_row")==static_cast<unsigned>(hit?5:y),"Every five-row obstacle mask uses the clamped gravity destination for contact");require(f.get("gravity_distance")==static_cast<unsigned>(hit?0:1),"A collision returns to the active checkpoint");
+  }
+  f.put("stage",0);f.call("game_start");f.fill("gravity_course",80,0);f.put("gravity_course",4U<<5U,4);f.put("gravity_row",3);f.put("gravity_direction",1);f.call("gravity_world");require(f.get("gravity_stars")==1&&f.get("gravity_score",1)==10,"A star scores exactly ten points");f.put("gravity_distance",0);f.put("gravity_row",3);f.call("gravity_world");require(f.get("gravity_stars")==1&&f.get("gravity_score",1)==10,"A collected star cannot score twice after revisiting");
+  f.put("gravity_distance",31);f.call("gravity_world");require(f.get("gravity_checkpoint")==32,"Crossing the halfway mark activates the checkpoint");f.put("gravity_course",31,36);f.call("gravity_world");require(f.get("gravity_distance")==32&&f.get("gravity_lives")==2,"A later collision respawns at halfway");f.put("gravity_distance",63);f.put("phase",2);f.call("gravity_world");require(f.get("phase")==4&&f.get("gravity_score",1)==110,"The final column awards the completion bonus once");
+ }
+ std::cout<<"PASS: laser cycles, twelve card effects, costs, shield/poison, factory contention/conversion/shipping, crater edges, connect-four windows and tactics, reversi rays, five-stone windows and open ends, hex distance fields, pawn movement boundaries, dot box ownership, pipe loops and leaks, number merges and terminal states, mine first-click safety and flood fill, loop checkpoints and closure, pyramid availability and pairs, golf rank wrapping and coverage, all dice category scores and bonus, risk banking thresholds and limits, brick and paddle contacts, snake boundaries and vacating tail, maze distance fields and ghost contact, river traffic and home bays, tower landings and checkpoints, bomb rays and vault keys, trail racing CPU and simultaneous contacts, gravity masks and unique stars\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -152,6 +152,31 @@ def logo(name,kind):
                 b.rect(x,y,22,8);b.line(x+3,y+3,x+18,y+3)
             for y in (6,27,50):b.line(x,y,x+7,y);b.line(x+12,y+2,x+22,y+2)
         b.line(31,51,68,51);b.line(123,51,160,51);b.rect(88,48,15,5,1,True);b.dot(85,46);b.dot(105,46)
+    elif kind=='tower-leap':
+        for x in (4,166):
+            b.rect(x,5,22,46)
+            for y in (12,25,38):
+                b.line(x,y,x+21,y)
+                for xx in (x+5,x+15):b.line(xx,y-6,xx,y)
+            b.line(x+10,50,x+10,17);b.line(x+10,17,x+5,23);b.line(x+10,17,x+15,23)
+        for x,y in ((32,50),(50,47),(135,47),(153,50)):b.line(x,y,x+9,y)
+    elif kind=='bomb-vault':
+        for x in (4,165):
+            b.rect(x,24,22,23,1,True);b.rect(x+5,19,12,7,1,True);b.line(x+11,19,x+16,9)
+            for dx,dy in ((-5,-2),(5,0),(0,-5)):b.line(x+17,7,x+17+dx,7+dy)
+            b.rect(x+4,29,5,4,0,True)
+        for x in range(29,166,17):b.rect(x,49,13,4)
+    elif kind=='grid-claim':
+        for x in (4,165):
+            pts=[(x,5),(x+19,5),(x+19,23),(x+5,23),(x+5,44),(x+21,44)]
+            for p,q in zip(pts,pts[1:]):b.line(*p,*q);b.line(p[0]+2,p[1]+2,q[0]+2,q[1]+2)
+            b.rect(x+17,40,7,9,1,True)
+        for x in range(30,162,6):b.rect(x,51,3,3,1,True)
+    elif kind=='gravity-run':
+        for x in (6,168):
+            b.line(x+8,5,x+8,48);b.line(x+8,5,x+1,14);b.line(x+8,5,x+15,14);b.line(x+8,48,x+1,39);b.line(x+8,48,x+15,39)
+            for xx in (x-2,x+12):b.line(xx,54,xx+4,49);b.line(xx+4,49,xx+8,54)
+        for x in range(32,160,15):b.line(x,51,x+8,51)
     else:
         raise ValueError('A distinct title motif is required: '+kind)
     for row,word in enumerate(name.split()):
