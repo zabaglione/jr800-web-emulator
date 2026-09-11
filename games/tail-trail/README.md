@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [アクション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Action) · 定番
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/tail-trail)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=tail-trail) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/tail-trail)
 
 ![タイトル画面](../../docs/games/screenshots/tail-trail/title.png)
 
