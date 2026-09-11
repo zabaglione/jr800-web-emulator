@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [経営・シミュレーション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Simulation) · 定番
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/market-harbor)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=market-harbor) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/market-harbor)
 
 ![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/market-harbor/title.png)
 
