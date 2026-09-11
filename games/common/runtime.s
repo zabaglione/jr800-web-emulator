@@ -57,6 +57,9 @@ frame_ready:
     LDAA input_ticks
     STAA frame_tick
 frame_wait:
+; @if ice_route
+    JSR ice_audio
+; @endif
     JSR input_poll
     LDAA input_ticks
     CMPA frame_tick
@@ -391,7 +394,11 @@ win_game:
 ; @if puzzle
     JSR challenge_award
 ; @endif
+; @if ice_route
+    ; ICE ROUTE has already played its clear melody over the solved board.
+; @else
     JSR fanfare
+; @endif
     LDAA #4
     STAA phase
     LDX #result_win

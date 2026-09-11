@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {Game} from './harness.mjs';
+import {iceReady} from './ice_check.mjs';
 import {checkLibrary} from './library_check.mjs';
 import {checkPuzzle,puzzleIds} from './puzzle_check.mjs';
 const [wasm,out,id,mode='test']=process.argv.slice(2);
@@ -19,7 +20,7 @@ if(id==='arc-duel'){
 try{
  await g.save('title');g.frame();assert.equal(g.word('dirty_bytes'),0,'Idle title performs no LCD writes');
  if(mode==='smoke'){
-  await g.start();g.frame();assert.equal(g.word('dirty_bytes'),0,'Idle play');
+  await g.start();if(id==='ice-route')iceReady(g);g.frame();assert.equal(g.word('dirty_bytes'),0,'Idle play');
   g.tap('right');g.tap('space');assert.equal(g.read('phase'),2,'First action remains playable');
   if(g.read('selection_active')){g.tap('return');assert.equal(g.read('selection_active'),0,'RETURN cancels selection');assert.equal(g.read('phase'),2);}
   g.tap('return');assert.equal(g.read('phase'),3,'Menu opens');

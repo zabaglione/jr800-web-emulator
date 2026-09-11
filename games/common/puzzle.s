@@ -134,6 +134,11 @@ challenge_invalidate_done:
     RTS
 ; Small contrasting diamond in the corner of an optional target's first tile.
 challenge_mark_tile:
+; @if ice_route
+    LDAA ice_reveal
+    CMPA #3
+    BCS challenge_mark_done
+; @endif
     LDAB paint_cell
     CMPB challenge_view_cells
     BNE challenge_mark_second
@@ -141,6 +146,11 @@ challenge_mark_tile:
     BITA #1
     BEQ challenge_mark_draw
 challenge_mark_second:
+; @if ice_route
+    LDAA ice_reveal
+    CMPA #4
+    BCS challenge_mark_done
+; @endif
     CMPB challenge_view_cells + 1
     BNE challenge_mark_done
     LDAA challenge_bonus
@@ -152,10 +162,32 @@ challenge_mark_draw:
     ASLA
     ASLA
     ASLA
+; @if ice_route
+    ADDA #VIEW_X + 1
+; @else
     ADDA #VIEW_X + 5
+; @endif
     STAA paint_x
     JSR paint_address
     LDX paint_dest
+; @if ice_route
+    ; Five-column star on clear ice, distinct from the hollow diamond gems.
+    LDAA 0,X
+    EORA #$14
+    STAA 0,X
+    LDAA 1,X
+    EORA #$08
+    STAA 1,X
+    LDAA 2,X
+    EORA #$3E
+    STAA 2,X
+    LDAA 3,X
+    EORA #$08
+    STAA 3,X
+    LDAA 4,X
+    EORA #$14
+    STAA 4,X
+; @else
     LDAA 0,X
     EORA #$40
     STAA 0,X
@@ -165,12 +197,17 @@ challenge_mark_draw:
     LDAA 2,X
     EORA #$40
     STAA 2,X
+; @endif
     LDAA paint_band
     LDAB paint_x
     JSR dirty_mark
     LDAA paint_band
     LDAB paint_x
+; @if ice_route
+    ADDB #4
+; @else
     ADDB #2
+; @endif
     JMP dirty_mark
 challenge_mark_done:
     RTS

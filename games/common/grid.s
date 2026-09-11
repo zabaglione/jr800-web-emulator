@@ -74,10 +74,14 @@ game_tile:
     ADDB grid_subtile
     INCB
     TBA
+; @if ice_route
+    ; The solid skater is an actor, not an inverted selection square.
+; @else
     LDAB grid_cell
     CMPB cursor
     BNE grid_tile_done
     ORAA #128
+; @endif
 grid_tile_done:
     RTS
 grid_blank:

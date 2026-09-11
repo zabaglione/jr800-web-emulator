@@ -2,6 +2,7 @@
 // Independent certificates and real key input validate the JR-800 campaign shell.
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
+import {iceReady,iceSettle,checkIceIntro} from './ice_check.mjs';
 export const puzzleIds=['box-shift','mirror-link','lamp-grid','slide-nine','ice-route','switch-maze','pipe-weave','number-rail','mine-field','loop-trace','knight-tour','peg-rescue','step-strike','ricochet-ops','pocket-factory'];
 function railMove(board,direction){
  const next=[...board];let points=0;
@@ -117,6 +118,7 @@ async function lampRoute(g,stage,route){
 }
 
 async function walkRoute(g,id,stage,route){
+ if(id==='ice-route')iceReady(g);
  const board=stage.initial.board.slice();let p=stage.initial.start,keys=2,gates=0,bonus=0;
  assert.deepEqual(g.read('board',98),board);assert.equal(g.read('cursor'),p);
  for(const key of route){
@@ -134,7 +136,9 @@ async function walkRoute(g,id,stage,route){
    if([4,5].includes(tile))gates^=1<<(tile-4);
    stage.bonus_cells.forEach((cell,i)=>{if(cell===p)bonus|=1<<i;});
   }
-  g.tap(key);assert.equal(g.read('cursor'),p);assert.deepEqual(g.read('board',98),board);
+  const from=g.read('cursor');
+  g.tap(key);if(id==='ice-route')iceSettle(g,from,p,d);
+  assert.equal(g.read('cursor'),p);assert.deepEqual(g.read('board',98),board);
   assert.equal(g.read('grid_stat'),keys);assert.equal(g.read('challenge_bonus'),bonus);
   if(id==='switch-maze')assert.equal(g.read('gates'),gates);
  }
@@ -320,6 +324,7 @@ async function route(g,id,stage,actions){
 }
 
 function firstAction(g,id,stage){
+ if(id==='ice-route')iceReady(g);
  if(id==='lamp-grid'){aim(g,stage.bonus_cells[0],5);g.tap('space');}
  else if(id==='step-strike')tacticalKey(g,stage.normal[0]);
  else if(id==='ricochet-ops')ricoShot(g,stage.bonus[0]);
@@ -347,6 +352,7 @@ export async function checkPuzzle(g,id){
  for(let i=0;i<stages.length;i++){
   g.useLetters=Boolean(i%2);
   const stage=stages[i];if(i)g.tap('space');assert.equal(g.read('stage'),i);assert.equal(g.word('challenge_par'),stage.par);
+  if(id==='ice-route'){if(i===0)await checkIceIntro(g,stage);else iceReady(g);}
   g.frame();assert.equal(g.word('dirty_bytes'),0,'Idle puzzle sends no LCD data');
   if(i===0){
    await g.save('gameplay-1');const board=g.read('board',112);firstAction(g,id,stage);

@@ -7,6 +7,7 @@ root=Path(__file__).resolve().parents[2]
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--live-check',type=Path)
 p.add_argument('--image-revision',default='main',help='Published source revision for immutable screenshot URLs')
+p.add_argument('--game',action='append',help='Update only these game pages and captures')
 a=p.parse_args()
 site='https://zabaglione.github.io/jr800-web-emulator/'
 repo='https://github.com/zabaglione/jr800-web-emulator'
@@ -18,6 +19,7 @@ plan=json.loads((root/'games/roadmap.json').read_text())
 by_genre={g['id']:g for g in genres}
 assert len({g['id'] for g in games})==len(games)
 assert all(g['genre'] in by_genre for g in games)
+if a.game and not set(a.game)<=set(g['id'] for g in games):raise ValueError('Unknown game ID')
 verified=set()
 if a.live_check:
  check=json.loads(a.live_check.read_text())
@@ -31,6 +33,7 @@ def style(g):return '定番' if g['style']=='classic' else 'モダン'
 def wiki_link(name):return repo+'/wiki/'+name
 for game in games:
  ident=game['id'];title=game['title'];genre=by_genre[game['genre']]
+ if a.game and ident not in a.game:continue
  manual=json.loads((root/'games'/ident/'manual.json').read_text())
  source=f'{repo}/tree/main/games/{ident}'
  launch=f'[遊ぶ]({site}?program={ident}) · ' if ident in verified else ''
@@ -38,6 +41,10 @@ for game in games:
  page+=f'![タイトル画面]({raw}/{ident}/title.png)\n\n{manual["summary"]}\n\n## 遊び方\n\n{manual["guide"]}\n\n## ゲーム画面\n\n'
  assert len(manual['captions'])==3
  for i,caption in enumerate(manual['captions'],1):page+=f'![{caption}]({raw}/{ident}/gameplay-{i}.png)\n\n{caption}。\n\n'
+ if 'animation' in manual:
+  animation=manual['animation'];file=animation['file'];caption=animation['caption']
+  assert re.fullmatch(r'[a-z-]+\.gif',file)
+  page+=f'![{caption}]({raw}/{ident}/{file})\n\n{caption}。\n\n'
  if ident in PUZZLES:
   page+=puzzle_common+f'\n![面選択とパスワード]({raw}/{ident}/selection.png)\n\n面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。\n\n'
  page+=common+f'\n## ビルド\n\n```sh\nmake -C games/{ident}\nmake -C games/{ident} test\n```\n\n環境の準備・一括ビルドは[Games README]({repo}/tree/main/games)を参照してください。画像とマップを含む新規制作物はMIT Licenseです。\n'
@@ -49,6 +56,13 @@ for game in games:
    image=name+suffix+'.png';src=root/'build/games'/ident/image
    if src.exists():shutil.copyfile(src,dest/image)
    elif not (dest/image).exists():raise FileNotFoundError(f'Capture actual gameplay first: {ident}/{image}')
+ if 'animation' in manual:
+  file=manual['animation']['file'];src=root/'build/games'/ident/file
+  if src.exists():shutil.copyfile(src,dest/file)
+  elif not (dest/file).exists():raise FileNotFoundError(f'Capture actual gameplay first: {ident}/{file}')
+if a.game:
+ print(f'Generated {len(set(a.game))} selected game pages')
+ raise SystemExit(0)
 home=f'# JR-800 ゲームライブラリー\n\n定番とモダンな遊びを組み合わせた**{len(games)}本**のゲームを収録しています。SDKサンプルとは別の独立したゲームで、ゲーム内表示は英語です。\n\n## ジャンルから探す\n\n| ジャンル | 作品数 | 内容 |\n|---|---:|---|\n'
 roadmap='# 50本の開発一覧\n\n「収録済み」は実装・検証対象の作品です。「制作予定」は未収録で、遊べる作品数には数えません。各作品の公開サイト確認後に起動リンクを掲載します。\n'
 sidebar=f'[ゲーム一覧]({repo}/wiki)\n\n'
