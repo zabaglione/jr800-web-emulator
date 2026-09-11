@@ -15,6 +15,11 @@ import {checkLuck} from './luck_check.mjs';
 import {checkWall} from './wall_check.mjs';
 import {checkTail} from './tail_check.mjs';
 import {checkMaze} from './maze_check.mjs';
+import {checkDock} from './dock_check.mjs';
+import {checkBeat} from './beat_check.mjs';
+import {checkPenalty} from './penalty_check.mjs';
+import {checkRally} from './rally_check.mjs';
+import {checkPutt} from './putt_check.mjs';
 import {checkMarket} from './market_check.mjs';
 import {checkOrchard} from './orchard_check.mjs';
 import {checkDispatch} from './dispatch_check.mjs';
@@ -66,6 +71,11 @@ export async function checkLibrary(g,id){
  if(id==='rail-dispatch')return checkDispatch(g);
  if(id==='orchard-days')return checkOrchard(g);
  if(id==='market-harbor')return checkMarket(g);
+ if(id==='wind-putt')return checkPutt(g);
+ if(id==='rally-return')return checkRally(g);
+ if(id==='penalty-arc')return checkPenalty(g);
+ if(id==='beat-step')return checkBeat(g);
+ if(id==='balance-dock')return checkDock(g);
  if(id==='lamp-grid'){
   const solutions=await data(id);
   for(let stage=0;stage<solutions.length;stage++){

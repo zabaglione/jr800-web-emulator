@@ -1,19 +1,19 @@
 # JR-800 ゲームライブラリー
 
-定番とモダンな遊びを組み合わせ、**50本**を目標に開発しています。現在の収録は**45本**です。SDKサンプルとは別の独立したゲームで、ゲーム内表示は英語です。
+定番とモダンな遊びを組み合わせた**50本**のゲームを収録しています。SDKサンプルとは別の独立したゲームで、ゲーム内表示は英語です。
 
 ## ジャンルから探す
 
-| ジャンル | 収録 / 予定 | 内容 |
+| ジャンル | 作品数 | 内容 |
 |---|---:|---|
-| [パズル・論理](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Logic) | 10 / 10 | 盤面を読み、手順や配置を考えるゲーム。 |
-| [盤上戦略](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Board) | 8 / 8 | 定番の盤上遊戯と、一手ずつ考える対戦。 |
-| [カード・ダイス](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Cards) | 5 / 5 | 手札、確率、リスクと報酬を使うゲーム。 |
-| [アクション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Action) | 8 / 8 | 移動、回避、ジャンプと空間の判断。 |
-| [シューティング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting) | 6 / 6 | 射線、照準、弾道を使うゲーム。 |
-| [探索・冒険](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Adventure) | 4 / 4 | 未知の場所を調べ、資源を管理して進むゲーム。 |
-| [経営・シミュレーション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Simulation) | 4 / 4 | 配置や運用を工夫して目標を達成するゲーム。 |
-| [スポーツ・タイミング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Sports) | 0 / 5 | 角度、反応、間合いとタイミングを競うゲーム。 |
+| [パズル・論理](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Logic) | 10 | 盤面を読み、手順や配置を考えるゲーム。 |
+| [盤上戦略](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Board) | 8 | 定番の盤上遊戯と、一手ずつ考える対戦。 |
+| [カード・ダイス](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Cards) | 5 | 手札、確率、リスクと報酬を使うゲーム。 |
+| [アクション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Action) | 8 | 移動、回避、ジャンプと空間の判断。 |
+| [シューティング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting) | 6 | 射線、照準、弾道を使うゲーム。 |
+| [探索・冒険](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Adventure) | 4 | 未知の場所を調べ、資源を管理して進むゲーム。 |
+| [経営・シミュレーション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Simulation) | 4 | 配置や運用を工夫して目標を達成するゲーム。 |
+| [スポーツ・タイミング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Sports) | 5 | 角度、反応、間合いとタイミングを競うゲーム。 |
 
 各作品のページに概要・操作・タイトル画面とゲーム中3場面を掲載します。**公開環境で確認済みの作品だけ「遊ぶ」リンクを付けます。** 同じサイト・パスでROMを保存済みなら、リンクからタイトル画面へ直接進めます。初回は手元のBASIC ROMを選び、Start BASICを押してください。
 

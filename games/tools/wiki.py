@@ -43,14 +43,14 @@ for game in games:
    image=name+suffix+'.png';src=root/'build/games'/ident/image
    if src.exists():shutil.copyfile(src,dest/image)
    elif not (dest/image).exists():raise FileNotFoundError(f'Capture actual gameplay first: {ident}/{image}')
-home=f'# JR-800 ゲームライブラリー\n\n定番とモダンな遊びを組み合わせ、**50本**を目標に開発しています。現在の収録は**{len(games)}本**です。SDKサンプルとは別の独立したゲームで、ゲーム内表示は英語です。\n\n## ジャンルから探す\n\n| ジャンル | 収録 / 予定 | 内容 |\n|---|---:|---|\n'
+home=f'# JR-800 ゲームライブラリー\n\n定番とモダンな遊びを組み合わせた**{len(games)}本**のゲームを収録しています。SDKサンプルとは別の独立したゲームで、ゲーム内表示は英語です。\n\n## ジャンルから探す\n\n| ジャンル | 作品数 | 内容 |\n|---|---:|---|\n'
 roadmap='# 50本の開発一覧\n\n「収録済み」は実装・検証対象の作品です。「制作予定」は未収録で、遊べる作品数には数えません。各作品の公開サイト確認後に起動リンクを掲載します。\n'
 sidebar=f'[ゲーム一覧]({repo}/wiki)\n\n'
 known={g['id'] for g in games}
 for genre in genres:
  working=[g for g in games if g['genre']==genre['id']]
  planned=[g for g in plan['programs'] if g['genre']==genre['id']]
- home+=f'| [{genre["title"]}]({wiki_link(genre_page(genre))}) | {len(working)} / {len(planned)} | {genre["description"]} |\n'
+ home+=f'| [{genre["title"]}]({wiki_link(genre_page(genre))}) | {len(working)} | {genre["description"]} |\n'
  sidebar+=f'- [{genre["title"]} ({len(working)})]({wiki_link(genre_page(genre))})\n'
  page=f'# {genre["title"]}\n\n[ゲーム一覧へ]({repo}/wiki)\n\n{genre["description"]}\n\n## 収録ゲーム\n\n'
  if working:

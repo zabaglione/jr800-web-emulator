@@ -270,6 +270,36 @@
       "title": "MARKET HARBOR",
       "genre": "simulation",
       "style": "classic"
+    },
+    {
+      "id": "wind-putt",
+      "title": "WIND PUTT",
+      "genre": "sports",
+      "style": "classic"
+    },
+    {
+      "id": "rally-return",
+      "title": "RALLY RETURN",
+      "genre": "sports",
+      "style": "classic"
+    },
+    {
+      "id": "penalty-arc",
+      "title": "PENALTY ARC",
+      "genre": "sports",
+      "style": "classic"
+    },
+    {
+      "id": "beat-step",
+      "title": "BEAT STEP",
+      "genre": "sports",
+      "style": "modern"
+    },
+    {
+      "id": "balance-dock",
+      "title": "BALANCE DOCK",
+      "genre": "sports",
+      "style": "modern"
     }
   ]
 }

@@ -23,7 +23,7 @@ make -C games/box-shift clean
 
 ## ジャンルから探す
 
-既存6本を含めて計50本を目標に開発しています。動作確認済みの収録作品と制作予定は、[ジャンル別ゲーム一覧](../docs/games/README.md)と[開発一覧](../docs/games/roadmap.md)で区別しています。
+既存6本を含めて計50本を収録しています。作品の概要とジャンルは、[ジャンル別ゲーム一覧](../docs/games/README.md)と[開発一覧](../docs/games/roadmap.md)で確認できます。
 
 - [パズル](../docs/games/wiki/Genre-Logic.md)
 - [盤上戦略](../docs/games/wiki/Genre-Board.md)

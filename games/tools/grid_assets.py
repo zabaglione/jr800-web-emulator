@@ -244,6 +244,42 @@ def logo(name,kind):
             b.line(x+10,7,x+10,31);b.line(x+10,8,x+20,27);b.line(x+20,27,x+10,27)
             for y in (46,51):b.line(x,y,x+7,y-2);b.line(x+7,y-2,x+15,y);b.line(x+15,y,x+22,y-2)
         for x in (31,146):b.rect(x,46,14,7);b.line(x+3,47,x+11,51)
+    elif kind=='wind-putt':
+        for x in (11,173):
+            b.line(x,6,x,39);b.line(x,6,x+12,11);b.line(x+12,11,x,17)
+            b.rect(x-5,38,13,5);b.line(x-6,44,x+9,44)
+        for x,y in ((29,49),(39,45),(48,39),(149,38),(158,44)):
+            b.rect(x,y,3,3,1,True)
+        b.line(18,52,30,30);b.line(16,52,26,53);b.line(26,53,28,50)
+    elif kind=='rally-return':
+        for x,y in ((15,15),(174,36)):
+            for yy in range(-9,10):
+                for xx in range(-7,8):
+                    if xx*xx*2+yy*yy<=82 and (xx*xx*2+yy*yy>=52 or (xx+yy)%4==0):b.dot(x+xx,y+yy)
+            b.line(x-2,y+9,x-6,y+19);b.line(x+1,y+9,x-3,y+20);b.line(x-6,y+19,x-3,y+20)
+        for x,y in ((30,7),(37,5),(151,49),(158,47)):b.rect(x,y,3,3,1,True)
+        b.line(3,51,35,51);b.line(154,3,188,3)
+    elif kind=='penalty-arc':
+        for x in (4,172):
+            b.rect(x,9,15,33)
+            for y in range(14,42,6):b.line(x,y,x+14,y)
+            for X in range(x+4,x+15,5):b.line(X,10,X,41)
+        for x,y in ((26,44),(161,46)):
+            for yy in range(-5,6):
+                for xx in range(-5,6):
+                    if xx*xx+yy*yy<=25 and (xx*xx+yy*yy>=14 or abs(xx)+abs(yy)<3):b.dot(x+xx,y+yy)
+        b.line(3,50,35,50);b.line(155,51,188,51)
+    elif kind=='beat-step':
+        for x in (11,29,161,179):
+            b.line(x,8,x,45);b.line(x-6,15,x,8);b.line(x+6,15,x,8)
+            b.rect(x-5,34,11,8)
+        for x in range(5,187,8):b.line(x,49,x+4,49)
+        for x,y in ((17,24),(174,23)):b.rect(x-4,y-4,9,9);b.rect(x-1,y-1,3,3,1,True)
+    elif kind=='balance-dock':
+        b.line(7,6,7,49);b.line(7,6,31,6);b.line(7,7,26,26);b.line(26,6,26,20);b.line(22,20,30,20)
+        for x,y,w in ((4,45,21),(9,34,18),(157,44,30),(161,32,22),(165,20,15)):
+            b.rect(x,y,w,10);b.line(x+3,y+2,x+w-4,y+7);b.line(x+w-4,y+2,x+3,y+7)
+        b.line(3,53,39,53);b.line(151,55,188,55)
     else:
         raise ValueError('A distinct title motif is required: '+kind)
     for row,word in enumerate(name.split()):
