@@ -31,6 +31,7 @@
                 </div>
             </header>
         <article id="lcd-panel-card" class="panel lcd-panel-card" aria-label="LCD">
+            <p id="screen-activation-hint" class="screen-activation-hint" role="status" hidden>Click the screen to start playing.</p>
             <div class="lcd-display-frame">
                 <aside class="lcd-indicator-rail lcd-page-rail" aria-label="Page indicators">
                     <p class="lcd-rail-title">PAGE</p>
@@ -46,7 +47,7 @@
                     </ol>
                 </aside>
                 <div class="lcd-matrix-well">
-                    <canvas id="lcd-panel" class="lcd-canvas" width="192" height="64" role="img" aria-describedby="lcd-summary lcd-indicator-summary">Canvas support is required to render the LCD matrix.</canvas>
+                    <canvas id="lcd-panel" class="lcd-canvas" width="192" height="64" role="img" tabindex="0" aria-describedby="lcd-summary lcd-indicator-summary">Canvas support is required to render the LCD matrix.</canvas>
                 </div>
                 <aside class="lcd-indicator-rail lcd-mode-rail" aria-label="Mode indicators">
                     <ul class="lcd-indicator-list">

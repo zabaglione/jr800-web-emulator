@@ -242,6 +242,18 @@ main { width: min(1440px, calc(100% - 2.5rem)); margin: 1.25rem auto 3rem; }
 .panel-caveat { max-width: 58rem; margin: 0.7rem 0 0; color: var(--muted); font-size: 0.76rem; line-height: 1.5; }
 /* Host LCD appearance: reflective surface with dark, separate dots. */
 .lcd-panel-card { container-type: inline-size; --lcd-surface: #bbbfaf; --lcd-ink: #4d554d; --lcd-off-ink: #b1b5a8; }
+.screen-activation-hint {
+    margin: 0 0 0.7rem;
+    padding: 0.6rem 0.8rem;
+    border-left: 3px solid var(--accent-strong);
+    border-radius: 0.2rem;
+    background: #e8eee5;
+    color: #243b2f;
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+.lcd-canvas:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 2px; }
 .lcd-display-frame {
     --lcd-legend-width: clamp(2rem, 8cqw, 6.5rem);
     --lcd-marker-width: clamp(0.75rem, 3cqw, 2.4rem);

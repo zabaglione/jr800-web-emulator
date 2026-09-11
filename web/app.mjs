@@ -191,7 +191,7 @@ const elements = Object.fromEntries(
         "trace-first-address", "trace-last-address", "trace-kind",
         "apply-trace-filter",
         "machine-console", "layout-workbench", "layout-device",
-        "lcd-panel-card", "lcd-panel", "lcd-summary", "lcd-indicator-summary",
+        "lcd-panel-card", "lcd-panel", "screen-activation-hint", "lcd-summary", "lcd-indicator-summary",
         "lcd-appearance-reset", "lcd-appearance-note",
         "virtual-keyboard-card", "virtual-keyboard-summary", "force-power-off",
         "keyboard-address", "keyboard-value", "keyboard-known",
@@ -335,12 +335,23 @@ function updateSoundToggle() {
     );
 }
 
+function updateScreenActivationHint() {
+    const audioNeedsActivation = audioOutput.enabled
+        && audioOutput.context?.state !== "running";
+    elements["screen-activation-hint"].hidden = !loaded || machineKind !== "jr800"
+        || (!audioNeedsActivation && !hostKeyboardTargetIsInteractive(document.activeElement));
+}
+
 async function activateAudio() {
-    if (!audioOutput.enabled || !await audioOutput.activate()) {
-        return;
-    }
-    if (initialized) {
-        await client.request("set-audio-enabled", {enabled: true});
+    try {
+        if (!audioOutput.enabled || !await audioOutput.activate()) {
+            return;
+        }
+        if (initialized) {
+            await client.request("set-audio-enabled", {enabled: true});
+        }
+    } finally {
+        updateScreenActivationHint();
     }
 }
 
@@ -493,6 +504,7 @@ function releaseAllVirtualKeys(sendToMachine = true) {
 }
 
 function setControls() {
+    updateScreenActivationHint();
     elements["machine-state-save"].disabled = !loaded || machineKind !== "jr800";
     elements["machine-state-restore"].disabled = !loaded || machineKind !== "jr800";
     elements.load.disabled = !initialized || running || romOperationPending;
@@ -2275,6 +2287,10 @@ document.addEventListener("keyup", (event) => {
     sendVirtualKeyboardTransition(transition);
 });
 
+elements["lcd-panel"].addEventListener("pointerdown", () => {
+    elements["lcd-panel"].focus({preventScroll: true});
+});
+document.addEventListener("focusin", updateScreenActivationHint);
 window.addEventListener("blur", () => releaseAllVirtualKeys());
 document.addEventListener("pointerdown", () => {
     void activateAudio();

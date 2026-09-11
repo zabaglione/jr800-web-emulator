@@ -41,7 +41,19 @@ const {chromium}=require('playwright');
    const dots=await page.locator('#lcd-panel').evaluate(canvas=>{const {width:w,height:h}=canvas,data=canvas.getContext('2d').getImageData(0,0,w,h).data;return Array.from({length:12288},(_,i)=>data[(Math.floor((Math.floor(i/192)+.5)*h/64)*w+Math.floor((i%192+.5)*w/192))*4]<120?1:0);});
    assert.deepEqual(dots,Array.from({length:12288},(_,i)=>(art[(Math.floor(i/192)>>3)*192+i%192]>>(Math.floor(i/192)&7))&1),`${program.id} automatic title pixels`);
    await fs.writeFile(path.join(output,program.id+'-title.png'),await screen());
-   await page.locator('#lcd-panel').click();await page.keyboard.down('Space');await page.waitForTimeout(80);await page.keyboard.up('Space');
+   const activationHint=page.locator('#screen-activation-hint');
+   assert.equal(await activationHint.isVisible(),true,`${program.id} initial activation hint`);
+   if(program.id==='box-shift'){
+    await page.locator('#language-toggle').click();
+    assert.equal(await activationHint.textContent(),'画面をマウスでクリックしてください');
+    assert.equal(await activationHint.isVisible(),true,'Focused UI button keeps keyboard activation hint visible');
+    await page.locator('#lcd-panel-card').screenshot({path:path.join(output,'screen-activation-hint-ja.png')});
+    await page.locator('#language-toggle').click();
+   }
+   await page.locator('#lcd-panel').click();
+   await page.waitForFunction(()=>document.querySelector('#screen-activation-hint').hidden);
+   assert.equal(await page.evaluate(()=>document.activeElement.id),'lcd-panel');
+   await page.keyboard.down('Space');await page.waitForTimeout(80);await page.keyboard.up('Space');
    await page.waitForFunction(art=>{const c=document.querySelector('#lcd-panel'),p=c.getContext('2d').getImageData(0,0,c.width,c.height).data;for(let y=0;y<64;y++)for(let x=0;x<192;x++){const ink=p[(Math.floor((y+.5)*c.height/64)*c.width+Math.floor((x+.5)*c.width/192))*4]<120;if(ink!==Boolean(art[(y>>3)*192+x]>>(y&7)&1))return true;}return false;},art);
    await page.waitForTimeout(180);
    const button=page.locator('[data-jr800-key="space"]');await button.scrollIntoViewIfNeeded();await button.click({delay:140});
@@ -55,7 +67,7 @@ const {chromium}=require('playwright');
   await page.route('**/box-shift.j8a',r=>r.fulfill({body:Buffer.of(1,2,3)}));
   await page.goto(url+'?program=box-shift');await page.waitForFunction(()=>document.querySelector('#status').dataset.tone==='error');assert.match(await page.locator('#program-launch-status').textContent(),/integrity/);
   assert.deepEqual(errors,[]);assert.ok(requests.every(r=>r.method==='GET'));assert.ok(!requests.some(r=>/\.(rom|j8r)(\?|$)/.test(r.url)));
-  const result={passed:true,siteUrl:url,programs:catalog.programs.map(p=>p.id),ownerRom:Boolean(process.env.JR800_GAME_ROM),firstRomSetup:true,savedRomLaunch:true,titlePixels:true,physicalKeys:true,virtualKeys:true,audioScheduled:true,reload:true,ordinaryVisit:true,unknownId:true,integrityFailure:true,romStaysLocal:true};
+  const result={passed:true,siteUrl:url,programs:catalog.programs.map(p=>p.id),ownerRom:Boolean(process.env.JR800_GAME_ROM),firstRomSetup:true,savedRomLaunch:true,titlePixels:true,physicalKeys:true,virtualKeys:true,audioScheduled:true,activationHint:true,japaneseActivationHint:true,screenFocus:true,reload:true,ordinaryVisit:true,unknownId:true,integrityFailure:true,romStaysLocal:true};
   await fs.writeFile(path.join(output,'verification.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));
  }finally{await browser?.close();await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exitCode=1;});
