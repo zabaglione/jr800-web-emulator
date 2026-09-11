@@ -129,6 +129,29 @@ def logo(name,kind):
             for y in (39,32,25):b.rect(x,y,21,9);b.line(x+3,y+3,x+17,y+3)
             b.line(x+3,19,x+17,19);b.line(x+10,6,x+10,19);b.line(x+10,6,x+4,12);b.line(x+10,6,x+16,12)
         b.line(27,51,164,51);b.line(30,48,30,54);b.line(161,48,161,54)
+    elif kind=='wall-break':
+        for x in (4,166):
+            for y in (5,14,23,32):
+                b.rect(x,y,22,7);b.line(x+11,y,x+11,y+6)
+        b.line(28,50,62,50);b.rect(80,46,31,5,1,True);b.line(124,50,160,50);b.rect(24,42,4,4,1,True);b.rect(163,43,4,4,1,True)
+    elif kind=='tail-trail':
+        for x in (5,165):
+            pts=[(x,6),(x+15,6),(x+15,19),(x+3,19),(x+3,34),(x+15,34),(x+15,48)]
+            for p,q in zip(pts,pts[1:]):b.line(*p,*q)
+            for p,q in zip(pts,pts[1:]):b.line(p[0]+3,p[1]+3,q[0]+3,q[1]+3)
+            b.rect(x+11,45,9,8,1,True);b.dot(x+13,48,0);b.dot(x+17,48,0)
+        for x in (32,151):b.line(x-3,48,x+3,48);b.line(x,45,x,51)
+    elif kind=='maze-chase':
+        for x in (4,167):
+            b.rect(x,5,20,43);b.line(x,18,x+13,18);b.line(x+7,31,x+20,31);b.line(x+7,31,x+7,42)
+            for y in (11,24,38):b.rect(x+3,y,2,2,1,True)
+        for x in range(32,162,10):b.rect(x,51,2,2,1,True)
+    elif kind=='river-hop':
+        for x in (4,165):
+            for y in (11,36):
+                b.rect(x,y,22,8);b.line(x+3,y+3,x+18,y+3)
+            for y in (6,27,50):b.line(x,y,x+7,y);b.line(x+12,y+2,x+22,y+2)
+        b.line(31,51,68,51);b.line(123,51,160,51);b.rect(88,48,15,5,1,True);b.dot(85,46);b.dot(105,46)
     else:
         raise ValueError('A distinct title motif is required: '+kind)
     for row,word in enumerate(name.split()):

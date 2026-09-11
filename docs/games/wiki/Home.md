@@ -1,6 +1,6 @@
 # JR-800 ゲームライブラリー
 
-定番とモダンな遊びを組み合わせ、**50本**を目標に開発しています。現在の収録は**26本**です。SDKサンプルとは別の独立したゲームで、ゲーム内表示は英語です。
+定番とモダンな遊びを組み合わせ、**50本**を目標に開発しています。現在の収録は**30本**です。SDKサンプルとは別の独立したゲームで、ゲーム内表示は英語です。
 
 ## ジャンルから探す
 
@@ -9,7 +9,7 @@
 | [パズル・論理](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Logic) | 10 / 10 | 盤面を読み、手順や配置を考えるゲーム。 |
 | [盤上戦略](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Board) | 8 / 8 | 定番の盤上遊戯と、一手ずつ考える対戦。 |
 | [カード・ダイス](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Cards) | 5 / 5 | 手札、確率、リスクと報酬を使うゲーム。 |
-| [アクション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Action) | 0 / 8 | 移動、回避、ジャンプと空間の判断。 |
+| [アクション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Action) | 4 / 8 | 移動、回避、ジャンプと空間の判断。 |
 | [シューティング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting) | 2 / 6 | 射線、照準、弾道を使うゲーム。 |
 | [探索・冒険](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Adventure) | 0 / 4 | 未知の場所を調べ、資源を管理して進むゲーム。 |
 | [経営・シミュレーション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Simulation) | 1 / 4 | 配置や運用を工夫して目標を達成するゲーム。 |

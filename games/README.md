@@ -36,6 +36,8 @@ make -C games/box-shift clean
 
 一括実行は `make -C games`、`make -C games test`、`make -C games run`、`make -C games debug`、`make -C games clean` です。
 
+DebugとReleaseのWebビルドは `build/games` を共用するため、同じ作業フォルダーでは順番に実行してください。
+
 WASM環境の準備は次のとおりです。
 
 ```sh

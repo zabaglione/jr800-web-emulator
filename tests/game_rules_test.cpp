@@ -34,7 +34,7 @@ struct Fixture {
  void put(const std::string& n,std::uint8_t v,unsigned offset=0){const std::array<std::uint8_t,1> a{v};require(bus.host_load_ram(symbols.at(n)+offset,a)==Jr800MemoryStatus::ok,"Fixture write");}
  std::uint8_t get(const std::string& n,unsigned offset=0){auto r=bus.inspect8(symbols.at(n)+offset);require(r.succeeded(),"Inspect");return *r.value;}
  void fill(const std::string& n,unsigned count,std::uint8_t v){require(bus.host_fill_ram(symbols.at(n),count,v)==Jr800MemoryStatus::ok,"Fill");}
- void call(const std::string& n,std::uint8_t b=0){const auto addr=symbols.at(n);const std::array<std::uint8_t,5> driver{0xc6,b,0xbd,static_cast<std::uint8_t>(addr>>8),static_cast<std::uint8_t>(addr)};require(bus.host_load_ram(0x2000,driver)==Jr800MemoryStatus::ok,"Driver");cpu.initialize(jr800::isa::CpuProfile::hd6301v1,0x2000,0x5fff);unsigned steps=0;while(cpu.state().pc!=0x2005&&steps++<300000){bus.set_instruction_context(cpu.state().cycle_count,cpu.state().pc);auto r=cpu.step_instruction(bus);require(r.succeeded(),"CPU at "+std::to_string(r.pc_before));}require(cpu.state().pc==0x2005&&cpu.state().sp==0x5fff,"Bounded routine and balanced stack");}
+ void call(const std::string& n,std::uint8_t b=0,std::uint8_t a=0){const auto addr=symbols.at(n);const std::array<std::uint8_t,7> driver{0x86,a,0xc6,b,0xbd,static_cast<std::uint8_t>(addr>>8),static_cast<std::uint8_t>(addr)};require(bus.host_load_ram(0x2000,driver)==Jr800MemoryStatus::ok,"Driver");cpu.initialize(jr800::isa::CpuProfile::hd6301v1,0x2000,0x5fff);unsigned steps=0;while(cpu.state().pc!=0x2007&&steps++<300000){bus.set_instruction_context(cpu.state().cycle_count,cpu.state().pc);auto r=cpu.step_instruction(bus);require(r.succeeded(),"CPU at "+std::to_string(r.pc_before));}require(cpu.state().pc==0x2007&&cpu.state().sp==0x5fff,"Bounded routine and balanced stack");}
 };
 int main(int argc,char** argv){try{
  require(argc==2,"Usage: game_rules_test root");const std::string root=argv[1];
@@ -277,5 +277,61 @@ int main(int argc,char** argv){try{
   f.put("luck_side",0);f.put("luck_scores",250);f.put("luck_pot",20);f.put("phase",2);f.call("luck_bank");require(f.get("luck_scores")==255,"A large bank saturates instead of wrapping");
   f.put("luck_side",0);f.put("luck_pot",0);f.put("phase",2);f.call("luck_bank");require(f.get("luck_side")==0&&f.get("phase")==2,"Banking an empty pot does not skip a turn");
  }
- std::cout<<"PASS: laser cycles, twelve card effects, costs, shield/poison, factory contention/conversion/shipping, crater edges, connect-four windows and tactics, reversi rays, five-stone windows and open ends, hex distance fields, pawn movement boundaries, dot box ownership, pipe loops and leaks, number merges and terminal states, mine first-click safety and flood fill, loop checkpoints and closure, pyramid availability and pairs, golf rank wrapping and coverage, all dice category scores and bonus, risk banking thresholds and limits\n";return 0;
+ {
+  Fixture f(root,"wall-break");
+  for(unsigned row=0;row<3;++row)for(unsigned col=0;col<8;++col)for(unsigned life:{1,2}){
+   f.fill("wall_board",24,0);f.put("wall_board",life,row*8+col);f.put("wall_left",1);f.put("wall_score",0);f.put("wall_score",0,1);f.put("phase",2);f.put("wall_x",col*16+7);f.put("wall_y",row*8+15);f.put("wall_dx",1);f.put("wall_dy",255);f.put("wall_paddle",52);f.call("wall_step");
+   require(f.get("wall_board",row*8+col)==life-1,"A vertical contact reduces one brick hit point");require(f.get("wall_score",1)==10,"Every brick contact scores ten");require(f.get("wall_dy")==1,"Brick contact reverses vertical velocity");
+  }
+  for(unsigned x:{0,7,8,120,127,128,250})for(unsigned y:{0,7,8,15,16,63,64})for(unsigned w:{0,1,2,22,255})for(unsigned h:{0,1,2,255}){
+   f.fill("tile_cache",112,0);f.put("clear_chunks",165);f.put("scene_w",w);f.put("scene_h",h);f.call("scene_rect",y,x);
+   for(unsigned p=0;p<112;++p){const unsigned tx=(p%16)*8,ty=(p/16+1)*8;const bool touched=w&&h&&tx<x+w&&tx+8>x&&ty<y+h&&ty+8>y;
+    require(f.get("tile_cache",p)==(touched?255:0),"Moving-object invalidation clips exactly to intersecting playfield tiles");}
+   require(f.get("clear_chunks")==165,"Rectangle invalidation cannot overwrite the next state byte");
+  }
+  for(unsigned x:{0,47,48,95,96,127,128})for(unsigned y:{7,8,15,16,63,64}){
+   f.fill("framebuffer",1536,0);f.call("scene_pixel",y,x);
+   for(unsigned i=0;i<1536;++i){const unsigned expected=x<128&&y>=8&&y<64&&i==(y/8)*192+x?(1U<<(y%8)):0;require(f.get("framebuffer",i)==expected,"Sprite pixels clip at the top, bottom and HUD without crossing LCD bands");}
+  }
+  f.fill("wall_board",24,0);f.put("wall_x",1);f.put("wall_y",40);f.put("wall_dx",255);f.put("wall_dy",1);f.call("wall_step");require(f.get("wall_x")==1&&f.get("wall_dx")==1,"Left edge reflects without leaving the playfield");
+  f.put("wall_x",125);f.put("wall_dx",1);f.call("wall_step");require(f.get("wall_x")==125&&f.get("wall_dx")==255,"Right edge reflects without entering the HUD");
+  for(unsigned x=39;x<65;++x){f.put("wall_x",x);f.put("wall_y",58);f.put("wall_dx",0);f.put("wall_dy",1);f.put("wall_paddle",40);f.call("wall_step");const bool catchBall=x+1>=40&&x+1<62;require((f.get("wall_dy")==255)==catchBall,"Paddle collision includes exactly its horizontal span");}
+ }
+ {
+  Fixture f(root,"tail-trail");
+  for(unsigned cell=0;cell<98;++cell)for(unsigned direction=0;direction<4;++direction){
+   f.fill("board",98,0);f.put("board",1,cell);f.put("tail_body",cell);f.put("tail_length",1);f.put("tail_queued",direction);f.put("cursor",cell);f.put("tail_food",255);f.put("phase",2);
+   const int x=static_cast<int>(cell%14)+(direction==2?-1:direction==3?1:0),y=static_cast<int>(cell/14)+(direction==0?-1:direction==1?1:0);const bool valid=x>=0&&x<14&&y>=0&&y<7;
+   // Length two exercises normal shifts while keeping a distant vacating tail.
+   f.put("tail_length",2);f.put("tail_body",(cell+49)%98,1);f.put("board",1,(cell+49)%98);f.call("tail_move");
+   require((f.get("phase")==2)==valid,"Every snake direction respects rectangular board boundaries");if(valid)require(f.get("cursor")==static_cast<unsigned>(y*14+x),"Snake advances exactly one cell");
+  }
+  f.fill("board",98,0);for(unsigned i=0;i<4;++i){const unsigned p=std::array<unsigned,4>{15,14,28,29}[i];f.put("tail_body",p,i);f.put("board",1,p);}f.put("tail_length",4);f.put("cursor",15);f.put("tail_queued",1);f.put("tail_food",50);f.put("phase",2);f.call("tail_move");require(f.get("cursor")==29&&f.get("phase")==2,"A non-growing snake may enter its vacating tail cell");
+  f.fill("board",98,0);f.put("cursor",15);f.put("tail_body",15);f.put("tail_body",16,1);f.put("tail_body",30,2);f.put("tail_length",3);f.put("board",1,15);f.put("board",1,16);f.put("board",1,30);f.put("tail_queued",3);f.put("phase",2);f.call("tail_move");require(f.get("phase")==5,"Entering the body before its tail is fatal");
+ }
+ {
+  Fixture f(root,"maze-chase");
+  for(unsigned sample=0;sample<12;++sample){f.put("stage",sample);f.call("game_start");for(unsigned start:{16,28,52,76,88}){
+   f.put("cursor",start);f.call("maze_trace");std::array<unsigned,105> dist{};dist.fill(255);std::vector<unsigned> queue{start};dist[start]=0;
+   for(unsigned i=0;i<queue.size();++i){const int p=static_cast<int>(queue[i]);for(int d:{-15,15,-1,1}){const int q=p+d;if(q<0||q>=105||(d==-1&&p%15==0)||(d==1&&p%15==14))continue;const auto cell=static_cast<unsigned>(q);if(f.get("board",cell)!=1&&dist[cell]==255){dist[cell]=dist[queue[i]]+1;queue.push_back(cell);}}}
+   for(unsigned p=0;p<105;++p)require(f.get("maze_distance",p)==dist[p],"Ghost distance fields match independent BFS for every maze and power junction");
+  }}
+  f.put("stage",0);f.call("game_start");f.put("cursor",52);f.put("maze_ghosts",52);f.put("maze_ghosts",88,1);f.put("maze_power",1);f.put("maze_running",1);f.put("maze_score",0);f.put("maze_score",0,1);f.call("maze_contact");require(f.get("maze_score",1)==50&&f.get("maze_sleep")==2&&f.get("maze_ghosts")==88,"Powered contact captures one ghost and starts a respawn delay");
+  f.put("maze_sleep",0);f.put("maze_ghosts",52);f.put("maze_power",0);f.put("maze_lives",2);f.call("maze_contact");require(f.get("maze_lives")==1&&f.get("cursor")==16&&f.get("maze_running")==0,"Unpowered contact loses one life and waits for restart");
+  f.put("cursor",52);f.put("maze_ghosts",52);f.put("maze_power",0);f.call("maze_contact");require(f.get("phase")==5,"The last life ends the chase");
+ }
+ {
+  Fixture f(root,"river-hop");
+  for(unsigned lane=0;lane<4;++lane)for(unsigned cell=0;cell<14;++cell){
+   f.fill("river_lanes",56,0);f.put("river_lanes",1,lane*14+cell);f.fill("river_periods",4,3);f.fill("river_timers",4,3);f.put("river_timers",1,lane);f.put("river_time",100);f.put("river_lives",5);f.put("cursor",90);f.put("phase",2);f.call("river_world");
+   const unsigned next=(cell+((lane==0||lane==3)?1:13))%14;for(unsigned x=0;x<14;++x)require(f.get("river_lanes",lane*14+x)==(x==next?1:0),"Traffic and logs rotate one cell in their own direction");
+  }
+  for(unsigned lane=0;lane<2;++lane)for(unsigned x=0;x<14;++x){
+   f.fill("river_lanes",56,1);f.fill("river_periods",4,3);f.fill("river_timers",4,3);f.put("river_timers",1,lane);f.put("river_time",100);f.put("river_lives",5);f.put("cursor",(lane+1)*14+x);f.put("phase",2);f.call("river_world");const bool falls=lane==0?x==13:x==0;
+   require(f.get("river_lives")==static_cast<unsigned>(falls?4:5),"A rider falls only when the log carries it past a screen edge");if(!falls)require(f.get("cursor")==(lane+1)*14+x+(lane==0?1:-1),"A floating log carries its rider");
+  }
+  for(unsigned x=0;x<14;++x){f.fill("river_homes",5,0);f.put("grid_stat",0);f.put("river_lives",5);f.put("river_time",70);f.put("river_score",0);f.put("river_score",0,1);f.put("cursor",x);f.put("phase",2);f.call("river_check");const bool home=x==1||x==4||x==7||x==10||x==12;require(f.get("grid_stat")==static_cast<unsigned>(home?1:0),"Only one of the five home bays accepts a landing");if(home){require(f.get("river_score",1)==170,"New homes score their remaining time once");f.put("cursor",x);f.call("river_check");require(f.get("grid_stat")==1&&f.get("river_lives")==4,"A filled bay cannot score twice");}}
+  for(unsigned row:{1,2,4,5})for(unsigned occupied:{0,1}){f.fill("river_lanes",56,occupied);f.put("cursor",row*14+6);f.put("river_lives",5);f.put("phase",2);f.call("river_check");const bool safe=row<3?occupied!=0:occupied==0;require(f.get("river_lives")==static_cast<unsigned>(safe?5:4),"Water requires a log while roads require an empty cell");}
+ }
+ std::cout<<"PASS: laser cycles, twelve card effects, costs, shield/poison, factory contention/conversion/shipping, crater edges, connect-four windows and tactics, reversi rays, five-stone windows and open ends, hex distance fields, pawn movement boundaries, dot box ownership, pipe loops and leaks, number merges and terminal states, mine first-click safety and flood fill, loop checkpoints and closure, pyramid availability and pairs, golf rank wrapping and coverage, all dice category scores and bonus, risk banking thresholds and limits, brick and paddle contacts, snake boundaries and vacating tail, maze distance fields and ghost contact, river traffic and home bays\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

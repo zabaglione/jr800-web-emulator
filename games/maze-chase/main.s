@@ -1,0 +1,562 @@
+; SPDX-License-Identifier: MIT
+.global maze_ghosts
+.global maze_sleep
+.global maze_power
+.global maze_lives
+.global maze_running
+.global maze_direction
+.global maze_queued
+.global maze_clock
+.global maze_ticks
+.global maze_score
+.global maze_distance
+.global maze_world
+.global maze_trace
+.global maze_contact
+.section .text, code
+game_start:
+    JSR grid_reset
+    CLR maze_score
+    CLR maze_score + 1
+    LDAA #3
+    STAA maze_lives
+    LDAA stage
+    LDAB #105
+    MUL
+    ADDD #maze_levels
+    STD maze_pointer
+    CLR maze_index
+maze_load:
+    LDX maze_pointer
+    LDAA 0,X
+    INX
+    STX maze_pointer
+    CMPA #2
+    BCS maze_load_store
+    INC grid_stat
+maze_load_store:
+    LDAB maze_index
+    LDX #board
+    ABX
+    STAA 0,X
+    INC maze_index
+    LDAA maze_index
+    CMPA #105
+    BNE maze_load
+    CLR board + 16
+    DEC grid_stat
+maze_reset_positions:
+    LDAA #16
+    STAA cursor
+    LDAA #88
+    STAA maze_ghosts
+    LDAA #76
+    STAA maze_ghosts + 1
+    CLR maze_sleep
+    CLR maze_sleep + 1
+    CLR maze_ticks
+    CLR maze_running
+    LDAA #32
+    STAA maze_power
+    LDAA #3
+    STAA maze_direction
+    STAA maze_queued
+    JSR maze_trace
+    RTS
+game_aux:
+    CMPA #2
+    BNE maze_pause
+    JMP game_start
+maze_pause:
+    CLR maze_running
+    JMP grid_changed
+game_update:
+    TST resume_pending
+    BEQ maze_clock_ready
+    CLR resume_pending
+    LDAA input_ticks
+    STAA maze_clock
+maze_clock_ready:
+    LDAA input_event
+    BITA #16
+    BEQ maze_input
+    LDAA #1
+    STAA maze_running
+    JSR grid_changed
+maze_input:
+    LDAA input_event
+    CLRB
+    BITA #1
+    BNE maze_queue_turn
+    INCB
+    BITA #2
+    BNE maze_queue_turn
+    INCB
+    BITA #4
+    BNE maze_queue_turn
+    INCB
+    BITA #8
+    BEQ maze_timer
+maze_queue_turn:
+    STAB maze_queued
+maze_timer:
+    TST maze_running
+    BEQ maze_idle
+    LDAA stage
+    LSRA
+    LSRA
+    STAA maze_speed
+    LDAA #18
+    SUBA maze_speed
+    SUBA maze_speed
+    STAA maze_speed
+    LDAA input_ticks
+    SUBA maze_clock
+    CMPA maze_speed
+    BCS maze_idle
+    LDAA input_ticks
+    STAA maze_clock
+    JSR maze_world
+    JMP grid_changed
+maze_idle:
+    RTS
+; A=cell,B=direction, B=neighbour or 255.
+maze_neighbor:
+    STAA maze_query
+    LDAA #105
+    MUL
+    ADDD #neighbors
+    ADDB maze_query
+    ADCA #0
+    XGDX
+    LDAB 0,X
+    RTS
+maze_world:
+    TST maze_power
+    BEQ maze_try_move
+    DEC maze_power
+maze_try_move:
+    LDAA cursor
+    LDAB maze_queued
+    JSR maze_neighbor
+    CMPB #255
+    BEQ maze_keep_direction
+    LDX #board
+    ABX
+    LDAA 0,X
+    CMPA #1
+    BEQ maze_keep_direction
+    LDAA maze_queued
+    STAA maze_direction
+    BRA maze_player_move
+maze_keep_direction:
+    LDAA cursor
+    LDAB maze_direction
+    JSR maze_neighbor
+    CMPB #255
+    BEQ maze_after_player
+    LDX #board
+    ABX
+    LDAA 0,X
+    CMPA #1
+    BEQ maze_after_player
+maze_player_move:
+    STAB cursor
+    LDAA 0,X
+    CMPA #2
+    BCS maze_player_trace
+    DEC grid_stat
+    CLR 0,X
+    LDAB #10
+    CMPA #3
+    BNE maze_dot_score
+    LDAA #32
+    STAA maze_power
+    LDAB #20
+maze_dot_score:
+    JSR maze_add_score
+maze_player_trace:
+    JSR maze_trace
+maze_after_player:
+    JSR maze_contact
+    TST maze_running
+    BNE maze_check_clear
+    RTS
+maze_check_clear:
+    TST grid_stat
+    BNE maze_enemy_clock
+    JMP maze_clear
+maze_enemy_clock:
+    INC maze_ticks
+    LDAA maze_ticks
+    CMPA #3
+    BCC maze_enemy_tick
+    RTS
+maze_enemy_tick:
+    CLR maze_ticks
+    CLR maze_actor
+maze_move_ghost:
+    LDAB maze_actor
+    LDX #maze_sleep
+    ABX
+    TST 0,X
+    BEQ maze_active_ghost
+    DEC 0,X
+    BRA maze_ghost_next
+maze_active_ghost:
+    LDX #maze_ghosts
+    ABX
+    LDAA 0,X
+    STAA maze_origin
+    STAA maze_best
+    LDAA #255
+    TST maze_power
+    BEQ maze_best_init
+    CLRA
+maze_best_init:
+    STAA maze_best_distance
+    CLR maze_scan_direction
+maze_candidate:
+    LDAA maze_origin
+    LDAB maze_scan_direction
+    JSR maze_neighbor
+    CMPB #255
+    BEQ maze_candidate_next
+    STAB maze_option
+    LDX #maze_distance
+    ABX
+    LDAA 0,X
+    CMPA #255
+    BEQ maze_candidate_next
+    TST maze_power
+    BNE maze_run_away
+    CMPA maze_best_distance
+    BCC maze_candidate_next
+    BRA maze_choose_step
+maze_run_away:
+    CMPA maze_best_distance
+    BCS maze_candidate_next
+maze_choose_step:
+    STAA maze_best_distance
+    LDAA maze_option
+    STAA maze_best
+maze_candidate_next:
+    INC maze_scan_direction
+    LDAA maze_scan_direction
+    CMPA #4
+    BNE maze_candidate
+    LDAB maze_actor
+    LDX #maze_ghosts
+    ABX
+    LDAA maze_best
+    STAA 0,X
+maze_ghost_next:
+    INC maze_actor
+    LDAA maze_actor
+    CMPA #2
+    BNE maze_move_ghost
+    JMP maze_contact
+maze_clear:
+    CLR maze_running
+    LDAA #4
+    STAA phase
+maze_world_done:
+    RTS
+; Either capture an active frightened ghost or lose one life.
+maze_contact:
+    CLR maze_actor
+maze_contact_loop:
+    LDAB maze_actor
+    LDX #maze_sleep
+    ABX
+    TST 0,X
+    BNE maze_contact_next
+    LDX #maze_ghosts
+    ABX
+    LDAA 0,X
+    CMPA cursor
+    BNE maze_contact_next
+    TST maze_power
+    BEQ maze_hurt
+    LDX #maze_sleep
+    ABX
+    LDAA #2
+    STAA 0,X
+    LDX #maze_homes
+    ABX
+    LDAA 0,X
+    LDX #maze_ghosts
+    ABX
+    STAA 0,X
+    LDAB #50
+    JSR maze_add_score
+maze_contact_next:
+    INC maze_actor
+    LDAA maze_actor
+    CMPA #2
+    BNE maze_contact_loop
+    RTS
+maze_hurt:
+    DEC maze_lives
+    BEQ maze_failed
+    JMP maze_reset_positions
+maze_failed:
+    CLR maze_running
+    LDAA #5
+    STAA phase
+    RTS
+maze_add_score:
+    CLRA
+    ADDD maze_score
+    STD maze_score
+    RTS
+; Breadth-first distance field; walls never change, only the player root does.
+maze_trace:
+    LDX #maze_distance
+    LDAB #105
+    LDAA #255
+maze_distance_clear:
+    STAA 0,X
+    INX
+    DECB
+    BNE maze_distance_clear
+    LDAB cursor
+    LDX #maze_distance
+    ABX
+    CLR 0,X
+    STAB maze_bfs_queue
+    CLR maze_read
+    LDAA #1
+    STAA maze_write
+maze_bfs_next:
+    LDAB maze_read
+    LDX #maze_bfs_queue
+    ABX
+    LDAA 0,X
+    STAA maze_current
+    TAB
+    LDX #maze_distance
+    ABX
+    LDAA 0,X
+    INCA
+    STAA maze_depth
+    CLR maze_bfs_direction
+maze_bfs_neighbor:
+    LDAA maze_current
+    LDAB maze_bfs_direction
+    JSR maze_neighbor
+    CMPB #255
+    BEQ maze_bfs_skip
+    STAB maze_option
+    LDX #board
+    ABX
+    LDAA 0,X
+    CMPA #1
+    BEQ maze_bfs_skip
+    LDX #maze_distance
+    ABX
+    LDAA 0,X
+    CMPA #255
+    BNE maze_bfs_skip
+    LDAA maze_depth
+    STAA 0,X
+    LDAA maze_option
+    LDAB maze_write
+    LDX #maze_bfs_queue
+    ABX
+    STAA 0,X
+    INC maze_write
+maze_bfs_skip:
+    INC maze_bfs_direction
+    LDAA maze_bfs_direction
+    CMPA #4
+    BNE maze_bfs_neighbor
+    INC maze_read
+    LDAA maze_read
+    ANDA #7
+    BNE maze_bfs_polled
+    JSR input_poll
+maze_bfs_polled:
+    LDAA maze_read
+    CMPA maze_write
+    BNE maze_bfs_next
+    RTS
+grid_value:
+    CMPB cursor
+    BNE maze_check_ghost_tile
+    LDAA #4
+    RTS
+maze_check_ghost_tile:
+    TST maze_sleep
+    BNE maze_second_ghost_tile
+    CMPB maze_ghosts
+    BEQ maze_ghost_tile
+maze_second_ghost_tile:
+    TST maze_sleep + 1
+    BNE maze_floor_tile
+    CMPB maze_ghosts + 1
+    BEQ maze_ghost_tile
+maze_floor_tile:
+    LDX #board
+    ABX
+    LDAA 0,X
+    RTS
+maze_ghost_tile:
+    LDAA #5
+    TST maze_power
+    BEQ maze_tile_done
+    INCA
+maze_tile_done:
+    RTS
+game_render:
+    JSR paint_board
+    CLR maze_hud_force
+    TST resume_pending
+    BEQ maze_score_check
+    INC maze_hud_force
+    LDX #game_name
+    CLRA
+    CLRB
+    JSR paint_text
+    LDX #maze_score_label
+    LDAA #72
+    CLRB
+    JSR paint_text
+    LDAA #168
+    STAA paint_x
+    CLR paint_band
+    LDAA stage
+    INCA
+    JSR paint_number
+    LDX #maze_food_label
+    LDAA #132
+    LDAB #1
+    JSR paint_text
+    LDX #maze_life_label
+    LDAA #138
+    LDAB #3
+    JSR paint_text
+    LDX #maze_power_label
+    LDAA #132
+    LDAB #5
+    JSR paint_text
+maze_score_check:
+    TST maze_hud_force
+    BNE maze_score_draw
+    LDD maze_score
+    SUBD maze_old_score
+    BEQ maze_food_check
+maze_score_draw:
+    LDD maze_score
+    STD maze_old_score
+    LDAA #84
+    STAA paint_x
+    LDAA #0
+    STAA paint_band
+    LDD maze_score
+    JSR paint_number16
+maze_food_check:
+    TST maze_hud_force
+    BNE maze_food_draw
+    LDAA grid_stat
+    CMPA maze_old_food
+    BEQ maze_life_check
+maze_food_draw:
+    LDAA grid_stat
+    STAA maze_old_food
+    LDAA #138
+    STAA paint_x
+    LDAA #2
+    STAA paint_band
+    LDAA grid_stat
+    JSR paint_number
+maze_life_check:
+    TST maze_hud_force
+    BNE maze_life_draw
+    LDAA maze_lives
+    CMPA maze_old_life
+    BEQ maze_power_check
+maze_life_draw:
+    LDAA maze_lives
+    STAA maze_old_life
+    LDAA #138
+    STAA paint_x
+    LDAA #4
+    STAA paint_band
+    LDAA maze_lives
+    JSR paint_number
+maze_power_check:
+    TST maze_hud_force
+    BNE maze_power_draw
+    LDAA maze_power
+    CMPA maze_old_power
+    BEQ maze_state_check
+maze_power_draw:
+    LDAA maze_power
+    STAA maze_old_power
+    LDAA #138
+    STAA paint_x
+    LDAA #6
+    STAA paint_band
+    LDAA maze_power
+    JSR paint_number
+maze_state_check:
+    TST maze_hud_force
+    BNE maze_state_draw
+    LDAA maze_running
+    CMPA maze_old_running
+    BEQ maze_render_done
+maze_state_draw:
+    LDAA maze_running
+    STAA maze_old_running
+    LDX #maze_start_label
+    TSTA
+    BEQ maze_action_text
+    LDX #grid_return_label
+maze_action_text:
+    LDAA #138
+    LDAB #7
+    JMP paint_text
+maze_render_done:
+    RTS
+.section .bss, bss
+maze_ghosts: .space 2
+maze_sleep: .space 2
+maze_power: .space 1
+maze_lives: .space 1
+maze_running: .space 1
+maze_direction: .space 1
+maze_queued: .space 1
+maze_ticks: .space 1
+maze_score: .space 2
+maze_clock: .space 1
+maze_speed: .space 1
+maze_pointer: .space 2
+maze_index: .space 1
+maze_query: .space 1
+maze_actor: .space 1
+maze_origin: .space 1
+maze_best: .space 1
+maze_best_distance: .space 1
+maze_scan_direction: .space 1
+maze_option: .space 1
+maze_distance: .space 105
+maze_bfs_queue: .space 105
+maze_read: .space 1
+maze_write: .space 1
+maze_current: .space 1
+maze_depth: .space 1
+maze_bfs_direction: .space 1
+maze_hud_force: .space 1
+maze_old_score: .space 2
+maze_old_food: .space 1
+maze_old_life: .space 1
+maze_old_power: .space 1
+maze_old_running: .space 1
+.section .data, data
+maze_homes: .byte 88,76
+maze_food_label: .byte 70,79,79,68,0
+maze_life_label: .byte 76,73,70,69,0
+maze_power_label: .byte 80,79,87,69,82,0
+maze_start_label: .byte 83,80,65,67,69,32,0
+maze_score_label: .byte 83,0

@@ -156,6 +156,30 @@
       "title": "PUSH LUCK",
       "genre": "cards",
       "style": "modern"
+    },
+    {
+      "id": "wall-break",
+      "title": "WALL BREAK",
+      "genre": "action",
+      "style": "classic"
+    },
+    {
+      "id": "tail-trail",
+      "title": "TAIL TRAIL",
+      "genre": "action",
+      "style": "classic"
+    },
+    {
+      "id": "maze-chase",
+      "title": "MAZE CHASE",
+      "genre": "action",
+      "style": "classic"
+    },
+    {
+      "id": "river-hop",
+      "title": "RIVER HOP",
+      "genre": "action",
+      "style": "classic"
     }
   ]
 }
