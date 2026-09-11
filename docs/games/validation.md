@@ -126,6 +126,10 @@ RICOCHET OPSは20面を各3発以内でクリアし、弾の位置・反射方�
 
 STAR PATROL・ORBIT GUARD・TARGET RANGE・RICOCHET OPSを追加し、38本のローカルChrome起動検査が成功しました。WASM Debugの追加8項目（起動とNative同一再生）も成功しています。各作品でタイトル1枚と実プレイ3枚を原寸・4倍で確認しました。
 
+## 38本の公開サイト検証
+
+射撃系のSTAR PATROL・ORBIT GUARD・TARGET RANGE・RICOCHET OPSを含む38本で、公開PagesのChrome検査が成功しました。所有ROMの初回選択・保存済みROMの復元、タイトル画素、物理・仮想キー、再読み込み、音声データの供給、不明IDと整合性エラー、ROMのローカル保持を確認しました。公開CIのNative Debug/ReleaseとWASM Debug/Releaseも成功しています。Linuxで検出されたテストの不要なコピーは参照へ修正しました。
+
 ## 最初の6本で確認した基盤とゲーム
 
 - 公開候補のNative Releaseの63項目とWASM Releaseの27項目が成功。後者は6本のゲーム再生とNativeでの同一再生を含みます。
@@ -187,4 +191,4 @@ Eクロック1,228,800Hzによる換算です。RAMはコード・画像・状�
 
 拡張RAMを無効にした検証は、独自の最小起動コードを使用しています。所有ROMの起動は既存のBASIC実験プロファイルを使い、ゲーム自体の標準RAM内での動作と区別しています。2.0・実機操作・実際の発音品質は対応確認に含めません。音声確認はブラウザーへの再生データ供給までです。
 
-再現用のテストは[games/tools/check.mjs](../../games/tools/check.mjs)、[Native再生](../../tests/game_replay_test.cpp)、[規則の単体検査](../../tests/game_rules_test.cpp)、[ブラウザー検査](../../tests/browser_program_launch_test.cjs)にあります。`make test`の出力と性能データは`build/games/`へ保存します。公開Pagesで34本すべての自動起動が成功したため、各作品の「遊ぶ」リンクを有効にしました。Wiki原稿と画像はこのリポジトリで公開しています。
+再現用のテストは[games/tools/check.mjs](../../games/tools/check.mjs)、[Native再生](../../tests/game_replay_test.cpp)、[規則の単体検査](../../tests/game_rules_test.cpp)、[ブラウザー検査](../../tests/browser_program_launch_test.cjs)にあります。`make test`の出力と性能データは`build/games/`へ保存します。公開Pagesで38本すべての自動起動が成功したため、各作品の「遊ぶ」リンクを有効にしました。Wiki原稿と画像はこのリポジトリで公開しています。

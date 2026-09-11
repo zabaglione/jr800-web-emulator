@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [シューティング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting) · モダン
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/ricochet-ops)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=ricochet-ops) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/ricochet-ops)
 
 ![タイトル画面](../../docs/games/screenshots/ricochet-ops/title.png)
 
