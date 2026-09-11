@@ -252,6 +252,24 @@
       "title": "SIGNAL GHOST",
       "genre": "adventure",
       "style": "modern"
+    },
+    {
+      "id": "rail-dispatch",
+      "title": "RAIL DISPATCH",
+      "genre": "simulation",
+      "style": "classic"
+    },
+    {
+      "id": "orchard-days",
+      "title": "ORCHARD DAYS",
+      "genre": "simulation",
+      "style": "modern"
+    },
+    {
+      "id": "market-harbor",
+      "title": "MARKET HARBOR",
+      "genre": "simulation",
+      "style": "classic"
     }
   ]
 }

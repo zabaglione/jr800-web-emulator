@@ -15,6 +15,9 @@ import {checkLuck} from './luck_check.mjs';
 import {checkWall} from './wall_check.mjs';
 import {checkTail} from './tail_check.mjs';
 import {checkMaze} from './maze_check.mjs';
+import {checkMarket} from './market_check.mjs';
+import {checkOrchard} from './orchard_check.mjs';
+import {checkDispatch} from './dispatch_check.mjs';
 import {checkSignal} from './signal_check.mjs';
 import {checkRogue} from './rogue_check.mjs';
 import {checkEcho} from './echo_check.mjs';
@@ -60,6 +63,9 @@ export async function checkLibrary(g,id){
  if(id==='echo-cavern')return checkEcho(g);
  if(id==='micro-rogue')return checkRogue(g);
  if(id==='signal-ghost')return checkSignal(g);
+ if(id==='rail-dispatch')return checkDispatch(g);
+ if(id==='orchard-days')return checkOrchard(g);
+ if(id==='market-harbor')return checkMarket(g);
  if(id==='lamp-grid'){
   const solutions=await data(id);
   for(let stage=0;stage<solutions.length;stage++){

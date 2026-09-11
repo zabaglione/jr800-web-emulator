@@ -232,6 +232,18 @@ def logo(name,kind):
             for y in (34,40,46):b.line(x,y,x+20,y)
             b.rect(x+3,24,3,3,1,True);b.rect(x+14,24,3,3,1,True)
         for x in range(29,162,9):b.line(x,50,x+5,53)
+    elif kind=='orchard-days':
+        for x in (4,166):
+            b.line(x+11,22,x+11,48);b.line(x+2,49,x+21,49)
+            b.rect(x+1,7,21,18);b.line(x+4,25,x+18,25)
+            for xx,yy in ((x+5,12),(x+15,11),(x+10,20)):b.rect(xx,yy,4,4,1,True)
+        for x in range(28,164,17):b.line(x,53,x+6,47);b.line(x+6,47,x+11,53)
+    elif kind=='market-harbor':
+        for x in (4,166):
+            b.line(x,32,x+22,32);b.line(x+22,32,x+16,41);b.line(x+16,41,x+5,41);b.line(x+5,41,x,32)
+            b.line(x+10,7,x+10,31);b.line(x+10,8,x+20,27);b.line(x+20,27,x+10,27)
+            for y in (46,51):b.line(x,y,x+7,y-2);b.line(x+7,y-2,x+15,y);b.line(x+15,y,x+22,y-2)
+        for x in (31,146):b.rect(x,46,14,7);b.line(x+3,47,x+11,51)
     else:
         raise ValueError('A distinct title motif is required: '+kind)
     for row,word in enumerate(name.split()):
