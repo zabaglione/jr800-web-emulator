@@ -4,9 +4,9 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=box-shift) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/box-shift)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/box-shift/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/box-shift/title.png)
 
-箱を押してすべての目標に置く、全40面の倉庫パズルです。後半には4箱を扱う倉庫も登場します。
+箱を押してすべての目標に置く、全40面の倉庫パズルです。倉庫は第1〜10面の9×5マスから、第11〜20面は12×5マス、第21〜40面は14×5マスへ拡大します。後半には4箱を扱う倉庫も登場し、右側のゴールまで箱を運ぶ順番や回り道が攻略の鍵になります。寸法は外壁を除いた範囲で、内部の柱や壁も含みます。
 
 ## 遊び方
 
@@ -16,17 +16,17 @@ RETURNメニューの UNDO ONE MOVE で1手戻し、HELP で説明、RETRY で�
 
 ## ゲーム画面
 
-![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/box-shift/gameplay-1.png)
+![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/box-shift/gameplay-1.png)
 
 第1面の初期配置と規定手数。
 
-![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/box-shift/gameplay-2.png)
+![14×5マスに広がった第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/box-shift/gameplay-2.png)
 
-第31面で追加目標に挑戦している場面。
+14×5マスに広がった第31面で追加目標に挑戦している場面。
 
-![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/box-shift/gameplay-3.png)
+![右側まで使う第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/box-shift/gameplay-3.png)
 
-第40面を規定手数と追加目標の両方を満たしてクリア。
+右側まで使う第40面を規定手数と追加目標の両方を満たしてクリア。
 
 ## 40面のチャレンジと評価
 
@@ -59,7 +59,7 @@ HUDの **USED** は使った手数、**PAR** は規定手数です。規定手�
 
 コードは**面と評価**を記録します。盤面の途中状態は含みません。BASICへ戻る前にLOAD RECORDを控えると、次回の起動後に記録を復元できます。入力したLOAD RECORDの内容で全40面のBESTが置き換わるため、新しい記録を控えてから復元してください。
 
-![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/box-shift/selection.png)
+![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/box-shift/selection.png)
 
 面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。
 

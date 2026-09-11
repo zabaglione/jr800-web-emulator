@@ -80,14 +80,24 @@ def replay(floor,goals,p,boxes,path,marks=()):
     assert boxes==goals
     return visited,pushes,mask
 
-def room(rng,index):
-    floor={y*16+x for y in range(1,6) for x in range(1,10)}
+def warehouse_width(index):
+    return 9 if index<10 else 12 if index<20 else 14
+
+def room(rng,index,width=9):
+    floor={y*16+x for y in range(1,6) for x in range(1,width+1)}
     # Bays, central piers and staggered doors create distinct push-order constraints.
     patterns=[{(4,2),(4,3),(7,3),(7,4)},
               {(5,y) for y in (1,2,4,5)},
               {(3,2),(3,3),(6,3),(6,4)},
               {(x,3) for x in (2,3,6,7,8)},
               {(3,2),(7,2),(3,4),(7,4)}]
+    if width>9:
+        mid=width//2
+        patterns=[{(4,2),(4,3),(width-3,3),(width-3,4)},
+                  {(mid,y) for y in (1,2,4,5)},
+                  {(4,2),(4,3),(mid+1,3),(mid+1,4),(width-2,2)},
+                  {(x,3) for x in (2,3,mid-1,mid,mid+1,width-2)},
+                  {(4,2),(width-3,2),(4,4),(width-3,4)}]
     floor-={y*16+x for x,y in patterns[index%len(patterns)]}
     for p in rng.sample(sorted(floor),rng.randint(2,6)):floor.remove(p)
     parts=[];unseen=set(floor)
@@ -102,12 +112,18 @@ def room(rng,index):
 def run():
     rng=random.Random(803105);stages=[];seen=set()
     for i in range(40):
+        width=warehouse_width(i)
+        search_scale=1 if width==9 else 4
+        # Each expanded warehouse has its own reproducible authoring seed.
+        if i>=10:rng=random.Random(803105+i*7919)
         count=2 if i<12 else 3 if i<32 else 4
         low=8+i
         for attempt in range(12000):
-            floor=room(rng,i+attempt%5)
-            if len(floor)<29:continue
+            floor=room(rng,i+attempt%5,width)
+            if len(floor)<29+(width-9)*3:continue
+            if {p%16 for p in floor}!=set(range(1,width+1)):continue
             goals=set(rng.sample(sorted(floor),count));boxes=set(goals);player=rng.choice(sorted(floor-boxes))
+            if width>9 and not any(p%16>=width-1 for p in goals):continue
             for _ in range(220+i*9):
                 options=[d for d,_ in D if player+d in floor-boxes]
                 if not options:break
@@ -115,16 +131,18 @@ def run():
                 if player-d in boxes:boxes.remove(player-d);boxes.add(player)
                 player+=d
             if len(boxes-goals)<2:continue
-            normal,work=solve(floor,goals,player,boxes,limit=18000)
+            if width>9 and not any(p%16>=width-1 for p in goals-boxes):continue
+            normal,work=solve(floor,goals,player,boxes,limit=18000*search_scale)
             if not normal or not low<=len(normal)<=140:continue
             visited,pushes,_=replay(floor,goals,player,boxes,normal)
             if pushes<3+i//4:continue
+            if width>9 and max(p%16 for p in visited)<width-1:continue
             signature=(tuple(sorted(floor)),tuple(sorted(goals)),player,tuple(sorted(boxes)))
             if signature in seen:continue
             free=sorted(floor-set(boxes)-goals-visited)
             if len(free)<2:continue
             for _ in range(6):
-                marks=rng.sample(free,2);bonus,bonus_work=solve(floor,goals,player,boxes,marks,limit=35000)
+                marks=rng.sample(free,2);bonus,bonus_work=solve(floor,goals,player,boxes,marks,limit=35000*search_scale)
                 if bonus and len(normal)+2<=len(bonus)<=180:break
             else:continue
             _,bonus_pushes,mask=replay(floor,goals,player,boxes,bonus,marks);assert mask==3
@@ -132,7 +150,7 @@ def run():
             for p in boxes:board[p]|=4
             stages.append({'initial':{'start':player,'board':board},'normal':normal,'bonus':bonus,
                            'bonus_cells':marks,'par':len(bonus),'metrics':{'minimum_actions':len(normal),'bonus_minimum_actions':len(bonus),'boxes':count,'solution_pushes':pushes,'bonus_pushes':bonus_pushes,'search_states':work,'bonus_search_states':bonus_work}})
-            seen.add(signature);print(f'box {i+1:02}: {len(normal)}/{len(bonus)} actions, {pushes} pushes',flush=True);break
+            seen.add(signature);print(f'box {i+1:02}: {width}x5, {len(normal)}/{len(bonus)} actions, {pushes} pushes',flush=True);break
         else:raise RuntimeError(f'No qualified warehouse {i+1}')
     save(__file__,stages)
 

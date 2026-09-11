@@ -149,16 +149,18 @@ async function route(g,id,stage,actions){
  if(id==='lamp-grid')return lampRoute(g,stage,actions);
  if(['ice-route','switch-maze'].includes(id))return walkRoute(g,id,stage,actions);
  if(id==='box-shift'){
-  const board=stage.initial.board.slice();let p=stage.initial.start,bonus=0;
+  const board=stage.initial.board.slice();let p=stage.initial.start,bonus=0,rightPushes=0;
   assert.deepEqual(g.read('board',112),board);assert.equal(g.read('player'),p);
   for(const key of actions){
    const d={up:-16,down:16,left:-1,right:1}[key],q=p+d;
    assert.equal(board[q]&1,0);
-   if(board[q]&4){assert.equal(board[q+d]&5,0);board[q]&=~4;board[q+d]|=4;}
+   if(board[q]&4){assert.equal(board[q+d]&5,0);board[q]&=~4;board[q+d]|=4;if((q+d)%16>=10)rightPushes++;}
    p=q;stage.bonus_cells.forEach((cell,i)=>{if(cell===p)bonus|=1<<i;});
    g.tap(key);assert.equal(g.read('player'),p);assert.deepEqual(g.read('board',112),board);assert.equal(g.read('challenge_bonus'),bonus);
   }
-  assert.ok(board.every(tile=>(tile&6)!==4));return;
+  assert.ok(board.every(tile=>(tile&6)!==4));
+  if(stage.initial.board.some((tile,cell)=>!(tile&1)&&cell%16>=10))assert.ok(rightPushes>0,'Expanded warehouses require pushing a box into the right-hand area');
+  return;
  }
  if(id==='mirror-link'){
   const board=stage.initial.board.slice();let bonus=0;
@@ -351,7 +353,20 @@ export async function checkPuzzle(g,id){
  const raw=source.split('title_art:')[1].split(/\n[A-Za-z_]\w*:/)[0].match(/\$[0-9A-F]{2}/g).map(x=>parseInt(x.slice(1),16));
  assert.equal(raw.length,1536);assert.deepEqual([...g.machine.memory(g.symbols.framebuffer,1536)],raw,'Compressed title decodes to the original artwork');
  const stages=JSON.parse(await readFile(new URL(`../${id}/challenges.json`,import.meta.url))).stages;
- assert.equal(stages.length,40);await g.start();
+ assert.equal(stages.length,40);
+ if(id==='box-shift')for(const [i,stage] of stages.entries()){
+  const width=i<10?9:i<20?12:14,board=stage.initial.board;
+  assert.equal(board.length,112);
+  const columns=new Set();
+  board.forEach((tile,cell)=>{
+   const x=cell%16,y=Math.floor(cell/16);
+   if(x===0||x>width||y===0||y===6)assert.equal(tile,1,'Warehouse perimeter stays closed');
+   if(!(tile&1))columns.add(x);
+  });
+  assert.deepEqual([...columns].sort((a,b)=>a-b),Array.from({length:width},(_,x)=>x+1),'Stage progression uses the full warehouse width');
+  if(i>=10)assert.ok(board.some((tile,cell)=>tile===2&&cell%16>=width-1),'An unfilled goal requires using the expanded side');
+ }
+ await g.start();
  for(let i=0;i<stages.length;i++){
   g.useLetters=Boolean(i%2);
   const stage=stages[i];if(i)g.tap('space');assert.equal(g.read('stage'),i);assert.equal(g.word('challenge_par'),stage.par);
