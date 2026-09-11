@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [カード・ダイス](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Cards) · モダン
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/push-luck)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=push-luck) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/push-luck)
 
 ![タイトル画面](../../docs/games/screenshots/push-luck/title.png)
 

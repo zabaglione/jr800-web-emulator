@@ -60,7 +60,7 @@ DICE HOLDは全7,776通りの出目について13種類の得点を独立した�
 
 PUSH LUCKは3難易度の勝利、1による得点喪失と敗北、BANKでの確定、CPUの閾値と最大6回の制限を独立モデルと照合しました。CPU進行中のメニュー停止、待機中のLCD転送ゼロ、空のBANKと得点上限も確認しています。所有ROMとNative/WASMの再生が一致しました。検証の勝利入力は乱数状態を参照して選んでおり、通常プレイの勝率を表すものではありません。ゲーム内のCPUは先の乱数を参照しません。
 
-今回追加したカード・ダイス4本のWASM DebugとNative再生の8項目が通過しました。Native Debug/Releaseで規則の単体検査を行い、ローカルChromeでは26本の初回ROM設定・保存ROM復元・タイトル画素・操作・音声開始・再読込み・エラー時の停止・ROM非送信を確認しています。
+今回追加したカード・ダイス4本のWASM DebugとNative再生の8項目が通過しました。公開リポジトリのNative/WASM・Debug/ReleaseのCIとPages配信が成功し、公開サイトでも26本の初回ROM設定・保存ROM復元・起動・タイトル画素・操作・音声開始・再読込み・エラー時の停止・ROM非送信を確認しました。Native Debug/Releaseで規則の単体検査を行い、ローカルChromeでは26本の初回ROM設定・保存ROM復元・タイトル画素・操作・音声開始・再読込み・エラー時の停止・ROM非送信を確認しています。
 
 ## 最初の6本で確認した基盤とゲーム
 
@@ -111,4 +111,4 @@ Eクロック1,228,800Hzによる換算です。RAMはコード・画像・状�
 
 拡張RAMを無効にした検証は、独自の最小起動コードを使用しています。所有ROMの起動は既存のBASIC実験プロファイルを使い、ゲーム自体の標準RAM内での動作と区別しています。2.0・実機操作・実際の発音品質は対応確認に含めません。音声確認はブラウザーへの再生データ供給までです。
 
-再現用のテストは[games/tools/check.mjs](../../games/tools/check.mjs)、[Native再生](../../tests/game_replay_test.cpp)、[規則の単体検査](../../tests/game_rules_test.cpp)、[ブラウザー検査](../../tests/browser_program_launch_test.cjs)にあります。`make test`の出力と性能データは`build/games/`へ保存します。公開Pagesで22本すべての自動起動が成功したため、各作品の「遊ぶ」リンクを有効にしました。Wiki原稿と画像はこのリポジトリで公開しています。
+再現用のテストは[games/tools/check.mjs](../../games/tools/check.mjs)、[Native再生](../../tests/game_replay_test.cpp)、[規則の単体検査](../../tests/game_rules_test.cpp)、[ブラウザー検査](../../tests/browser_program_launch_test.cjs)にあります。`make test`の出力と性能データは`build/games/`へ保存します。公開Pagesで26本すべての自動起動が成功したため、各作品の「遊ぶ」リンクを有効にしました。Wiki原稿と画像はこのリポジトリで公開しています。
