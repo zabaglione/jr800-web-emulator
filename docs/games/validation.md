@@ -102,6 +102,10 @@ GRAVITY RUNは12コースをキー入力で通過し、各コースの取得可�
 
 同方向のテンキーとWASDは1つの論理入力として検査しています。同じキーボード行の異なるキーの電気的な同時押しは未検証です。到達確認は順番にキーを操作して行い、TOWER LEAPでもSPACEを離してから空中で左右を操作して全コースへ到達しています。
 
+## 34本の公開サイト検証
+
+追加のTOWER LEAP・BOMB VAULT・GRID CLAIM・GRAVITY RUNを含む34本で、公開PagesのChrome起動検査が成功しました。所有ROMの初回設定・保存済みROMの復元、タイトル画素、物理キーと仮想キー、再読み込み、音声データの供給、不明ID・整合性エラー、ROMのローカル保持を確認しています。
+
 ## 最初の6本で確認した基盤とゲーム
 
 - 公開候補のNative Releaseの63項目とWASM Releaseの27項目が成功。後者は6本のゲーム再生とNativeでの同一再生を含みます。
@@ -159,4 +163,4 @@ Eクロック1,228,800Hzによる換算です。RAMはコード・画像・状�
 
 拡張RAMを無効にした検証は、独自の最小起動コードを使用しています。所有ROMの起動は既存のBASIC実験プロファイルを使い、ゲーム自体の標準RAM内での動作と区別しています。2.0・実機操作・実際の発音品質は対応確認に含めません。音声確認はブラウザーへの再生データ供給までです。
 
-再現用のテストは[games/tools/check.mjs](../../games/tools/check.mjs)、[Native再生](../../tests/game_replay_test.cpp)、[規則の単体検査](../../tests/game_rules_test.cpp)、[ブラウザー検査](../../tests/browser_program_launch_test.cjs)にあります。`make test`の出力と性能データは`build/games/`へ保存します。公開Pagesで30本すべての自動起動が成功したため、各作品の「遊ぶ」リンクを有効にしました。Wiki原稿と画像はこのリポジトリで公開しています。
+再現用のテストは[games/tools/check.mjs](../../games/tools/check.mjs)、[Native再生](../../tests/game_replay_test.cpp)、[規則の単体検査](../../tests/game_rules_test.cpp)、[ブラウザー検査](../../tests/browser_program_launch_test.cjs)にあります。`make test`の出力と性能データは`build/games/`へ保存します。公開Pagesで34本すべての自動起動が成功したため、各作品の「遊ぶ」リンクを有効にしました。Wiki原稿と画像はこのリポジトリで公開しています。
