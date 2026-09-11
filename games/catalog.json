@@ -84,6 +84,30 @@
       "title": "HEX FRONT",
       "genre": "board",
       "style": "modern"
+    },
+    {
+      "id": "knight-tour",
+      "title": "KNIGHT TOUR",
+      "genre": "board",
+      "style": "classic"
+    },
+    {
+      "id": "peg-rescue",
+      "title": "PEG RESCUE",
+      "genre": "board",
+      "style": "classic"
+    },
+    {
+      "id": "pawn-race",
+      "title": "PAWN RACE",
+      "genre": "board",
+      "style": "modern"
+    },
+    {
+      "id": "dot-claim",
+      "title": "DOT CLAIM",
+      "genre": "board",
+      "style": "classic"
     }
   ]
 }

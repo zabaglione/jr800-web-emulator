@@ -1,7 +1,7 @@
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki)
 
 - [パズル・論理 (6)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Logic)
-- [盤上戦略 (4)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Board)
+- [盤上戦略 (8)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Board)
 - [カード・ダイス (1)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Cards)
 - [アクション (0)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Action)
 - [シューティング (2)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting)

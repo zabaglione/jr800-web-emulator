@@ -3,7 +3,15 @@ import assert from 'node:assert/strict';
 import {checkReversi} from './reversi_check.mjs';
 import {checkFive} from './five_check.mjs';
 import {checkHex} from './hex_check.mjs';
+import {checkTour} from './tour_check.mjs';
+import {checkPeg} from './peg_check.mjs';
+import {checkPawn} from './pawn_check.mjs';
+import {checkDot} from './dot_check.mjs';
 export async function checkBoard(g,id){
+ if(id==='dot-claim')return checkDot(g);
+ if(id==='pawn-race')return checkPawn(g);
+ if(id==='peg-rescue')return checkPeg(g);
+ if(id==='knight-tour')return checkTour(g);
  if(id==='hex-front')return checkHex(g);
  if(id==='five-stones')return checkFive(g);
  if(id==='reversi-mini')return checkReversi(g);

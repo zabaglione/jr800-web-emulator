@@ -129,5 +129,39 @@ int main(int argc,char** argv){try{
   }
   f.fill("board",36,0);f.put("cursor",0);f.put("board",1,5);f.call("hex_support");require(f.get("hex_adjacent")==0,"Relay support does not wrap an edge");f.put("board",1,1);f.put("board",1,6);f.call("hex_support");require(f.get("hex_adjacent")==2,"Two six-neighbour relay supports");
  }
- std::cout<<"PASS: laser cycles, twelve card effects, costs, shield/poison, factory contention/conversion/shipping, crater edges, connect-four windows and tactics, reversi rays, five-stone windows and open ends, hex distance fields\n";return 0;
+ {
+  Fixture f(root,"pawn-race");
+  const std::array<int,3> dx{{0,-1,1}};
+  for(unsigned side=1;side<=2;++side)for(int from=0;from<36;++from)for(unsigned dir=0;dir<3;++dir)for(unsigned target=0;target<3;++target){
+   f.fill("board",36,0);f.put("board",side,static_cast<unsigned>(from));f.put("pawn_side",side);f.put("pawn_from",static_cast<std::uint8_t>(from));f.put("pawn_dir",dir);
+   const int x=from%6+dx[dir],y=from/6+(side==1?-1:1),to=y*6+x;const bool inside=x>=0&&x<6&&y>=0&&y<6;
+   if(inside)f.put("board",target,static_cast<unsigned>(to));
+   const bool valid=inside&&target!=side&&(dir!=0||target==0);
+   f.call("pawn_valid");require((f.cpu.state().a!=0)==valid,"Pawn forward/diagonal legality at every edge and destination occupancy");
+   if(inside)require(f.get("pawn_to")==to,"Pawn destination does not wrap rows");
+  }
+  f.fill("board",36,0);f.put("pawn_side",1);f.put("pawn_from",24);f.put("pawn_dir",0);f.call("pawn_valid");require(f.cpu.state().a==0,"Empty source cannot move");
+  f.put("board",2,24);f.call("pawn_valid");require(f.cpu.state().a==0,"Opponent pawn cannot be selected");
+ }
+ {
+  Fixture f(root,"dot-claim");std::array<std::pair<int,int>,31> edges{};unsigned ei=0;
+  for(int y=0;y<7;++y)for(int x=0;x<9;++x)if((x+y)%2)edges[ei++]={x,y};
+  std::array<std::array<unsigned,4>,12> boxes{};unsigned bi=0;
+  for(int y=1;y<7;y+=2)for(int x=1;x<9;x+=2){
+   unsigned j=0;for(const auto& point:std::array<std::pair<int,int>,4>{{{x,y-1},{x,y+1},{x-1,y},{x+1,y}}}){
+    boxes[bi][j++]=static_cast<unsigned>(std::find(edges.begin(),edges.end(),point)-edges.begin());
+   }++bi;
+  }
+  for(unsigned who=1;who<=2;++who)for(unsigned edge=0;edge<31;++edge)for(unsigned mask=0;mask<16;++mask){
+   f.fill("board",43,0);f.put("dot_edge",edge);f.put("dot_side",who);
+   for(unsigned box=0;box<12;++box)if(std::find(boxes[box].begin(),boxes[box].end(),edge)!=boxes[box].end())for(unsigned j=0;j<4;++j)if(mask&(1U<<j))f.put("board",3-who,boxes[box][j]);
+   f.put("board",0,edge);f.call("dot_claim");unsigned count=0;
+   for(unsigned box=0;box<12;++box){bool full=true;for(auto e:boxes[box])full=full&&f.get("board",e)!=0;
+    const bool adjacent=std::find(boxes[box].begin(),boxes[box].end(),edge)!=boxes[box].end();const unsigned expected=adjacent&&full?who:0;
+    require(f.get("board",31+box)==expected,"Dot edge closes exactly its adjacent complete boxes");if(expected)++count;
+   }
+   require(f.get("dot_captured")==count,"One edge may claim two boxes");
+  }
+ }
+ std::cout<<"PASS: laser cycles, twelve card effects, costs, shield/poison, factory contention/conversion/shipping, crater edges, connect-four windows and tactics, reversi rays, five-stone windows and open ends, hex distance fields, pawn movement boundaries, dot box ownership\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

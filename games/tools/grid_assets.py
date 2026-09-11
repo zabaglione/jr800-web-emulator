@@ -52,6 +52,35 @@ def logo(name,kind):
                 for p,q in zip(points,points[1:]):b.line(*p,*q)
                 b.line(x-3,y,x+3,y);b.line(x,y-3,x,y+3)
         b.line(8,52,184,52);b.line(91,49,96,52);b.line(91,55,96,52)
+    elif kind=='knight-tour':
+        for x in (5,162):
+            points=[(x,47),(x+24,47),(x+24,42),(x+11,42),(x+14,35),(x+24,33),(x+20,19),(x+13,15),(x+11,22),(x+5,26),(x+7,33),(x+13,31),(x+9,42),(x,42),(x,47)]
+            for p,q in zip(points,points[1:]):b.line(*p,*q)
+            b.dot(x+17,25);b.dot(x+17,26)
+        for x in (37,70,103,136):b.line(x,51,x+15,51);b.line(x+15,51,x+15,46)
+    elif kind=='peg-rescue':
+        for x,y in ((11,12),(27,35),(176,13),(163,36)):
+            for Y in range(-6,7):
+                for X in range(-6,7):
+                    if X*X+Y*Y<=36 and (x%2 or X*X+Y*Y>=19):b.dot(x+X,y+Y)
+            b.line(x-7,y+9,x+7,y+9)
+        for x in (30,70,110,150):
+            b.line(x,51,x+20,48);b.line(x+20,48,x+16,46);b.line(x+20,48,x+17,52)
+    elif kind=='pawn-race':
+        for x in (6,165):
+            b.rect(x,42,20,6,1,True);b.line(x+3,40,x+7,27);b.line(x+16,40,x+12,27)
+            for Y in range(-5,6):
+                for X in range(-5,6):
+                    if X*X+Y*Y<=25:b.dot(x+10+X,20+Y)
+            b.line(x+5,9,x+15,9);b.line(x+5,9,x+10,4);b.line(x+15,9,x+10,4)
+        for x in range(31,158,8):b.rect(x,49,4,4,1,True)
+    elif kind=='dot-claim':
+        for x in (5,167):
+            for yy in range(3):
+                for xx in range(2):b.rect(x+xx*16,6+yy*19,4,4,1,True)
+            b.line(x+2,8,x+18,8);b.line(x+18,8,x+18,46);b.line(x+2,27,x+2,46);b.line(x+2,46,x+18,46)
+            b.rect(x+6,31,9,10,1,x==5)
+        for x in range(35,159,15):b.rect(x,50,3,3,1,True)
     else:
         raise ValueError('A distinct title motif is required: '+kind)
     for row,word in enumerate(name.split()):

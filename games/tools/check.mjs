@@ -20,6 +20,7 @@ try{
  if(mode==='smoke'){
   await g.start();g.frame();assert.equal(g.word('dirty_bytes'),0,'Idle play');
   g.tap('right');g.tap('space');assert.equal(g.read('phase'),2,'First action remains playable');
+  if(g.read('selection_active')){g.tap('return');assert.equal(g.read('selection_active'),0,'RETURN cancels selection');assert.equal(g.read('phase'),2);}
   g.tap('return');assert.equal(g.read('phase'),3,'Menu opens');
   for(let i=0;i<3;i++){g.frame();assert.equal(g.word('dirty_bytes'),0,'Paused menu has no LCD writes');}
   g.tap('return');assert.equal(g.read('phase'),2,'Menu returns to play');
