@@ -12,6 +12,10 @@
 
 公開候補のNative Releaseは63項目が成功しました。Native Debugでも規則とHUDの検査を通過しています。ローカルChromeで全50本の保存ROM復元・自動起動・タイトル画素・実キーと仮想キー・音声開始・再読み込みを確認しました。ROM未設定、不明ID、整合性検査失敗、通常アクセス時の手動起動も検査し、ROMを送信するHTTP要求がないことを確認しています。
 
+[公開ソースのCI](https://github.com/zabaglione/jr800-web-emulator/actions/runs/34576227577)でも、Native Debug／Release各63項目、WASM Debug／Release各115項目がすべて成功しました。[Pages配信](https://github.com/zabaglione/jr800-web-emulator/actions/runs/34576227605)も成功しています。
+
+配信後の[公開サイト](https://zabaglione.github.io/jr800-web-emulator/)で、上記のChrome検査を全50本に対して実行し、すべて成功しました。[Wiki](https://github.com/zabaglione/jr800-web-emulator/wiki)は50ページ・8ジャンル・200画像を確認し、画像の内容とソース・起動リンクも照合しています。Wiki画像は今回のゲーム実装コミット`26a59d255d4174a3998caf4388d6cc98ce372c9e`に固定しています。
+
 ## 描画・操作
 
 再生の各フレームで、LCDの12,288画素を1,536バイトの描画面と比較します。静止したタイトル・盤面・停止メニューではLCDデータ転送が0バイトであることを検査しています。
