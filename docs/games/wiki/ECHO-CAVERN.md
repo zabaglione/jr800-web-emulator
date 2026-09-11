@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=echo-cavern) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/echo-cavern)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/echo-cavern/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/echo-cavern/title.png)
 
 音波で見えない洞窟を調べ、酸素を管理して結晶3個を持ち帰る全12面の探索ゲームです。
 
@@ -22,15 +22,15 @@ RETURNでメニューを開きます。SONARはSPACEと同じ音波操作、RESE
 
 ## ゲーム画面
 
-![入口から音波で調べた範囲と未調査の洞窟](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/echo-cavern/gameplay-1.png)
+![入口から音波で調べた範囲と未調査の洞窟](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/echo-cavern/gameplay-1.png)
 
 入口から音波で調べた範囲と未調査の洞窟。
 
-![通路に沿って広がる調査記録](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/echo-cavern/gameplay-2.png)
+![通路に沿って広がる調査記録](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/echo-cavern/gameplay-2.png)
 
 通路に沿って広がる調査記録。
 
-![結晶を集め、酸素を残して出口を探す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/echo-cavern/gameplay-3.png)
+![結晶を集め、酸素を残して出口を探す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/echo-cavern/gameplay-3.png)
 
 結晶を集め、酸素を残して出口を探す。
 
@@ -44,6 +44,8 @@ RETURNでメニューを開きます。SONARはSPACEと同じ音波操作、RESE
 | BASICへ終了 | BREAK |
 
 メニューを開いている間はゲームが停止します。決定・取消は押した瞬間だけ反応し、移動だけ長押しできます。
+
+クリア後は解き終えた盤面をしばらく残し、ジングルと余韻の後に結果を表示します。続行案内が出てからSPACEを押してください。押しっぱなしでは次へ進みません。
 
 ## 確認済み環境
 

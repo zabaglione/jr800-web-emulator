@@ -1,0 +1,29 @@
+// SPDX-License-Identifier: MIT
+let eventEnabled=false;
+const events=[];
+const eventKeys=['keypad-8','keypad-2','keypad-4','keypad-6','space','return','letter-w','letter-s','letter-a','letter-d','keypad-7','keypad-9','keypad-1','keypad-3','keypad-5'];
+function eventKey(key,held){if(eventEnabled){const n=eventKeys.indexOf(key);assert.ok(n>=0);events.push(`K ${n} ${Number(held)}`);}return machine.setKeyboardKeyState(key,held);}
+function eventStep(){if(eventEnabled)events.push('R 1');return machine.step();}
+function eventRun(n){if(eventEnabled)events.push('R '+n);return machine.run(n);}
+async function saveEvents(prefix){await writeFile(resolve(outputDirectory,prefix+'replay.txt'),`${symbols.frame_ready} ${symbols.framebuffer} ${c.G_MODE} ${symbols.redraw}\nEVENTS\n`+events.join('\n')+'\n');}
+function checkAliases(){
+    const base=machine.exportState();
+    for(let i=1;i<=4;i++){
+        machine.importState(base);press(i);const world=stableState(),pixels=lcd().dots;
+        machine.importState(base);const key=keys[i];keys[i]=['letter-w','letter-s','letter-a','letter-d'][i-1];press(i);
+        assert.deepEqual(stableState(),world,'WASD and keypad produce identical gameplay');assert.deepEqual(lcd().dots,pixels);
+        keys[i]=key;machine.setKeyboardKeyState(['letter-w','letter-s','letter-a','letter-d'][i-1],false);
+    }
+    machine.importState(base);press(6);assert.equal(read('G_MODE'),2,'RETURN opens the world menu');press(6);assert.equal(read('G_MODE'),1);machine.importState(base);
+}
+async function checkClear(){
+    assert.equal(machine.memory(symbols.gfx_clear_active,1)[0],1);await screen('clear-scene.svg');
+    const scene=lcd().dots;
+    eventStep();eventRun(10000);eventKey('space',true);eventRun(20000);
+    assert.equal(machine.memory(symbols.gfx_clear_active,1)[0],1);assert.deepEqual(lcd().dots,scene,'Clear retains the completed dungeon');
+    const start=Number(machine.state().cycleCount);ready(2000000);
+    assert.ok(Number(machine.state().cycleCount)-start>1200000,'Clear hold lasts at least one emulated second');
+    assert.equal(machine.memory(symbols.gfx_clear_done,1)[0],1);await screen('result.svg');
+    eventStep();eventRun(20000);assert.equal(read('G_MODE'),9,'Held confirm does not skip the result');
+    press(5);assert.equal(read('G_MODE'),0,'A fresh confirm starts the title');
+}

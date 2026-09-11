@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=pawn-race) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/pawn-race)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/pawn-race/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/pawn-race/title.png)
 
 前進と斜め取りで敵陣を突破する6×6のCPU対戦です。3段階のCPUを選べます。
 
@@ -18,15 +18,15 @@ CPUの難易度1は前進を優先し、2は取り合いと取り返される危
 
 ## ゲーム画面
 
-![白と黒の12個ずつの駒で対局開始](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/pawn-race/gameplay-1.png)
+![白と黒の12個ずつの駒で対局開始](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/pawn-race/gameplay-1.png)
 
 白と黒の12個ずつの駒で対局開始。
 
-![選択した駒の移動先を確認](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/pawn-race/gameplay-2.png)
+![選択した駒の移動先を確認](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/pawn-race/gameplay-2.png)
 
 選択した駒の移動先を確認。
 
-![突破を狙う駒と後方の守り](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/pawn-race/gameplay-3.png)
+![突破を狙う駒と後方の守り](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/pawn-race/gameplay-3.png)
 
 突破を狙う駒と後方の守り。
 
@@ -40,6 +40,8 @@ CPUの難易度1は前進を優先し、2は取り合いと取り返される危
 | BASICへ終了 | BREAK |
 
 メニューを開いている間はゲームが停止します。決定・取消は押した瞬間だけ反応し、移動だけ長押しできます。
+
+クリア後は解き終えた盤面をしばらく残し、ジングルと余韻の後に結果を表示します。続行案内が出てからSPACEを押してください。押しっぱなしでは次へ進みません。
 
 ## 確認済み環境
 

@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=tail-trail) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/tail-trail)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/tail-trail/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/tail-trail/title.png)
 
 食べ物を集めるたびに長くなる尾を避けて走る、3難易度のヘビゲームです。
 
@@ -20,15 +20,15 @@ RETURNでメニューを開くと時間が止まります。PAUSEはメニュー
 
 ## ゲーム画面
 
-![食べ物と進む方向を見て開始](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/tail-trail/gameplay-1.png)
+![食べ物と進む方向を見て開始](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/tail-trail/gameplay-1.png)
 
 食べ物と進む方向を見て開始。
 
-![食べ物を10個集めて長くなった尾](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/tail-trail/gameplay-2.png)
+![食べ物を10個集めて長くなった尾](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/tail-trail/gameplay-2.png)
 
 食べ物を10個集めて長くなった尾。
 
-![高速な難易度で自分の尾を避ける](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/tail-trail/gameplay-3.png)
+![高速な難易度で自分の尾を避ける](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/tail-trail/gameplay-3.png)
 
 高速な難易度で自分の尾を避ける。
 
@@ -42,6 +42,8 @@ RETURNでメニューを開くと時間が止まります。PAUSEはメニュー
 | BASICへ終了 | BREAK |
 
 メニューを開いている間はゲームが停止します。決定・取消は押した瞬間だけ反応し、移動だけ長押しできます。
+
+クリア後は解き終えた盤面をしばらく残し、ジングルと余韻の後に結果を表示します。続行案内が出てからSPACEを押してください。押しっぱなしでは次へ進みません。
 
 ## 確認済み環境
 

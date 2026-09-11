@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=market-harbor) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/market-harbor)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/market-harbor/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/market-harbor/title.png)
 
 4つの港で米・鉱石・香辛料を売買し、運賃と積載量を考えて資金を増やす全12課題の交易ゲームです。
 
@@ -24,15 +24,15 @@ GOAL以上の現金を得る売却でクリアします。商品の評価額は�
 
 ## ゲーム画面
 
-![港の相場と積載量を見て売買する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/market-harbor/gameplay-1.png)
+![港の相場と積載量を見て売買する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/market-harbor/gameplay-1.png)
 
 港の相場と積載量を見て売買する。
 
-![到着日の価格と運賃を比べて出航先を選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/market-harbor/gameplay-2.png)
+![到着日の価格と運賃を比べて出航先を選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/market-harbor/gameplay-2.png)
 
 到着日の価格と運賃を比べて出航先を選ぶ。
 
-![仕入れた積荷を売り、現金の目標へ近づく](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/market-harbor/gameplay-3.png)
+![仕入れた積荷を売り、現金の目標へ近づく](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/market-harbor/gameplay-3.png)
 
 仕入れた積荷を売り、現金の目標へ近づく。
 
@@ -46,6 +46,8 @@ GOAL以上の現金を得る売却でクリアします。商品の評価額は�
 | BASICへ終了 | BREAK |
 
 メニューを開いている間はゲームが停止します。決定・取消は押した瞬間だけ反応し、移動だけ長押しできます。
+
+クリア後は解き終えた盤面をしばらく残し、ジングルと余韻の後に結果を表示します。続行案内が出てからSPACEを押してください。押しっぱなしでは次へ進みません。
 
 ## 確認済み環境
 

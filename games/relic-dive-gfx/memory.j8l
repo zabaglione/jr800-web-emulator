@@ -1,0 +1,23 @@
+target hd6301v1
+entry entry
+region PROGRAM $2800 $2000
+region STATE $4800 $0600
+region FRAME $4E00 $0600
+region RUNTIME $5400 $0400
+region CONTEXT $5800 $0100
+region GENERATION $5900 $0500
+place .text PROGRAM
+place .data PROGRAM
+place .gfx_draw PROGRAM
+place .gfx_sound PROGRAM
+place .bss STATE
+place .frame FRAME
+place .runtime RUNTIME
+place .gfx RUNTIME
+place .gfx_data RUNTIME
+place .gfx_dirty RUNTIME
+place .gfx_state CONTEXT
+place .context CONTEXT
+place .generation GENERATION
+place .gfx_audio GENERATION
+place .gfx_notes GENERATION

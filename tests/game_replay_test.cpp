@@ -65,18 +65,37 @@ int main(int argc,char** argv){try {
     require(bool(replay>>frame_pc>>fb>>phase>>update_pc),"Replay header");
     Metrics metrics;metrics.update_pc=update_pc;
     require(execution.add_observer(&metrics),"Metrics observer");
-    const std::array<Jr800Key,10> keys{Jr800Key::keypad_8,Jr800Key::keypad_2,Jr800Key::keypad_4,Jr800Key::keypad_6,Jr800Key::space,Jr800Key::return_key,Jr800Key::letter_w,Jr800Key::letter_s,Jr800Key::letter_a,Jr800Key::letter_d};
+    const std::array<Jr800Key,15> keys{Jr800Key::keypad_8,Jr800Key::keypad_2,Jr800Key::keypad_4,Jr800Key::keypad_6,Jr800Key::space,Jr800Key::return_key,Jr800Key::letter_w,Jr800Key::letter_s,Jr800Key::letter_a,Jr800Key::letter_d,Jr800Key::keypad_7,Jr800Key::keypad_9,Jr800Key::keypad_1,Jr800Key::keypad_3,Jr800Key::keypad_5};
     auto read=[&](unsigned a){auto r=execution.inspect8(a);require(r.succeeded(),"RAM inspect");return *r.value;};
     auto step=[&](){auto r=execution.step_instruction();require(r.succeeded(),"Native instruction at "+std::to_string(r.pc_before));};
     unsigned mask,expected_hash,expected_bytes,expected_phase,frames=0,maximum_data=0;
     std::uint64_t expected_cycles;
-    while(replay>>mask>>expected_hash>>expected_cycles>>expected_bytes>>expected_phase){
-        for(unsigned i=0;i<keys.size();++i)require(machine.set_keyboard_key_state(keys[i],mask&(1U<<i)),"Key event");
+    replay>>std::ws;
+    const bool events=replay.peek()=='E';
+    if(events){std::string format;replay>>format;require(format=="EVENTS","Unknown replay format");}
+    std::uint64_t previous_lcd=0;
+    while(true){
+        if(events){
+            char event;
+            if(!(replay>>event))break;
+            if(event=='K'){
+                unsigned key,held;require(bool(replay>>key>>held)&&key<keys.size()&&held<=1,"Invalid key event");
+                require(machine.set_keyboard_key_state(keys[key],held!=0),"Key event");continue;
+            }
+            if(event=='R'){
+                unsigned count;require(bool(replay>>count)&&count<=1000000,"Invalid instruction event");
+                for(unsigned i=0;i<count;++i)step();continue;
+            }
+            require(event=='F'&&bool(replay>>expected_hash>>expected_cycles>>expected_phase),"Invalid frame event");
+        }else{
+            if(!(replay>>mask>>expected_hash>>expected_cycles>>expected_bytes>>expected_phase))break;
+            for(unsigned i=0;i<keys.size();++i)require(machine.set_keyboard_key_state(keys[i],mask&(1U<<i)),"Key event");
+        }
         const auto before_lcd=metrics.lcd_bytes;
-        metrics.playing=frames&&read(phase)==2;
-        if(frames)step();
+        metrics.playing=frames&&read(phase)==(events?1:2);
+        if(frames&&!events)step();
         unsigned steps=0;
-        while(execution.cpu().state().pc!=frame_pc&&steps++<1000000)step();
+        while(execution.cpu().state().pc!=frame_pc&&steps++<2000000)step();
         require(execution.cpu().state().pc==frame_pc,"Native frame timeout");
         require(execution.cpu().state().sp==0x5fff,"Unbalanced stack");
         require(execution.cpu().state().cycle_count==expected_cycles,"Native/WASM cycle mismatch at frame "+std::to_string(frames));
@@ -86,12 +105,14 @@ int main(int argc,char** argv){try {
         require(hash==expected_hash,"Native/WASM framebuffer mismatch");
         for(unsigned y=0;y<64;++y)for(unsigned x=0;x<192;++x)
             require(machine.lcd_panel_dot(x,y)==bool(read(fb+(y/8)*192+x)&(1U<<(y%8))),"Native LCD mismatch");
-        if(frames)require(metrics.lcd_bytes-before_lcd==expected_bytes,"Native/WASM LCD transfer mismatch");
-        maximum_data=std::max(maximum_data,expected_bytes);
+        if(events)expected_bytes=static_cast<unsigned>(metrics.lcd_bytes-previous_lcd);
+        else if(frames)require(metrics.lcd_bytes-before_lcd==expected_bytes,"Native/WASM LCD transfer mismatch");
+        previous_lcd=metrics.lcd_bytes;
+        if(frames||!events)maximum_data=std::max(maximum_data,expected_bytes);
         if(metrics.updating){
             const auto cycles=expected_cycles-metrics.update_cycle;
             metrics.max_update=std::max(metrics.max_update,cycles);
-            if(metrics.playing&&expected_phase==2)metrics.max_play_update=std::max(metrics.max_play_update,cycles);
+            if(metrics.playing&&expected_phase==(events?1U:2U))metrics.max_play_update=std::max(metrics.max_play_update,cycles);
         }
         ++frames;
     }

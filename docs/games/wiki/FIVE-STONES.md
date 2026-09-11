@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=five-stones) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/five-stones)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/five-stones/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/five-stones/title.png)
 
 14×7の盤面で5個の石を並べるCPU対戦です。両端が空いた攻め筋と相手のリーチを読む五目並べです。
 
@@ -18,15 +18,15 @@ RETURNからUNDO TURNで自分とCPUの直前の1ターンを戻せます。RESE
 
 ## ゲーム画面
 
-![白と黒が中央から攻める序盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/five-stones/gameplay-1.png)
+![白と黒が中央から攻める序盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/five-stones/gameplay-1.png)
 
 白と黒が中央から攻める序盤。
 
-![複数の方向へ石を伸ばす中盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/five-stones/gameplay-2.png)
+![複数の方向へ石を伸ばす中盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/five-stones/gameplay-2.png)
 
 複数の方向へ石を伸ばす中盤。
 
-![最後の攻め筋を作る場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/five-stones/gameplay-3.png)
+![最後の攻め筋を作る場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/five-stones/gameplay-3.png)
 
 最後の攻め筋を作る場面。
 
@@ -40,6 +40,8 @@ RETURNからUNDO TURNで自分とCPUの直前の1ターンを戻せます。RESE
 | BASICへ終了 | BREAK |
 
 メニューを開いている間はゲームが停止します。決定・取消は押した瞬間だけ反応し、移動だけ長押しできます。
+
+クリア後は解き終えた盤面をしばらく残し、ジングルと余韻の後に結果を表示します。続行案内が出てからSPACEを押してください。押しっぱなしでは次へ進みません。
 
 ## 確認済み環境
 

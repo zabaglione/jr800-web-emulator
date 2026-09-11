@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=balance-dock) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/balance-dock)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/balance-dock/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/balance-dock/title.png)
 
 左右に動く荷物を落として高く積むタイミングゲームです。はみ出した部分は切り落とされ、残った幅で次の荷物を受け止めます。
 
@@ -22,15 +22,15 @@ RETURNのメニューでは移動・落下が止まります。FLIPは左右移�
 
 ## ゲーム画面
 
-![はみ出した部分が切れ、次に支えられる幅が小さくなる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/balance-dock/gameplay-1.png)
+![はみ出した部分が切れ、次に支えられる幅が小さくなる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/balance-dock/gameplay-1.png)
 
 はみ出した部分が切れ、次に支えられる幅が小さくなる。
 
-![同じ位置へ正確に重ねて幅と得点を保つ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/balance-dock/gameplay-2.png)
+![同じ位置へ正確に重ねて幅と得点を保つ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/balance-dock/gameplay-2.png)
 
 同じ位置へ正確に重ねて幅と得点を保つ。
 
-![20段を目指し、高くなった積み荷へ次の荷物を合わせる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/balance-dock/gameplay-3.png)
+![20段を目指し、高くなった積み荷へ次の荷物を合わせる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/balance-dock/gameplay-3.png)
 
 20段を目指し、高くなった積み荷へ次の荷物を合わせる。
 
@@ -44,6 +44,8 @@ RETURNのメニューでは移動・落下が止まります。FLIPは左右移�
 | BASICへ終了 | BREAK |
 
 メニューを開いている間はゲームが停止します。決定・取消は押した瞬間だけ反応し、移動だけ長押しできます。
+
+クリア後は解き終えた盤面をしばらく残し、ジングルと余韻の後に結果を表示します。続行案内が出てからSPACEを押してください。押しっぱなしでは次へ進みません。
 
 ## 確認済み環境
 

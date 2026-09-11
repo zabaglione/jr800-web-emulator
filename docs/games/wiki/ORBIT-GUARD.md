@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=orbit-guard) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/orbit-guard)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/orbit-guard/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/orbit-guard/title.png)
 
 中央の砲台を8方向へ回し、軌道から近づく敵を迎撃する全12ウェーブの防衛シューティングです。
 
@@ -22,15 +22,15 @@ RETURNでメニューを開いている間は停止します。RESETとRETRYはC
 
 ## ゲーム画面
 
-![中央の砲台と3重の接近軌道](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/orbit-guard/gameplay-1.png)
+![中央の砲台と3重の接近軌道](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/orbit-guard/gameplay-1.png)
 
 中央の砲台と3重の接近軌道。
 
-![複数方向から迫る装甲付きの敵](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/orbit-guard/gameplay-2.png)
+![複数方向から迫る装甲付きの敵](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/orbit-guard/gameplay-2.png)
 
 複数方向から迫る装甲付きの敵。
 
-![角度を変えながら接近する後半ウェーブ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/orbit-guard/gameplay-3.png)
+![角度を変えながら接近する後半ウェーブ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/orbit-guard/gameplay-3.png)
 
 角度を変えながら接近する後半ウェーブ。
 
@@ -44,6 +44,8 @@ RETURNでメニューを開いている間は停止します。RESETとRETRYはC
 | BASICへ終了 | BREAK |
 
 メニューを開いている間はゲームが停止します。決定・取消は押した瞬間だけ反応し、移動だけ長押しできます。
+
+クリア後は解き終えた盤面をしばらく残し、ジングルと余韻の後に結果を表示します。続行案内が出てからSPACEを押してください。押しっぱなしでは次へ進みません。
 
 ## 確認済み環境
 

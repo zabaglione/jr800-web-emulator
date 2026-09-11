@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=maze-chase) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/maze-chase)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/maze-chase/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/maze-chase/title.png)
 
 2体の追跡者をかわし、迷路の粒を集める12面のアクションゲームです。
 
@@ -20,15 +20,15 @@ RETURNでメニューを開くと全体が止まります。PAUSEではメニュ
 
 ## ゲーム画面
 
-![粒とパワー粒の位置を確認して開始](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/maze-chase/gameplay-1.png)
+![粒とパワー粒の位置を確認して開始](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/maze-chase/gameplay-1.png)
 
 粒とパワー粒の位置を確認して開始。
 
-![追跡者をかわしながら迷路を巡る](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/maze-chase/gameplay-2.png)
+![追跡者をかわしながら迷路を巡る](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/maze-chase/gameplay-2.png)
 
 追跡者をかわしながら迷路を巡る。
 
-![残り9個の粒を狙う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/maze-chase/gameplay-3.png)
+![残り9個の粒を狙う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/maze-chase/gameplay-3.png)
 
 残り9個の粒を狙う。
 
@@ -42,6 +42,8 @@ RETURNでメニューを開くと全体が止まります。PAUSEではメニュ
 | BASICへ終了 | BREAK |
 
 メニューを開いている間はゲームが停止します。決定・取消は押した瞬間だけ反応し、移動だけ長押しできます。
+
+クリア後は解き終えた盤面をしばらく残し、ジングルと余韻の後に結果を表示します。続行案内が出てからSPACEを押してください。押しっぱなしでは次へ進みません。
 
 ## 確認済み環境
 

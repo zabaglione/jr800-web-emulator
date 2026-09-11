@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [パズル・論理](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Logic) · モダン
 
-[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=switch-maze) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/switch-maze)
+[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/switch-maze)
 
 ![タイトル画面](../../docs/games/screenshots/switch-maze/title.png)
 
@@ -10,7 +10,7 @@
 
 ## 遊び方
 
-方向キーで移動します。鍵2個を取り、出口へ着くとクリアです。スイッチを踏むたびに対応する扉の開閉が切り替わります。追加目標は、2か所の印を通ることです。後半では同じスイッチを複数回使う経路も必要になります。
+方向キーで移動します。鍵2個を取り、出口へ着くとクリアです。A・Bは床にある2系統のスイッチです。Aを踏むとAの文字がある扉、Bを踏むとBの文字がある扉が開閉します。閉じた扉は文字を囲む枠で表示し、開くと中央が空いた絵になります。同じスイッチをもう一度踏むと閉じます。追加目標は、2か所の印を通ることです。後半では同じスイッチを複数回使う経路も必要になります。
 
 閉じた扉や壁への入力は手数に含めません。RETURNメニューから移動と扉の状態を1手戻せます。
 

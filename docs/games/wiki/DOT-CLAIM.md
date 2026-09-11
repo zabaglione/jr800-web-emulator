@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=dot-claim) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/dot-claim)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/dot-claim/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/dot-claim/title.png)
 
 点の間に辺を引き、四角を閉じて陣地を取るCPU対戦です。12個の四角を争い、閉じると続けて手を打てます。
 
@@ -18,15 +18,15 @@ CPUの難易度1は空いている辺を順に選び、2はすぐ閉じられる
 
 ## ゲーム画面
 
-![点と辺を選んで始める対局](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/dot-claim/gameplay-1.png)
+![点と辺を選んで始める対局](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/dot-claim/gameplay-1.png)
 
 点と辺を選んで始める対局。
 
-![連続して四角を取り自分の陣地を広げる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/dot-claim/gameplay-2.png)
+![連続して四角を取り自分の陣地を広げる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/dot-claim/gameplay-2.png)
 
 連続して四角を取り自分の陣地を広げる。
 
-![12個の四角を分け合った対局結果](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/dot-claim/gameplay-3.png)
+![12個の四角を分け合った対局結果](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/dot-claim/gameplay-3.png)
 
 12個の四角を分け合った対局結果。
 
@@ -40,6 +40,8 @@ CPUの難易度1は空いている辺を順に選び、2はすぐ閉じられる
 | BASICへ終了 | BREAK |
 
 メニューを開いている間はゲームが停止します。決定・取消は押した瞬間だけ反応し、移動だけ長押しできます。
+
+クリア後は解き終えた盤面をしばらく残し、ジングルと余韻の後に結果を表示します。続行案内が出てからSPACEを押してください。押しっぱなしでは次へ進みません。
 
 ## 確認済み環境
 

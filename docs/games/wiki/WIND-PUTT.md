@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=wind-putt) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/wind-putt)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/wind-putt/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/wind-putt/title.png)
 
 風と壁の反射を読み、12コースのカップを狙うミニゴルフです。角度と強さを選び、各コース12打以内のカップインを目指します。
 
@@ -20,15 +20,15 @@ RETURNでメニューを開くと球の進行が止まります。RETEEは1打�
 
 ## ゲーム画面
 
-![球と狙いの印を見て、風に合わせて打つ方向を調整する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/wind-putt/gameplay-1.png)
+![球と狙いの印を見て、風に合わせて打つ方向を調整する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/wind-putt/gameplay-1.png)
 
 球と狙いの印を見て、風に合わせて打つ方向を調整する。
 
-![壁の切れ目へ向けて斜めに打ち、次の位置を作る](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/wind-putt/gameplay-2.png)
+![壁の切れ目へ向けて斜めに打ち、次の位置を作る](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/wind-putt/gameplay-2.png)
 
 壁の切れ目へ向けて斜めに打ち、次の位置を作る。
 
-![反射を利用しながら旗のカップを目指す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/wind-putt/gameplay-3.png)
+![反射を利用しながら旗のカップを目指す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/wind-putt/gameplay-3.png)
 
 反射を利用しながら旗のカップを目指す。
 
@@ -42,6 +42,8 @@ RETURNでメニューを開くと球の進行が止まります。RETEEは1打�
 | BASICへ終了 | BREAK |
 
 メニューを開いている間はゲームが停止します。決定・取消は押した瞬間だけ反応し、移動だけ長押しできます。
+
+クリア後は解き終えた盤面をしばらく残し、ジングルと余韻の後に結果を表示します。続行案内が出てからSPACEを押してください。押しっぱなしでは次へ進みません。
 
 ## 確認済み環境
 

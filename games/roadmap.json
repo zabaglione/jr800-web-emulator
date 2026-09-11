@@ -350,6 +350,13 @@
       "genre": "sports",
       "style": "modern",
       "summary": "動く荷物を重ね、重なった幅を保って高く積む。"
+    },
+    {
+      "id": "relic-dive-gfx",
+      "title": "RELIC DIVE GFX",
+      "genre": "adventure",
+      "style": "classic",
+      "summary": "元のRELIC DIVEと同じ探索・戦闘・アイテム処理を使う、新しいグラフィックの独立版。"
     }
   ]
 }

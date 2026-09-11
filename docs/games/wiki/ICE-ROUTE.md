@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=ice-route) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/ice-route)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f5852dd3d1b02680c422dc3c79917b24ee9e9c75/docs/games/screenshots/ice-route/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/ice-route/title.png)
 
 止まるまで滑り続ける床で宝石と出口を目指す、全40面の経路パズルです。
 
@@ -18,19 +18,19 @@
 
 ## ゲーム画面
 
-![第1面。空白の床、黒いプレイヤー、中抜きの宝石、大きな星形の追加目標](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f5852dd3d1b02680c422dc3c79917b24ee9e9c75/docs/games/screenshots/ice-route/gameplay-1.png)
+![第1面。空白の床、黒いプレイヤー、中抜きの宝石、大きな星形の追加目標](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/ice-route/gameplay-1.png)
 
 第1面。空白の床、黒いプレイヤー、中抜きの宝石、大きな星形の追加目標。
 
-![第31面の滑走途中。通過するマスと回収の様子を順に表示](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f5852dd3d1b02680c422dc3c79917b24ee9e9c75/docs/games/screenshots/ice-route/gameplay-2.png)
+![第31面の滑走途中。通過するマスと回収の様子を順に表示](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/ice-route/gameplay-2.png)
 
 第31面の滑走途中。通過するマスと回収の様子を順に表示。
 
-![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f5852dd3d1b02680c422dc3c79917b24ee9e9c75/docs/games/screenshots/ice-route/gameplay-3.png)
+![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/ice-route/gameplay-3.png)
 
 第40面を規定手数と追加目標の両方を満たしてクリア。
 
-![開始時のアイテム出現、プレイヤーの点滅、滑走とクリア演出（実プレイ、音声なし）](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f5852dd3d1b02680c422dc3c79917b24ee9e9c75/docs/games/screenshots/ice-route/playthrough.gif)
+![開始時のアイテム出現、プレイヤーの点滅、滑走とクリア演出（実プレイ、音声なし）](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/ice-route/playthrough.gif)
 
 開始時のアイテム出現、プレイヤーの点滅、滑走とクリア演出（実プレイ、音声なし）。
 
@@ -65,7 +65,7 @@ HUDの **USED** は使った手数、**PAR** は規定手数です。規定手�
 
 コードは**面と評価**を記録します。盤面の途中状態は含みません。BASICへ戻る前にLOAD RECORDを控えると、次回の起動後に記録を復元できます。入力したLOAD RECORDの内容で全40面のBESTが置き換わるため、新しい記録を控えてから復元してください。
 
-![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f5852dd3d1b02680c422dc3c79917b24ee9e9c75/docs/games/screenshots/ice-route/selection.png)
+![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/ice-route/selection.png)
 
 面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。
 
@@ -79,6 +79,8 @@ HUDの **USED** は使った手数、**PAR** は規定手数です。規定手�
 | BASICへ終了 | BREAK |
 
 メニューを開いている間はゲームが停止します。決定・取消は押した瞬間だけ反応し、移動だけ長押しできます。
+
+クリア後は解き終えた盤面をしばらく残し、ジングルと余韻の後に結果を表示します。続行案内が出てからSPACEを押してください。押しっぱなしでは次へ進みません。
 
 ## 確認済み環境
 

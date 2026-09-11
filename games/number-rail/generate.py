@@ -10,10 +10,9 @@ from digit_art import draw_digits
 sprites=[]
 for p in range(12):
  b=Bitmap(32,8)
- if p:
-  # Seven rows belong to the number; the lower lip and side never cross its strokes.
-  b.line(1,7,31,7);b.line(0,2,0,6);b.line(31,1,31,7);b.dot(1,1);b.dot(30,0)
- else:b.line(0,7,31,7)
+ # Uniform flat rails leave all seven number rows intact. No displaced
+ # corners or shadows: an 8-dot row has no room for an additional top face.
+ b.line(0,0,0,7);b.line(31,0,31,7);b.line(0,7,31,7)
  if p:
   s=str(1<<p);draw_digits(b,s,(32-len(s)*6+1)//2,0,'number-rail')
  sprites.append(b)

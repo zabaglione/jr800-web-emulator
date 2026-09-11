@@ -10,14 +10,14 @@ levels=campaign(root)
 sprites=[]
 for n in range(12):
     b=Bitmap(8,8)
-    if n==0:b.dot(6,6)
+    if n==0:pass
     elif n==1:
         b.rect(0,0,8,8);b.line(0,3,7,3);b.line(3,0,3,3);b.line(5,4,5,7)
     elif n in (2,3):b.rect(1,0,4,4);b.line(4,3,4,7);b.line(4,6,6,6)
     elif n in (4,5):b.text('A' if n==4 else 'B',1,0);b.dot(0,7);b.dot(7,7)
     elif n in (6,7):
-        b.rect(0,0,8,8)
-        for x in ([2,5] if n==6 else [1,3,5]):b.line(x,1,x,6)
+        b.line(0,0,0,7);b.line(7,0,7,7);b.line(0,7,7,7)
+        b.text('A' if n==6 else 'B',1,0)
     elif n==8:b.rect(1,0,6,8);b.text('E',2,0)
     elif n in (9,10):
         b.line(0,0,7,0);b.line(0,7,7,7);b.dot(0,3);b.dot(7,4)

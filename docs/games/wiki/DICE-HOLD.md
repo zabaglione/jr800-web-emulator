@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=dice-hold) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/dice-hold)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/dice-hold/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/dice-hold/title.png)
 
 5個のダイスを保持・振り直しし、13種類の得点欄を埋めるダイスゲームです。3段階の得点目標に挑戦します。
 
@@ -20,15 +20,15 @@ ONES〜SIXESは対応する数字の合計です。3-KINDと4-KINDは同じ目�
 
 ## ゲーム画面
 
-![5個の出目から保持するダイスを選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/dice-hold/gameplay-1.png)
+![5個の出目から保持するダイスを選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/dice-hold/gameplay-1.png)
 
 5個の出目から保持するダイスを選ぶ。
 
-![保持したダイスを残して振り直した場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/dice-hold/gameplay-2.png)
+![保持したダイスを残して振り直した場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/dice-hold/gameplay-2.png)
 
 保持したダイスを残して振り直した場面。
 
-![得点欄ごとの点数と使用済みの印を確認](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/dice-hold/gameplay-3.png)
+![得点欄ごとの点数と使用済みの印を確認](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/dice-hold/gameplay-3.png)
 
 得点欄ごとの点数と使用済みの印を確認。
 
@@ -42,6 +42,8 @@ ONES〜SIXESは対応する数字の合計です。3-KINDと4-KINDは同じ目�
 | BASICへ終了 | BREAK |
 
 メニューを開いている間はゲームが停止します。決定・取消は押した瞬間だけ反応し、移動だけ長押しできます。
+
+クリア後は解き終えた盤面をしばらく残し、ジングルと余韻の後に結果を表示します。続行案内が出てからSPACEを押してください。押しっぱなしでは次へ進みません。
 
 ## 確認済み環境
 

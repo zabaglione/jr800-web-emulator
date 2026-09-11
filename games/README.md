@@ -26,7 +26,7 @@ make -C games/box-shift clean
 
 ## ジャンルから探す
 
-既存6本を含めて計50本を収録しています。作品の概要とジャンルは、[ジャンル別ゲーム一覧](../docs/games/README.md)と[開発一覧](../docs/games/roadmap.md)で確認できます。
+既存6本を含めて計51本を収録しています。作品の概要とジャンルは、[ジャンル別ゲーム一覧](../docs/games/README.md)と[開発一覧](../docs/games/roadmap.md)で確認できます。
 
 - [パズル](../docs/games/wiki/Genre-Logic.md)
 - [盤上戦略](../docs/games/wiki/Genre-Board.md)
@@ -55,4 +55,4 @@ ctest --preset wasm-release
 
 ## 画面の制作
 
-50作品のタイトルを個別の構図で制作し、HUDも左右の計器、荷札、カード卓、帳簿など作品に合わせて配置しています。[画面設計とメモリー配置](../docs/games/visual-design.md)に制作方針をまとめています。
+51作品のタイトルを個別の構図で制作し、HUDも左右の計器、荷札、カード卓、帳簿など作品に合わせて配置しています。[画面設計とメモリー配置](../docs/games/visual-design.md)に制作方針をまとめています。

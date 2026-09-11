@@ -5,7 +5,7 @@
 - [カード・ダイス (5)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Cards)
 - [アクション (8)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Action)
 - [シューティング (6)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting)
-- [探索・冒険 (4)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Adventure)
+- [探索・冒険 (5)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Adventure)
 - [経営・シミュレーション (4)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Simulation)
 - [スポーツ・タイミング (5)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Sports)
 

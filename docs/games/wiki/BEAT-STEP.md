@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=beat-step) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/beat-step)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/beat-step/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/beat-step/title.png)
 
 流れてくる矢印に合わせて4方向を押すリズムゲームです。3つの譜面を、6回のミスになる前に最後まで進めます。
 
@@ -22,15 +22,15 @@ RETURNのメニューでは譜面が止まり、復帰後に続きから再開�
 
 ## ゲーム画面
 
-![矢印の中央が縦線へ来るタイミングで対応する方向を押す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/beat-step/gameplay-1.png)
+![矢印の中央が縦線へ来るタイミングで対応する方向を押す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/beat-step/gameplay-1.png)
 
 矢印の中央が縦線へ来るタイミングで対応する方向を押す。
 
-![押して離すリズムを保ち、コンボをつなぐ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/beat-step/gameplay-2.png)
+![押して離すリズムを保ち、コンボをつなぐ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/beat-step/gameplay-2.png)
 
 押して離すリズムを保ち、コンボをつなぐ。
 
-![速い譜面では次に来る方向も先に読む](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/beat-step/gameplay-3.png)
+![速い譜面では次に来る方向も先に読む](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/beat-step/gameplay-3.png)
 
 速い譜面では次に来る方向も先に読む。
 
@@ -44,6 +44,8 @@ RETURNのメニューでは譜面が止まり、復帰後に続きから再開�
 | BASICへ終了 | BREAK |
 
 メニューを開いている間はゲームが停止します。決定・取消は押した瞬間だけ反応し、移動だけ長押しできます。
+
+クリア後は解き終えた盤面をしばらく残し、ジングルと余韻の後に結果を表示します。続行案内が出てからSPACEを押してください。押しっぱなしでは次へ進みません。
 
 ## 確認済み環境
 

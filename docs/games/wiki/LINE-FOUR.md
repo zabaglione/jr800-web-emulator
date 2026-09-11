@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=line-four) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/line-four)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/line-four/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/line-four/title.png)
 
 7列×6段の盤面にディスクを落とし、先に4個を並べるCPU対戦です。3段階の難易度があります。
 
@@ -16,19 +16,25 @@
 
 RETURNからUNDO TURNで自分とCPUの直前の1ターンを戻し、RESETまたはRETRYで再対戦します。勝利または引き分けの後にSPACEを押すと次の難易度へ進みます。敗北後のSPACEは同じ難易度で再挑戦します。
 
+自分とCPUのディスクは、選んだ列の最上段から1段ずつ落下します。着地してから次の手を処理するため、どこへ置いたかを追えます。落下中もRETURNで停止でき、UNDOは途中からでも直前のターンへ戻ります。
+
 ## ゲーム画面
 
-![最初のディスク配置と選択中の列](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/line-four/gameplay-1.png)
+![最初のディスク配置と選択中の列](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/line-four/gameplay-1.png)
 
 最初のディスク配置と選択中の列。
 
-![両端のリーチを狙う中盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/line-four/gameplay-2.png)
+![両端のリーチを狙う中盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/line-four/gameplay-2.png)
 
 両端のリーチを狙う中盤。
 
-![最高難易度で縦と斜めを競う場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/line-four/gameplay-3.png)
+![最高難易度で縦と斜めを競う場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/line-four/gameplay-3.png)
 
 最高難易度で縦と斜めを競う場面。
+
+![ディスクが最下段へ落ちていく途中](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/line-four/motion.png)
+
+ディスクが最下段へ落ちていく途中。
 
 ## 共通操作
 
@@ -40,6 +46,8 @@ RETURNからUNDO TURNで自分とCPUの直前の1ターンを戻し、RESETま�
 | BASICへ終了 | BREAK |
 
 メニューを開いている間はゲームが停止します。決定・取消は押した瞬間だけ反応し、移動だけ長押しできます。
+
+クリア後は解き終えた盤面をしばらく残し、ジングルと余韻の後に結果を表示します。続行案内が出てからSPACEを押してください。押しっぱなしでは次へ進みません。
 
 ## 確認済み環境
 

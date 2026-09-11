@@ -1,6 +1,6 @@
 # JR-800 ゲームライブラリー
 
-定番とモダンな遊びを組み合わせた**50本**のゲームを収録しています。SDKサンプルとは別の独立したゲームで、ゲーム内表示は英語です。
+定番とモダンな遊びを組み合わせた**51本**のゲームを収録しています。SDKサンプルとは別の独立したゲームで、ゲーム内表示は英語です。
 
 ## ジャンルから探す
 
@@ -11,13 +11,13 @@
 | [カード・ダイス](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Cards) | 5 | 手札、確率、リスクと報酬を使うゲーム。 |
 | [アクション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Action) | 8 | 移動、回避、ジャンプと空間の判断。 |
 | [シューティング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting) | 6 | 射線、照準、弾道を使うゲーム。 |
-| [探索・冒険](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Adventure) | 4 | 未知の場所を調べ、資源を管理して進むゲーム。 |
+| [探索・冒険](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Adventure) | 5 | 未知の場所を調べ、資源を管理して進むゲーム。 |
 | [経営・シミュレーション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Simulation) | 4 | 配置や運用を工夫して目標を達成するゲーム。 |
 | [スポーツ・タイミング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Sports) | 5 | 角度、反応、間合いとタイミングを競うゲーム。 |
 
 パズルを中心とした15作品は各40面、合計600面のチャレンジを収録。規定手数・追加目標・3段階評価と、面や全評価を復元するパスワードに対応しています。対象作品と詳しい説明は[パズルチャレンジ](https://github.com/zabaglione/jr800-web-emulator/wiki/Puzzle-Challenges)を参照してください。
 
-箱・建物・駒などは陰影や斜めの辺で奥行きを表現し、数字も作品の雰囲気に合わせています。50作品それぞれの採用判断とメモリー方針は[奥行きと数字の意匠](https://github.com/zabaglione/jr800-web-emulator/blob/main/docs/games/depth-design.md)にまとめています。
+箱・建物・駒などは陰影や斜めの辺で奥行きを表現し、数字も作品の雰囲気に合わせています。各作品の採用判断とメモリー方針は[奥行きと数字の意匠](https://github.com/zabaglione/jr800-web-emulator/blob/main/docs/games/depth-design.md)にまとめています。
 
 各作品のページに概要・操作・タイトル画面とゲーム中3場面を掲載します。**公開環境で確認済みの作品だけ「遊ぶ」リンクを付けます。** 同じサイト・パスでROMを保存済みなら、リンクからタイトル画面へ直接進めます。初回は手元のBASIC ROMを選び、Start BASICを押してください。
 
@@ -31,6 +31,8 @@
 | BASICへ終了 | BREAK |
 
 メニューを開いている間はゲームが停止します。決定・取消は押した瞬間だけ反応し、移動だけ長押しできます。
+
+クリア後は解き終えた盤面をしばらく残し、ジングルと余韻の後に結果を表示します。続行案内が出てからSPACEを押してください。押しっぱなしでは次へ進みません。
 
 ## 確認済み環境
 

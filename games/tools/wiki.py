@@ -66,7 +66,7 @@ if a.game:
  print(f'Generated {len(set(a.game))} selected game pages')
  raise SystemExit(0)
 home=f'# JR-800 ゲームライブラリー\n\n定番とモダンな遊びを組み合わせた**{len(games)}本**のゲームを収録しています。SDKサンプルとは別の独立したゲームで、ゲーム内表示は英語です。\n\n## ジャンルから探す\n\n| ジャンル | 作品数 | 内容 |\n|---|---:|---|\n'
-roadmap='# 50本の開発一覧\n\n「収録済み」は実装・検証対象の作品です。「制作予定」は未収録で、遊べる作品数には数えません。各作品の公開サイト確認後に起動リンクを掲載します。\n'
+roadmap='# ゲーム開発一覧\n\n「収録済み」は実装・検証対象の作品です。「制作予定」は未収録で、遊べる作品数には数えません。各作品の公開サイト確認後に起動リンクを掲載します。\n'
 sidebar=f'[ゲーム一覧]({repo}/wiki)\n\n'
 known={g['id'] for g in games}
 for genre in genres:
@@ -91,7 +91,7 @@ for genre in genres:
 home+='\nパズルを中心とした15作品は各40面、合計600面のチャレンジを収録。規定手数・追加目標・3段階評価と、面や全評価を復元するパスワードに対応しています。対象作品と詳しい説明は[パズルチャレンジ]('+wiki_link('Puzzle-Challenges')+')を参照してください。\n'
 (wiki/'Puzzle-Challenges.md').write_text('# パズルチャレンジ\n\n'+puzzle_common+'\n## 対象の15作品\n\n'+'\n'.join('- ['+g['title']+']('+wiki_link(g['id'].upper())+')' for g in games if g['id'] in PUZZLES)+'\n')
 sidebar+='\n[パズルチャレンジ・パスワード]('+wiki_link('Puzzle-Challenges')+')\n'
-home+='\n箱・建物・駒などは陰影や斜めの辺で奥行きを表現し、数字も作品の雰囲気に合わせています。50作品それぞれの採用判断とメモリー方針は[奥行きと数字の意匠]('+repo+'/blob/main/docs/games/depth-design.md)にまとめています。\n'
+home+='\n箱・建物・駒などは陰影や斜めの辺で奥行きを表現し、数字も作品の雰囲気に合わせています。各作品の採用判断とメモリー方針は[奥行きと数字の意匠]('+repo+'/blob/main/docs/games/depth-design.md)にまとめています。\n'
 home+='\n各作品のページに概要・操作・タイトル画面とゲーム中3場面を掲載します。**公開環境で確認済みの作品だけ「遊ぶ」リンクを付けます。** 同じサイト・パスでROMを保存済みなら、リンクからタイトル画面へ直接進めます。初回は手元のBASIC ROMを選び、Start BASICを押してください。\n\n'+common
 (wiki/'Home.md').write_text(home)
 (wiki/'_Sidebar.md').write_text(sidebar)

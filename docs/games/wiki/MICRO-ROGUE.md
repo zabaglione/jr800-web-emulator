@@ -4,11 +4,13 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=micro-rogue) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/micro-rogue)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/micro-rogue/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/micro-rogue/title.png)
 
 地形と配置が変わる5階のダンジョンを、装備と回復薬を集めて踏破する小さなローグライクです。
 
 ## 遊び方
+
+MICRO ROGUEは独立した小規模ローグライクです。元のRELIC DIVEはSDKサンプルに残しています。同じゲーム内容のグラフィック更新版は[RELIC DIVE GFX](https://github.com/zabaglione/jr800-web-emulator/wiki/RELIC-DIVE-GFX)です。
 
 テンキー2468またはWASDで移動します。敵へ向かって移動すると、その場で近接攻撃します。SPACEは回復薬を1本使い、HPを8回復します。満タンまたは薬がないときは消費しません。敵に隣接して使うと回復後に反撃されるため、残り体力を見て判断してください。
 
@@ -24,15 +26,15 @@ RETURNで停止メニューを開きます。WAITで1手待機し、RESETとRETR
 
 ## ゲーム画面
 
-![装備と薬を拾い、追跡する敵に備える](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/micro-rogue/gameplay-1.png)
+![装備と薬を拾い、追跡する敵に備える](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/micro-rogue/gameplay-1.png)
 
 装備と薬を拾い、追跡する敵に備える。
 
-![3階で強化した装備を使って戦う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/micro-rogue/gameplay-2.png)
+![3階で強化した装備を使って戦う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/micro-rogue/gameplay-2.png)
 
 3階で強化した装備を使って戦う。
 
-![最終階で残った強敵と向き合う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/micro-rogue/gameplay-3.png)
+![最終階で残った強敵と向き合う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/micro-rogue/gameplay-3.png)
 
 最終階で残った強敵と向き合う。
 
@@ -46,6 +48,8 @@ RETURNで停止メニューを開きます。WAITで1手待機し、RESETとRETR
 | BASICへ終了 | BREAK |
 
 メニューを開いている間はゲームが停止します。決定・取消は押した瞬間だけ反応し、移動だけ長押しできます。
+
+クリア後は解き終えた盤面をしばらく残し、ジングルと余韻の後に結果を表示します。続行案内が出てからSPACEを押してください。押しっぱなしでは次へ進みません。
 
 ## 確認済み環境
 

@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=ace-stack) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/ace-stack)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/ace-stack/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/ace-stack/title.png)
 
 合計13の組を取り除き、28枚のピラミッドを崩すカードパズルです。解ける20種類の配札を収録しています。
 
@@ -18,15 +18,15 @@ Aは1、Tは10、Jは11、Qは12、Kは13です。下に重なる2枚がなく�
 
 ## ゲーム画面
 
-![下段から取り除きピラミッドを崩す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/ace-stack/gameplay-1.png)
+![下段から取り除きピラミッドを崩す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/ace-stack/gameplay-1.png)
 
 下段から取り除きピラミッドを崩す。
 
-![捨て札との組を選んで上段を開ける](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/ace-stack/gameplay-2.png)
+![捨て札との組を選んで上段を開ける](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/ace-stack/gameplay-2.png)
 
 捨て札との組を選んで上段を開ける。
 
-![残り7枚になった最終面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/783272507e2b55cc520eeb3ca127580a8bd4a108/docs/games/screenshots/ace-stack/gameplay-3.png)
+![残り7枚になった最終面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/ace-stack/gameplay-3.png)
 
 残り7枚になった最終面。
 
@@ -40,6 +40,8 @@ Aは1、Tは10、Jは11、Qは12、Kは13です。下に重なる2枚がなく�
 | BASICへ終了 | BREAK |
 
 メニューを開いている間はゲームが停止します。決定・取消は押した瞬間だけ反応し、移動だけ長押しできます。
+
+クリア後は解き終えた盤面をしばらく残し、ジングルと余韻の後に結果を表示します。続行案内が出てからSPACEを押してください。押しっぱなしでは次へ進みません。
 
 ## 確認済み環境
 

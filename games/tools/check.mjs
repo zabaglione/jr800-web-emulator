@@ -8,6 +8,7 @@ import {settleMotion} from './motion_check.mjs';
 import {checkLibrary} from './library_check.mjs';
 import {checkPuzzle,puzzleIds} from './puzzle_check.mjs';
 const [wasm,out,id,mode='test']=process.argv.slice(2);
+if(id==='relic-dive-gfx'){await import('../relic-dive-gfx/check.mjs');process.exit(process.exitCode??0);}
 const g=await Game.open(wasm,out,id);
 if(['box-shift','step-strike'].includes(id)){
  const start=g.start.bind(g);g.start=async(...args)=>{
