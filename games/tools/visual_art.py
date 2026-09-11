@@ -86,8 +86,12 @@ def label(b,text,x,y,w=None,ink=1):
     w=w or 4*len(text)+6;b.rect(x,y,w,9,ink,True);tiny(b,text,x+3,y+2,1-ink)
 
 def crate(b,x,y,s=24,c=1):
-    b.rect(x,y,s,s,c,True);b.rect(x+2,y+2,s-4,s-4,1-c,True);b.rect(x+4,y+4,s-8,s-8,c)
-    b.line(x+3,y+3,x+s-4,y+s-4,c);b.line(x+s-4,y+3,x+3,y+s-4,c)
+    d=4;front=s-d
+    poly(b,[(x,y+d),(x+d,y),(x+s-1,y),(x+s-1,y+front-1),(x+front-1,y+s-1),(x,y+s-1)],c,True)
+    b.rect(x+1,y+d+1,front-2,front-2,1-c,True)
+    poly(b,[(x+2,y+d-1),(x+d+1,y+1),(x+s-3,y+1),(x+front-2,y+d-1)],1-c,True)
+    b.line(x+3,y+d+3,x+front-4,y+s-4,c);b.line(x+front-4,y+d+3,x+3,y+s-4,c)
+    b.line(x+front,y+d+1,x+s-2,y+2,1-c);b.line(x+front+1,y+d+4,x+front+1,y+s-7,1-c)
 
 def star(b,x,y,r=3,c=1):
     b.line(x-r,y,x+r,y,c);b.line(x,y-r,x,y+r,c);b.dot(x-1,y-1,c);b.dot(x+1,y+1,c)
@@ -98,8 +102,9 @@ def person(b,x,y,c=1,pose=0):
     b.line(x,y+7,x+9,y+3+pose,c);b.line(x,y+7,x-7,y+11,c)
 
 def card(b,x,y,w=22,h=31,mark='A',c=1):
-    b.rect(x,y,w,h,c,True);b.rect(x+1,y+1,w-2,h-2,1-c,True);tiny(b,mark,x+3,y+3,c)
-    poly(b,[(x+w//2,y+10),(x+w-4,y+16),(x+w//2,y+23),(x+4,y+16)],c,True)
+    b.rect(x+2,y+2,w-2,h-2,c,True);b.rect(x,y,w-2,h-2,c,True)
+    b.rect(x+1,y+1,w-4,h-4,1-c,True);tiny(b,mark,x+3,y+3,c)
+    poly(b,[(x+(w-2)//2,y+10),(x+w-5,y+16),(x+(w-2)//2,y+22),(x+4,y+16)],c,True)
 
 def mountains(b,y=40,ink=1):
     poly(b,[(0,63),(0,y+9),(20,y-9),(36,y+3),(64,y-18),(92,y+8),(122,y-6),(150,y+5),(174,y-12),(191,y+6),(191,63)],ink,True)
@@ -110,7 +115,7 @@ def title(name,kind):
         # A loading dock: asymmetric timber illustration and a shipping stamp.
         hatch(b,0,0,59,64,5);crate(b,3,30,28);crate(b,27,9,27);crate(b,31,38,24)
         b.line(58,0,58,63);word(b,'BOX',72,4,3,3,'stencil');word(b,'SHIFT',68,29,3,3,'stencil')
-        tiny(b,'20 ROOMS',64,56);label(b,'SPACE TO START',103,55,85)
+        tiny(b,'40 ROOMS',64,56);label(b,'SPACE TO START',103,55,85)
     elif kind=='mirror-link':
         b.rect(0,0,192,64,1,True)
         for pts in [[(0,48),(22,48),(63,7),(177,7),(177,48),(191,48)],[(0,13),(15,13),(57,55),(163,55),(191,27)]]:
@@ -132,8 +137,9 @@ def title(name,kind):
         label(b,'SPACE TO START',66,55,60)
     elif kind=='pocket-factory':
         for x,h in ((0,24),(17,37),(40,17),(153,34),(178,46)):
-            b.rect(x,53-h,12,h,1,True);b.rect(x+3,55-h,3,4,0,True)
-            for xx in range(x+2,x+12,5):b.rect(xx,50,2,2,0,True)
+            poly(b,[(x,56-h),(x+3,53-h),(x+11,53-h),(x+11,50),(x+8,53),(x,53)],1,True)
+            b.line(x+8,56-h,x+8,50,0);b.line(x+1,56-h,x+8,56-h,0)
+            b.rect(x+2,58-h,3,4,0,True);b.rect(x+2,50,3,2,0,True)
         for x in range(2,192,9):circle(b,x,52,3)
         for x,y in ((181,3),(160,10),(21,6)):circle(b,x,y,4)
         b.rect(30,12,128,35,0,True);word(b,'POCKET',45,11,2,2,'block',1,3);word(b,'FACTORY',35,28,3,2,'stencil')
@@ -151,7 +157,8 @@ def title(name,kind):
         label(b,'SPACE TO START',51,54,92,0)
     elif kind=='slide-nine':
         for x,y,n in ((5,3,'1'),(34,8,'2'),(10,33,'3')):
-            b.rect(x,y,26,26);word(b,n,x+7,y+3,3,3,'block')
+            b.rect(x+2,y+2,24,24,1,True);b.rect(x,y,24,24,1,True);b.rect(x+1,y+1,22,22,0,True)
+            word(b,n,x+6,y+2,3,3,'block')
         word(b,'SLIDE',77,5,3,3,'block');word(b,'NINE',90,31,3,3,'outline')
         b.line(65,8,65,53);poly(b,[(62,49),(65,54),(68,49)],1,True);tiny(b,'SPACE TO START',93,57)
     elif kind=='ice-route':
@@ -169,6 +176,7 @@ def title(name,kind):
         tiny(b,'SPACE TO START',65,55)
     elif kind=='line-four':
         b.rect(0,0,72,64,1,True)
+        b.line(69,0,69,60,0);b.line(0,61,68,61,0)
         for x in (10,27,44,61):
             for y in (10,27,44):circle(b,x,y,6,0,True)
         for x,y in ((10,44),(27,27),(44,10)):circle(b,x,y,4)
@@ -176,7 +184,8 @@ def title(name,kind):
         tiny(b,'SPACE TO START',87,57)
     elif kind=='reversi-mini':
         # Restrained board-game box, white space and large offset disks.
-        circle(b,158,25,29,1,True);circle(b,141,43,19,0,True);circle(b,141,43,19)
+        circle(b,158,27,29,1,True);circle(b,158,24,27,0);circle(b,142,44,19,1,True)
+        circle(b,140,41,19,0,True);circle(b,140,41,19)
         word(b,'REVERSI',8,8,2,3,'serif');word(b,'MINI',11,35,2,2,'serif',1,3)
         tiny(b,'SPACE TO START',9,56);b.line(9,52,113,52)
     elif kind=='five-stones':
@@ -194,7 +203,10 @@ def title(name,kind):
     elif kind=='knight-tour':
         for y in range(8):
             for x in range(8):
-                if (x+y)%2:b.rect(x*8,y*8,8,8,1,True)
+                if (x+y)%2:
+                    def point(col,row):return (round(12-row*1.5+col*(40+row*3)/8),round(5+row*7))
+                    poly(b,[point(x,y),point(x+1,y),point(x+1,y+1),point(x,y+1)],1,True)
+        b.line(0,62,64,62)
         poly(b,[(13,53),(52,53),(47,44),(32,44),(45,33),(48,16),(33,4),(28,17),(17,24),(19,34),(28,29),(25,43)],0,True)
         word(b,'KNIGHT',73,7,3,2,'serif');word(b,'TOUR',88,29,3,3,'serif')
         tiny(b,'SPACE TO START',85,55)
@@ -247,8 +259,9 @@ def title(name,kind):
         tiny(b,'SPACE TO START',8,56,0)
     elif kind=='dice-hold':
         for x,y,s in ((6,6,27),(28,30,29),(161,4,25)):
-            b.rect(x,y,s,s);b.rect(x+2,y+2,s-4,s-4)
-            for dx,dy in ((6,6),(s-7,s-7),(s//2,s//2)):circle(b,x+dx,y+dy,2,1,True)
+            poly(b,[(x,y+4),(x+4,y),(x+s-1,y),(x+s-1,y+s-5),(x+s-5,y+s-1),(x,y+s-1)],1,True)
+            b.rect(x+1,y+5,s-6,s-6,0,True);b.line(x+3,y+3,x+s-7,y+3,0)
+            for dx,dy in ((5,9),(s-10,s-7),((s-4)//2,(s+4)//2)):circle(b,x+dx,y+dy,2,1,True)
         word(b,'DICE',61,5,3,3,'dots');word(b,'HOLD',66,31,3,3,'block')
         tiny(b,'SPACE TO START',76,57)
     elif kind=='push-luck':
@@ -284,7 +297,8 @@ def title(name,kind):
         label(b,'SPACE TO START',72,55,89,0)
     elif kind=='tower-leap':
         for x,y,h in ((0,5,58),(22,19,44),(44,35,28),(167,20,43)):
-            b.rect(x,y,18,h,1,True)
+            poly(b,[(x,y+3),(x+4,y),(x+17,y),(x+17,y+h-4),(x+13,y+h-1),(x,y+h-1)],1,True)
+            b.line(x+13,y+4,x+13,y+h-3,0);b.line(x+1,y+3,x+13,y+3,0)
             for yy in range(y+5,62,8):b.rect(x+5,yy,4,3,0,True)
         word(b,'TOWER',68,3,3,3,'condensed');word(b,'LEAP',84,29,3,3,'sport')
         poly(b,[(49,24),(57,10),(65,24)],1,True);label(b,'SPACE TO START',73,55,99,0)
@@ -359,6 +373,7 @@ def title(name,kind):
         tiny(b,'SPACE TO START',3,57);tiny(b,'12 TIMETABLES',132,57)
     elif kind=='orchard-days':
         for x,y,r in ((17,23,13),(42,15,12),(169,27,15),(145,17,9)):
+            b.line(x,54,x+12,50);b.line(x+2,54,x+14,50)
             circle(b,x,y,r,1,True);b.line(x,y,x,54)
             for dx,dy in ((-4,0),(4,5),(1,-6)):circle(b,x+dx,y+dy,2,0,True)
         b.line(0,54,191,54);b.rect(52,7,83,44,0,True)
@@ -368,6 +383,7 @@ def title(name,kind):
         for y in (40,46,52):
             for x in range(0,192,18):b.line(x,y,x+6,y+2);b.line(x+6,y+2,x+12,y)
         poly(b,[(0,25),(62,25),(51,40),(13,40)],1,True);b.line(33,2,33,25);poly(b,[(35,3),(59,22),(35,22)],1,True)
+        b.line(5,28,57,28,0);b.line(14,37,49,37,0);b.line(49,37,56,30,0)
         word(b,'MARKET',74,3,3,3,'condensed');word(b,'HARBOR',73,24,3,3,'condensed')
         label(b,'SPACE TO START',99,54,91,0)
     elif kind=='wind-putt':
@@ -383,9 +399,11 @@ def title(name,kind):
         word(b,'RALLY',26,5,3,3,'sport',0);word(b,'RETURN',39,32,3,3,'condensed',0)
         b.rect(20,13,4,4,0,True);tiny(b,'SPACE TO START',67,57,0)
     elif kind=='penalty-arc':
-        b.rect(1,1,70,56)
-        for x in range(3,71,9):b.line(x,3,x,54)
-        for y in range(3,55,8):b.line(3,y,69,y)
+        b.rect(10,1,60,47)
+        for x in range(12,69,9):b.line(x,3,x,46)
+        for y in range(3,47,8):b.line(12,y,68,y)
+        b.line(1,9,61,9);b.line(1,9,1,56);b.line(61,9,61,56)
+        for p,q in [((1,9),(10,1)),((61,9),(69,1)),((1,56),(10,47)),((61,56),(69,47))]:b.line(*p,*q)
         person(b,36,22);circle(b,55,48,6,0,True);circle(b,55,48,6);poly(b,[(54,44),(58,47),(57,51),(52,51),(51,47)],1,True)
         word(b,'PENALTY',77,4,3,3,'condensed');word(b,'ARC',101,27,4,3,'sport')
         tiny(b,'SPACE TO START',91,57)
@@ -398,7 +416,9 @@ def title(name,kind):
         tiny(b,'SPACE TO START',76,58,0)
     elif kind=='balance-dock':
         for x,y,w in ((0,46,47),(8,32,41),(15,18,34)):
-            b.rect(x,y,w,12);hatch(b,x+2,y+2,w-4,8,6)
+            poly(b,[(x,y+3),(x+3,y),(x+w-1,y),(x+w-1,y+8),(x+w-4,y+11),(x,y+11)],1,True)
+            b.rect(x+1,y+4,w-5,7,0,True);hatch(b,x+2,y+4,w-7,6,6)
+            b.line(x+4,y+1,x+w-4,y+1,0)
         b.line(4,0,182,0);b.line(174,0,174,11);b.line(169,11,174,16);b.line(174,16,179,11)
         word(b,'BALANCE',59,6,3,3,'condensed');word(b,'DOCK',79,29,3,3,'stencil')
         tiny(b,'SPACE TO START',84,56)

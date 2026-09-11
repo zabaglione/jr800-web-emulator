@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [シューティング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting) · 定番
 
-[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=arc-duel) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/arc-duel)
+[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/arc-duel)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/arc-duel/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/arc-duel/title.png)
 
 風を読み、地形を削りながらCPUの砲台と戦う弾道対戦です。6種類の地形と3段階の難易度があります。
 
@@ -16,15 +16,15 @@ Aは角度（15〜75度）、Pは威力（2〜9）、Wは風です。>の風は�
 
 ## ゲーム画面
 
-![風・角度・威力を決める](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/arc-duel/gameplay-1.png)
+![風・角度・威力を決める](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/arc-duel/gameplay-1.png)
 
 風・角度・威力を決める。
 
-![放物線を描く砲弾](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/arc-duel/gameplay-2.png)
+![放物線を描く砲弾](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/arc-duel/gameplay-2.png)
 
 放物線を描く砲弾。
 
-![爆発で変形した地形での対戦](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/arc-duel/gameplay-3.png)
+![爆発で変形した地形での対戦](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/arc-duel/gameplay-3.png)
 
 爆発で変形した地形での対戦。
 

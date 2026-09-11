@@ -2,6 +2,7 @@
 """Build genre-indexed Japanese manuals from the working game catalog."""
 import argparse,json,re,shutil
 from pathlib import Path
+from puzzle_assets import PUZZLES
 root=Path(__file__).resolve().parents[2]
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--live-check',type=Path)
@@ -23,6 +24,7 @@ if a.live_check:
  if check.get('passed') is not True or check.get('siteUrl')!=site:raise ValueError('A successful public-site check is required')
  verified=set(check['programs'])
 common=(root/'games/tools/manual-common.md').read_text()
+puzzle_common=(root/'games/tools/manual-puzzle.md').read_text()
 wiki=root/'docs/games/wiki';wiki.mkdir(parents=True,exist_ok=True)
 def genre_page(g):return 'Genre-'+g['id'].title()
 def style(g):return '定番' if g['style']=='classic' else 'モダン'
@@ -36,11 +38,13 @@ for game in games:
  page+=f'![タイトル画面]({raw}/{ident}/title.png)\n\n{manual["summary"]}\n\n## 遊び方\n\n{manual["guide"]}\n\n## ゲーム画面\n\n'
  assert len(manual['captions'])==3
  for i,caption in enumerate(manual['captions'],1):page+=f'![{caption}]({raw}/{ident}/gameplay-{i}.png)\n\n{caption}。\n\n'
+ if ident in PUZZLES:
+  page+=puzzle_common+f'\n![面選択とパスワード]({raw}/{ident}/selection.png)\n\n面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。\n\n'
  page+=common+f'\n## ビルド\n\n```sh\nmake -C games/{ident}\nmake -C games/{ident} test\n```\n\n環境の準備・一括ビルドは[Games README]({repo}/tree/main/games)を参照してください。画像とマップを含む新規制作物はMIT Licenseです。\n'
  (wiki/(ident.upper()+'.md')).write_text(page)
  (root/'games'/ident/'README.md').write_text(page.replace(raw+'/'+ident,'../../docs/games/screenshots/'+ident))
  dest=root/'docs/games/screenshots'/ident;dest.mkdir(parents=True,exist_ok=True)
- for name in ['title','gameplay-1','gameplay-2','gameplay-3']:
+ for name in ['title','gameplay-1','gameplay-2','gameplay-3']+(['selection'] if ident in PUZZLES else []):
   for suffix in ['', '-1x']:
    image=name+suffix+'.png';src=root/'build/games'/ident/image
    if src.exists():shutil.copyfile(src,dest/image)
@@ -68,6 +72,10 @@ for genre in genres:
  (wiki/(genre_page(genre)+'.md')).write_text(page)
  roadmap+=f'\n## {genre["title"]}\n\n| タイトル | 系統 | 状態 | 実装範囲 |\n|---|---|---|---|\n'
  for game in planned:roadmap+=f'| {game["title"]} | {style(game)} | {"収録済み" if game["id"] in known else "制作予定"} | {game["summary"]} |\n'
+home+='\nパズルを中心とした15作品は各40面、合計600面のチャレンジを収録。規定手数・追加目標・3段階評価と、面や全評価を復元するパスワードに対応しています。対象作品と詳しい説明は[パズルチャレンジ]('+wiki_link('Puzzle-Challenges')+')を参照してください。\n'
+(wiki/'Puzzle-Challenges.md').write_text('# パズルチャレンジ\n\n'+puzzle_common+'\n## 対象の15作品\n\n'+'\n'.join('- ['+g['title']+']('+wiki_link(g['id'].upper())+')' for g in games if g['id'] in PUZZLES)+'\n')
+sidebar+='\n[パズルチャレンジ・パスワード]('+wiki_link('Puzzle-Challenges')+')\n'
+home+='\n箱・建物・駒などは陰影や斜めの辺で奥行きを表現し、数字も作品の雰囲気に合わせています。50作品それぞれの採用判断とメモリー方針は[奥行きと数字の意匠]('+repo+'/blob/main/docs/games/depth-design.md)にまとめています。\n'
 home+='\n各作品のページに概要・操作・タイトル画面とゲーム中3場面を掲載します。**公開環境で確認済みの作品だけ「遊ぶ」リンクを付けます。** 同じサイト・パスでROMを保存済みなら、リンクからタイトル画面へ直接進めます。初回は手元のBASIC ROMを選び、Start BASICを押してください。\n\n'+common
 (wiki/'Home.md').write_text(home)
 (wiki/'_Sidebar.md').write_text(sidebar)

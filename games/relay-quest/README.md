@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [探索・冒険](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Adventure) · 定番
 
-[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=relay-quest) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/relay-quest)
+[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/relay-quest)
 
 ![タイトル画面](../../docs/games/screenshots/relay-quest/title.png)
 

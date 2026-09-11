@@ -21,16 +21,25 @@ game_start:
     LDAA #98
     SUBA mine_count
     STAA grid_stat
-    LDAA #49
+    JSR challenge_start
+    LDAB stage
+    LDX #mine_starts
+    ABX
+    LDAA 0,X
     STAA cursor
-    RTS
+    JSR mine_generate
+    CLR mine_changed
+    LDAB cursor
+    JMP mine_reveal
 game_update:
     LDAA input_event
     BITA #16
     BNE mine_action
     JSR grid_move
     CMPB #255
-    BEQ mine_idle
+    BNE mine_skip_1
+    JMP mine_idle
+mine_skip_1:
     STAB cursor
     JMP grid_changed
 mine_action:
@@ -41,7 +50,9 @@ mine_action:
     ABX
     LDAA 0,X
     BITA #64
-    BNE mine_idle
+    BEQ mine_skip_2
+    JMP mine_idle
+mine_skip_2:
     TST mine_armed
     BNE mine_open
     JSR mine_generate
@@ -59,10 +70,15 @@ mine_single:
     JSR mine_reveal
 mine_after_open:
     TST mine_changed
-    BEQ mine_idle
+    BNE mine_skip_3
+    JMP mine_idle
+mine_skip_3:
+    JSR challenge_step
     JSR grid_count_move
     TST grid_stat
-    BNE mine_idle
+    BEQ mine_skip_4
+    JMP mine_idle
+mine_skip_4:
     JMP mine_victory
 mine_flag:
     LDAB cursor
@@ -70,74 +86,64 @@ mine_flag:
     ABX
     LDAA 0,X
     BITA #32
-    BNE mine_idle
+    BEQ mine_skip_5
+    JMP mine_idle
+mine_skip_5:
     BITA #64
     BNE mine_unflag
     LDAA mine_flags
     CMPA mine_count
-    BCC mine_idle
+    BCS mine_skip_6
+    JMP mine_idle
+mine_skip_6:
     INC mine_flags
     LDAA 0,X
     ORAA #64
     STAA 0,X
+    JSR challenge_step
     JMP grid_count_move
 mine_unflag:
     ANDA #191
     STAA 0,X
     DEC mine_flags
+    JSR challenge_step
     JMP grid_count_move
 mine_idle:
     RTS
-; First click and all adjacent cells are excluded before any mine is placed.
+; Fixed authored mine bitmap; clues are computed on the JR-800.
 mine_generate:
-    LDAB cursor
-    LDX #board
+    LDX #mine_queue
+    JSR challenge_load
+    CLR mine_cell
+mine_bitmap_cell:
+    LDAB mine_cell
+    LSRB
+    LSRB
+    LSRB
+    LDX #mine_queue
     ABX
     LDAA 0,X
-    ORAA #128
-    STAA 0,X
-    LDAA cursor
-    LDAB #8
-    MUL
-    ADDD #mine_links
-    STD mine_neighbor_pointer
-    CLR mine_dir
-mine_safe_loop:
-    LDX mine_neighbor_pointer
-    LDAB mine_dir
-    ABX
-    LDAB 0,X
-    CMPB #255
-    BEQ mine_safe_next
+    LDAB mine_cell
+    ANDB #7
+    BEQ mine_bitmap_bit
+mine_bitmap_shift:
+    LSRA
+    DECB
+    BNE mine_bitmap_shift
+mine_bitmap_bit:
+    ANDA #1
+    ASLA
+    ASLA
+    ASLA
+    ASLA
+    LDAB mine_cell
     LDX #board
     ABX
-    LDAA 0,X
-    ORAA #128
     STAA 0,X
-mine_safe_next:
-    INC mine_dir
-    LDAA mine_dir
-    CMPA #8
-    BNE mine_safe_loop
-    CLR mine_placed
-mine_place:
-    JSR random
-    ANDA #127
+    INC mine_cell
+    LDAA mine_cell
     CMPA #98
-    BCC mine_place
-    TAB
-    LDX #board
-    ABX
-    LDAA 0,X
-    BITA #144
-    BNE mine_place
-    ORAA #16
-    STAA 0,X
-    JSR input_poll
-    INC mine_placed
-    LDAA mine_placed
-    CMPA mine_count
-    BNE mine_place
+    BNE mine_bitmap_cell
     CLR mine_cell
 mine_number_cell:
     LDAB mine_cell
@@ -313,20 +319,6 @@ mine_chord_neighbor:
     LDAB 0,X
     RTS
 mine_victory:
-    LDX #board
-    LDAB #98
-mine_flag_all:
-    LDAA 0,X
-    BITA #16
-    BEQ mine_flag_all_next
-    ORAA #64
-    STAA 0,X
-mine_flag_all_next:
-    INX
-    DECB
-    BNE mine_flag_all
-    LDAA mine_count
-    STAA mine_flags
     CLR selection_active
     LDAA #4
     STAA phase
@@ -374,6 +366,14 @@ mine_open_tile:
 mine_covered:
     LDAA #10
 mine_tile_done:
+    RTS
+game_bonus:
+    CLR challenge_bonus
+    LDAA mine_flags
+    CMPA mine_count
+    BNE mine_bonus_done
+    INC challenge_bonus
+mine_bonus_done:
     RTS
 game_render:
     JSR paint_board

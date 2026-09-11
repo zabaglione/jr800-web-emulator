@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [アクション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Action) · 定番
 
-[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=tower-leap) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/tower-leap)
+[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/tower-leap)
 
 ![タイトル画面](../../docs/games/screenshots/tower-leap/title.png)
 

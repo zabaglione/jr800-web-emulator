@@ -2,8 +2,9 @@
 import assert from 'node:assert/strict';
 import {readFile,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
-import {Game,letters} from './harness.mjs';
+import {Game} from './harness.mjs';
 import {checkLibrary} from './library_check.mjs';
+import {checkPuzzle,puzzleIds} from './puzzle_check.mjs';
 const [wasm,out,id,mode='test']=process.argv.slice(2);
 const g=await Game.open(wasm,out,id);
 if(id==='arc-duel'){
@@ -25,78 +26,8 @@ try{
   for(let i=0;i<3;i++){g.frame();assert.equal(g.word('dirty_bytes'),0,'Paused menu has no LCD writes');}
   g.tap('return');assert.equal(g.read('phase'),2,'Menu returns to play');
   g.tap('return');g.tap('space');assert.equal(g.read('phase'),2,'SPACE resumes play');
- }else if(mode==='test'&&id==='box-shift'){
-  const solutions=JSON.parse(await readFile(new URL('../box-shift/solutions.json',import.meta.url)));
-  let completed=0;
-  for(let stage=0;stage<20;stage++){
-   if(stage===0)await g.start();else {g.tap('space');assert.equal(g.read('stage'),stage);}
-   const initial=g.read('board',112),p=g.read('player');
-   if(stage===0){
-    await g.save('gameplay-1');g.frame();assert.equal(g.word('dirty_bytes'),0,'Idle play');
-    // One logical direction has the same meaning on either physical key group.
-    const d=solutions[0][0];g.tap(d);const moved=g.read('player');g.menu(1);assert.equal(g.read('player'),p);assert.deepEqual(g.read('board',112),initial);
-    g.tap(letters[d]);assert.equal(g.read('player'),moved);g.menu(1);assert.equal(g.word('moves'),0);
-    g.hold('space',true);for(let i=0;i<4;i++)g.frame();assert.equal(g.read('phase'),2);g.hold('space',false);g.frame();
-   }
-   for(let i=0;i<solutions[stage].length;i++){
-    g.tap(solutions[stage][i]);
-    if(stage===0&&i===25)await g.save('gameplay-2');
-    if(stage===12&&i===40)await g.save('gameplay-3');
-    if(g.read('phase')===4)break;
-   }
-   assert.equal(g.read('phase'),4,`Stage ${stage+1} clears by keys`);completed++;
-  }
-  assert.equal(completed,20);
- }else if(mode==='test'&&id==='mirror-link'){
-  const solutions=JSON.parse(await readFile(new URL('../mirror-link/solutions.json',import.meta.url)));
-  for(let stage=0;stage<20;stage++){
-   if(stage===0)await g.start();else g.tap('space');
-   assert.equal(g.read('stage'),stage);g.frame();assert.equal(g.word('dirty_bytes'),0);
-   if(stage===0)await g.save('gameplay-1');
-   for(const cell of solutions[stage]){
-    while((g.read('cursor')&15)<(cell&15))g.tap('right');
-    while((g.read('cursor')&15)>(cell&15))g.tap('left');
-    while((g.read('cursor')>>4)<(cell>>4))g.tap('down');
-    while((g.read('cursor')>>4)>(cell>>4))g.tap('up');
-    if(stage===7)await g.save('gameplay-2');
-    if(stage===16)await g.save('gameplay-3');
-    g.tap('space');
-    if(g.read('phase')===4)break;
-   }
-   assert.equal(g.read('phase'),4,`Mirror stage ${stage+1}`);
-   assert.equal(g.read('lit_count'),g.read('goal_count'));
-  }
- }else if(mode==='test'&&id==='step-strike'){
-  const solutions=JSON.parse(await readFile(new URL('../step-strike/solutions.json',import.meta.url)));
-  for(let stage=0;stage<20;stage++){
-   if(stage===0)await g.start();else g.tap('space');
-   assert.equal(g.read('stage'),stage);
-   if(stage===0){
-    const board=g.read('board',112),guards=g.read('guards',4).filter(x=>x!==255),initial=g.read('player');
-    const queue=[[initial,[]]],seen=new Set([initial]);let route;
-    while(queue.length&&!route){const [p,path]=queue.shift();
-     const visible=guards.some(enemy=>{const d=(p>>4)===(enemy>>4)?(p<enemy?1:-1):(p&15)===(enemy&15)?(p<enemy?16:-16):0;if(!d)return false;let q=p+d;while(q!==enemy&&!board[q])q+=d;return q===enemy;});
-     if(visible)route=path;else for(const [d,key] of [[1,'right'],[-1,'left'],[16,'down'],[-16,'up']]){const q=p+d;if(!board[q]&&!guards.includes(q)&&!seen.has(q)){seen.add(q);queue.push([q,[...path,key]]);}}
-    }
-    assert.ok(route);for(const key of route){g.tap(key);if(g.read('phase')===5)break;}
-    for(let i=0;i<30&&g.read('phase')===2;i++)g.menu(1);
-    assert.equal(g.read('phase'),5,'Guard projectiles cause defeat');g.tap('space');assert.equal(g.read('player'),initial,'Retry restores the stage');
-   }
-   const state=[g.read('player'),g.read('guards',4),g.read('bullet_cells',8),g.read('turns')];
-   for(let i=0;i<5;i++)g.frame();
-   assert.deepEqual([g.read('player'),g.read('guards',4),g.read('bullet_cells',8),g.read('turns')],state,'World stops without an action');
-   if(stage===0)await g.save('gameplay-1');
-   for(let i=0;i<solutions[stage].length;i++){
-    const action=solutions[stage][i];
-    if(action==='wait')g.menu(1);else g.tap(action==='fire'?'space':action);
-    if(stage===8&&i===4)await g.save('gameplay-2');
-    if(stage===17&&i===5)await g.save('gameplay-3');
-    assert.notEqual(g.read('phase'),5,`Unexpected defeat at stage ${stage+1}, action ${i+1}`);
-    if(g.read('phase')===4)break;
-   }
-   assert.equal(g.read('phase'),4,`Tactical stage ${stage+1}`);
-   assert.equal(g.read('guard_count'),0);
-  }
+ }else if(mode==='test'&&puzzleIds.includes(id)){
+  await checkPuzzle(g,id);
  }else if(mode==='test'&&id==='circuit-deck'){
   const cards=JSON.parse(await readFile(new URL('../circuit-deck/cards.json',import.meta.url)));
   await g.start();
@@ -125,41 +56,6 @@ try{
   }
   assert.equal(g.read('phase'),4,JSON.stringify({battle:g.read('battle'),hp:g.read('hp'),actions}));
   assert.equal(rewards,8);assert.ok(g.read('shuffles')>=9,'Every battle shuffles its deck');
- }else if(mode==='test'&&id==='pocket-factory'){
-  const solutions=JSON.parse(await readFile(new URL('../pocket-factory/solutions.json',import.meta.url)));
-  for(let stage=0;stage<12;stage++){
-   if(stage===0)await g.start();else g.tap('space');
-   assert.equal(g.read('stage'),stage);
-   if(stage===0){
-    await g.save('gameplay-1');g.menu(2);
-    for(let i=0;i<100;i++)g.frame();assert.equal(g.read('shipped_a')+g.read('shipped_b'),0,'Disconnected belts jam without false shipments');
-    assert.equal(g.read('items',112).filter(Boolean).length,2,'Resources remain blocked at their sources');
-    g.menu(2);const stopped=g.read('items',112);for(let i=0;i<20;i++)g.frame();assert.deepEqual(g.read('items',112),stopped,'Paused factory');
-    g.menu(1);g.tap('return');assert.equal(g.read('selection_active'),0);assert.equal(g.read('phase'),2,'RETURN cancels tool selection');g.menu(3);
-   }
-   for(const [cell,tile] of solutions[stage]){
-    while((g.read('cursor')&15)<(cell&15))g.tap('right');
-    while((g.read('cursor')&15)>(cell&15))g.tap('left');
-    while((g.read('cursor')>>4)<(cell>>4))g.tap('down');
-    while((g.read('cursor')>>4)>(cell>>4))g.tap('up');
-    if(g.read('tool')!==tile-6){
-     g.menu(1);assert.equal(g.read('selection_active'),1);
-     while(g.read('tool')!==tile-6)g.tap('right');
-     g.tap('space');assert.equal(g.read('selection_active'),0);
-    }
-    g.tap('space');assert.equal(g.read('board',112)[cell],tile);
-   }
-   assert.equal(g.read('factory_steps'),0,'Build mode freezes production');
-   g.menu(2);assert.equal(g.read('running'),1);
-   for(let f=0;g.read('phase')===2&&f<1200;f++){
-    g.frame();
-    if(stage===0&&f===160)await g.save('gameplay-2');
-    if(stage===10&&f===250)await g.save('gameplay-3');
-   }
-   assert.equal(g.read('phase'),4,`Factory ${stage+1} ships both products`);
-   assert.equal(g.read('shipped_a'),g.read('target_a'));
-   assert.equal(g.read('shipped_b'),g.read('target_b'));
-  }
  }else if(mode==='test'&&id==='arc-duel'){
   const predict=(h,w,a,p)=>{
    let x=16*256,y=(h[16]-7)*256,vx=Math.round(128*Math.cos((15+a*5)*Math.PI/180))*p,vy=-Math.round(128*Math.sin((15+a*5)*Math.PI/180))*p;
@@ -170,6 +66,7 @@ try{
     if(Y>=h[X])return {x:X,y:Math.min(63,Y),t};
    }return null;
   };
+  let flightCaptured=false;
   for(let difficulty=0;difficulty<3;difficulty++){
    if(difficulty===0)await g.start();else g.tap('space');
    assert.equal(g.read('stage'),difficulty);
@@ -193,13 +90,14 @@ try{
     g.tap('space');firing++;
     for(let f=0;g.read('phase')===2&&![0,4].includes(g.read('arc_mode'))&&f<700;f++){
      g.frame();
-     if(difficulty===0&&firing===1&&f===12)await g.save('gameplay-2');
+     if(difficulty===0&&firing===1&&!flightCaptured&&g.read('arc_mode')===1&&g.read('shot_x')>=32&&g.read('shot_y')>=12&&g.read('shot_y')<g.read('heights',192)[g.read('shot_x')]-3){await g.save('gameplay-2');flightCaptured=true;}
      if(difficulty===2&&firing===3&&f===3)await g.save('gameplay-3');
     }
    }
    assert.equal(g.read('phase'),4,JSON.stringify({difficulty,firing,hp:g.read('health'),enemy:g.read('cpu_health'),mode:g.read('arc_mode')}));
    assert.equal(g.read('wins'),2);
   }
+  assert.ok(flightCaptured,'The flight screenshot contains a visible shell above the terrain');
   g.tap('space');
   for(let shot=0;shot<20&&g.read('phase')===2;shot++){
    if(g.read('arc_mode')===4)g.tap('space');

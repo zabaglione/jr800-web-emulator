@@ -4,25 +4,18 @@
 .section .text, code
 game_start:
     JSR grid_reset
+    JSR challenge_start
     CLR undo_valid
     CLR selection_active
     LDAA #255
     STAA cursor
-    LDAA stage
-    LDAB #49
-    MUL
-    ADDD #peg_levels
-    STD peg_pointer
-    CLR peg_index
+    LDX #board
+    JSR challenge_load
+    CLRB
 peg_load:
-    LDX peg_pointer
-    LDAA 0,X
-    INX
-    STX peg_pointer
-    LDAB peg_index
     LDX #board
     ABX
-    STAA 0,X
+    LDAA 0,X
     CMPA #1
     BNE peg_load_next
     INC grid_stat
@@ -31,9 +24,8 @@ peg_load:
     BNE peg_load_next
     STAB cursor
 peg_load_next:
-    INC peg_index
-    LDAA peg_index
-    CMPA #49
+    INCB
+    CMPB #49
     BNE peg_load
     RTS
 game_update:
@@ -194,3 +186,16 @@ peg_target: .space 1
 peg_clear_label: .byte 32,32,32,32,32,32,32,32,32,32,0
 peg_pick_label: .byte 80,73,67,75,0
 peg_jump_label: .byte 74,85,77,80,0
+
+.section .text, code
+game_bonus:
+    CLR challenge_bonus
+    LDAA grid_stat
+    CMPA #1
+    BNE peg_bonus_done
+    LDAA cursor
+    CMPA challenge_cells
+    BNE peg_bonus_done
+    INC challenge_bonus
+peg_bonus_done:
+    RTS

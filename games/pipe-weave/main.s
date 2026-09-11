@@ -7,25 +7,31 @@
 game_start:
     JSR grid_reset
     CLR undo_valid
-    LDAA stage
-    LDAB #36
-    MUL
-    ADDD #pipe_levels
-    STD pipe_pointer
-    CLR pipe_cell
-pipe_load:
-    LDX pipe_pointer
-    LDAA 0,X
-    INX
-    STX pipe_pointer
-    LDAB pipe_cell
+    JSR challenge_start
+    LDX #board
+    JSR challenge_load
+    LDAB #17
+pipe_expand:
     LDX #board
     ABX
+    LDAA 0,X
+    PSHA
+    ASLB
+    INCB
+    LDX #board
+    ABX
+    ANDA #15
     STAA 0,X
-    INC pipe_cell
-    LDAA pipe_cell
-    CMPA #36
-    BNE pipe_load
+    PULA
+    LSRA
+    LSRA
+    LSRA
+    LSRA
+    DEX
+    STAA 0,X
+    LSRB
+    DECB
+    BPL pipe_expand
     JMP pipe_trace
 game_update:
     LDAA input_event
@@ -173,10 +179,8 @@ pipe_visit_next:
     LDAA pipe_head
     CMPA pipe_tail
     BNE pipe_visit
-    TST grid_stat
-    BNE pipe_idle_return
-    TST pipe_leaks
-    BNE pipe_idle_return
+    TST pipe_wet+35
+    BEQ pipe_idle_return
     LDAA #4
     STAA phase
 pipe_idle_return:
@@ -216,6 +220,15 @@ pipe_exit_tile:
     ABX
     LDAA 0,X
     ADDA #40
+    RTS
+game_bonus:
+    CLR challenge_bonus
+    TST grid_stat
+    BNE pipe_bonus_done
+    TST pipe_leaks
+    BNE pipe_bonus_done
+    INC challenge_bonus
+pipe_bonus_done:
     RTS
 game_render:
     JSR paint_board

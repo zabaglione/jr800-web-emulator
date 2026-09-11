@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [スポーツ・タイミング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Sports) · 定番
 
-[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=penalty-arc) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/penalty-arc)
+[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/penalty-arc)
 
 ![タイトル画面](../../docs/games/screenshots/penalty-arc/title.png)
 

@@ -1,7 +1,7 @@
 ; SPDX-License-Identifier: MIT
 ; lamp-grid: switchboard, play origin 0
 .equ VIEW_X,0
-.equ HUD_FIELDS,4
+.equ HUD_FIELDS,5
 .section .text, code
 visual_hud:
     JSR hud_begin
@@ -14,12 +14,22 @@ visual_hud:
     CLRA
     LDX #hud_field_1
     JSR hud_number
-    LDAB moves
-    CLRA
+    LDD challenge_moves
     LDX #hud_field_2
     JSR hud_number
-    LDD #0
+    LDD challenge_par
     LDX #hud_field_3
+    JSR hud_number
+    LDAB challenge_bonus
+    CMPB challenge_need
+    BEQ hud_expr_4_full
+    CLRB
+    BRA hud_expr_4_done
+hud_expr_4_full:
+    LDAB #1
+hud_expr_4_done:
+    CLRA
+    LDX #hud_field_4
     JSR hud_choice
     RTS
 hud_select_background:
@@ -34,13 +44,17 @@ hud_field_1:
     .byte 143,2,3,3,0,0
     .word hud_cache + 3,0
 hud_field_2:
-    .byte 175,4,3,0,0,0
+    .byte 171,4,4,0,0,0
     .word hud_cache + 6,0
 hud_field_3:
-    .byte 132,7,14,0,0,1
-    .word hud_cache + 9,hud_choices_3
-hud_choices_3:
-    .byte $53,$50,$41,$43,$45,$3A,$20,$46,$4C,$49,$50,$20,$20,$20
+    .byte 171,5,4,0,0,0
+    .word hud_cache + 9,0
+hud_field_4:
+    .byte 132,7,14,0,0,2
+    .word hud_cache + 12,hud_choices_4
+hud_choices_4:
+    .byte $42,$4F,$4E,$55,$53,$3A,$20,$4D,$49,$53,$53,$49,$4E,$47,$42,$4F,$4E,$55,$53,$3A,$20,$4F,$4B,$20
+    .byte $20,$20,$20,$20
 
 hud_span_table:
     .word hud_pixels_0
@@ -57,11 +71,11 @@ hud_span_table:
     .byte 3,128,64
     .word hud_pixels_4
     .byte 4,128,64
-    .word hud_pixels_3
+    .word hud_pixels_5
     .byte 5,128,64
     .word hud_pixels_3
     .byte 6,128,64
-    .word hud_pixels_5
+    .word hud_pixels_6
     .byte 7,128,64
     .word 0
     .byte 0,0,0
@@ -86,11 +100,16 @@ hud_pixels_3:
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF
 
 hud_pixels_4:
-    .byte $FF,$00,$00,$00,$00,$3E,$0A,$02,$00,$3E,$20,$20,$00,$22,$3E,$22,$00,$3E,$0A,$04,$00,$24,$2A,$12
+    .byte $FF,$00,$00,$00,$00,$3E,$20,$3E,$00,$24,$2A,$12,$00,$3E,$2A,$22,$00,$3E,$22,$1C,$00,$00,$00,$00
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF
 
 hud_pixels_5:
+    .byte $FF,$00,$00,$00,$00,$3E,$0A,$04,$00,$3C,$0A,$3C,$00,$3E,$0A,$34,$00,$00,$00,$00,$00,$00,$00,$00
+    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF
+
+hud_pixels_6:
     .byte $FF,$80,$E0,$E0,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80
     .byte $80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80
     .byte $80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$E0,$E0,$80,$FF

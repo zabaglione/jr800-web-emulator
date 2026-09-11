@@ -3,6 +3,9 @@ import sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 from grid_assets import assets,Bitmap,asm_bytes
+root=Path(__file__).parent
+from puzzle_assets import campaign,level_records,challenge_data
+levels=campaign(root)
 links=[]
 for p in range(98):
  for dy in (-1,0,1):
@@ -29,4 +32,4 @@ for n in range(15):
   if n==13:b.rect(0,0,8,8)
  elif n==14:b.line(0,0,6,6);b.line(6,0,0,6)
  sprites.append(b)
-assets(Path(__file__).parent,'MINE FIELD','mine-field',14,7,1,1,sprites,3,asm_bytes('mine_links',links)+asm_bytes('mine_totals',[10,15,20]),stat='LEFT',aux=('FLAG MODE','RESET'))
+assets(Path(__file__).parent,'MINE FIELD','mine-field',14,7,1,1,sprites,40,asm_bytes('mine_links',links)+asm_bytes('mine_totals',[len(s['initial']['mines']) for s in levels])+asm_bytes('mine_starts',[s['initial']['start'] for s in levels])+level_records([[sum(1<<bit for bit in range(8) if byte*8+bit in s['initial']['mines']) for byte in range(13)] for s in levels])+challenge_data(root,levels,14,1,1,7),stat='LEFT',aux=('FLAG MODE','RESET'))

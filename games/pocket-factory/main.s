@@ -11,25 +11,55 @@
 .global factory_steps
 .section .text, code
 game_start:
-    LDAA stage
-    LDAB #114
-    MUL
-    ADDD #levels
-    STD factory_source
-    LDX #target_a
-    STX factory_dest
-    LDAB #114
-factory_load:
-    LDX factory_source
+    JSR challenge_start
+    LDX #next_items
+    JSR challenge_load
+    LDD next_items
+    STD target_a
+    CLR factory_index
+factory_bitmap_cell:
+    LDAB factory_index
+    LSRB
+    LSRB
+    LSRB
+    LDX #next_items + 6
+    ABX
     LDAA 0,X
-    INX
-    STX factory_source
-    LDX factory_dest
-    STAA 0,X
-    INX
-    STX factory_dest
+    LDAB factory_index
+    ANDB #7
+    BEQ factory_bitmap_bit
+factory_bitmap_shift:
+    LSRA
     DECB
-    BNE factory_load
+    BNE factory_bitmap_shift
+factory_bitmap_bit:
+    ANDA #1
+    BEQ factory_bitmap_store
+    LDAA #5
+factory_bitmap_store:
+    LDAB factory_index
+    LDX #board
+    ABX
+    STAA 0,X
+    INC factory_index
+    LDAA factory_index
+    CMPA #112
+    BNE factory_bitmap_cell
+    CLR factory_index
+factory_ports:
+    LDAB factory_index
+    LDX #next_items + 2
+    ABX
+    LDAB 0,X
+    LDX #board
+    ABX
+    LDAA factory_index
+    INCA
+    STAA 0,X
+    INC factory_index
+    LDAA factory_index
+    CMPA #4
+    BNE factory_ports
     CLR tool
     CLR running
     CLR shipped_a
@@ -148,7 +178,10 @@ factory_place_tile:
     BCS factory_place_store
     CLRA
 factory_place_store:
+    CMPA 0,X
+    BEQ factory_idle
     STAA 0,X
+    JSR challenge_step
 factory_changed:
     LDAA #1
     STAA redraw
@@ -303,6 +336,10 @@ factory_destination:
     BNE factory_item_next
     LDAA factory_item
     STAA 0,X
+    CMPA #3
+    BCS factory_raw_transport
+    JSR challenge_touch
+factory_raw_transport:
     JMP factory_consume
 factory_item_next:
     INC factory_index
@@ -379,6 +416,8 @@ factory_tile_cursor:
     BNE factory_tile_done
     ORAA #128
 factory_tile_done:
+    RTS
+game_bonus:
     RTS
 game_render:
     JSR paint_board

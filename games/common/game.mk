@@ -12,14 +12,14 @@ SDK := $(ROOT)/sdk/lib
 GAME_SOURCES ?= main.s
 OBJECTS := $(addprefix $(BUILD_DIR)/,game.jro display.jro font.jro basic.jro dirty.jro input.jro sound.jro)
 .PHONY: all run debug test clean
-assets.s: generate.py $(wildcard $(ROOT)/games/tools/*.py) $(SDK)/lcd/font.s
+assets.s: generate.py $(wildcard challenges.json) $(wildcard $(ROOT)/games/tools/*.py) $(SDK)/lcd/font.s
 	$(PYTHON) generate.py
 $(BUILD_DIR):
 	mkdir -p "$@"
-visuals.s: $(ROOT)/games/tools/hud_assets.py $(ROOT)/games/tools/hud_layouts.py $(ROOT)/games/tools/hud_custom.py $(ROOT)/games/tools/visual_art.py $(SDK)/lcd/font.s
+visuals.s: $(ROOT)/games/tools/digit_art.py $(ROOT)/games/tools/hud_assets.py $(ROOT)/games/tools/hud_layouts.py $(ROOT)/games/tools/hud_custom.py $(ROOT)/games/tools/visual_art.py $(SDK)/lcd/font.s
 	$(PYTHON) $(ROOT)/games/tools/hud_assets.py $(GAME)
-$(BUILD_DIR)/game.s: $(GAME_SOURCES) assets.s visuals.s $(COMMON)/runtime.s $(COMMON)/graphics.s $(COMMON)/visual-hud.s $(COMMON)/game.mk | $(BUILD_DIR)
-	cat visuals.s $(COMMON)/runtime.s $(COMMON)/graphics.s $(COMMON)/visual-hud.s $(GAME_SOURCES) assets.s > "$@"
+$(BUILD_DIR)/game.s: $(GAME_SOURCES) assets.s visuals.s $(COMMON)/runtime.s $(COMMON)/graphics.s $(COMMON)/visual-hud.s $(COMMON)/puzzle.s $(COMMON)/game.mk $(ROOT)/games/tools/compose.py $(ROOT)/games/tools/puzzle_assets.py | $(BUILD_DIR)
+	$(PYTHON) $(ROOT)/games/tools/compose.py $(GAME) "$@" visuals.s $(COMMON)/runtime.s $(COMMON)/graphics.s $(COMMON)/visual-hud.s $(GAME_SOURCES) assets.s
 $(BUILD_DIR)/game.jro: $(BUILD_DIR)/game.s
 	"$(JR8AS)" --target hd6301v1 --listing "$(BUILD_DIR)/game.lst" -o "$@" "$<"
 $(BUILD_DIR)/%.jro: $(SDK)/lcd/%.s | $(BUILD_DIR)

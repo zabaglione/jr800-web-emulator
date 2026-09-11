@@ -8,3 +8,5 @@
 - [探索・冒険 (4)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Adventure)
 - [経営・シミュレーション (4)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Simulation)
 - [スポーツ・タイミング (5)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Sports)
+
+[パズルチャレンジ・パスワード](https://github.com/zabaglione/jr800-web-emulator/wiki/Puzzle-Challenges)

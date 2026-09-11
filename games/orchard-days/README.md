@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [経営・シミュレーション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Simulation) · モダン
 
-[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=orchard-days) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/orchard-days)
+[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/orchard-days)
 
 ![タイトル画面](../../docs/games/screenshots/orchard-days/title.png)
 

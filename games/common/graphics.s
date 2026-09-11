@@ -65,6 +65,9 @@ paint_tile:
     LDAA #8
     STAA paint_count
     JSR paint_blit
+; @if puzzle
+    JSR challenge_mark_tile
+; @endif
 paint_tile_done:
     RTS
 ; X = source ASCII string; A = x, B = band. One band, caller checks bounds.
@@ -80,11 +83,18 @@ paint_text_next:
     BEQ paint_text_done
     INX
     STX paint_string
+    CMPA #124
+    BNE paint_text_ascii
+    LDX #paint_vertical
+    STX paint_source
+    BRA paint_text_glyph
+paint_text_ascii:
     SUBA #32
     LDAB #5
     MUL
     ADDD #font
     STD paint_source
+paint_text_glyph:
     JSR paint_address
     CLR paint_id
     LDAA #5
@@ -210,6 +220,7 @@ paint_changed: .space 1
 paint_digits: .space 4
 .section .data, data
 paint_zero: .byte 0
+paint_vertical: .byte 0,0,255,0,0
 .section .text, code
 ; D = unsigned value 0..9999. Four columns, no division helper or heap.
 paint_number16:

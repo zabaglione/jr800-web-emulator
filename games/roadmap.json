@@ -6,21 +6,21 @@
       "title": "BOX SHIFT",
       "genre": "logic",
       "style": "classic",
-      "summary": "箱を押して目標へ運ぶ20面。"
+      "summary": "箱を押してすべての目標に置く、全40面の倉庫パズルです。後半には4箱を扱う倉庫も登場します。"
     },
     {
       "id": "mirror-link",
       "title": "MIRROR LINK",
       "genre": "logic",
       "style": "modern",
-      "summary": "複数の光源と鏡を接続する20面。"
+      "summary": "最大14枚の鏡と複数の光源を扱う、全40面の反射パズルです。"
     },
     {
       "id": "step-strike",
       "title": "STEP STRIKE",
       "genre": "shooting",
       "style": "modern",
-      "summary": "行動したときだけ世界が進む20面。"
+      "summary": "移動・射撃・待機のときだけ世界が進む、全40面の戦術パズルです。扉と遮蔽物を使う後半の部屋を追加しています。"
     },
     {
       "id": "circuit-deck",
@@ -34,7 +34,7 @@
       "title": "POCKET FACTORY",
       "genre": "simulation",
       "style": "modern",
-      "summary": "資源を加工して出荷する12課題。"
+      "summary": "2種類の資源を加工して出荷する、全40課題の工場パズルです。後半は折り返しと迂回を含む長い搬送経路を組みます。"
     },
     {
       "id": "arc-duel",
@@ -48,56 +48,56 @@
       "title": "LAMP GRID",
       "genre": "logic",
       "style": "classic",
-      "summary": "十字に切り替わるランプを消す20面。"
+      "summary": "5×5のランプをすべて消す、全40面の論理パズルです。後半ほど多くの切替を必要とします。"
     },
     {
       "id": "slide-nine",
       "title": "SLIDE NINE",
       "genre": "logic",
       "style": "classic",
-      "summary": "空白を動かして8枚の数字を整列する20面。"
+      "summary": "空きマスを動かして1〜8を並べる、全40面のスライドパズルです。通常クリアの最短手数が31手の盤面まで収録しています。"
     },
     {
       "id": "ice-route",
       "title": "ICE ROUTE",
       "genre": "logic",
       "style": "modern",
-      "summary": "壁まで滑り、結晶を集めて出口を目指す20面。"
+      "summary": "止まるまで滑り続ける床で宝石と出口を目指す、全40面の経路パズルです。"
     },
     {
       "id": "switch-maze",
       "title": "SWITCH MAZE",
       "genre": "logic",
       "style": "modern",
-      "summary": "スイッチで扉を切り替える20面。"
+      "summary": "鍵と切替式の扉を使い、区画を行き来する全40面の迷路パズルです。"
     },
     {
       "id": "pipe-weave",
       "title": "PIPE WEAVE",
       "genre": "logic",
       "style": "classic",
-      "summary": "管を回して全マスと給排水口をつなぎ、漏れをなくす20面。"
+      "summary": "分岐・環状経路を組み替えて通水する、全40面の配管パズルです。"
     },
     {
       "id": "number-rail",
       "title": "NUMBER RAIL",
       "genre": "logic",
       "style": "modern",
-      "summary": "同じ数字を合流させて目標値を作る。"
+      "summary": "決まった盤面と出現順で数字を合体させる、全40課題のマージパズルです。最終課題の目標は2048です。"
     },
     {
       "id": "mine-field",
       "title": "MINE FIELD",
       "genre": "logic",
       "style": "classic",
-      "summary": "周囲の数字から地雷を推理する。"
+      "summary": "数字の推理だけで解ける固定盤面を40面収録した、地雷探索パズルです。地雷は10〜25個に増えます。"
     },
     {
       "id": "loop-trace",
       "title": "LOOP TRACE",
       "genre": "logic",
       "style": "modern",
-      "summary": "A・B・Cの順に全地点を巡り、一筆で輪を閉じる20面。"
+      "summary": "分岐のある盤面でS→A→B→C→Sの輪を描く、全40面の経路パズルです。"
     },
     {
       "id": "line-four",
@@ -132,14 +132,14 @@
       "title": "KNIGHT TOUR",
       "genre": "board",
       "style": "classic",
-      "summary": "ナイトの動きで全マスを一度ずつ巡る。"
+      "summary": "形の異なる盤面をナイトの動きで巡る、全40面の巡回パズルです。8マスから36マスへ拡大します。"
     },
     {
       "id": "peg-rescue",
       "title": "PEG RESCUE",
       "genre": "board",
       "style": "classic",
-      "summary": "石を飛び越して取り、最後の1個を残す。"
+      "summary": "ペグを飛び越して最後の1個を残す、全40面の盤面パズルです。6個から29個の配置を収録しています。"
     },
     {
       "id": "pawn-race",
@@ -265,7 +265,7 @@
       "title": "RICOCHET OPS",
       "genre": "shooting",
       "style": "modern",
-      "summary": "壁で反射する弾を使い、障害物の奥の標的を狙う。"
+      "summary": "鏡で弾を反射させて標的を撃つ、全40面の射撃パズルです。後半は最大7標的と13枚の鏡を扱います。"
     },
     {
       "id": "relay-quest",

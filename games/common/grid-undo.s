@@ -3,6 +3,9 @@
 .global undo_valid
 .section .text, code
 grid_snapshot:
+; @if puzzle
+    JSR challenge_step
+; @endif
     LDX #board
     STX snapshot_source
     LDX #snapshot_board
@@ -20,6 +23,9 @@ grid_snapshot:
 grid_restore:
     TST undo_valid
     BEQ snapshot_done
+; @if puzzle
+    JSR challenge_undo
+; @endif
     LDX #snapshot_board
     STX snapshot_source
     LDX #board

@@ -85,6 +85,8 @@ for hp in range(1,4):
  s.append(b)
 for dx,dy in ((0,-1),(0,1),(-1,0),(1,0)):
  b=Bitmap(8,8);b.rect(2,2,4,4,1,True);b.line(3,3,3+dx*3,3+dy*3);b.p=[[1-v for v in row] for row in b.p];s.append(b)
+from depth_art import block8
+s[1]=block8('stone')
 assets(root,'RELAY QUEST','relay-quest',14,7,1,1,s,12,asm_bytes('quest_levels',sum(levels,[])),aux=('USE TONIC','RESET'))
 (root/'levels.json').write_text(json.dumps(levels)+'\n');(root/'solutions.json').write_text(json.dumps(solutions)+'\n')
 print('Certified 12 resource and combat routes:',','.join(str(len(p)) for p in solutions))

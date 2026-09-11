@@ -7,7 +7,12 @@ function pixels(g){
  for(let Y=8;Y<64;Y++)for(let X=0;X<128;X++){
   if(!playPixelVisible(g,X,Y))continue;
   let on=false;
-  if(Y<32){const v=board[Math.floor((Y-8)/8)*8+Math.floor(X/16)],a=X%16,b=Y%8;on=!!v&&((a>=1&&a<=14&&(b===1||b===6))||(b>=1&&b<=6&&(a===1||a===14))||(v===2&&a>=3&&a<=12&&(b===3||b===4)));}
+  if(Y<32){
+   const v=board[Math.floor((Y-8)/8)*8+Math.floor(X/16)],a=X%16,b=Y%8;
+   // Independently reconstruct the front rim, lower lip and right side of each brick.
+   const rim=(b===1&&a>=2&&a<=13)||(b===6&&a>=2&&a<=14)||(b===7&&a>=3&&a<=15)||((a===1||a===14)&&b>=2&&b<=6)||(a===15&&b>=3&&b<=7);
+   on=!!v&&(rim||(v===2&&a>=3&&a<=12&&(b===3||b===4)));
+  }
   on ||= X>=x&&X<x+2&&Y>=y&&Y<y+2;on ||= X>=p&&X<p+22&&Y>=60&&Y<62;
   assert.equal((fb[(Y>>3)*192+X+g.read('view_origin')]>>(Y&7))&1,on?1:0,`Scene reconstruction ${X},${Y}`);
  }

@@ -3,30 +3,15 @@
 .global player
 .global guards
 .global guard_count
+.global bullet_dirs
 .global bullet_cells
 .global facing
 .global turns
 .section .text, code
 game_start:
-    LDAA stage
-    LDAB #118
-    MUL
-    ADDD #levels
-    STD step_source
+    JSR challenge_start
     LDX #player
-    STX step_dest
-    LDAB #118
-step_load:
-    LDX step_source
-    LDAA 0,X
-    INX
-    STX step_source
-    LDX step_dest
-    STAA 0,X
-    INX
-    STX step_dest
-    DECB
-    BNE step_load
+    JSR challenge_load
     LDX #bullet_cells
     LDAB #8
     LDAA #255
@@ -74,6 +59,7 @@ step_move:
     TST 0,X
     BNE step_idle
     STAB player
+    JSR challenge_touch
     LDAA step_direction
     STAA facing
     LDAA player
@@ -134,6 +120,7 @@ game_aux:
 step_wait:
     JMP advance_turn
 advance_turn:
+    JSR challenge_step
     INC turns
     LDAA #1
     STAA redraw
@@ -323,6 +310,8 @@ step_tile_projectile:
     RTS
 step_tile_enemy:
     LDAA #8
+    RTS
+game_bonus:
     RTS
 game_render:
     JSR paint_board

@@ -16,8 +16,36 @@ game_start:
     CLR rail_moves + 1
     LDAA #255
     STAA cursor
-    JSR rail_spawn
-    JSR rail_spawn
+    JSR challenge_start
+    LDX #board
+    JSR challenge_load
+    LDAB #7
+rail_expand:
+    LDX #board
+    ABX
+    LDAA 0,X
+    PSHA
+    ASLB
+    INCB
+    LDX #board
+    ABX
+    ANDA #15
+    STAA 0,X
+    PULA
+    LSRA
+    LSRA
+    LSRA
+    LSRA
+    DEX
+    STAA 0,X
+    LSRB
+    DECB
+    BPL rail_expand
+    LDAB stage
+    LDX #rail_seeds
+    ABX
+    LDAA 0,X
+    STAA seed
     JMP rail_status
 game_update:
     LDAA input_event
@@ -307,6 +335,20 @@ grid_value:
     LDX #board
     ABX
     LDAA 0,X
+    RTS
+game_bonus:
+    CLR challenge_bonus
+    LDAB stage
+    LDX #rail_goals
+    ABX
+    LDAA 0,X
+    LDAB challenge_cells
+    LDX #board
+    ABX
+    CMPA 0,X
+    BHI rail_bonus_done
+    INC challenge_bonus
+rail_bonus_done:
     RTS
 game_render:
     JSR paint_board

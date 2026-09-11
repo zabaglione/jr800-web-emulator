@@ -11,6 +11,7 @@ for n in range(4):
     for x,y in [(4,2),(11,2),(4,5),(11,5)]:b.dot(x,y)
     if n==2:b.rect(4,3,8,2,1,True);b.line(5,2,10,2);b.line(5,5,10,5)
  elif n==3:b.line(6,3,9,3);b.line(7,2,7,5)
+ if n in (1,2):b.line(6,7,11,7);b.dot(12,6)
  sprites.append(b)
 links=[]
 for dy in (-1,0,1):

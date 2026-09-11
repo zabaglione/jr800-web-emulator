@@ -10,17 +10,8 @@ for p in range(36):
  for dx,dy in ((1,2),(2,1),(2,-1),(1,-2),(-1,-2),(-2,-1),(-2,1),(-1,2)):
     x,y=p%6+dx,p//6+dy;row.append(y*6+x if 0<=x<6 and 0<=y<6 else 255)
  links+=row;adj.append([q for q in row if q!=255])
-starts=[0,5,14,15,30,35];solutions=[]
-for start in starts:
- path=[start];seen={start}
- def visit(p):
-    if len(path)==36:return True
-    for q in sorted((q for q in adj[p] if q not in seen),key=lambda q:(sum(t not in seen for t in adj[q]),q)):
-        seen.add(q);path.append(q)
-        if visit(q):return True
-        path.pop();seen.remove(q)
-    return False
- assert visit(start);solutions.append(path[:])
+from puzzle_assets import campaign, level_records, challenge_data
+levels=campaign(root)
 sprites=[]
 for n in range(39):
  b=Bitmap(16,8);b.line(0,0,0,7);b.line(15,0,15,7);b.line(0,7,15,7)
@@ -32,5 +23,9 @@ for n in range(39):
         if row>>(7-x)&1:b.dot(4+x,y)
  elif n==38:b.line(5,3,10,3);b.line(7,1,7,5)
  sprites.append(b)
-assets(root,'KNIGHT TOUR','knight-tour',6,6,2,1,sprites,6,asm_bytes('knight_links',links)+asm_bytes('knight_starts',starts),stat='LEFT',action='SPACE')
-(root/'solutions.json').write_text(json.dumps(solutions)+'\n')
+b=Bitmap(16,8)
+for y in range(1,8,2):
+    for x in range(y%4,16,4):b.dot(x,y)
+sprites.append(b)
+data=asm_bytes('knight_links',links)+asm_bytes('knight_starts',[s['initial']['start'] for s in levels])+level_records([s['initial']['board'] for s in levels])+challenge_data(root,levels,6,2,1,6)
+assets(root,'KNIGHT TOUR','knight-tour',6,6,2,1,sprites,40,data,stat='LEFT',action='SPACE')

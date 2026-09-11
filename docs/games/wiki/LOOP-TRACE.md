@@ -2,33 +2,66 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [パズル・論理](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Logic) · モダン
 
-[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=loop-trace) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/loop-trace)
+[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/loop-trace)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/loop-trace/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/loop-trace/title.png)
 
-A→B→Cの順に通り、全地点を一度ずつ巡って輪を閉じる20面のパズルです。
+分岐のある盤面でS→A→B→C→Sの輪を描く、全40面の経路パズルです。
 
 ## 遊び方
 
-Sが開始地点です。方向キーを押すと隣の地点へ進み、その間に線を引きます。点模様の壁には入れません。A・B・Cは必ずこの順で通り、NEXTが次に通るチェックポイントです。すでに通った地点には入り直せません。
+方向キーで線を伸ばします。A・B・Cは順番に通る必要があり、線を交差させたり、通ったマスを再訪したりできません。Cまで通ってSに隣接したらSPACEで輪を閉じます。白いマスをすべて使う必要はありません。追加目標は、輪の中の経路に2か所の印も含めることです。
 
-ただし、直前の地点へ向かう方向キーは1手戻しになります。RETURNのUNDOでも1手ずつ繰り返し戻せます。チェックポイントから戻ると、通過順の状態も元に戻ります。
-
-LEFTが0になったら、Sの隣からSPACEを押して最後の線を結びます。全地点を巡るだけでは完了せず、輪を閉じてクリアです。MOVESは現在引いている経路の歩数です。RETURNのRESETでその面を最初からやり直せます。12〜30地点の20面を収録しています。
+直前のマスへ引き返すか、RETURNメニューの UNDO で線を1区間戻せます。戻す操作にも1手かかり、外した印は未達成に戻ります。輪を閉じるSPACEも1手です。
 
 ## ゲーム画面
 
-![開始地点と3つのチェックポイントを確認](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/loop-trace/gameplay-1.png)
+![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/loop-trace/gameplay-1.png)
 
-開始地点と3つのチェックポイントを確認。
+第1面の初期配置と規定手数。
 
-![順番を守りながら経路を伸ばす](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/loop-trace/gameplay-2.png)
+![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/loop-trace/gameplay-2.png)
 
-順番を守りながら経路を伸ばす。
+第31面で追加目標に挑戦している場面。
 
-![全地点を巡り最後の線を閉じた完成図](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/loop-trace/gameplay-3.png)
+![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/loop-trace/gameplay-3.png)
 
-全地点を巡り最後の線を閉じた完成図。
+第40面を規定手数と追加目標の両方を満たしてクリア。
+
+## 40面のチャレンジと評価
+
+面選択の左右で1〜40面を選べます。1〜10面は導入、11〜20面は基本の応用、21〜30面は難しい配置、31〜40面は上級向けです。未クリアの面も選べます。
+
+HUDの **USED** は使った手数、**PAR** は規定手数です。規定手数を超えてもプレイを続け、通常のクリアを目指せます。
+
+| 評価 | 条件 |
+|---|---|
+| 星1個 | 規定手数を超えてクリア |
+| 星2個 | 規定手数以下でクリア。追加目標は未達成 |
+| 星3個 | 規定手数以下でクリアし、追加目標もすべて達成 |
+
+ゲーム内では星の小さな図形と `---` で評価を表示します。各面の **BEST** は最高評価を保持します。追加目標の内容は作品ごとの説明と面選択のヒントで確認してください。通常のクリア条件を満たすと、その時点で評価が確定します。
+
+移動や回転など、盤面が変化する有効な操作を数えます。カーソルで選ぶだけの操作、決定前の選択、壁にぶつかる無効な移動は数えません。**UNDOも1手を消費します。** 手を戻すと、その操作で回収した印も元の状態に戻ります。RETRYはその面の手数を0からやり直し、BESTは維持します。
+
+## パスワード
+
+面選択画面に2種類のコードが表示されます。タイトルからSPACEで面選択へ進めます。
+
+| 種類 | 長さ | 復元する内容 |
+|---|---:|---|
+| LOAD | 5文字 | 選択している面。記録済みのBESTは維持 |
+| LOAD RECORD | 25文字 | 選択している面と、全40面のBEST |
+
+上下で **LOAD** または **LOAD RECORD** を選び、SPACEで入力画面へ進みます。入力画面では上下で文字を変更、左右で入力位置を移動します。SPACEも次の文字へ進み、最後の文字でSPACEを押すと確定します。RETURNは入力取消です。25文字のコードは5文字ずつ区切って表示されます。空白は入力しません。
+
+使用文字は `2346789ACDEFHJKM` の16種類です。`0/O`、`1/I/L`、`5/S/Z`、`8/B`、`6/G` のような取り違えを避けるため、紛らわしい組合せを同時に使いません。別のゲームのコードや検査値の合わないコードは `INVALID CODE` となり、現在の面や評価は変更しません。
+
+コードは**面と評価**を記録します。盤面の途中状態は含みません。BASICへ戻る前にLOAD RECORDを控えると、次回の起動後に記録を復元できます。入力したLOAD RECORDの内容で全40面のBESTが置き換わるため、新しい記録を控えてから復元してください。
+
+![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/loop-trace/selection.png)
+
+面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。
 
 ## 共通操作
 

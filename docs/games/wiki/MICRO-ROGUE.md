@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [探索・冒険](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Adventure) · 定番
 
-[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=micro-rogue) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/micro-rogue)
+[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/micro-rogue)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/micro-rogue/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/micro-rogue/title.png)
 
 地形と配置が変わる5階のダンジョンを、装備と回復薬を集めて踏破する小さなローグライクです。
 
@@ -24,15 +24,15 @@ RETURNで停止メニューを開きます。WAITで1手待機し、RESETとRETR
 
 ## ゲーム画面
 
-![装備と薬を拾い、追跡する敵に備える](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/micro-rogue/gameplay-1.png)
+![装備と薬を拾い、追跡する敵に備える](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/micro-rogue/gameplay-1.png)
 
 装備と薬を拾い、追跡する敵に備える。
 
-![3階で強化した装備を使って戦う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/micro-rogue/gameplay-2.png)
+![3階で強化した装備を使って戦う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/micro-rogue/gameplay-2.png)
 
 3階で強化した装備を使って戦う。
 
-![最終階で残った強敵と向き合う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/micro-rogue/gameplay-3.png)
+![最終階で残った強敵と向き合う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/micro-rogue/gameplay-3.png)
 
 最終階で残った強敵と向き合う。
 

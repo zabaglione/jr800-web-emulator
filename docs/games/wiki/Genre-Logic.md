@@ -8,13 +8,13 @@
 
 | タイトル | 系統 | 内容 |
 |---|---|---|
-| [BOX SHIFT](https://github.com/zabaglione/jr800-web-emulator/wiki/BOX-SHIFT) | 定番 | 箱を押してすべての丸い目標に置く、全20面の倉庫パズルです。 |
-| [MIRROR LINK](https://github.com/zabaglione/jr800-web-emulator/wiki/MIRROR-LINK) | モダン | 鏡を回転させて、すべての受光器へレーザーを導く全20面のパズルです。 |
-| [LAMP GRID](https://github.com/zabaglione/jr800-web-emulator/wiki/LAMP-GRID) | 定番 | 十字に反転する5×5のランプを、すべて消す全20面の論理パズルです。 |
-| [SLIDE NINE](https://github.com/zabaglione/jr800-web-emulator/wiki/SLIDE-NINE) | 定番 | 3×3の盤面で空きマスを動かし、数字を1から8の順に並べる全20面のスライドパズルです。 |
-| [ICE ROUTE](https://github.com/zabaglione/jr800-web-emulator/wiki/ICE-ROUTE) | モダン | 壁に当たるまで滑る氷の迷路で、2つの結晶を回収して出口を目指す全20面のパズルです。 |
-| [SWITCH MAZE](https://github.com/zabaglione/jr800-web-emulator/wiki/SWITCH-MAZE) | モダン | 2系統のスイッチと扉を使い、2本の鍵を集めて出口へ向かう全20面の迷路パズルです。 |
-| [PIPE WEAVE](https://github.com/zabaglione/jr800-web-emulator/wiki/PIPE-WEAVE) | 定番 | 管を回して給水口Sから全36マスと排水口Eへ水を通す20面です。漏れのない配管を組み上げます。 |
-| [NUMBER RAIL](https://github.com/zabaglione/jr800-web-emulator/wiki/NUMBER-RAIL) | モダン | 同じ数字を合流させて大きくする4×4のパズルです。128・512・2048の3段階の目標を選べます。 |
-| [MINE FIELD](https://github.com/zabaglione/jr800-web-emulator/wiki/MINE-FIELD) | 定番 | 周囲の数字から地雷を探す14×7の盤面です。地雷10・15・20個の3難易度を選べます。 |
-| [LOOP TRACE](https://github.com/zabaglione/jr800-web-emulator/wiki/LOOP-TRACE) | モダン | A→B→Cの順に通り、全地点を一度ずつ巡って輪を閉じる20面のパズルです。 |
+| [BOX SHIFT](https://github.com/zabaglione/jr800-web-emulator/wiki/BOX-SHIFT) | 定番 | 箱を押してすべての目標に置く、全40面の倉庫パズルです。後半には4箱を扱う倉庫も登場します。 |
+| [MIRROR LINK](https://github.com/zabaglione/jr800-web-emulator/wiki/MIRROR-LINK) | モダン | 最大14枚の鏡と複数の光源を扱う、全40面の反射パズルです。 |
+| [LAMP GRID](https://github.com/zabaglione/jr800-web-emulator/wiki/LAMP-GRID) | 定番 | 5×5のランプをすべて消す、全40面の論理パズルです。後半ほど多くの切替を必要とします。 |
+| [SLIDE NINE](https://github.com/zabaglione/jr800-web-emulator/wiki/SLIDE-NINE) | 定番 | 空きマスを動かして1〜8を並べる、全40面のスライドパズルです。通常クリアの最短手数が31手の盤面まで収録しています。 |
+| [ICE ROUTE](https://github.com/zabaglione/jr800-web-emulator/wiki/ICE-ROUTE) | モダン | 止まるまで滑り続ける床で宝石と出口を目指す、全40面の経路パズルです。 |
+| [SWITCH MAZE](https://github.com/zabaglione/jr800-web-emulator/wiki/SWITCH-MAZE) | モダン | 鍵と切替式の扉を使い、区画を行き来する全40面の迷路パズルです。 |
+| [PIPE WEAVE](https://github.com/zabaglione/jr800-web-emulator/wiki/PIPE-WEAVE) | 定番 | 分岐・環状経路を組み替えて通水する、全40面の配管パズルです。 |
+| [NUMBER RAIL](https://github.com/zabaglione/jr800-web-emulator/wiki/NUMBER-RAIL) | モダン | 決まった盤面と出現順で数字を合体させる、全40課題のマージパズルです。最終課題の目標は2048です。 |
+| [MINE FIELD](https://github.com/zabaglione/jr800-web-emulator/wiki/MINE-FIELD) | 定番 | 数字の推理だけで解ける固定盤面を40面収録した、地雷探索パズルです。地雷は10〜25個に増えます。 |
+| [LOOP TRACE](https://github.com/zabaglione/jr800-web-emulator/wiki/LOOP-TRACE) | モダン | 分岐のある盤面でS→A→B→C→Sの輪を描く、全40面の経路パズルです。 |

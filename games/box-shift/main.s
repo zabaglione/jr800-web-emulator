@@ -5,30 +5,14 @@
 .global undo_valid
 .section .text, code
 game_start:
-    LDAA stage
-    LDAB #113
-    MUL
-    ADDD #levels
-    STD box_source
-    LDX box_source
+    JSR challenge_start
+    LDX #board
+    JSR challenge_load
+    LDAB stage
+    LDX #start_cells
+    ABX
     LDAA 0,X
     STAA player
-    INX
-    STX box_source
-    LDX #board
-    STX box_dest
-    LDAB #112
-box_load:
-    LDX box_source
-    LDAA 0,X
-    INX
-    STX box_source
-    LDX box_dest
-    STAA 0,X
-    INX
-    STX box_dest
-    DECB
-    BNE box_load
     CLR moves
     CLR moves + 1
     CLR undo_valid
@@ -78,6 +62,7 @@ box_not_wall:
     BEQ box_valid
     RTS
 box_valid:
+    JSR challenge_step
     ; One complete prior logical state, not a second framebuffer.
     LDX #board
     STX box_source
@@ -118,6 +103,8 @@ box_copy_undo:
 box_walk:
     LDAA box_next
     STAA player
+    LDAB player
+    JSR challenge_touch
     LDD moves
     SUBD #9999
     BCC box_moves_done
@@ -146,6 +133,7 @@ game_aux:
     BNE box_help
     TST undo_valid
     BEQ box_idle
+    JSR challenge_undo
     LDX #undo_board
     STX box_source
     LDX #board
@@ -205,3 +193,7 @@ box_heading: .byte 66,79,88,32,83,72,73,70,84,32,32,32,83,84,65,71,69,0 ; BOX SH
 box_moves_label: .byte 77,79,86,69,83,0 ; MOVES
 box_menu_label: .byte 82,69,84,85,82,78,0 ; RETURN
 box_help_label: .byte 66,79,88,32,84,79,32,79,0 ; BOX TO O
+
+.section .text, code
+game_bonus:
+    RTS

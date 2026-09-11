@@ -2,31 +2,66 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [シューティング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting) · モダン
 
-[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=step-strike) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/step-strike)
+[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/step-strike)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/step-strike/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/step-strike/title.png)
 
-移動・射撃・待機の1手でだけ世界が進む、全20面の戦術パズルです。
+移動・射撃・待機のときだけ世界が進む、全40面の戦術パズルです。扉と遮蔽物を使う後半の部屋を追加しています。
 
 ## 遊び方
 
-全員の敵を倒すとクリア。隣の敵に移動すると近接攻撃で倒せます。射撃は最後に移動した向きへ最大4マス届きます。敵は3手ごとに、壁で遮られていない縦・横の直線上へ弾を撃ちます。敵弾に触れると失敗です。
+方向キーで移動して向きを変え、SPACEで前方4マスへ射撃します。敵のマスへ移動すると近接攻撃になります。敵をすべて倒せばクリアです。敵弾は行動ごとに進み、生きている敵は3ターンごとに射線が通る場合に発砲します。追加目標は、最後の敵を倒す前に2か所の情報の印を通ることです。
 
-方向キーで移動・向き変更、SPACEで射撃。RETURNの **WAIT ONE TURN** で1手待機し、**HELP** で案内を切り替えます。移動できない壁へ押した場合は手が進みません。
+RETURNメニューの WAIT ONE TURN は1手の待機です。無入力中とメニュー表示中は敵も弾も止まります。手戻しはありません。RETRYで同じ部屋に再挑戦できます。規定手数は、生還して情報も集められる確認済み手順が基準です。
 
 ## ゲーム画面
 
-![敵の配置を見て作戦を立てる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/step-strike/gameplay-1.png)
+![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/step-strike/gameplay-1.png)
 
-敵の配置を見て作戦を立てる。
+第1面の初期配置と規定手数。
 
-![遮蔽物を使って接近する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/step-strike/gameplay-2.png)
+![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/step-strike/gameplay-2.png)
 
-遮蔽物を使って接近する。
+第31面で追加目標に挑戦している場面。
 
-![敵と弾道を見ながら次の1手を選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/step-strike/gameplay-3.png)
+![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/step-strike/gameplay-3.png)
 
-敵と弾道を見ながら次の1手を選ぶ。
+第40面を規定手数と追加目標の両方を満たしてクリア。
+
+## 40面のチャレンジと評価
+
+面選択の左右で1〜40面を選べます。1〜10面は導入、11〜20面は基本の応用、21〜30面は難しい配置、31〜40面は上級向けです。未クリアの面も選べます。
+
+HUDの **USED** は使った手数、**PAR** は規定手数です。規定手数を超えてもプレイを続け、通常のクリアを目指せます。
+
+| 評価 | 条件 |
+|---|---|
+| 星1個 | 規定手数を超えてクリア |
+| 星2個 | 規定手数以下でクリア。追加目標は未達成 |
+| 星3個 | 規定手数以下でクリアし、追加目標もすべて達成 |
+
+ゲーム内では星の小さな図形と `---` で評価を表示します。各面の **BEST** は最高評価を保持します。追加目標の内容は作品ごとの説明と面選択のヒントで確認してください。通常のクリア条件を満たすと、その時点で評価が確定します。
+
+移動や回転など、盤面が変化する有効な操作を数えます。カーソルで選ぶだけの操作、決定前の選択、壁にぶつかる無効な移動は数えません。**UNDOも1手を消費します。** 手を戻すと、その操作で回収した印も元の状態に戻ります。RETRYはその面の手数を0からやり直し、BESTは維持します。
+
+## パスワード
+
+面選択画面に2種類のコードが表示されます。タイトルからSPACEで面選択へ進めます。
+
+| 種類 | 長さ | 復元する内容 |
+|---|---:|---|
+| LOAD | 5文字 | 選択している面。記録済みのBESTは維持 |
+| LOAD RECORD | 25文字 | 選択している面と、全40面のBEST |
+
+上下で **LOAD** または **LOAD RECORD** を選び、SPACEで入力画面へ進みます。入力画面では上下で文字を変更、左右で入力位置を移動します。SPACEも次の文字へ進み、最後の文字でSPACEを押すと確定します。RETURNは入力取消です。25文字のコードは5文字ずつ区切って表示されます。空白は入力しません。
+
+使用文字は `2346789ACDEFHJKM` の16種類です。`0/O`、`1/I/L`、`5/S/Z`、`8/B`、`6/G` のような取り違えを避けるため、紛らわしい組合せを同時に使いません。別のゲームのコードや検査値の合わないコードは `INVALID CODE` となり、現在の面や評価は変更しません。
+
+コードは**面と評価**を記録します。盤面の途中状態は含みません。BASICへ戻る前にLOAD RECORDを控えると、次回の起動後に記録を復元できます。入力したLOAD RECORDの内容で全40面のBESTが置き換わるため、新しい記録を控えてから復元してください。
+
+![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/step-strike/selection.png)
+
+面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。
 
 ## 共通操作
 

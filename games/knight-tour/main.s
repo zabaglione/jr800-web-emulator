@@ -5,6 +5,20 @@
 .section .text, code
 game_start:
     JSR grid_reset
+    JSR challenge_start
+    LDX #board
+    JSR challenge_load
+    LDX #board
+    LDAB #36
+knight_count_open:
+    TST 0,X
+    BNE knight_count_next
+    INC grid_stat
+knight_count_next:
+    INX
+    DECB
+    BNE knight_count_open
+    DEC grid_stat
     LDAB stage
     LDX #knight_starts
     ABX
@@ -16,8 +30,6 @@ game_start:
     ABX
     LDAA #1
     STAA 0,X
-    LDAA #35
-    STAA grid_stat
     JMP knight_options
 game_update:
     LDAA input_event
@@ -35,6 +47,7 @@ knight_jump:
     TST 0,X
     BEQ knight_idle
     STAB knight_player
+    JSR challenge_step
     INC moves
     LDAA moves
     TAB
@@ -105,6 +118,7 @@ game_aux:
     BNE knight_restart
     TST moves
     BEQ knight_idle
+    JSR challenge_undo
     LDAB knight_player
     LDX #board
     ABX
@@ -129,6 +143,12 @@ knight_visited:
     LDX #board
     ABX
     LDAA 0,X
+    CMPA #255
+    BNE knight_tile_available
+    LDAA #39
+    RTS
+knight_tile_available:
+    TSTA
     BNE knight_tile_done
     LDX #knight_legal
     ABX
@@ -152,3 +172,15 @@ knight_index: .space 1
 knight_blank_label: .byte 32,32,32,32,32,32,32,32,32,32,0
 knight_jump_label: .byte 74,85,77,80,0
 knight_stuck_label: .byte 83,84,85,67,75,0
+
+.section .text, code
+game_bonus:
+    CLR challenge_bonus
+    TST grid_stat
+    BNE knight_bonus_done
+    LDAA knight_player
+    CMPA challenge_cells
+    BNE knight_bonus_done
+    INC challenge_bonus
+knight_bonus_done:
+    RTS

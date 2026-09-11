@@ -6,31 +6,15 @@ game_render:
 
 game_start:
     JSR grid_reset
+    JSR challenge_start
     CLR undo_valid
-    LDAA stage
-    LDAB #99
-    MUL
-    ADDD #levels
-    STD ice_source
-    LDX ice_source
+    LDX #board
+    JSR challenge_load
+    LDAB stage
+    LDX #start_cells
+    ABX
     LDAA 0,X
     STAA cursor
-    INX
-    STX ice_source
-    CLR ice_index
-ice_load:
-    LDX ice_source
-    LDAA 0,X
-    INX
-    STX ice_source
-    LDAB ice_index
-    LDX #board
-    ABX
-    STAA 0,X
-    INC ice_index
-    LDAA ice_index
-    CMPA #98
-    BNE ice_load
     LDAA #2
     STAA grid_stat
     RTS
@@ -54,6 +38,7 @@ ice_slide:
     CMPA #1
     BEQ ice_stopped
     STAB cursor
+    JSR challenge_touch
     CMPA #3
     BCS ice_exit
     CMPA #4
@@ -91,3 +76,7 @@ ice_tile:
 .section .bss, bss
 ice_source: .space 2
 ice_index: .space 1
+
+.section .text, code
+game_bonus:
+    RTS

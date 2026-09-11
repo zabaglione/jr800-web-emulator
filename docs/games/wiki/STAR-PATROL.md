@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [シューティング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting) · 定番
 
-[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=star-patrol) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/star-patrol)
+[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/star-patrol)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/star-patrol/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/star-patrol/title.png)
 
 移動する敵編隊と敵弾を避けながら撃つ、全12ステージの固定画面シューティングです。
 
@@ -22,15 +22,15 @@ RETURNでメニューを開くと停止します。PAUSEはメニューを閉じ
 
 ## ゲーム画面
 
-![防壁の隙間から編隊を狙う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/star-patrol/gameplay-1.png)
+![防壁の隙間から編隊を狙う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/star-patrol/gameplay-1.png)
 
 防壁の隙間から編隊を狙う。
 
-![装甲を持つ敵と敵弾をかわす](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/star-patrol/gameplay-2.png)
+![装甲を持つ敵と敵弾をかわす](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/star-patrol/gameplay-2.png)
 
 装甲を持つ敵と敵弾をかわす。
 
-![残った敵を追い込む終盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/star-patrol/gameplay-3.png)
+![残った敵を追い込む終盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/star-patrol/gameplay-3.png)
 
 残った敵を追い込む終盤。
 

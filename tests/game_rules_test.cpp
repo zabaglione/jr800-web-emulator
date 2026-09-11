@@ -38,16 +38,51 @@ struct Fixture {
 };
 int main(int argc,char** argv){try{
  require(argc==2,"Usage: game_rules_test root");const std::string root=argv[1];
- // Render the same numbers through four typefaces, at controller boundaries.
- // Expected strokes derive from the SDK's unscaled glyphs, not the HUD cache.
+ // Campaign codes: independent nibble packing and CRC, every game and stage.
+ const std::array<std::string,15> puzzles{{"box-shift","mirror-link","lamp-grid","slide-nine","ice-route","switch-maze","pipe-weave","number-rail","mine-field","loop-trace","knight-tour","peg-rescue","step-strike","ricochet-ops","pocket-factory"}};
+ auto code=[](unsigned id,unsigned stage,const std::vector<unsigned>& best){
+  std::vector<unsigned> out{id,stage>>4,stage&15};
+  for(unsigned i=0;i<best.size();i+=2)out.push_back(best[i]*4+best[i+1]);
+  unsigned crc=0xa7;for(auto byte:out){crc^=byte;for(unsigned bit=0;bit<8;++bit)crc=(crc>>1)^((crc&1)?0x8c:0);}
+  out.push_back(crc>>4);out.push_back(crc&15);return out;
+ };
+ for(unsigned id=0;id<puzzles.size();++id){
+  Fixture f(root,puzzles[id]);f.call("challenge_init");
+  for(unsigned stage=0;stage<40;++stage){
+   std::vector<unsigned> best(40);for(unsigned i=0;i<40;++i){best[i]=(i+stage)%4;f.put("challenge_best",best[i],i);}
+   f.put("stage",stage);f.put("password_length",25);f.call("challenge_encode",0,25);const auto expected=code(id,stage,best);
+   for(unsigned i=0;i<25;++i)require(f.get("password_digits",i)==expected[i],"Full code packs the selected game, stage, forty best ranks and checksum");
+   for(unsigned pos=0;pos<25;++pos){
+    f.put("password_digits",expected[pos]^1,pos);f.call("challenge_validate");require(f.get("password_error")==1&&f.get("stage")==stage,"Every single-symbol error is rejected before stage mutation");
+    for(unsigned i=0;i<40;++i)require(f.get("challenge_best",i)==best[i],"Invalid full code cannot partially restore ranks");
+    f.put("password_digits",expected[pos],pos);
+   }
+   f.fill("challenge_best",40,0);f.call("challenge_validate");require(f.get("password_error")==0,"Valid full code accepted");for(unsigned i=0;i<40;++i)require(f.get("challenge_best",i)==best[i],"All forty ranks restore exactly");
+   const auto quick=code(id,(stage+1)%40,{});f.put("password_length",5);for(unsigned i=0;i<5;++i)f.put("password_digits",quick[i],i);f.call("challenge_validate");require(f.get("password_error")==0&&f.get("stage")==((stage+1)%40),"Quick code restores selected stage");
+   for(unsigned i=0;i<40;++i)require(f.get("challenge_best",i)==best[i],"Quick code preserves earned records");
+  }
+  for(unsigned length:{0U,4U,6U,24U,26U}){f.put("password_length",length);f.call("challenge_validate");require(f.get("password_error")==1,"Unsupported password lengths rejected");}
+  f.put("password_length",5);f.put("password_digits",255);f.call("challenge_validate");require(f.get("password_error")==1,"Non-alphabet nibble rejected before lookup");
+  const auto other=code((id+1)%15,0,{});for(unsigned i=0;i<5;++i)f.put("password_digits",other[i],i);f.call("challenge_validate");require(f.get("password_error")==1,"Another game's valid checksum cannot select a stage");
+ }
  {
-  Fixture f(root,"box-shift");const auto desc=f.symbols.at("hud_field_0");
+  Fixture f(root,"box-shift");f.call("challenge_init");
+  for(unsigned stage=0;stage<40;++stage){f.put("stage",stage);f.call("challenge_start");const unsigned par=f.get("challenge_par")*256U+f.get("challenge_par",1);
+   for(unsigned used:{par-1,par,par+1})for(unsigned bonus:{0U,1U,3U}){f.put("challenge_best",0,stage);f.put("challenge_moves",used>>8);f.put("challenge_moves",used&255,1);f.put("challenge_bonus",bonus);f.call("challenge_award");const unsigned rating=used>par?1:bonus==3?3:2;require(f.get("challenge_rating")==rating&&f.get("challenge_best",stage)==rating,"One, two or three stars follow par and optional objectives at the exact boundary");}
+   f.put("challenge_best",3,stage);f.call("challenge_award");require(f.get("challenge_best",stage)==3,"A lower replay rank preserves the personal best");
+  }
+  f.put("challenge_moves",39);f.put("challenge_moves",15,1);f.put("challenge_par",39);f.put("challenge_par",15,1);f.put("challenge_bonus",3);f.call("challenge_step");require(f.get("challenge_overflow")==1&&f.get("challenge_moves")==39&&f.get("challenge_moves",1)==15,"Move counter saturates at 9999 and records overflow");f.call("challenge_award");require(f.get("challenge_rating")==1,"Overflow cannot earn a par rank after display saturation");
+ }
+ // Render the same numbers through four typefaces, at controller boundaries.
+ // Compare scaling, erasure and inversion with unscaled strokes for all four families.
+ for(const auto& game:{"box-shift","step-strike","knight-tour","peg-rescue"}){
+  Fixture f(root,game);const auto desc=f.symbols.at("hud_field_0");
   const auto cache=(unsigned(f.get("hud_field_0",6))<<8)|f.get("hud_field_0",7);
   for(unsigned font=0;font<4;++font)for(unsigned inverse:{0U,128U})for(unsigned x:{0U,45U,94U,137U}){
    f.put("hud_field_0",x);f.put("hud_field_0",3,1);f.put("hud_field_0",5,2);f.put("hud_field_0",font,3);f.put("hud_field_0",inverse,4);
    require(f.bus.host_fill_ram(cache,3,0)==Jr800MemoryStatus::ok,"Reset numeric field cache");
    f.fill("framebuffer",1536,165);
-   for(unsigned value:{65535U,10000U,999U,10U,9U,0U}){
+   for(unsigned value:{65535U,10000U,12345U,6789U,999U,10U,9U,0U}){
     std::array<unsigned,1536> before{};for(unsigned i=0;i<1536;++i)before[i]=f.get("framebuffer",i);
     f.call("hud_number",value&255,value>>8,desc);
     auto text=std::to_string(value);text=std::string(5-text.size(),' ')+text;
@@ -57,7 +92,7 @@ int main(int argc,char** argv){try{
      if(band>=3&&band<3+sy&&col>=x&&col<x+5*fw){
       const unsigned index=(col-x)/fw,gx=(col-x)%fw;expected=0;
       if(font==0){expected=f.get("hud_font_tiny",(text[index]-32)*4+gx);}
-      else if(gx<5*sx){const unsigned glyph=f.get("font",(text[index]-32)*5+gx/sx);for(unsigned bit=0;bit<8;++bit){const unsigned gy=((band-3)*8+bit)/sy;if(gy<7&&(glyph&(1U<<gy)))expected|=1U<<bit;}}
+      else if(gx<5*sx){const unsigned glyph=f.get("hud_font_normal",(text[index]==' '?10:text[index]-'0')*6+gx/sx);for(unsigned bit=0;bit<8;++bit){const unsigned gy=((band-3)*8+bit)/sy;if(gy<7&&(glyph&(1U<<gy)))expected|=1U<<bit;}}
       if(inverse)expected^=255;
      }
      require(f.get("framebuffer",band*192+col)==expected,"HUD numeric strokes, erasure and controller boundaries");
@@ -69,9 +104,16 @@ int main(int argc,char** argv){try{
  }
 
  {
-  Fixture f(root,"box-shift");f.fill("framebuffer",1536,165);f.call("result_draw",0,0,f.symbols.at("result_win"));
+  Fixture f(root,"box-shift");f.fill("framebuffer",1536,165);f.put("result_label",f.symbols.at("result_win")>>8);f.put("result_label",f.symbols.at("result_win")&255,1);
+  f.put("challenge_rating",3);f.put("challenge_moves",0);f.put("challenge_moves",12,1);f.put("challenge_par",0);f.put("challenge_par",34,1);f.put("challenge_need",3);f.put("challenge_bonus",3);
+  f.call("challenge_result");std::array<std::string,6> lines;lines.fill("|                      |");lines[0]=lines[5]="+----------------------+";
+  lines[1].replace(3,5,"CLEAR");lines[1].replace(16,3,"***");lines[2].replace(2,4,"USED");lines[2].replace(7,4,"0012");lines[2].replace(13,3,"PAR");lines[2].replace(17,4,"0034");lines[3].replace(2,15,"BONUS: COMPLETE");lines[4].replace(2,20,"SPACE NEXT  RET MENU");
+  for(unsigned band=0;band<8;++band)for(unsigned x=0;x<192;++x){unsigned expected=165;if(band>=1&&band<=6&&x>=24&&x<168){const unsigned col=(x-24)%6;const auto ch=lines[band-1][(x-24)/6];expected=col==5?0:ch=='|'?(col==2?255:0):f.get("font",(ch-32)*5+col);}require(f.get("framebuffer",band*192+x)==expected,"Challenge panel at "+std::to_string(x)+","+std::to_string(band)+": expected "+std::to_string(expected)+" got "+std::to_string(f.get("framebuffer",band*192+x)));}
+ }
+ {
+  Fixture f(root,"circuit-deck");f.fill("framebuffer",1536,165);f.call("result_draw",0,0,f.symbols.at("result_win"));
   const std::array<std::string,4> lines{{"+------------------+","|      CLEAR       |","| SPACE: CONTINUE  |","+------------------+"}};
-  for(unsigned band=0;band<8;++band)for(unsigned x=0;x<192;++x){unsigned expected=165;if(band>=2&&band<=5&&x>=36&&x<156){const unsigned col=(x-36)%6;expected=col==5?0:f.get("font",(lines[band-2][(x-36)/6]-32)*5+col);}require(f.get("framebuffer",band*192+x)==expected,"Result dialog is opaque and preserves every pixel outside its rectangle");}
+  for(unsigned band=0;band<8;++band)for(unsigned x=0;x<192;++x){unsigned expected=165;if(band>=2&&band<=5&&x>=36&&x<156){const unsigned col=(x-36)%6;const auto ch=lines[band-2][(x-36)/6];expected=col==5?0:ch=='|'?(col==2?255:0):f.get("font",(ch-32)*5+col);}require(f.get("framebuffer",band*192+x)==expected,"Result dialog is opaque and preserves every pixel outside its rectangle");}
  }
  {
   Fixture f(root,"micro-rogue");const auto desc=f.symbols.at("hud_field_0");f.put("hud_field_0",45);f.put("hud_field_0",3,1);f.put("hud_field_0",54,2);f.put("hud_field_0",4,3);f.put("hud_field_0",0,4);f.put("hud_field_0",24,5);
@@ -250,14 +292,13 @@ int main(int argc,char** argv){try{
  }
  {
   Fixture f(root,"mine-field");
-  for(unsigned count:{10,15,20})for(unsigned start:{0,13,49,84,97})for(unsigned seed:{1,93}){
-   f.fill("board",98,0);f.put("cursor",start);f.put("mine_count",count);f.put("seed",seed);f.call("mine_generate");unsigned actual=0;
+  for(unsigned stage=0;stage<40;++stage){
+   f.put("stage",stage);f.put("phase",2);f.call("game_start");const unsigned start=f.get("cursor"),count=f.get("mine_count");unsigned actual=0;
    for(int p=0;p<98;++p){const auto cell=f.get("board",static_cast<unsigned>(p));if(cell&16)++actual;
     unsigned adjacent=0;for(int q=0;q<98;++q)if(q!=p&&std::abs(p%14-q%14)<=1&&std::abs(p/14-q/14)<=1&&(f.get("board",static_cast<unsigned>(q))&16))++adjacent;
-    if(!(cell&16))require((cell&15)==adjacent,"Mine number equals all eight adjacent mines");
-    if(std::abs(p%14-static_cast<int>(start%14))<=1&&std::abs(p/14-static_cast<int>(start/14))<=1)require((cell&16)==0,"Every first click and its neighbours are safe, including corners");
-    require((cell&128)==0,"Temporary generation markers are cleared");
-   }require(actual==count,"Mine generation places exactly the selected count");
+    if(!(cell&16))require((cell&15)==adjacent,"Authored mine clues count all eight neighbours");
+    if(std::abs(p%14-static_cast<int>(start%14))<=1&&std::abs(p/14-static_cast<int>(start/14))<=1)require((cell&16)==0&&(cell&32),"Fixed initial opening and neighbours are revealed and safe");
+   }require(actual==count,"Every authored stage loads its exact mine count");
   }
   f.fill("board",98,0);f.put("phase",2);f.put("grid_stat",98);f.call("mine_reveal",49);require(f.get("grid_stat")==0,"A zero-region flood visits each of 98 cells exactly once");
   for(unsigned p=0;p<98;++p)require(f.get("board",p)==32,"Entire zero field is revealed");
@@ -452,9 +493,9 @@ int main(int argc,char** argv){try{
  }
  {
   Fixture f(root,"ricochet-ops");const std::array<std::pair<int,int>,8> directions{{{0,-1},{1,-1},{1,0},{1,1},{0,1},{-1,1},{-1,0},{-1,-1}}};
-  for(unsigned mirror:{2,3})for(unsigned p=0;p<48;++p)for(unsigned d=0;d<8;++d){f.fill("board",48,0);f.fill("rico_visited",384,0);f.fill("rico_trail",48,0);f.put("rico_bullet",p);f.put("rico_direction",d);f.put("cursor",41);f.put("rico_active",1);f.put("rico_ammo",2);f.put("phase",2);const auto [dx,dy]=directions[d];const int x=static_cast<int>(p%8)+dx,y=static_cast<int>(p/8)+dy;const bool valid=x>=0&&x<8&&y>=0&&y<6&&y*8+x!=41;const unsigned q=valid?static_cast<unsigned>(y*8+x):0;if(valid)f.put("board",mirror,q);f.call("rico_step");require(f.get("rico_active")==static_cast<unsigned>(valid),"Every ray direction clips screen edges and the launch cell");if(valid){const auto reflected=mirror==2?std::pair{-dy,-dx}:std::pair{dy,dx};const auto found=std::find(directions.begin(),directions.end(),reflected);require(f.get("rico_direction")==static_cast<unsigned>(std::distance(directions.begin(),found))&&f.get("rico_bullet")==q,"Mirror turns match independent vector reflection");require(f.get("rico_visited",q*8+d)==1&&f.get("rico_trail",q)==1,"Cycle state records entering direction and visible trail separately");}}
-  f.fill("board",48,0);f.fill("rico_visited",384,0);f.fill("rico_trail",48,0);for(const auto& [p,v]:std::array<std::pair<unsigned,unsigned>,4>{{{9,2},{11,3},{27,2},{25,3}}})f.put("board",v,p);f.put("rico_bullet",17);f.put("rico_direction",0);f.put("cursor",41);f.put("rico_active",1);f.put("rico_ammo",2);f.put("phase",2);unsigned count=0;while(f.get("rico_active")&&count++<385)f.call("rico_step");require(count<385&&f.get("phase")==2,"A closed four-mirror orbit terminates on a repeated cell and direction");
-  f.fill("board",48,0);f.fill("rico_visited",384,0);f.fill("rico_trail",48,0);for(unsigned p:{9,10,11})f.put("board",4,p);f.put("rico_bullet",8);f.put("rico_direction",2);f.put("rico_active",1);f.put("rico_left",3);f.put("rico_score",0);f.put("rico_score",0,1);f.put("phase",2);for(unsigned i=0;i<3;++i)f.call("rico_step");require(f.get("phase")==4&&f.get("rico_score")==1&&f.get("rico_score",1)==44&&f.get("rico_left")==0,"One shot can pass through three targets and score each exactly once");
+  for(unsigned mirror:{2,3})for(unsigned p=0;p<48;++p)for(unsigned d=0;d<8;++d){f.fill("board",48,0);f.fill("rico_visited",48,0);f.fill("rico_trail",48,0);f.put("rico_bullet",p);f.put("rico_direction",d);f.put("cursor",41);f.put("rico_active",1);f.put("rico_ammo",2);f.put("phase",2);const auto [dx,dy]=directions[d];const int x=static_cast<int>(p%8)+dx,y=static_cast<int>(p/8)+dy;const bool valid=x>=0&&x<8&&y>=0&&y<6&&y*8+x!=41;const unsigned q=valid?static_cast<unsigned>(y*8+x):0;if(valid)f.put("board",mirror,q);f.call("rico_step");require(f.get("rico_active")==static_cast<unsigned>(valid),"Every ray direction clips screen edges and the launch cell");if(valid){const auto reflected=mirror==2?std::pair{-dy,-dx}:std::pair{dy,dx};const auto found=std::find(directions.begin(),directions.end(),reflected);require(f.get("rico_direction")==static_cast<unsigned>(std::distance(directions.begin(),found))&&f.get("rico_bullet")==q,"Mirror turns match independent vector reflection");require(f.get("rico_visited",q)==(1U<<d)&&f.get("rico_trail",q)==1,"Cycle state records entering direction and visible trail separately");}}
+  f.fill("board",48,0);f.fill("rico_visited",48,0);f.fill("rico_trail",48,0);for(const auto& [p,v]:std::array<std::pair<unsigned,unsigned>,4>{{{9,2},{11,3},{27,2},{25,3}}})f.put("board",v,p);f.put("rico_bullet",17);f.put("rico_direction",0);f.put("cursor",41);f.put("rico_active",1);f.put("rico_ammo",2);f.put("phase",2);unsigned count=0;while(f.get("rico_active")&&count++<385)f.call("rico_step");require(count<385&&f.get("phase")==2,"A closed four-mirror orbit terminates on a repeated cell and direction");
+  f.fill("board",48,0);f.fill("rico_visited",48,0);f.fill("rico_trail",48,0);for(unsigned p:{9,10,11})f.put("board",4,p);f.put("rico_bullet",8);f.put("rico_direction",2);f.put("rico_active",1);f.put("rico_left",3);f.put("rico_score",0);f.put("rico_score",0,1);f.put("phase",2);for(unsigned i=0;i<3;++i)f.call("rico_step");require(f.get("phase")==4&&f.get("rico_score")==1&&f.get("rico_score",1)==44&&f.get("rico_left")==0,"One shot can pass through three targets and score each exactly once");
  }
  {
   Fixture f(root,"relay-quest");const std::array<int,4> delta{-14,14,-1,1};
@@ -545,5 +586,5 @@ int main(int argc,char** argv){try{
   for(unsigned goal:{12,16,20}){f.put("dock_count",goal-1);f.put("dock_goal",goal);f.put("dock_left",24);f.put("dock_x",24);f.put("dock_width",80);f.put("dock_score",0);f.put("dock_score",250,1);f.put("dock_mode",2);f.put("phase",2);f.call("dock_land");require(f.get("dock_count")==goal&&f.get("phase")==4&&f.get("dock_mode")==3&&word("dock_score")==350&&f.get("dock_layers_width",goal-1)==80,"The last supported crate completes at each difficulty's target height");}
   for(unsigned width:{1,2,3,8,80,128})for(unsigned left:{0U,(128-width)/2,128-width})for(unsigned y=8;y<=60;y+=2)for(unsigned colour:{0,1}){f.fill("framebuffer",1536,165);f.put("dock_span_left",left);f.put("dock_span_size",width);f.put("dock_span_y",y);f.put("dock_colour",colour);f.put("dock_pattern",1);f.call("dirty_reset");f.call("dock_span");bool any_changed=false;for(unsigned q=left;q<left+width;++q){const unsigned mask=3U<<(y%8),top=1U<<(y%8),pixel=(165&~mask)|(colour?((q+1)%4?mask:top):0);any_changed=any_changed||pixel!=165;}for(unsigned band=0;band<8;++band){require(f.get("dirty_min",band)==(any_changed&&band==y/8?left+f.get("view_origin"):192),"Dock LCD range starts at physical shifted x");require(f.get("dirty_max",band)==(any_changed&&band==y/8?left+width-1+f.get("view_origin"):0),"Dock LCD range ends at physical shifted x");}const unsigned mask=3U<<(y%8),top=1U<<(y%8);for(unsigned band=0;band<8;++band)for(unsigned x=0;x<192;++x){unsigned expected=165;if(band==y/8&&x>=left+f.get("view_origin")&&x<left+width+f.get("view_origin"))expected=(165&~mask)|(colour?((x-f.get("view_origin")+1)%4?mask:top):0);require(f.get("framebuffer",band*192+x)==expected,"Two-pixel spans preserve all other rows, LCD controllers and neighboring HUD columns");}}
  }
- std::cout<<"PASS: HUD fonts/cache/viewport/dialog/gauges, laser cycles, twelve card effects, costs, shield/poison, factory contention/conversion/shipping, crater edges, connect-four windows and tactics, reversi rays, five-stone windows and open ends, hex distance fields, pawn movement boundaries, dot box ownership, pipe loops and leaks, number merges and terminal states, mine first-click safety and flood fill, loop checkpoints and closure, pyramid availability and pairs, golf rank wrapping and coverage, all dice category scores and bonus, risk banking thresholds and limits, brick and paddle contacts, snake boundaries and vacating tail, maze distance fields and ghost contact, river traffic and home bays, tower landings and checkpoints, bomb rays and vault keys, trail racing CPU and simultaneous contacts, gravity masks and unique stars, patrol projectiles and shield durability, orbital nearest hits and rotating approach, target deadlines and score thresholds, ricochet vectors and cycle guards, quest resources and melee order, sonar occlusion and oxygen ordering, dungeon pursuit and equipment, rotating cameras and network timing, railway queues and merge safety, orchard growth and daily budgets, trading prices and voyage accounting, mini-golf fixed-point contacts, paddle spin and match scoring, penalty power and goalkeeper reach, rhythm edges and timing windows, cargo overlap and exact masked drawing\n";return 0;
+ std::cout<<"PASS: 600 campaign passwords, atomic restoration, par ratings, four numeral families, HUD cache/viewport/dialog/gauges, laser cycles, twelve card effects, costs, shield/poison, factory contention/conversion/shipping, crater edges, connect-four windows and tactics, reversi rays, five-stone windows and open ends, hex distance fields, pawn movement boundaries, dot box ownership, pipe loops and leaks, number merges and terminal states, forty fixed mine layouts, safe opening and flood fill, loop checkpoints and closure, pyramid availability and pairs, golf rank wrapping and coverage, all dice category scores and bonus, risk banking thresholds and limits, brick and paddle contacts, snake boundaries and vacating tail, maze distance fields and ghost contact, river traffic and home bays, tower landings and checkpoints, bomb rays and vault keys, trail racing CPU and simultaneous contacts, gravity masks and unique stars, patrol projectiles and shield durability, orbital nearest hits and rotating approach, target deadlines and score thresholds, ricochet vectors and cycle guards, quest resources and melee order, sonar occlusion and oxygen ordering, dungeon pursuit and equipment, rotating cameras and network timing, railway queues and merge safety, orchard growth and daily budgets, trading prices and voyage accounting, mini-golf fixed-point contacts, paddle spin and match scoring, penalty power and goalkeeper reach, rhythm edges and timing windows, cargo overlap and exact masked drawing\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

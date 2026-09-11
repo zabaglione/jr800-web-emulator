@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [アクション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Action) · 定番
 
-[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=grid-claim) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/grid-claim)
+[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/grid-claim)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/grid-claim/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/grid-claim/title.png)
 
 走った跡が壁になる競走でCPUを追い込む、2勝先取の対戦アクションです。3段階の難易度と6種類のアリーナがあります。
 
@@ -20,15 +20,15 @@ RETURNでメニューを開くと停止します。PAUSEはメニューを閉じ
 
 ## ゲーム画面
 
-![向かい合った車体から競走開始](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/grid-claim/gameplay-1.png)
+![向かい合った車体から競走開始](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/grid-claim/gameplay-1.png)
 
 向かい合った車体から競走開始。
 
-![走行跡で相手の進路を狭める](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/grid-claim/gameplay-2.png)
+![走行跡で相手の進路を狭める](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/grid-claim/gameplay-2.png)
 
 走行跡で相手の進路を狭める。
 
-![残りの空き領域を争う上級戦](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/grid-claim/gameplay-3.png)
+![残りの空き領域を争う上級戦](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/grid-claim/gameplay-3.png)
 
 残りの空き領域を争う上級戦。
 

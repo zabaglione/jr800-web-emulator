@@ -5,6 +5,7 @@ from pathlib import Path
 from art import Bitmap,FONT,asm_bytes
 from visual_art import TINY,tiny,circle,hatch,poly
 from hud_layouts import SPECS,n,inc
+from digit_art import digits,face
 ROOT=Path(__file__).resolve().parents[2]
 DARK={'terminal','radar','arcade','ticker','equalizer','sonar','vector'}
 
@@ -139,12 +140,12 @@ def compile_layout(ident,spec,b,slots,sides,regions,custom_spans=None,alternate_
         data=[]
         for ch in '0123456789 ':
             glyph=Bitmap(5*sx+1,8*sy)
-            for x,v in enumerate(FONT[ord(ch)-32]):
+            for x,v in enumerate(digits(ident)[int(ch) if ch.isdigit() else 10]):
                 for y in range(7):
                     if v>>y&1:glyph.rect(x*sx,y*sy,sx,sy,1,True)
             data.extend(glyph.bytes())
         asm.append(asm_bytes('hud_font_'+label,data))
-    return '\n'.join(asm).rstrip()+'\n',dict(id=ident,theme=theme,view=view,fields=slots,regions=regions)
+    return '\n'.join(asm).rstrip()+'\n',dict(id=ident,theme=theme,fontFace=face(ident),view=view,fields=slots,regions=regions)
 
 if __name__=='__main__':
     ident=sys.argv[1]

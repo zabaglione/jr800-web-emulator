@@ -85,3 +85,34 @@ SPECS['ricochet-ops']['fields'][2]=t('AIM',b('rico_aim'),['UP','UP-R','RIGHT','D
 SPECS['grid-claim']['status']=status(b('claim_mode'),['START','RACING','YOU WIN','LOST','DRAW'])
 SPECS['rail-dispatch']['fields'][4]['values']=['U>A','U>B','D>A','D>B','-','-','-','-','END']
 SPECS['rail-dispatch']['status']=status('LDAB dispatch_reason\nBEQ @normal\nINCB\nBRA @done\n@normal:\nLDAB dispatch_running\n@done:\nCLRA',['SET SWITCHES','RUNNING','CRASH','ROUTE','TIME'])
+
+# Campaign actions include successful moves and undo, never cursor navigation.
+SPECS['lamp-grid']['fields']=[n('ON',b('grid_stat')),n('USED',w('challenge_moves'),4),n('PAR',w('challenge_par'),4)]
+SPECS['lamp-grid']['status']=status('LDAB challenge_bonus\nCMPB challenge_need\nBEQ @full\nCLRB\nBRA @done\n@full:\nLDAB #1\n@done:\nCLRA',['BONUS: MISSING','BONUS: OK'])
+
+for _id,_label in [('ice-route','GEMS'),('switch-maze','KEYS')]:
+    SPECS[_id]['fields']=[n(_label,b('grid_stat')),n('USED',w('challenge_moves'),4),n('PAR',w('challenge_par'),4)]
+    SPECS[_id]['status']=SPECS['lamp-grid']['status']
+
+SPECS['slide-nine']['fields']=[n('LEFT',b('grid_stat')),n('USED',w('challenge_moves'),4),n('PAR',w('challenge_par'),4),n('STAMP',b('slide_token'),1)]
+SPECS['slide-nine']['status']=SPECS['lamp-grid']['status']
+
+BONUS_COUNT='LDAB challenge_bonus\nCLRA\nBITB #1\nBEQ @one\nINCA\n@one:\nBITB #2\nBEQ @two\nINCA\n@two:\nTAB\nCLRA'
+SPECS['box-shift']['fields']=[n('USED',w('challenge_moves'),4),n('PAR',w('challenge_par'),4),n('ROOM',inc('stage')),n('BONUS',BONUS_COUNT,1)]
+
+SPECS['mirror-link']['fields']=[n('LIT',b('lit_count')),n('GOALS',b('goal_count')),n('USED',w('challenge_moves'),4),n('PAR',w('challenge_par'),4),n('BONUS',BONUS_COUNT,1)]
+
+for _id in ('peg-rescue','knight-tour'):
+    SPECS[_id]['fields']=[n('LEFT',b('grid_stat')),n('USED',w('challenge_moves'),4),n('PAR',w('challenge_par'),4)]
+
+SPECS['pipe-weave']['fields']=[n('DRY',b('grid_stat')),n('LEAKS',b('pipe_leaks')),n('USED',w('challenge_moves'),4),n('PAR',w('challenge_par'),4)]
+
+SPECS['loop-trace']['fields']=[n('LEFT',b('grid_stat')),n('USED',w('challenge_moves'),4),n('PAR',w('challenge_par'),4),t('NEXT',b('loop_next'),['-','A','B','C','-'])]
+
+SPECS['number-rail']['fields']=SPECS['number-rail']['fields'][:2]+[n('USED',w('challenge_moves'),4),n('PAR',w('challenge_par'),4)]
+SPECS['mine-field']['fields']=SPECS['mine-field']['fields'][:3]+[n('USED',w('challenge_moves'),4),n('PAR',w('challenge_par'),4)]
+
+SPECS['ricochet-ops']['fields']=SPECS['ricochet-ops']['fields'][:3]+[n('USED',w('challenge_moves'),4),n('PAR',w('challenge_par'),4),n('BONUS',BONUS_COUNT,1)]
+
+SPECS['step-strike']['fields']=[n('FOES',b('guard_count')),n('USED',w('challenge_moves'),4),n('PAR',w('challenge_par'),4),n('INTEL',BONUS_COUNT,1)]
+SPECS['pocket-factory']['fields'] += [n('USED',w('challenge_moves'),4),n('PAR',w('challenge_par'),4)]

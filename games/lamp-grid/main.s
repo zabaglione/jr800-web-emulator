@@ -7,26 +7,10 @@ game_render:
 
 game_start:
     JSR grid_reset
+    JSR challenge_start
     CLR undo_valid
-    LDAA stage
-    LDAB #25
-    MUL
-    ADDD #levels
-    STD lamp_source
-    CLR lamp_index
-lamp_load:
-    LDX lamp_source
-    LDAA 0,X
-    INX
-    STX lamp_source
-    LDAB lamp_index
     LDX #board
-    ABX
-    STAA 0,X
-    INC lamp_index
-    LDAB lamp_index
-    CMPB #25
-    BNE lamp_load
+    JSR challenge_load
     JMP lamp_count
 game_update:
     LDAA input_event
@@ -38,6 +22,9 @@ game_update:
     STAA lamp_saved_moves
     LDAA #1
     STAA undo_valid
+    JSR challenge_step
+    LDAB cursor
+    JSR challenge_touch
     JSR lamp_toggle
     JSR grid_count_move
     TST grid_stat
@@ -58,6 +45,7 @@ game_aux:
     BNE lamp_restart
     TST undo_valid
     BEQ lamp_idle
+    JSR challenge_undo
     LDAA cursor
     STAA lamp_saved
     LDAA lamp_last
@@ -124,3 +112,7 @@ lamp_last: .space 1
 lamp_saved: .space 1
 lamp_saved_moves: .space 1
 undo_valid: .space 1
+
+.section .text, code
+game_bonus:
+    RTS

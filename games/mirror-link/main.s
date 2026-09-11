@@ -7,25 +7,9 @@
 .global rotations
 .section .text, code
 game_start:
-    LDAA stage
-    LDAB #116
-    MUL
-    ADDD #levels
-    STD mirror_source
+    JSR challenge_start
     LDX #sources
-    STX mirror_dest
-    LDAB #116
-mirror_load:
-    LDX mirror_source
-    LDAA 0,X
-    INX
-    STX mirror_source
-    LDX mirror_dest
-    STAA 0,X
-    INX
-    STX mirror_dest
-    DECB
-    BNE mirror_load
+    JSR challenge_load
     CLR rotations
     CLR undo_valid_mirror
     LDAA #17
@@ -44,6 +28,11 @@ game_update:
     CMPA #3
     BNE mirror_idle
 mirror_rotate:
+    PSHA
+    PSHB
+    JSR challenge_step
+    PULB
+    PULA
     EORA #1
     STAA 0,X
     STAB undo_cell
@@ -104,6 +93,7 @@ game_aux:
     BNE mirror_reset
     TST undo_valid_mirror
     BEQ mirror_idle
+    JSR challenge_undo
     LDAB undo_cell
     LDX #board
     ABX
@@ -192,6 +182,7 @@ ray_polled:
     ABX
     ORAA 0,X
     STAA 0,X
+    JSR challenge_touch
     LDAA ray_tile
     CMPA #2
     BEQ ray_slash
@@ -201,17 +192,17 @@ ray_polled:
     BEQ ray_end
     CMPA #5
     BCC ray_end
-    BRA ray_step
+    JMP ray_step
 ray_slash:
     LDAA ray_dir
     EORA #3
     STAA ray_dir
-    BRA ray_step
+    JMP ray_step
 ray_backslash:
     LDAA ray_dir
     EORA #1
     STAA ray_dir
-    BRA ray_step
+    JMP ray_step
 ray_end:
     JSR input_poll
     INC ray_index
@@ -295,3 +286,7 @@ mirror_lit_label: .byte 76,73,84,0 ; LIT
 mirror_space_label: .byte 83,80,65,67,69,0 ; SPACE
 mirror_turn_label: .byte 82,79,84,65,84,69,0 ; ROTATE
 mirror_return_label: .byte 82,69,84,85,82,78,0 ; RETURN
+
+.section .text, code
+game_bonus:
+    RTS

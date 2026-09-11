@@ -7,30 +7,25 @@ game_render:
 
 game_start:
     JSR grid_reset
+    JSR challenge_start
     CLR undo_valid
-    LDAA stage
-    LDAB #9
-    MUL
-    ADDD #levels
-    STD slide_source
-    CLR slide_index
-slide_load:
-    LDX slide_source
-    LDAA 0,X
-    INX
-    STX slide_source
-    LDAB slide_index
     LDX #board
+    JSR challenge_load
+    LDAB stage
+    LDX #slide_tokens
     ABX
-    STAA 0,X
-    TSTA
-    BNE slide_loaded
+    LDAA 0,X
+    STAA slide_token
+    LDX #board
+    CLRB
+slide_find_blank:
+    TST 0,X
+    BEQ slide_found_blank
+    INX
+    INCB
+    BRA slide_find_blank
+slide_found_blank:
     STAB cursor
-slide_loaded:
-    INC slide_index
-    LDAA slide_index
-    CMPA #9
-    BNE slide_load
     JMP slide_count
 game_update:
     JSR grid_move
@@ -42,7 +37,18 @@ game_update:
     STAA slide_saved_moves
     LDAA #1
     STAA undo_valid
+    STAB slide_pending
+    JSR challenge_step
+    LDAB slide_pending
     JSR slide_swap
+    LDAB slide_last
+    LDX #board
+    ABX
+    LDAA 0,X
+    CMPA slide_token
+    BNE slide_not_stamped
+    JSR challenge_touch
+slide_not_stamped:
     JSR grid_count_move
     JSR slide_count
     TST grid_stat
@@ -56,6 +62,7 @@ game_aux:
     BNE slide_restart
     TST undo_valid
     BEQ slide_idle
+    JSR challenge_undo
     LDAB slide_last
     JSR slide_swap
     CLR undo_valid
@@ -105,3 +112,11 @@ slide_last: .space 1
 slide_target: .space 1
 slide_saved_moves: .space 1
 undo_valid: .space 1
+
+.global slide_token
+.section .bss, bss
+slide_token: .space 1
+slide_pending: .space 1
+.section .text, code
+game_bonus:
+    RTS

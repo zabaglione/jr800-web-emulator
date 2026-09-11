@@ -7,32 +7,16 @@ game_render:
 
 game_start:
     JSR grid_reset
+    JSR challenge_start
     CLR undo_valid
     CLR gates
-    LDAA stage
-    LDAB #99
-    MUL
-    ADDD #levels
-    STD switch_source
-    LDX switch_source
+    LDX #board
+    JSR challenge_load
+    LDAB stage
+    LDX #start_cells
+    ABX
     LDAA 0,X
     STAA cursor
-    INX
-    STX switch_source
-    CLR switch_index
-switch_load:
-    LDX switch_source
-    LDAA 0,X
-    INX
-    STX switch_source
-    LDAB switch_index
-    LDX #board
-    ABX
-    STAA 0,X
-    INC switch_index
-    LDAA switch_index
-    CMPA #98
-    BNE switch_load
     LDAA #2
     STAA grid_stat
     RTS
@@ -70,6 +54,7 @@ switch_accept:
     STAA switch_saved_gates
     LDAB switch_target
     STAB cursor
+    JSR challenge_touch
     LDAA switch_tile
     CMPA #2
     BEQ switch_key
@@ -147,3 +132,7 @@ switch_source: .space 2
 switch_index: .space 1
 switch_target: .space 1
 switch_tile: .space 1
+
+.section .text, code
+game_bonus:
+    RTS

@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [スポーツ・タイミング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Sports) · モダン
 
-[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=balance-dock) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/balance-dock)
+[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/balance-dock)
 
 ![タイトル画面](../../docs/games/screenshots/balance-dock/title.png)
 

@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [スポーツ・タイミング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Sports) · 定番
 
-[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=penalty-arc) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/penalty-arc)
+[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/penalty-arc)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/penalty-arc/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/penalty-arc/title.png)
 
 コース・高さ・強さと、動くキーパーの位置を見て蹴るタイミングを選ぶPKゲームです。10本のシュートで規定のゴール数を目指します。
 
@@ -22,15 +22,15 @@ RETURNのメニューではPOWER・キーパー・球が止まります。CANCEL
 
 ## ゲーム画面
 
-![5つのコースと高低を選び、SPACEで強さの計測を始める](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/penalty-arc/gameplay-1.png)
+![5つのコースと高低を選び、SPACEで強さの計測を始める](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/penalty-arc/gameplay-1.png)
 
 5つのコースと高低を選び、SPACEで強さの計測を始める。
 
-![キーパーの位置とPOWERを見て蹴る瞬間を選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/penalty-arc/gameplay-2.png)
+![キーパーの位置とPOWERを見て蹴る瞬間を選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/penalty-arc/gameplay-2.png)
 
 キーパーの位置とPOWERを見て蹴る瞬間を選ぶ。
 
-![飛び込むキーパーをかわしてゴールを狙う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/penalty-arc/gameplay-3.png)
+![飛び込むキーパーをかわしてゴールを狙う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/penalty-arc/gameplay-3.png)
 
 飛び込むキーパーをかわしてゴールを狙う。
 

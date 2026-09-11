@@ -2,31 +2,66 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [パズル・論理](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Logic) · モダン
 
-[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=switch-maze) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/switch-maze)
+[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/switch-maze)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/switch-maze/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/switch-maze/title.png)
 
-2系統のスイッチと扉を使い、2本の鍵を集めて出口へ向かう全20面の迷路パズルです。
+鍵と切替式の扉を使い、区画を行き来する全40面の迷路パズルです。
 
 ## 遊び方
 
-方向キーで1マス移動します。Aに乗ると2本の縦棒がある扉、Bに乗ると3本の縦棒がある扉が開閉します。同じスイッチに再び乗ると元に戻ります。開いた扉は上下の枠だけの表示です。
+方向キーで移動します。鍵2個を取り、出口へ着くとクリアです。スイッチを踏むたびに対応する扉の開閉が切り替わります。追加目標は、2か所の印を通ることです。後半では同じスイッチを複数回使う経路も必要になります。
 
-鍵は自動で回収します。KEYSが0の状態でEの出口へ入るとクリアです。SPACEはメニューの決定に使います。RETURNからUNDOで移動・鍵回収・扉の状態を1手戻せます。RESETまたはRETRYで再挑戦します。MOVESは移動回数（最大255）です。
+閉じた扉や壁への入力は手数に含めません。RETURNメニューから移動と扉の状態を1手戻せます。
 
 ## ゲーム画面
 
-![2系統のスイッチと鍵がある最初の迷路](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/switch-maze/gameplay-1.png)
+![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/switch-maze/gameplay-1.png)
 
-2系統のスイッチと鍵がある最初の迷路。
+第1面の初期配置と規定手数。
 
-![第8面で扉の開閉順序を考える場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/switch-maze/gameplay-2.png)
+![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/switch-maze/gameplay-2.png)
 
-第8面で扉の開閉順序を考える場面。
+第31面で追加目標に挑戦している場面。
 
-![第17面の鍵回収と帰り道](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/switch-maze/gameplay-3.png)
+![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/switch-maze/gameplay-3.png)
 
-第17面の鍵回収と帰り道。
+第40面を規定手数と追加目標の両方を満たしてクリア。
+
+## 40面のチャレンジと評価
+
+面選択の左右で1〜40面を選べます。1〜10面は導入、11〜20面は基本の応用、21〜30面は難しい配置、31〜40面は上級向けです。未クリアの面も選べます。
+
+HUDの **USED** は使った手数、**PAR** は規定手数です。規定手数を超えてもプレイを続け、通常のクリアを目指せます。
+
+| 評価 | 条件 |
+|---|---|
+| 星1個 | 規定手数を超えてクリア |
+| 星2個 | 規定手数以下でクリア。追加目標は未達成 |
+| 星3個 | 規定手数以下でクリアし、追加目標もすべて達成 |
+
+ゲーム内では星の小さな図形と `---` で評価を表示します。各面の **BEST** は最高評価を保持します。追加目標の内容は作品ごとの説明と面選択のヒントで確認してください。通常のクリア条件を満たすと、その時点で評価が確定します。
+
+移動や回転など、盤面が変化する有効な操作を数えます。カーソルで選ぶだけの操作、決定前の選択、壁にぶつかる無効な移動は数えません。**UNDOも1手を消費します。** 手を戻すと、その操作で回収した印も元の状態に戻ります。RETRYはその面の手数を0からやり直し、BESTは維持します。
+
+## パスワード
+
+面選択画面に2種類のコードが表示されます。タイトルからSPACEで面選択へ進めます。
+
+| 種類 | 長さ | 復元する内容 |
+|---|---:|---|
+| LOAD | 5文字 | 選択している面。記録済みのBESTは維持 |
+| LOAD RECORD | 25文字 | 選択している面と、全40面のBEST |
+
+上下で **LOAD** または **LOAD RECORD** を選び、SPACEで入力画面へ進みます。入力画面では上下で文字を変更、左右で入力位置を移動します。SPACEも次の文字へ進み、最後の文字でSPACEを押すと確定します。RETURNは入力取消です。25文字のコードは5文字ずつ区切って表示されます。空白は入力しません。
+
+使用文字は `2346789ACDEFHJKM` の16種類です。`0/O`、`1/I/L`、`5/S/Z`、`8/B`、`6/G` のような取り違えを避けるため、紛らわしい組合せを同時に使いません。別のゲームのコードや検査値の合わないコードは `INVALID CODE` となり、現在の面や評価は変更しません。
+
+コードは**面と評価**を記録します。盤面の途中状態は含みません。BASICへ戻る前にLOAD RECORDを控えると、次回の起動後に記録を復元できます。入力したLOAD RECORDの内容で全40面のBESTが置き換わるため、新しい記録を控えてから復元してください。
+
+![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/switch-maze/selection.png)
+
+面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。
 
 ## 共通操作
 

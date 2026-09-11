@@ -35,5 +35,8 @@ for n in range(3):
 b=Bitmap(8,8);b.rect(1,1,6,6);b.rect(3,3,2,2,1,True);s.append(b)
 b=Bitmap(8,8);b.rect(2,0,4,3,1,True);b.rect(1,3,6,3,1,True);b.dot(2,7);b.dot(5,7);b.p=[[1-v for v in row] for row in b.p];s.append(b)
 b=Bitmap(8,8);b.rect(0,0,8,8);b.line(2,2,5,2);b.line(2,4,5,4);b.line(2,6,5,6);s.append(b)
+from depth_art import block8
+s[1]=block8('stone')
+s[1].dot(2,4,0);s[1].dot(4,3)
 assets(root,'MICRO ROGUE','micro-rogue',14,7,1,1,s,3,asm_bytes('rogue_rooms',sum(rooms,[])),aux=('WAIT','RESET'))
 (root/'rooms.json').write_text(json.dumps(rooms)+'\n');print('Verified 12 connected rooms with gear, medicine, relic and three enemy spawns')

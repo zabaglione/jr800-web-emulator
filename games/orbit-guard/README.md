@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [シューティング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting) · モダン
 
-[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=orbit-guard) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/orbit-guard)
+[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/orbit-guard)
 
 ![タイトル画面](../../docs/games/screenshots/orbit-guard/title.png)
 

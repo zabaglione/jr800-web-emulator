@@ -16,33 +16,22 @@ loop_clear:
     BNE loop_clear
     LDAA #1
     STAA loop_next
-    LDAA stage
-    LDAB #36
-    MUL
-    ADDD #loop_levels
-    STD loop_pointer
-    CLR loop_cell
-loop_load:
-    LDX loop_pointer
-    LDAA 0,X
-    INX
-    STX loop_pointer
-    LDAB loop_cell
+    JSR challenge_start
+    LDX #board
+    JSR challenge_load
+    LDAB #0
+loop_find_start:
     LDX #board
     ABX
-    STAA 0,X
-    TSTA
-    BEQ loop_load_next
-    INC grid_stat
+    LDAA 0,X
     CMPA #5
-    BNE loop_load_next
+    BEQ loop_found_start
+    INCB
+    BRA loop_find_start
+loop_found_start:
     STAB cursor
-loop_load_next:
-    INC loop_cell
-    LDAA loop_cell
-    CMPA #36
-    BNE loop_load
-    DEC grid_stat
+    LDAA #3
+    STAA grid_stat
     LDAB cursor
     STAB loop_history
     LDX #loop_marks
@@ -102,14 +91,15 @@ loop_unvisited:
     CMPA loop_next
     BNE loop_idle
     INC loop_next
+    DEC grid_stat
 loop_accept:
+    JSR challenge_step
     LDAA cursor
     STAA loop_from
     JSR loop_connect
     LDAA loop_to
     STAA cursor
     INC moves
-    DEC grid_stat
     LDAB moves
     LDX #loop_history
     ABX
@@ -123,6 +113,8 @@ loop_accept:
     ABX
     LDAA #1
     STAA 0,X
+    JSR game_bonus
+    JSR challenge_invalidate
     JMP grid_changed
 loop_idle:
     RTS
@@ -150,6 +142,7 @@ loop_connect:
 loop_undo:
     TST moves
     BEQ loop_idle
+    JSR challenge_cost
     LDAB cursor
     LDX #loop_marks
     ABX
@@ -163,6 +156,7 @@ loop_undo:
     CMPA #2
     BCS loop_undo_path
     DEC loop_next
+    INC grid_stat
 loop_undo_path:
     LDAB moves
     LDX #loop_directions
@@ -174,7 +168,6 @@ loop_undo_path:
     COMA
     STAA loop_mask
     DEC moves
-    INC grid_stat
     LDAB moves
     LDX #loop_history
     ABX
@@ -185,6 +178,8 @@ loop_undo_path:
     LDAA 0,X
     ANDA loop_mask
     STAA 0,X
+    JSR game_bonus
+    JSR challenge_invalidate
     JMP grid_changed
 loop_close:
     TST grid_stat
@@ -211,11 +206,14 @@ loop_close_done:
     RTS
 loop_closed:
     STAA loop_to
+    JSR challenge_step
     LDAA cursor
     STAA loop_from
     JSR loop_connect
     LDAA #4
     STAA phase
+    JSR game_bonus
+    JSR challenge_invalidate
     JMP grid_changed
 game_aux:
     CMPA #1
@@ -239,6 +237,23 @@ grid_value:
     LDAA 0,X
     ADDA #6
 loop_tile_done:
+    RTS
+game_bonus:
+    CLR challenge_bonus
+    LDAB challenge_cells
+    LDX #loop_marks
+    ABX
+    TST 0,X
+    BEQ loop_bonus_second
+    JSR challenge_touch
+loop_bonus_second:
+    LDAB challenge_cells + 1
+    LDX #loop_marks
+    ABX
+    TST 0,X
+    BEQ loop_bonus_done
+    JSR challenge_touch
+loop_bonus_done:
     RTS
 game_render:
     JSR paint_board

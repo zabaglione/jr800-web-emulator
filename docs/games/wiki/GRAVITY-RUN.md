@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [アクション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Action) · モダン
 
-[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=gravity-run) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/gravity-run)
+[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/gravity-run)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/gravity-run/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/gravity-run/title.png)
 
 重力を反転して床と天井の障害物をかわす、全12コースの自動走行アクションです。
 
@@ -22,15 +22,15 @@ RETURNでメニューを開くと停止します。PAUSEはメニューを閉じ
 
 ## ゲーム画面
 
-![障害物と星が近づく開始地点](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/gravity-run/gameplay-1.png)
+![障害物と星が近づく開始地点](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/gravity-run/gameplay-1.png)
 
 障害物と星が近づく開始地点。
 
-![重力を切り替えて通路を横断](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/gravity-run/gameplay-2.png)
+![重力を切り替えて通路を横断](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/gravity-run/gameplay-2.png)
 
 重力を切り替えて通路を横断。
 
-![後半の障害物の間を通り抜ける](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/gravity-run/gameplay-3.png)
+![後半の障害物の間を通り抜ける](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/gravity-run/gameplay-3.png)
 
 後半の障害物の間を通り抜ける。
 

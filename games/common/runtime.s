@@ -48,6 +48,9 @@ entry:
     CLR stage
     LDAA #$5D
     STAA seed
+; @if puzzle
+    JSR challenge_init
+; @endif
     JSR show_title
     JMP flush
 frame_ready:
@@ -66,6 +69,13 @@ update_begin:
     JSR chirp
 dispatch_phase:
     LDAA phase
+; @if puzzle
+    CMPA #6
+    BNE dispatch_not_password
+    JMP challenge_edit_update
+dispatch_not_password:
+    TSTA
+; @endif
     BNE dispatch_not_title
     JMP update_title
 dispatch_not_title:
@@ -114,6 +124,9 @@ update_title:
     JSR show_select
     JMP flush
 update_select:
+; @if puzzle
+    JMP challenge_select_update
+; @else
     LDAA input_event
     BITA #32
     BEQ select_confirm
@@ -146,6 +159,7 @@ select_right:
 select_redraw:
     JSR draw_select
     BRA flush
+; @endif
 update_result:
     LDAA input_event
     BITA #32
@@ -191,6 +205,11 @@ begin_game:
     JSR game_start
     JMP game_render
 show_select:
+; @if puzzle
+    JMP challenge_select_show
+draw_select:
+    JMP challenge_select_draw
+; @else
     LDAA #1
     STAA phase
     JSR input_gate
@@ -224,10 +243,17 @@ draw_select:
     LDAA stage
     INCA
     JMP paint_number
+; @endif
 show_title:
     CLR phase
     JSR input_gate
     JSR paint_clear
+; @if puzzle
+    LDX #framebuffer
+    STX unpack_dest
+    LDX #title_art
+    JSR puzzle_unpack
+; @else
     LDX #title_art
     STX title_source
     LDX #framebuffer
@@ -250,6 +276,7 @@ title_copy:
     JSR input_poll
     DEC title_chunks
     BNE title_chunk
+; @endif
     JMP fanfare
 update_menu:
     LDAA input_event
@@ -346,6 +373,13 @@ menu_draw_next:
     BNE menu_draw_loop
     RTS
 render_play_result:
+; @if puzzle
+    LDAA phase
+    CMPA #4
+    BNE puzzle_render_live
+    JSR game_bonus
+puzzle_render_live:
+; @endif
     JSR game_render
     LDAA phase
     CMPA #4
@@ -354,6 +388,9 @@ render_play_result:
     BEQ lose_game
     RTS
 win_game:
+; @if puzzle
+    JSR challenge_award
+; @endif
     JSR fanfare
     LDAA #4
     STAA phase
@@ -365,6 +402,9 @@ lose_game:
     LDX #result_lose
 result_draw:
     STX result_label
+; @if puzzle
+    JMP challenge_result
+; @else
     JSR input_gate
     LDX #result_border
     LDAA #36
@@ -387,6 +427,7 @@ result_draw:
     LDAB #5
     JSR paint_text
     RTS
+; @endif
 ; Nonzero deterministic 8-bit LFSR, seeded by title waiting time.
 random:
     LDAA seed

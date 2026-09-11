@@ -21,30 +21,29 @@ game_start:
     CLR rico_score + 1
     CLR rico_steps
     CLR rico_prev_valid
-    LDAA #3
+    JSR challenge_start
+    LDAB stage
+    LDX #rico_ammos
+    ABX
+    LDAA 0,X
     STAA rico_ammo
-    STAA rico_left
     LDAA #41
     STAA cursor
-    LDAA stage
-    LDAB #48
-    MUL
-    ADDD #rico_levels
-    STD rico_pointer
-    CLR rico_index
-rico_load:
-    LDX rico_pointer
-    LDAA 0,X
-    INX
-    STX rico_pointer
-    LDAB rico_index
+    LDX #board
+    JSR challenge_load
+    CLR rico_left
+    LDAB #0
+rico_count_targets:
     LDX #board
     ABX
-    STAA 0,X
-    INC rico_index
-    LDAA rico_index
-    CMPA #48
-    BNE rico_load
+    LDAA 0,X
+    CMPA #4
+    BNE rico_count_next
+    INC rico_left
+rico_count_next:
+    INCB
+    CMPB #48
+    BNE rico_count_targets
     LDAA #255
     STAA rico_bullet
     JMP rico_clear_path
@@ -57,6 +56,7 @@ rico_undo:
     BNE rico_restore
     RTS
 rico_restore:
+    JSR challenge_undo
     CLR rico_prev_valid
     CLR rico_active
     LDAA rico_prev_cursor
@@ -147,6 +147,7 @@ rico_space:
 rico_update_done:
     RTS
 rico_fire:
+    JSR challenge_step
     LDAA #1
     STAA rico_prev_valid
     STAA rico_active
@@ -182,21 +183,13 @@ rico_save_board:
     JMP rico_clear_path
 rico_clear_path:
     LDX #rico_visited
-    LDAB #192
+    LDAB #96
     CLRA
 rico_clear_seen:
     STAA 0,X
-    STAA 192,X
     INX
     DECB
     BNE rico_clear_seen
-    LDX #rico_trail
-    LDAB #48
-rico_clear_trail:
-    STAA 0,X
-    INX
-    DECB
-    BNE rico_clear_trail
     RTS
 rico_step:
     INC rico_steps
@@ -244,20 +237,22 @@ rico_continue_3:
     JMP rico_stop
 rico_continue_4:
     STAA rico_cell_value
-    LDAA rico_next_cell
-    LDAB #8
-    MUL
-    ADDB rico_direction
-    ADCA #0
-    ADDD #rico_visited
-    XGDX
-    TST 0,X
+    LDAB rico_direction
+    LDX #rico_bits
+    ABX
+    LDAA 0,X
+    LDAB rico_next_cell
+    LDX #rico_visited
+    ABX
+    BITA 0,X
     BEQ rico_continue_5
     JMP rico_stop
 rico_continue_5:
-    INC 0,X
+    ORAA 0,X
+    STAA 0,X
     LDAB rico_next_cell
     STAB rico_bullet
+    JSR challenge_touch
     LDX #rico_trail
     ABX
     LDAA #1
@@ -329,6 +324,8 @@ rico_tile_board:
     LDAA #13
 rico_tile_done:
     RTS
+game_bonus:
+    RTS
 game_render:
     JSR paint_board
     JMP visual_hud
@@ -340,7 +337,7 @@ rico_left: .space 1
 rico_score: .space 2
 rico_bullet: .space 1
 rico_direction: .space 1
-rico_visited: .space 384
+rico_visited: .space 48
 rico_trail: .space 48
 rico_previous: .space 48
 rico_steps: .space 1
@@ -364,6 +361,7 @@ rico_old_ammo: .space 1
 rico_old_score: .space 2
 rico_old_active: .space 1
 .section .data, data
+rico_bits: .byte 1,2,4,8,16,32,64,128
 rico_dx: .byte 0,1,1,1,0,255,255,255
 rico_dy: .byte 255,255,0,1,1,1,0,255
 rico_slash_turn: .byte 2,1,0,7,6,5,4,3

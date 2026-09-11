@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [カード・ダイス](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Cards) · 定番
 
-[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=suit-run) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/suit-run)
+[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/suit-run)
 
 ![タイトル画面](../../docs/games/screenshots/suit-run/title.png)
 

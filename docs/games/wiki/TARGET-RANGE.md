@@ -2,9 +2,9 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [シューティング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting) · 定番
 
-[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=target-range) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/target-range)
+[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/target-range)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/target-range/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/target-range/title.png)
 
 丸い標的を撃ち、バツ印は見送る、20回の判断で得点を目指す射撃ゲームです。3段階の難易度があります。
 
@@ -22,15 +22,15 @@ RETURNでメニューを開くと残り時間を保って停止します。RETRY
 
 ## ゲーム画面
 
-![9枚のパネルから照準を選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/target-range/gameplay-1.png)
+![9枚のパネルから照準を選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/target-range/gameplay-1.png)
 
 9枚のパネルから照準を選ぶ。
 
-![丸い標的へ照準を合わせる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/target-range/gameplay-2.png)
+![丸い標的へ照準を合わせる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/target-range/gameplay-2.png)
 
 丸い標的へ照準を合わせる。
 
-![バツ印を見送ってSAFEを得る](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/26a59d255d4174a3998caf4388d6cc98ce372c9e/docs/games/screenshots/target-range/gameplay-3.png)
+![バツ印を見送ってSAFEを得る](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/target-range/gameplay-3.png)
 
 バツ印を見送ってSAFEを得る。
 

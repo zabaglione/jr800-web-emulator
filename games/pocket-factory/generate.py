@@ -4,21 +4,8 @@ import sys,json,random
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 from art import asm_bytes
 from visual_art import title,Bitmap
-out=Path(__file__).parent;levels=[];solutions=[]
-for n in range(12):
- board=[5 if p//16 in (0,6) or p%16 in (0,12,13,14,15) else 0 for p in range(112)]
- routes=[];build=[]
- for lane in range(2):
-  y0=(1 if n<6 else 2)+lane*3;y1=(2 if n<6 else 1)+lane*3;turn=3+(n+lane*3)%6
-  route=[y0*16+x for x in range(1,turn+1)]+[y1*16+x for x in range(turn,12)]
-  routes+=route;board[route[0]]=1+lane;board[route[-1]]=3+lane
-  for i,p in enumerate(route[1:-1],1):
-   delta=route[i+1]-p;tile={1:6,16:7,-1:8,-16:9}[delta]
-   if p==y1*16+turn+1:tile=10+lane
-   build.append([p,tile])
- rng=random.Random(800+n)
- for p in rng.sample([p for p in range(112) if board[p]==0 and p not in routes],5+n//2):board[p]=5
- levels.append([3+n//3,2+n//2]+board);solutions.append(build)
+from puzzle_assets import campaign,level_records,challenge_data
+out=Path(__file__).parent;levels=campaign(out)
 base=[[0]*8,[255,129,153,165,165,153,129,255],[255,129,189,165,165,189,129,255],[255,129,145,169,169,145,129,255],[255,129,185,169,169,185,129,255],[255,129,189,165,165,189,129,255]]
 for d in range(4):
  b=Bitmap(8,8);b.rect(0,0,8,8)
@@ -28,6 +15,12 @@ for d in range(4):
  if d==3:b.line(3,2,3,5);b.line(1,4,3,2);b.line(5,4,3,2)
  base.append(b.bytes())
 base += [[255,129,219,165,165,219,129,255],[255,129,189,195,195,189,129,255]]
+from depth_art import block8
+base[5]=block8('metal').bytes()
+base[10]=block8('metal').bytes()
+base[11]=block8('stone').bytes()
+# Retain the original belt arrows; a shaded bottom/right edge seats each belt.
+for tile in range(6,10):base[tile][7]|=0xFE;base[tile][6]|=0x80
 tiles=[]
 for item in range(5):
  for tile in base:
@@ -38,8 +31,8 @@ for item in range(5):
    for x,v in enumerate(icon,2):a[x]|=v
   tiles+=a
 strings={'game_name':'POCKET FACTORY','aux1_label':'SELECT TOOL','aux2_label':'RUN / PAUSE','factory_heading':'FACTORY','build_label':'BUILD   ','run_label':'RUNNING ','tool_label':'TOOL    ','choose_label':'CHOOSE  ','shipment_label':'SHIP/GOAL','factory_return':'RETURN'}
-s='; SPDX-License-Identifier: MIT\n.equ STAGES,12\n.section .data, data\n'
+s='; SPDX-License-Identifier: MIT\n.equ STAGES,40\n.section .data, data\n'
 for k,v in strings.items():s+=asm_bytes(k,list(v.encode())+[0])
 s+=asm_bytes('tool_names',sum([list(x.ljust(8).encode())+[0] for x in ['BELT >','BELT V','BELT <','BELT ^','PRESS A','PRESS B','ERASE']],[]))
-s+=asm_bytes('flow_deltas',[0,1,1,0,0,0,1,16,255,240,1,1])+asm_bytes('tiles',tiles)+asm_bytes('title_art',title('POCKET FACTORY','pocket-factory'))+asm_bytes('levels',sum(levels,[]))
-(out/'assets.s').write_text(s);(out/'solutions.json').write_text(json.dumps(solutions)+'\n')
+s+=asm_bytes('flow_deltas',[0,1,1,0,0,0,1,16,255,240,1,1])+asm_bytes('tiles',tiles)+asm_bytes('title_art',title('POCKET FACTORY','pocket-factory'))+level_records([s['initial']['targets']+[s['initial']['board'].index(t) for t in (1,2,3,4)]+[sum(1<<bit for bit in range(8) if s['initial']['board'][byte*8+bit]==5) for byte in range(14)] for s in levels])+challenge_data(out,levels)
+(out/'assets.s').write_text(s)
