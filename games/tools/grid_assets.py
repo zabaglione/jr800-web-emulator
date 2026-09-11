@@ -177,6 +177,38 @@ def logo(name,kind):
             b.line(x+8,5,x+8,48);b.line(x+8,5,x+1,14);b.line(x+8,5,x+15,14);b.line(x+8,48,x+1,39);b.line(x+8,48,x+15,39)
             for xx in (x-2,x+12):b.line(xx,54,xx+4,49);b.line(xx+4,49,xx+8,54)
         for x in range(32,160,15):b.line(x,51,x+8,51)
+    elif kind=='star-patrol':
+        for x in (5,167):
+            b.rect(x+3,9,13,6,1,True);b.line(x,15,x+21,15);b.line(x+3,16,x,22);b.line(x+17,16,x+21,22)
+            b.line(x+9,34,x+9,46);b.line(x+5,41,x+1,48);b.line(x+13,41,x+19,48);b.line(x+1,48,x+19,48)
+        for x,y in ((30,6),(158,8),(29,33),(161,32),(54,51),(135,51)):
+            b.line(x-2,y,x+2,y);b.line(x,y-2,x,y+2)
+    elif kind=='orbit-guard':
+        for x in (15,176):
+            pts=[(x,5),(x+9,10),(x+9,20),(x,26),(x-9,20),(x-9,10),(x,5)]
+            for p,q in zip(pts,pts[1:]):b.line(*p,*q)
+            b.rect(x-2,12,5,6,1,True);b.line(x-10,41,x+10,41);b.line(x,31,x,51)
+        b.line(29,51,162,51);b.line(29,51,34,47);b.line(162,51,157,47)
+    elif kind=='target-range':
+        for x in (13,178):
+            for r in (5,10):
+                for y in range(-r,r+1):
+                    for xx in range(-r,r+1):
+                        if r*r-2*r<=xx*xx+y*y<=r*r:b.dot(x+xx,17+y)
+            b.line(x-11,17,x+11,17);b.line(x,5,x,29);b.line(x-8,36,x+8,49);b.line(x+8,36,x-8,49)
+        for x in range(33,160,12):b.rect(x,51,4,3,1,True)
+    elif kind=='ricochet-ops':
+        for x in (4,168):
+            b.line(x,45,x+18,27);b.line(x+18,27,x,9);b.line(x,27,x+21,27);b.line(x+18,23,x+18,32)
+            b.rect(x+3,47,12,4,1,True)
+        b.line(27,52,68,48);b.line(124,48,164,52)
+    elif kind=='relay-quest':
+        for x in (4,169):
+            b.rect(x,7,18,43);b.rect(x+4,11,10,36)
+            for y in (5,19,34,48):b.rect(x-2,y,22,4,1,True)
+            b.line(x+9,23,x+9,40);b.line(x+5,31,x+13,31)
+        b.line(29,51,162,51)
+        for x in (34,146):b.rect(x,46,9,7);b.line(x+4,46,x+4,41)
     else:
         raise ValueError('A distinct title motif is required: '+kind)
     for row,word in enumerate(name.split()):

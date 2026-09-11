@@ -15,6 +15,10 @@ import {checkLuck} from './luck_check.mjs';
 import {checkWall} from './wall_check.mjs';
 import {checkTail} from './tail_check.mjs';
 import {checkMaze} from './maze_check.mjs';
+import {checkRico} from './rico_check.mjs';
+import {checkRange} from './range_check.mjs';
+import {checkOrbit} from './orbit_check.mjs';
+import {checkStar} from './star_check.mjs';
 import {checkGravity} from './gravity_check.mjs';
 import {checkClaim} from './claim_check.mjs';
 import {checkBomb} from './bomb_check.mjs';
@@ -44,6 +48,10 @@ export async function checkLibrary(g,id){
  if(id==='bomb-vault')return checkBomb(g);
  if(id==='grid-claim')return checkClaim(g);
  if(id==='gravity-run')return checkGravity(g);
+ if(id==='star-patrol')return checkStar(g);
+ if(id==='orbit-guard')return checkOrbit(g);
+ if(id==='target-range')return checkRange(g);
+ if(id==='ricochet-ops')return checkRico(g);
  if(id==='lamp-grid'){
   const solutions=await data(id);
   for(let stage=0;stage<solutions.length;stage++){

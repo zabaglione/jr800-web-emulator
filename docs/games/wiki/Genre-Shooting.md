@@ -10,10 +10,7 @@
 |---|---|---|
 | [STEP STRIKE](https://github.com/zabaglione/jr800-web-emulator/wiki/STEP-STRIKE) | モダン | 移動・射撃・待機の1手でだけ世界が進む、全20面の戦術パズルです。 |
 | [ARC DUEL](https://github.com/zabaglione/jr800-web-emulator/wiki/ARC-DUEL) | 定番 | 風を読み、地形を削りながらCPUの砲台と戦う弾道対戦です。6種類の地形と3段階の難易度があります。 |
-
-## 制作予定
-
-- **STAR PATROL** — 敵編隊と弾を避けて進む波状攻撃シューティング。
-- **ORBIT GUARD** — 軌道上を回転して中心へ迫る敵を迎撃する。
-- **TARGET RANGE** — 動く的を狙い、限られた弾で連続命中を競う。
-- **RICOCHET OPS** — 壁で反射する弾を使い、障害物の奥の標的を狙う。
+| [STAR PATROL](https://github.com/zabaglione/jr800-web-emulator/wiki/STAR-PATROL) | 定番 | 移動する敵編隊と敵弾を避けながら撃つ、全12ステージの固定画面シューティングです。 |
+| [ORBIT GUARD](https://github.com/zabaglione/jr800-web-emulator/wiki/ORBIT-GUARD) | モダン | 中央の砲台を8方向へ回し、軌道から近づく敵を迎撃する全12ウェーブの防衛シューティングです。 |
+| [TARGET RANGE](https://github.com/zabaglione/jr800-web-emulator/wiki/TARGET-RANGE) | 定番 | 丸い標的を撃ち、バツ印は見送る、20回の判断で得点を目指す射撃ゲームです。3段階の難易度があります。 |
+| [RICOCHET OPS](https://github.com/zabaglione/jr800-web-emulator/wiki/RICOCHET-OPS) | モダン | 発射位置と8方向の角度を選び、反射する弾で3個の標的を狙う全20面の射撃パズルです。 |

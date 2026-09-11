@@ -204,6 +204,30 @@
       "title": "GRAVITY RUN",
       "genre": "action",
       "style": "modern"
+    },
+    {
+      "id": "star-patrol",
+      "title": "STAR PATROL",
+      "genre": "shooting",
+      "style": "classic"
+    },
+    {
+      "id": "orbit-guard",
+      "title": "ORBIT GUARD",
+      "genre": "shooting",
+      "style": "modern"
+    },
+    {
+      "id": "target-range",
+      "title": "TARGET RANGE",
+      "genre": "shooting",
+      "style": "classic"
+    },
+    {
+      "id": "ricochet-ops",
+      "title": "RICOCHET OPS",
+      "genre": "shooting",
+      "style": "modern"
     }
   ]
 }
