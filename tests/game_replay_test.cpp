@@ -84,7 +84,8 @@ int main(int argc,char** argv){try {
             }
             if(event=='R'){
                 unsigned count;require(bool(replay>>count)&&count<=1000000,"Invalid instruction event");
-                for(unsigned i=0;i<count;++i)step();continue;
+                for(unsigned i=0;i<count;++i){step();}
+                continue;
             }
             require(event=='F'&&bool(replay>>expected_hash>>expected_cycles>>expected_phase),"Invalid frame event");
         }else{
