@@ -16,7 +16,7 @@
 | [経営・シミュレーション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Simulation) | 4 | 工場を動かし、列車をさばき、農園や港で稼ごう。 |
 | [スポーツ・タイミング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Sports) | 5 | 狙いとタイミングが勝負。ボール、リズム、積み上げに挑戦。 |
 
-[タイトル順の全作品](https://github.com/zabaglione/jr800-web-emulator/wiki/All-Games) · [タイトル画面ギャラリー](#タイトル画面ギャラリー) · [はじめて遊ぶ方へ・共通操作](https://github.com/zabaglione/jr800-web-emulator/wiki/Controls)
+[タイトル順の全作品](https://github.com/zabaglione/jr800-web-emulator/wiki/All-Games) · [タイトル画面ギャラリー](#user-content-タイトル画面ギャラリー) · [はじめて遊ぶ方へ・共通操作](https://github.com/zabaglione/jr800-web-emulator/wiki/Controls)
 
 **ROMを設定済みなら「プレイ」からすぐに起動できます。** 開いた画面をマウスでクリックし、SPACEで始めてください。初回の準備は[こちら](https://github.com/zabaglione/jr800-web-emulator/wiki/Controls)。
 
@@ -131,6 +131,6 @@ CPUとの読み合いから、一人でじっくり解く盤面パズルまで�
 | [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/rally-return/title.png" width="384" alt="RALLY RETURN のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/RALLY-RETURN) | **[RALLY RETURN](https://github.com/zabaglione/jr800-web-emulator/wiki/RALLY-RETURN)**<br>打点とスピンで返球を変えよう。CPUの守りを崩し、先に5点を奪うパドル勝負。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=rally-return) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/RALLY-RETURN) |
 | [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/wind-putt/title.png" width="384" alt="WIND PUTT のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/WIND-PUTT) | **[WIND PUTT](https://github.com/zabaglione/jr800-web-emulator/wiki/WIND-PUTT)**<br>風と壁の跳ね返りを読み、カップへ一打。角度と強さを調整して12コースを攻略しよう。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=wind-putt) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/WIND-PUTT) |
 
-[ページ先頭へ](#jr-800-ゲームライブラリー) · [共通操作と起動方法](https://github.com/zabaglione/jr800-web-emulator/wiki/Controls)
+[ページ先頭へ](#user-content-jr-800-ゲームライブラリー) · [共通操作と起動方法](https://github.com/zabaglione/jr800-web-emulator/wiki/Controls)
 
 ゲーム内の表示は英語です。JR-HuBASIC 1.0を使ったWebエミュレーターで確認しています。実機での動作・音声は未確認です。

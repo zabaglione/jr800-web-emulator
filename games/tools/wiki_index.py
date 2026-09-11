@@ -46,7 +46,7 @@ def write_index(root, games, genres, verified, raw, site, repo):
         home += (f'| [{genre["title"]}]({link(genre_page(genre))}) | {len(items)} | '
                  f'{copy["genres"][genre["id"]]} |\n')
     home += (f'\n[タイトル順の全作品]({link("All-Games")}) · '
-             f'[タイトル画面ギャラリー](#タイトル画面ギャラリー) · '
+             f'[タイトル画面ギャラリー](#user-content-タイトル画面ギャラリー) · '
              f'[はじめて遊ぶ方へ・共通操作]({link("Controls")})\n\n'
              '**ROMを設定済みなら「プレイ」からすぐに起動できます。** '
              '開いた画面をマウスでクリックし、SPACEで始めてください。'
@@ -62,7 +62,7 @@ def write_index(root, games, genres, verified, raw, site, repo):
         home += f'### [{heading}]({link(genre_page(genre))})\n\n{intro}\n\n{table}\n'
         (wiki / f'{genre_page(genre)}.md').write_text(
             f'# {heading}\n\n[ゲーム一覧へ]({repo}/wiki)\n\n{intro}\n\n{table}')
-    home += (f'[ページ先頭へ](#jr-800-ゲームライブラリー) · '
+    home += (f'[ページ先頭へ](#user-content-jr-800-ゲームライブラリー) · '
              f'[共通操作と起動方法]({link("Controls")})\n\n'
              'ゲーム内の表示は英語です。JR-HuBASIC 1.0を使ったWebエミュレーターで確認しています。'
              '実機での動作・音声は未確認です。\n')
