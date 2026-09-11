@@ -209,6 +209,29 @@ def logo(name,kind):
             b.line(x+9,23,x+9,40);b.line(x+5,31,x+13,31)
         b.line(29,51,162,51)
         for x in (34,146):b.rect(x,46,9,7);b.line(x+4,46,x+4,41)
+    elif kind=='echo-cavern':
+        for x in (4,166):
+            b.line(x,7,x+9,18);b.line(x+9,18,x+20,7);b.line(x,48,x+9,36);b.line(x+9,36,x+20,48)
+            for d in (3,8,13):b.line(x+d,22,x+d+4,27);b.line(x+d+4,27,x+d,32)
+        for x in (31,51,131,151):b.line(x,49,x+7,53);b.line(x+7,53,x+12,48)
+    elif kind=='micro-rogue':
+        for x in (4,167):
+            b.rect(x+1,8,18,14,1,True);b.rect(x+4,11,4,4,0,True);b.rect(x+12,11,4,4,0,True)
+            for xx in (x+3,x+9,x+15):b.rect(xx,20,3,5,1,True)
+            b.line(x+2,32,x+19,49);b.line(x+19,32,x+2,49);b.line(x,42,x+8,50);b.line(x+12,50,x+21,41)
+        for i in range(6):b.line(30+i*22,53-i%2*3,49+i*22,53-i%2*3)
+    elif kind=='signal-ghost':
+        for x in (4,166):
+            b.rect(x,8,16,10,1,True);b.line(x+16,9,x+22,5);b.line(x+16,16,x+22,20);b.line(x+8,19,x+8,26)
+            b.line(x+9,31,x,49);b.line(x+9,31,x+22,49)
+            for xx in (x+5,x+11,x+17):b.dot(xx,48)
+        for x in range(30,163,12):b.line(x,52,x+5,49);b.line(x+5,49,x+8,52)
+    elif kind=='rail-dispatch':
+        for x in (4,167):
+            b.rect(x+1,9,18,18);b.rect(x+4,12,12,7);b.line(x+3,30,x-1,49);b.line(x+17,30,x+21,49)
+            for y in (34,40,46):b.line(x,y,x+20,y)
+            b.rect(x+3,24,3,3,1,True);b.rect(x+14,24,3,3,1,True)
+        for x in range(29,162,9):b.line(x,50,x+5,53)
     else:
         raise ValueError('A distinct title motif is required: '+kind)
     for row,word in enumerate(name.split()):

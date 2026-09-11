@@ -6,11 +6,9 @@
 
 ## 収録ゲーム
 
-このジャンルの作品は制作予定です。
-
-## 制作予定
-
-- **RELAY QUEST** — 鍵と回復資源を集め、敵のいる遺跡を巡る。
-- **ECHO CAVERN** — 音波で周囲を調べ、見えない洞窟を探索する。
-- **MICRO ROGUE** — 地形と道具が変わる小さなダンジョンを踏破する。
-- **SIGNAL GHOST** — 監視範囲を避け、装置を停止する潜入パズル。
+| タイトル | 系統 | 内容 |
+|---|---|---|
+| [RELAY QUEST](https://github.com/zabaglione/jr800-web-emulator/wiki/RELAY-QUEST) | 定番 | 鍵と回復薬を集め、2基のリレーを回収して遺跡の出口を目指す全12面の探索ゲームです。 |
+| [ECHO CAVERN](https://github.com/zabaglione/jr800-web-emulator/wiki/ECHO-CAVERN) | モダン | 音波で見えない洞窟を調べ、酸素を管理して結晶3個を持ち帰る全12面の探索ゲームです。 |
+| [MICRO ROGUE](https://github.com/zabaglione/jr800-web-emulator/wiki/MICRO-ROGUE) | 定番 | 地形と配置が変わる5階のダンジョンを、装備と回復薬を集めて踏破する小さなローグライクです。 |
+| [SIGNAL GHOST](https://github.com/zabaglione/jr800-web-emulator/wiki/SIGNAL-GHOST) | モダン | 90度ずつ回転する監視カメラを避け、2系統の端末を停止して脱出する全20面の潜入パズルです。 |

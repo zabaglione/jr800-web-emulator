@@ -228,6 +228,30 @@
       "title": "RICOCHET OPS",
       "genre": "shooting",
       "style": "modern"
+    },
+    {
+      "id": "relay-quest",
+      "title": "RELAY QUEST",
+      "genre": "adventure",
+      "style": "classic"
+    },
+    {
+      "id": "echo-cavern",
+      "title": "ECHO CAVERN",
+      "genre": "adventure",
+      "style": "modern"
+    },
+    {
+      "id": "micro-rogue",
+      "title": "MICRO ROGUE",
+      "genre": "adventure",
+      "style": "classic"
+    },
+    {
+      "id": "signal-ghost",
+      "title": "SIGNAL GHOST",
+      "genre": "adventure",
+      "style": "modern"
     }
   ]
 }
