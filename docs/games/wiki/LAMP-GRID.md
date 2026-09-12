@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=lamp-grid) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/lamp-grid)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2c433ec9239f015170f8e5dd95861aad1a6d3c3e/docs/games/screenshots/lamp-grid/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/ac98e031bfac214c412b7bec65b91dc062851f66/docs/games/screenshots/lamp-grid/title.png)
 
 5×5のランプをすべて消す、全40面の論理パズルです。後半ほど多くの切替を必要とします。
 
