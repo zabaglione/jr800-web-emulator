@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [パズル・論理](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Logic) · モダン
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/number-rail)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=number-rail) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/number-rail)
 
 ![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/number-rail.png)
 
@@ -10,7 +10,7 @@
 
 ## 遊び方
 
-方向キーで全タイルを滑らせ、同じ数字を合体させます。1回の移動で同じタイルが二重に合体することはありません。GOAL以上のタイルを作ればクリアです。追加目標は、その目標タイルを印のある隅で作ることです。毎回同じ出現順なので、再挑戦で手順を工夫できます。
+方向キーで全タイルを滑らせ、同じ数字を合体させます。1回の移動で同じタイルが二重に合体することはありません。GOAL以上のタイルを作ればクリアです。追加目標は、黒地・白数字で示した隅にGOAL以上のタイルを作ることです。盤面の外側の矢印が対象の隅を指し、下部のBONUSには完成させる数字の見本を表示します。達成すると矢印とBONUSの横がチェックに変わります。毎回同じ出現順なので、再挑戦で手順を工夫できます。
 
 変化しない方向への入力は手数に含めません。UNDOは出現順も戻します。規定手数は、指定の隅で完成させる確認済み手順が基準です。
 
@@ -18,19 +18,19 @@
 
 ## ゲーム画面
 
-![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/number-rail/gameplay-1.png)
+![第1面の初期配置。黒い隅と矢印が追加目標、下部のBONUSが完成させる数字の見本](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/545e29d390209a5d0e8cc07419340b07a2b3e382/docs/games/screenshots/number-rail/gameplay-1.png)
 
-第1面の初期配置と規定手数。
+第1面の初期配置。黒い隅と矢印が追加目標、下部のBONUSが完成させる数字の見本。
 
-![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/number-rail/gameplay-2.png)
+![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/545e29d390209a5d0e8cc07419340b07a2b3e382/docs/games/screenshots/number-rail/gameplay-2.png)
 
 第31面で追加目標に挑戦している場面。
 
-![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/number-rail/gameplay-3.png)
+![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/545e29d390209a5d0e8cc07419340b07a2b3e382/docs/games/screenshots/number-rail/gameplay-3.png)
 
 第40面を規定手数と追加目標の両方を満たしてクリア。
 
-![数字が寄り、合流していく途中](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/number-rail/motion.png)
+![数字が寄り、合流していく途中](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/545e29d390209a5d0e8cc07419340b07a2b3e382/docs/games/screenshots/number-rail/motion.png)
 
 数字が寄り、合流していく途中。
 
@@ -65,7 +65,7 @@ HUDの **USED** は使った手数、**PAR** は規定手数です。規定手�
 
 コードは**面と評価**を記録します。盤面の途中状態は含みません。BASICへ戻る前にLOAD RECORDを控えると、次回の起動後に記録を復元できます。入力したLOAD RECORDの内容で全40面のBESTが置き換わるため、新しい記録を控えてから復元してください。
 
-![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/number-rail/selection.png)
+![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/545e29d390209a5d0e8cc07419340b07a2b3e382/docs/games/screenshots/number-rail/selection.png)
 
 面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。
 
