@@ -8,6 +8,13 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 from puzzle_design import save,grid_neighbors
 ADJ=grid_neighbors(6,6)
 
+def reachable_cells(board):
+    start=board.index(5);reached={start};todo=[start]
+    for p in todo:
+        for q in ADJ[p]:
+            if board[q] and q not in reached:reached.add(q);todo.append(q)
+    return reached
+
 def solve(board,marks=(),limit=36):
     start=board.index(5);check=[board.index(n) for n in (2,3,4)];open_cells={p for p,v in enumerate(board) if v}
     dist={}
@@ -74,6 +81,8 @@ def run():
             for p in rng.sample([p for p in range(36) if not board[p]],min(1+i//10,36-target)):board[p]=1
             board[cycle[0]]=5
             for n in (1,2,3):board[cycle[target*n//4]]=n+1
+            connected=reachable_cells(board)
+            board=[v if p in connected else 0 for p,v in enumerate(board)]
             if tuple(board) in seen:continue
             try:
                 normal,work=solve(board,limit=target)

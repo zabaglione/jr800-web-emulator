@@ -17,6 +17,10 @@ loop_clear:
     LDAA #1
     STAA loop_next
     JSR challenge_start
+    ; The jewel belongs to the full cell sprite, not a tiny shared corner mark.
+    LDAA #255
+    STAA challenge_view_cells
+    STAA challenge_view_cells + 1
     LDX #board
     JSR challenge_load
     LDAB #0
@@ -226,17 +230,41 @@ grid_value:
     ABX
     LDAA 0,X
     BEQ loop_tile_done
-    CMPA #5
-    BEQ loop_tile_done
+    STAA loop_value
     LDX #loop_marks
     ABX
     TST 0,X
-    BEQ loop_tile_done
+    BEQ loop_unmarked_tile
     LDX #loop_paths
     ABX
+    LDAB 0,X
+    LDAA loop_value
+    CMPA #2
+    BCS loop_path_tile
+    SUBA #2
+    ASLA
+    ASLA
+    ASLA
+    ASLA
+    ABA
+    TAB
+    LDX #loop_gate_sprites
+    ABX
     LDAA 0,X
+    RTS
+loop_path_tile:
+    TBA
     ADDA #6
 loop_tile_done:
+    RTS
+loop_unmarked_tile:
+    LDAA loop_value
+    CMPB challenge_cells
+    BEQ loop_bonus_tile
+    CMPB challenge_cells + 1
+    BNE loop_tile_done
+loop_bonus_tile:
+    LDAA #LOOP_BONUS_SPRITE
     RTS
 game_bonus:
     CLR challenge_bonus
@@ -256,8 +284,142 @@ loop_bonus_second:
 loop_bonus_done:
     RTS
 game_render:
+    TST hud_ready
+    BNE loop_render_board
+    JSR hud_begin
+    LDX #framebuffer
+    STX unpack_dest
+    LDX #loop_panel_art
+    JSR puzzle_unpack
+    JSR dirty_all
+    LDX #loop_hud_cache
+    LDAA #255
+    LDAB #9
+loop_clear_hud_cache:
+    STAA 0,X
+    INX
+    DECB
+    BNE loop_clear_hud_cache
+    CLR paint_index
+loop_panel_cache:
+    LDAB paint_index
+    LDX #view_cells
+    ABX
+    LDAA 0,X
+    CMPA #255
+    BNE loop_panel_next
+    LDX #tile_cache
+    ABX
+    CLR 0,X
+loop_panel_next:
+    INC paint_index
+    LDAA paint_index
+    CMPA #112
+    BNE loop_panel_cache
+loop_render_board:
     JSR paint_board
-    JMP visual_hud
+    JSR visual_hud
+    LDD challenge_moves
+    LDX #loop_hud_used
+    JSR hud_number
+    LDD challenge_par
+    LDX #loop_hud_par
+    JSR hud_number
+    CLRA
+    LDAB challenge_bonus
+    BITB #1
+    BEQ loop_bonus_count_second
+    INCA
+loop_bonus_count_second:
+    BITB #2
+    BEQ loop_bonus_count_done
+    INCA
+loop_bonus_count_done:
+    TAB
+    CLRA
+    LDX #loop_hud_bonus
+    JSR hud_number
+    CLR loop_icon_index
+loop_gate_legend:
+    LDAA #4
+    STAA paint_band
+    LDAB loop_icon_index
+    LDX #loop_gate_x
+    ABX
+    LDAB 0,X
+    LDAA loop_icon_index
+    ADDA #2
+    JSR loop_draw_icon
+    LDAA #5
+    STAA paint_band
+    LDAA loop_icon_index
+    INCA
+    CMPA loop_next
+    BCS loop_gate_passed
+    BEQ loop_gate_next
+    CLRA
+    BRA loop_gate_state
+loop_gate_passed:
+    LDAA #2
+    BRA loop_gate_state
+loop_gate_next:
+    LDAA #1
+loop_gate_state:
+    LDAB loop_icon_index
+    LDX #loop_gate_x
+    ABX
+    LDAB 0,X
+    JSR loop_draw_state
+    INC loop_icon_index
+    LDAA loop_icon_index
+    CMPA #3
+    BNE loop_gate_legend
+    LDAA #7
+    STAA paint_band
+    LDAB #142
+    LDAA challenge_bonus
+    BITA #1
+    JSR loop_bonus_icon
+    LDAB #168
+    LDAA challenge_bonus
+    BITA #2
+    JSR loop_bonus_icon
+    LDX #loop_draw_label
+    TST grid_stat
+    BNE loop_draw_action
+    LDX #loop_close_label
+loop_draw_action:
+    LDAA #28
+    LDAB #7
+    JMP paint_text
+; Z indicates that this bonus jewel has not yet been collected.
+loop_bonus_icon:
+    BEQ loop_bonus_missing
+    LDAA #2
+    BRA loop_draw_state
+loop_bonus_missing:
+    LDAA #LOOP_BONUS_SPRITE
+    BRA loop_draw_icon
+loop_draw_state:
+    STAB paint_x
+    LDAB #16
+    MUL
+    ADDD #loop_state_art
+    STD paint_source
+    BRA loop_blit_icon
+; A = 16x8 sprite, B = physical x; paint_band is set by the caller.
+loop_draw_icon:
+    STAB paint_x
+    LDAB #16
+    MUL
+    ADDD #tiles + 8
+    STD paint_source
+loop_blit_icon:
+    JSR paint_address
+    LDAA #16
+    STAA paint_count
+    CLR paint_id
+    JMP paint_blit
 
 .section .bss, bss
 loop_marks: .space 36
@@ -272,10 +434,19 @@ loop_from: .space 1
 loop_to: .space 1
 loop_mask: .space 1
 loop_letter: .space 2
+loop_value: .space 1
+loop_icon_index: .space 1
+loop_hud_cache: .space 9
 .section .data, data
 loop_bits: .byte 1,2,4,8
 loop_opposite: .byte 2,1,8,4
-loop_next_label: .byte 78,69,88,84,0
-loop_blank_label: .byte 32,32,32,32,32,32,32,32,32,32,0
-loop_draw_label: .byte 68,82,65,87,0
-loop_close_label: .byte 67,76,79,83,69,0
+loop_gate_x: .byte 132,150,168
+loop_hud_used:
+    .byte 168,1,4,0,0,0
+    .word loop_hud_cache,0
+loop_hud_par:
+    .byte 168,2,4,0,0,0
+    .word loop_hud_cache + 3,0
+loop_hud_bonus:
+    .byte 171,6,1,0,0,0
+    .word loop_hud_cache + 6,0
