@@ -4,27 +4,31 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=loop-trace) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/loop-trace)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/loop-trace/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/3e3633b29d1d2a1c504b9908ecde78a736a21013/docs/games/screenshots/loop-trace/title.png)
 
 分岐のある盤面でS→A→B→C→Sの輪を描く、全40面の経路パズルです。
 
 ## 遊び方
 
-方向キーで線を伸ばします。A・B・Cは順番に通る必要があり、線を交差させたり、通ったマスを再訪したりできません。Cまで通ってSに隣接したらSPACEで輪を閉じます。白いマスをすべて使う必要はありません。追加目標は、輪の中の経路に2か所の印も含めることです。
+方向キーで線を伸ばします。ゲートA・B・Cを順番に通り、Cまで通ってSに隣接したらSPACEで輪を閉じます。線を交差させたり、通ったマスを再訪したりできません。すべての通行可能マスを使う必要はありません。
 
-直前のマスへ引き返すか、RETURNメニューの UNDO で線を1区間戻せます。戻す操作にも1手かかり、外した印は未達成に戻ります。輪を閉じるSPACEも1手です。
+右側の **GATES** は盤面と同じゲートの凡例です。矢印が次に通るゲート、チェックが通過済みを示します。通過後も盤面のゲートの文字は残ります。
+
+中央に大きな菱形がある2か所のマスが追加目標です。経路に含めると盤面の菱形が線に変わり、右側の **BONUS** の対応する菱形もチェックに変わります。数字は回収数です。
+
+直前のマスへ引き返すか、RETURNメニューの UNDO で線を1区間戻せます。戻す操作にも1手かかり、ゲートのチェック・次の矢印・追加目標の回収表示も元に戻ります。輪を閉じるSPACEも1手です。
 
 ## ゲーム画面
 
-![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/loop-trace/gameplay-1.png)
+![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/3e3633b29d1d2a1c504b9908ecde78a736a21013/docs/games/screenshots/loop-trace/gameplay-1.png)
 
 第1面の初期配置と規定手数。
 
-![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/loop-trace/gameplay-2.png)
+![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/3e3633b29d1d2a1c504b9908ecde78a736a21013/docs/games/screenshots/loop-trace/gameplay-2.png)
 
 第31面で追加目標に挑戦している場面。
 
-![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/loop-trace/gameplay-3.png)
+![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/3e3633b29d1d2a1c504b9908ecde78a736a21013/docs/games/screenshots/loop-trace/gameplay-3.png)
 
 第40面を規定手数と追加目標の両方を満たしてクリア。
 
@@ -59,7 +63,7 @@ HUDの **USED** は使った手数、**PAR** は規定手数です。規定手�
 
 コードは**面と評価**を記録します。盤面の途中状態は含みません。BASICへ戻る前にLOAD RECORDを控えると、次回の起動後に記録を復元できます。入力したLOAD RECORDの内容で全40面のBESTが置き換わるため、新しい記録を控えてから復元してください。
 
-![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/loop-trace/selection.png)
+![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/3e3633b29d1d2a1c504b9908ecde78a736a21013/docs/games/screenshots/loop-trace/selection.png)
 
 面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。
 
