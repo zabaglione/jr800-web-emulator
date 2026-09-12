@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Restore successful checks and their artifacts
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: build/ci-cache/${{ inputs.preset }}
           key: verified-v1-${{ runner.os }}-${{ runner.arch }}-${{ inputs.preset }}-${{ github.run_id }}-${{ github.run_attempt }}
@@ -52,7 +52,7 @@ jobs:
       # PR jobs may read trusted caches but never publish a verification receipt.
       - name: Save successful checks
         if: steps.plan.outputs.work == 'true' && github.event_name != 'pull_request'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: build/ci-cache/${{ inputs.preset }}
           key: verified-v1-${{ runner.os }}-${{ runner.arch }}-${{ inputs.preset }}-${{ github.run_id }}-${{ github.run_attempt }}
