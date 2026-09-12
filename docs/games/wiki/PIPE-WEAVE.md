@@ -10,7 +10,7 @@
 
 ## 遊び方
 
-方向キーで配管を選び、SPACEで時計回りに90度回します。SからEへ水が届くと通常クリアです。追加目標は、すべての配管へ水を通し、接続されていない口をなくすことです。HUDの DRY と LEAKS が両方0になる配置を目指してください。Eへ先に水を通すと、全体を完成させる前にクリアになります。
+方向キーで配管を選び、SPACEで時計回りに90度回します。S・Eの小さな文字の上下左右に、接続口が見えるように描いています。縦の管も長く取り、選択中や通水中もつながりを追えます。SからEへ水が届くと通常クリアです。追加目標は、すべての配管へ水を通し、接続されていない口をなくすことです。HUDの DRY と LEAKS が両方0になる配置を目指してください。Eへ先に水を通すと、全体を完成させる前にクリアになります。
 
 回転1回を1手と数えます。RETURNメニューから直前の回転を戻せます。規定手数は、全配管を完成させる確認済み手順を基準にしています。
 
@@ -18,19 +18,19 @@
 
 ## ゲーム画面
 
-![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/pipe-weave/gameplay-1.png)
+![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/9a39dcad5db8b3ef597f54b94de9794dc1e4fd35/docs/games/screenshots/pipe-weave/gameplay-1.png)
 
 第1面の初期配置と規定手数。
 
-![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/pipe-weave/gameplay-2.png)
+![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/9a39dcad5db8b3ef597f54b94de9794dc1e4fd35/docs/games/screenshots/pipe-weave/gameplay-2.png)
 
 第31面で追加目標に挑戦している場面。
 
-![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/pipe-weave/gameplay-3.png)
+![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/9a39dcad5db8b3ef597f54b94de9794dc1e4fd35/docs/games/screenshots/pipe-weave/gameplay-3.png)
 
 第40面を規定手数と追加目標の両方を満たしてクリア。
 
-![水がSから分岐へ広がる途中](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/pipe-weave/motion.png)
+![水がSから分岐へ広がる途中](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/9a39dcad5db8b3ef597f54b94de9794dc1e4fd35/docs/games/screenshots/pipe-weave/motion.png)
 
 水がSから分岐へ広がる途中。
 
@@ -65,7 +65,7 @@ HUDの **USED** は使った手数、**PAR** は規定手数です。規定手�
 
 コードは**面と評価**を記録します。盤面の途中状態は含みません。BASICへ戻る前にLOAD RECORDを控えると、次回の起動後に記録を復元できます。入力したLOAD RECORDの内容で全40面のBESTが置き換わるため、新しい記録を控えてから復元してください。
 
-![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/pipe-weave/selection.png)
+![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/9a39dcad5db8b3ef597f54b94de9794dc1e4fd35/docs/games/screenshots/pipe-weave/selection.png)
 
 面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。
 
