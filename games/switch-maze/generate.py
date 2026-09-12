@@ -21,7 +21,12 @@ for n in range(12):
     elif n==8:b.rect(1,0,6,8);b.text('E',2,0)
     elif n in (9,10):
         b.line(0,0,7,0);b.line(0,7,7,7);b.dot(0,3);b.dot(7,4)
-    else:b.rect(2,0,4,3,1,True);b.line(3,3,3,6);b.line(1,6,5,6)
+    else:
+        b=Bitmap.from_rows(['..##....','..##....','...#....','.#####..',
+                            '...#....','..#.#...','..#.#...','........'])
+        # grid.s applies the cursor palette to the actor. Store the inverse so
+        # its visible head, arms and two legs are dark against the floor.
+        b.p=[[1-pixel for pixel in row] for row in b.p]
     sprites.append(b)
 data=level_records([s['initial']['board'] for s in levels])+asm_bytes('start_cells',[s['initial']['start'] for s in levels])+challenge_data(root,levels,14,1,1,7)
 assets(root,'SWITCH MAZE','switch-maze',14,7,1,1,sprites,40,data,stat='KEYS',action='MOVE')

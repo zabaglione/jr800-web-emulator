@@ -19,7 +19,30 @@ game_start:
     STAA cursor
     LDAA #2
     STAA grid_stat
-    RTS
+    CLR switch_intro_bytes
+    CLR switch_intro_bytes + 1
+    JSR game_render
+    LDAB cursor
+    JSR switch_intro_cell
+    LDX #board
+    CLRB
+switch_find_exit:
+    LDAA 0,X
+    CMPA #8
+    BEQ switch_intro_exit
+    INX
+    INCB
+    BRA switch_find_exit
+switch_intro_exit:
+    JSR switch_intro_cell
+    JSR input_gate
+    ; This introduction owns all LCD transfers. Leave both begin_game frames
+    ; at the ordinary shell boundary with their complete transfer count.
+    LDD switch_intro_bytes
+    STD dirty_bytes
+    PULX
+    PULX
+    JMP frame_ready
 game_update:
     JSR grid_move
     CMPB #255
@@ -99,7 +122,7 @@ game_aux:
 switch_idle:
     RTS
 switch_restart:
-    JMP game_start
+    JMP begin_game
 grid_value:
     CMPB cursor
     BNE switch_board_tile
@@ -132,6 +155,76 @@ switch_source: .space 2
 switch_index: .space 1
 switch_target: .space 1
 switch_tile: .space 1
+
+.global switch_intro_target
+.global switch_intro_step
+.global switch_intro_frame
+.section .bss, bss
+switch_intro_target: .space 1
+switch_intro_step: .space 1
+switch_intro_clock: .space 1
+switch_intro_bytes: .space 2
+
+; The start cue finishes before the exit cue; ordinary controls begin only
+; after both. These cycle-timed LCD updates use the program's existing RAM.
+.section .runtime, code
+switch_intro_cell:
+    LDX #view_cells
+    CLRA
+switch_intro_find:
+    CMPB 0,X
+    BEQ switch_intro_found
+    INX
+    INCA
+    BRA switch_intro_find
+switch_intro_found:
+    STAA switch_intro_target
+    CLR switch_intro_step
+switch_intro_blink:
+    LDAB switch_intro_target
+    JSR game_tile
+    LDAB switch_intro_step
+    BITB #1
+    BNE switch_intro_face
+    EORA #128
+switch_intro_face:
+    LDAB switch_intro_target
+    JSR paint_tile
+    JSR dirty_begin
+switch_intro_flush:
+    JSR dirty_next
+    BEQ switch_intro_accumulate
+    JSR input_poll
+    BRA switch_intro_flush
+switch_intro_accumulate:
+    LDD dirty_bytes
+    ADDD switch_intro_bytes
+    STD switch_intro_bytes
+switch_intro_frame:
+    TST switch_intro_step
+    BNE switch_intro_wait
+    LDX #250
+    LDAB grid_cell
+    CMPB cursor
+    BEQ switch_intro_note
+    LDX #180
+switch_intro_note:
+    LDD #20
+    JSR sound_tone
+switch_intro_wait:
+    LDAA input_ticks
+    STAA switch_intro_clock
+switch_intro_delay:
+    JSR input_poll
+    LDAA input_ticks
+    SUBA switch_intro_clock
+    CMPA #8
+    BCS switch_intro_delay
+    INC switch_intro_step
+    LDAA switch_intro_step
+    CMPA #4
+    BNE switch_intro_blink
+    RTS
 
 .section .text, code
 game_bonus:
