@@ -7,8 +7,12 @@
 .global rotations
 .global source_count
 .global source_cells
+.global mirror_cursor_mask
+.global mirror_blink_clock
 .section .text, code
 game_start:
+    LDAA #128
+    STAA mirror_cursor_mask
     JSR challenge_start
     LDX #sources
     JSR challenge_load
@@ -18,6 +22,25 @@ game_start:
     STAA cursor
     JMP trace_light
 game_update:
+    LDAA input_event
+    BNE mirror_cursor_wake
+    LDAA input_ticks
+    SUBA mirror_blink_clock
+    CMPA #25
+    BCC mirror_cursor_toggle
+    RTS
+mirror_cursor_toggle:
+    LDAA mirror_cursor_mask
+    EORA #128
+    STAA mirror_cursor_mask
+    LDAA #1
+    STAA redraw
+    RTS
+mirror_cursor_wake:
+    LDAA #128
+    STAA mirror_cursor_mask
+    LDAA #1
+    STAA redraw
     LDAA input_event
     BITA #16
     BEQ mirror_move
@@ -257,7 +280,7 @@ mirror_tile_cursor:
     LDAB mirror_tile_cell
     CMPB cursor
     BNE mirror_tile_done
-    ORAA #128
+    ORAA mirror_cursor_mask
 mirror_tile_done:
     RTS
 ; Join shielding across wall cells; left/right/up/down are bits 0/1/2/3.
@@ -318,6 +341,12 @@ mirror_wall_test:
     CMPA #1
     RTS
 game_render:
+    TST resume_pending
+    BEQ mirror_render_board
+    CLR resume_pending
+    LDAA #128
+    STAA mirror_cursor_mask
+mirror_render_board:
     JSR paint_board
     TST hud_ready
     BNE mirror_render_values
@@ -365,8 +394,13 @@ mirror_hud_shift:
     JSR dirty_mark
     BRA mirror_hud_next
 mirror_render_values:
-    JMP visual_hud
+    JSR visual_hud
+    LDAA input_ticks
+    STAA mirror_blink_clock
+    RTS
 .section .bss, bss
+mirror_cursor_mask: .space 1
+mirror_blink_clock: .space 1
 sources:
 source_count: .space 1
 source_cells: .space 3

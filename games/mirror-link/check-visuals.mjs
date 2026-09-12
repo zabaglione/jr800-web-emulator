@@ -52,7 +52,7 @@ function verify(g, stage) {
   const board = g.read('board', 112), cursor = g.read('cursor');
   const dots = g.machine.lcdPanel().dots;
   const pixel = (x, y) => dots[y * 192 + x] === 2;
-  const cell = (p, x, y) => pixel(32 + p % 16 * 8 + x, 8 + (p >> 4) * 8 + y) !== (p === cursor);
+  const cell = (p, x, y) => pixel(32 + p % 16 * 8 + x, 8 + (p >> 4) * 8 + y) !== (p === cursor && Boolean(g.read('mirror_cursor_mask')));
   assert.equal(g.read('source_count'), stage.initial.sources.length);
   assert.deepEqual(g.read('source_cells', 3).slice(0, stage.initial.sources.length), stage.initial.sources);
   for (let p = 0; p < 112; p++) {
