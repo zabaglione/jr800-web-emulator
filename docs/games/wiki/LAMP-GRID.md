@@ -4,29 +4,35 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=lamp-grid) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/lamp-grid)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/lamp-grid/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/4fc7221042b70fa1ce4bcb6b2cdc65653fa2408a/docs/games/screenshots/lamp-grid/title.png)
 
 5×5のランプをすべて消す、全40面の論理パズルです。後半ほど多くの切替を必要とします。
 
 ## 遊び方
 
-方向キーでマスを選び、SPACEでそのマスと上下左右のランプを反転します。追加目標は、2か所の印があるマスをそれぞれ直接選んで反転することです。隣のマスから巻き込むだけでは回収できません。
+方向キーでマスを選び、SPACEでそのマスと上下左右のランプを、SEとともに1つずつ反転します。菱形が入った2か所のマスが追加目標です。それぞれを直接選んでSPACEを押すと菱形が消えます。隣のマスから巻き込むだけでは回収できません。
+
+右側の **LIT** は点灯中のランプ数です。選択中のマスは白黒が反転します。
 
 RETURNメニューの UNDO で直前の反転を戻せます。
 
 ## ゲーム画面
 
-![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/lamp-grid/gameplay-1.png)
+![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/4fc7221042b70fa1ce4bcb6b2cdc65653fa2408a/docs/games/screenshots/lamp-grid/gameplay-1.png)
 
 第1面の初期配置と規定手数。
 
-![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/lamp-grid/gameplay-2.png)
+![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/4fc7221042b70fa1ce4bcb6b2cdc65653fa2408a/docs/games/screenshots/lamp-grid/gameplay-2.png)
 
 第31面で追加目標に挑戦している場面。
 
-![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/lamp-grid/gameplay-3.png)
+![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/4fc7221042b70fa1ce4bcb6b2cdc65653fa2408a/docs/games/screenshots/lamp-grid/gameplay-3.png)
 
 第40面を規定手数と追加目標の両方を満たしてクリア。
+
+![追加目標の回収とランプの反転アニメーション](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/4fc7221042b70fa1ce4bcb6b2cdc65653fa2408a/docs/games/screenshots/lamp-grid/flip-animation.gif)
+
+反転中もRETURNで一時停止できます。UNDOでは直前の反転を戻します。
 
 ## 40面のチャレンジと評価
 
@@ -59,7 +65,7 @@ HUDの **USED** は使った手数、**PAR** は規定手数です。規定手�
 
 コードは**面と評価**を記録します。盤面の途中状態は含みません。BASICへ戻る前にLOAD RECORDを控えると、次回の起動後に記録を復元できます。入力したLOAD RECORDの内容で全40面のBESTが置き換わるため、新しい記録を控えてから復元してください。
 
-![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/lamp-grid/selection.png)
+![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/4fc7221042b70fa1ce4bcb6b2cdc65653fa2408a/docs/games/screenshots/lamp-grid/selection.png)
 
 面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。
 
