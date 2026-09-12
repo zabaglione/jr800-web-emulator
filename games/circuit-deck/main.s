@@ -17,6 +17,8 @@
 .global selected
 .global rounds
 .global shuffles
+.global card_id
+.global intent
 .section .text, code
 game_start:
     CLR battle
@@ -74,7 +76,8 @@ battle_copy:
     CMPA deck_size
     BNE battle_copy
     JSR shuffle
-    JMP draw_hand
+    JSR draw_hand
+    JMP deck_intro_begin
 ; Fisher-Yates over the active pile, rejection-free bounded modulo.
 shuffle:
     INC shuffles
@@ -159,9 +162,26 @@ draw_store:
     BNE draw_hand_loop
     RTS
 game_update:
+    TST deck_active
+    BEQ deck_accept_input
+    JMP deck_animation_update
+deck_accept_input:
     LDAA input_event
     BITA #16
     BNE card_activate
+    TST battle_mode
+    BNE card_direction
+    BITA #2
+    BEQ deck_not_down
+    LDAA #3
+    STAA selected
+    JMP card_changed
+deck_not_down:
+    BITA #1
+    BEQ card_direction
+    CLR selected
+    JMP card_changed
+card_direction:
     BITA #5
     BEQ card_right
     TST selected
@@ -169,7 +189,11 @@ game_update:
     DEC selected
     BRA card_changed
 card_wrap_left:
-    LDAA #2
+    LDAA #3
+    TST battle_mode
+    BEQ deck_wrap_left
+    DECA
+deck_wrap_left:
     STAA selected
     BRA card_changed
 card_right:
@@ -177,7 +201,12 @@ card_right:
     BEQ card_idle
     INC selected
     LDAA selected
-    CMPA #3
+    LDAB #4
+    TST battle_mode
+    BEQ deck_wrap_right
+    DECB
+deck_wrap_right:
+    CBA
     BCS card_changed
     CLR selected
 card_changed:
@@ -209,6 +238,11 @@ reward_heal:
     JSR battle_start
     BRA card_changed
 card_play:
+    LDAA selected
+    CMPA #3
+    BNE deck_play_card
+    JMP deck_end_action
+deck_play_card:
     LDAB selected
     LDX #hand
     ABX
@@ -225,6 +259,7 @@ card_play:
     SUBA 0,X
     BCS card_idle
     STAA energy
+    JSR deck_capture
     LDAB selected
     JSR discard_hand_card
     LDX stats_ptr
@@ -262,7 +297,8 @@ strength_cap:
     ADDA energy
     STAA energy
     JSR check_battle_win
-    JMP card_changed
+    LDAA #1
+    JMP deck_queue
 ; A damage consumes enemy shield before HP, saturates at zero.
 deal_damage:
     SUBA enemy_block
@@ -299,12 +335,33 @@ discard_hand_card:
 discard_done:
     RTS
 game_aux:
+    TST deck_active
+    BEQ deck_aux_ready
+    RTS
+deck_aux_ready:
     CMPA #1
-    BEQ end_turn
+    BEQ deck_end_action
     LDAA card_help
     EORA #1
     STAA card_help
+    CLR deck_message
+    TSTA
+    BEQ deck_help_done
+    LDAA #22
+    STAA deck_message
+deck_help_done:
     RTS
+deck_end_action:
+    TST battle_mode
+    BEQ deck_end_live
+    RTS
+deck_end_live:
+    JSR deck_capture
+    LDAA intent
+    STAA deck_intent
+    JSR end_turn
+    LDAA #2
+    JMP deck_queue
 end_turn:
     TST battle_mode
     BEQ end_turn_combat
@@ -402,7 +459,7 @@ game_tile:
     CLRA
     RTS
 game_render:
-    JMP visual_hud
+    JMP deck_render
 .section .bss, bss
 hp: .space 1
 energy: .space 1
