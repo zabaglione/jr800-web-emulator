@@ -254,7 +254,43 @@ ace_tile_done:
     RTS
 game_render:
     JSR paint_board
-    JMP visual_hud
+    TST hud_ready
+    BNE ace_render_hud
+    JSR hud_begin
+    ; Move only the static rule; the WASTE value may use its top pixel row.
+    LDX #framebuffer + 192 * 4 + 4
+    LDAB #56
+ace_clear_rule:
+    AIM #$FE,0,X
+    INX
+    DECB
+    BNE ace_clear_rule
+ace_render_hud:
+    JSR visual_hud
+    ; LEFT can repaint this LCD page, so restore the rule after its digits.
+    LDX #framebuffer + 192 * 3 + 4
+    LDAB #56
+    CLR ace_rule_changed
+ace_raise_rule:
+    LDAA 0,X
+    BMI ace_rule_next
+    ORAA #$80
+    STAA 0,X
+    INC ace_rule_changed
+ace_rule_next:
+    INX
+    DECB
+    BNE ace_raise_rule
+    TST ace_rule_changed
+    BEQ ace_rule_done
+    LDAA #3
+    LDAB #4
+    JSR dirty_mark
+    LDAA #3
+    LDAB #59
+    JMP dirty_mark
+ace_rule_done:
+    RTS
 .section .bss, bss
 ace_stock: .space 2
 ace_stock_pos: .space 1
@@ -270,6 +306,7 @@ ace_undo_pos: .space 1
 ace_undo_waste: .space 1
 ace_ranks: .space 14
 ace_display_rank: .space 1
+ace_rule_changed: .space 1
 .section .data, data
 ace_rank_labels: .byte 45,65,50,51,52,53,54,55,56,57,84,74,81,75
 ace_waste_text: .byte 91,45,93,0

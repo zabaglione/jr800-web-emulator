@@ -37,10 +37,11 @@ for stage in range(20):
 sprites=[Bitmap(16,8)]
 for kind in range(3):
  for rank in range(1,14):
-  b=Bitmap(16,8);b.text(' A23456789TJQK'[rank],5,0);b.line(1,7,14,7)
+  # Flat card faces: no disconnected dots above covered cards. Exposed cards
+  # have continuous sides and lightly cut lower corners, leaving ranks intact.
+  b=Bitmap(16,8);b.text(' A23456789TJQK'[rank],5,0);b.line(2,7,13,7)
   if kind:
-   b.line(1,0,1,7);b.line(14,0,14,7)
-  else:b.dot(1,0);b.dot(14,0)
+   b.line(1,0,1,6);b.line(14,0,14,6)
   if kind==2:b.line(3,0,3,6);b.line(12,0,12,6)
   sprites.append(b)
 data=asm_bytes('ace_children',sum(children,[]))+asm_bytes('ace_deals',sum(deals,[]))
