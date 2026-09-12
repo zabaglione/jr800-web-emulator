@@ -6,8 +6,10 @@
 .global suit_available
 .global suit_match
 .global suit_check
+.global suit_action
 .section .text, code
 game_start:
+    CLR suit_action
     JSR grid_reset
     CLR undo_valid
     CLR suit_stock_pos
@@ -44,13 +46,51 @@ suit_load:
     STX suit_stock
     RTS
 game_update:
+    TST suit_action
+    BNE suit_action_update
     LDAA input_event
     BITA #16
     BNE suit_choose
+    BITA #2
+    BEQ suit_move
+    LDAB cursor
+    CMPB #28
+    BCC suit_focus_draw
+    LDX #board
+    ABX
+    TST 7,X
+    BEQ suit_focus_draw
+suit_move:
     JSR grid_move
     CMPB #255
     BEQ suit_idle
     STAB cursor
+    JMP grid_changed
+suit_focus_draw:
+    INC suit_action
+    JMP grid_changed
+suit_action_update:
+    LDAA input_event
+    BITA #16
+    BEQ suit_action_back
+    JMP suit_draw
+suit_action_back:
+    BITA #1
+    BEQ suit_idle
+    CLR suit_action
+; Return to the lowest remaining card in the same column after a removal.
+suit_return_card:
+    LDAB cursor
+    LDX #board
+    ABX
+    TST 0,X
+    BNE suit_return_done
+    CMPB #7
+    BCS suit_return_done
+    SUBB #7
+    STAB cursor
+    BRA suit_return_card
+suit_return_done:
     JMP grid_changed
 suit_choose:
     LDAB cursor
@@ -119,6 +159,7 @@ suit_snapshot:
 game_aux:
     CMPA #1
     BNE suit_undo
+suit_draw:
     LDAA suit_stock_pos
     CMPA #16
     BCC suit_aux_done
@@ -136,6 +177,7 @@ suit_undo:
     TST undo_valid
     BEQ suit_aux_done
     JSR grid_restore
+    CLR suit_action
     LDAA suit_undo_pos
     STAA suit_stock_pos
     LDAA suit_undo_waste
@@ -189,9 +231,46 @@ suit_covered:
     LDAA suit_display
     RTS
 game_render:
+    LDAA cursor
+    PSHA
+    TST suit_action
+    BEQ suit_render_cards
+    LDAA #255
+    STAA cursor
+suit_render_cards:
     JSR paint_board
-    JMP visual_hud
+    PULA
+    STAA cursor
+    JSR visual_hud
+    LDAA #5
+    STAA hud_play_field + 3
+    CLR hud_play_field + 4
+    TST suit_action
+    BEQ suit_render_draw
+    LDAA #128
+    STAA hud_play_field + 4
+suit_render_draw:
+    LDX #suit_draw_label
+    LDAA suit_stock_pos
+    CMPA #16
+    BCS suit_draw_text
+    LDX #suit_empty_label
+suit_draw_text:
+    LDAA #8
+    LDAB #7
+    JSR hud_play_text
+    CLR hud_play_field + 3
+    CLR hud_play_field + 4
+    LDX #suit_down_label
+    TST suit_action
+    BEQ suit_draw_hint
+    LDX #suit_up_label
+suit_draw_hint:
+    LDAA #76
+    LDAB #7
+    JMP hud_play_text
 .section .bss, bss
+suit_action: .space 1
 suit_stock: .space 2
 suit_stock_pos: .space 1
 suit_waste: .space 1
@@ -206,6 +285,10 @@ suit_undo_waste: .space 1
 suit_undo_chain: .space 1
 suit_undo_score: .space 2
 .section .data, data
+suit_draw_label: .byte 32,68,82,65,87,32,0
+suit_empty_label: .byte 32,69,77,80,84,89,0
+suit_down_label: .byte 68,79,87,78,58,68,82,65,87,0
+suit_up_label: .byte 85,80,58,67,65,82,68,83,32,0
 suit_rank_labels: .byte 45,65,50,51,52,53,54,55,56,57,84,74,81,75
 suit_waste_text: .byte 91,45,93,0
 suit_score_label: .byte 83,67,79,82,69,0
