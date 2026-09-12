@@ -20,15 +20,15 @@ ONES〜SIXESは対応する数字の合計です。3-KINDと4-KINDは同じ目�
 
 ## ゲーム画面
 
-![5個の出目から保持するダイスを選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/41d6d9aa52663c09cdb46703724a60f2b90d0ced/docs/games/screenshots/dice-hold/gameplay-1.png)
+![5個の出目から保持するダイスを選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/1262d910e072b89cf5e77ecf6250ce098f80d9dd/docs/games/screenshots/dice-hold/gameplay-1.png)
 
 5個の出目から保持するダイスを選ぶ。
 
-![保持したダイスを残して振り直した場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/41d6d9aa52663c09cdb46703724a60f2b90d0ced/docs/games/screenshots/dice-hold/gameplay-2.png)
+![保持したダイスを残して振り直した場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/1262d910e072b89cf5e77ecf6250ce098f80d9dd/docs/games/screenshots/dice-hold/gameplay-2.png)
 
 保持したダイスを残して振り直した場面。
 
-![得点欄ごとの点数と使用済みの印を確認](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/41d6d9aa52663c09cdb46703724a60f2b90d0ced/docs/games/screenshots/dice-hold/gameplay-3.png)
+![得点欄ごとの点数と使用済みの印を確認](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/1262d910e072b89cf5e77ecf6250ce098f80d9dd/docs/games/screenshots/dice-hold/gameplay-3.png)
 
 得点欄ごとの点数と使用済みの印を確認。
 
