@@ -5,6 +5,8 @@
 .global lit_count
 .global goal_count
 .global rotations
+.global source_count
+.global source_cells
 .section .text, code
 game_start:
     JSR challenge_start
@@ -230,6 +232,11 @@ game_tile:
     LDX #board
     ABX
     LDAA 0,X
+    CMPA #1
+    BNE mirror_tile_receiver
+    JSR mirror_wall_tile
+    BRA mirror_tile_cursor
+mirror_tile_receiver:
     CMPA #4
     BNE mirror_tile_empty
     LDX #beams
@@ -253,8 +260,111 @@ mirror_tile_cursor:
     ORAA #128
 mirror_tile_done:
     RTS
+; Join shielding across wall cells; left/right/up/down are bits 0/1/2/3.
+mirror_wall_tile:
+    CLR mirror_wall_mask
+    LDAB mirror_tile_cell
+    ANDB #15
+    BEQ mirror_wall_right
+    LDAB mirror_tile_cell
+    DECB
+    JSR mirror_wall_test
+    BNE mirror_wall_right
+    INC mirror_wall_mask
+mirror_wall_right:
+    LDAB mirror_tile_cell
+    ANDB #15
+    CMPB #15
+    BEQ mirror_wall_up
+    LDAB mirror_tile_cell
+    INCB
+    JSR mirror_wall_test
+    BNE mirror_wall_up
+    LDAA mirror_wall_mask
+    ORAA #2
+    STAA mirror_wall_mask
+mirror_wall_up:
+    LDAB mirror_tile_cell
+    CMPB #16
+    BCS mirror_wall_down
+    SUBB #16
+    JSR mirror_wall_test
+    BNE mirror_wall_down
+    LDAA mirror_wall_mask
+    ORAA #4
+    STAA mirror_wall_mask
+mirror_wall_down:
+    LDAB mirror_tile_cell
+    CMPB #96
+    BCC mirror_wall_ready
+    ADDB #16
+    JSR mirror_wall_test
+    BNE mirror_wall_ready
+    LDAA mirror_wall_mask
+    ORAA #8
+    STAA mirror_wall_mask
+mirror_wall_ready:
+    LDAA mirror_wall_mask
+    BEQ mirror_wall_single
+    ADDA #12
+    RTS
+mirror_wall_single:
+    LDAA #1
+    RTS
+mirror_wall_test:
+    LDX #board
+    ABX
+    LDAA 0,X
+    CMPA #1
+    RTS
 game_render:
     JSR paint_board
+    TST hud_ready
+    BNE mirror_render_values
+    JSR hud_begin
+; Inset the six label bands by one pixel on entry/menu return.
+    LDAA #3
+    STAA hud_field_6
+    LDX #mirror_hud_bands
+    STX mirror_hud_pointer
+mirror_hud_next:
+    LDX mirror_hud_pointer
+    LDAA 0,X
+    BEQ mirror_render_values
+    STAA paint_band
+    LDAA 1,X
+    STAA paint_x
+    LDAA 2,X
+    PSHA
+    INX
+    INX
+    INX
+    STX mirror_hud_pointer
+    JSR paint_address
+    PULA
+    LDX paint_dest
+; Restore the first glyph column without any overlaid rail pixels.
+    STAA 2,X
+    LDAB #28
+    ABX
+    LDAB #27
+mirror_hud_shift:
+    LDAA 0,X
+    STAA 1,X
+    DEX
+    DECB
+    BNE mirror_hud_shift
+; Column 2 separates the shortened rail ticks from the text at column 3.
+    CLR 1,X
+    LDAA paint_band
+    LDAB paint_x
+    JSR dirty_mark
+    LDAA paint_band
+    LDAB paint_x
+    ADDB #31
+    JSR dirty_mark
+    BRA mirror_hud_next
+mirror_render_values:
     JMP visual_hud
 .section .bss, bss
 sources:
@@ -267,9 +377,9 @@ cursor: .space 1
 rotations: .space 1
 undo_valid_mirror: .space 1
 undo_cell: .space 1
-mirror_source: .space 2
-mirror_dest: .space 2
+mirror_hud_pointer: .space 2
 mirror_tile_cell: .space 1
+mirror_wall_mask: .space 1
 ray_poll: .space 1
 ray_index: .space 1
 ray_cell: .space 1
@@ -281,11 +391,8 @@ goal_count: .space 1
 .section .data, data
 ray_steps: .byte 1,16,255,240
 ray_bits: .byte 1,2,4,8
-mirror_heading: .byte 77,73,82,82,79,82,32,76,73,78,75,0 ; MIRROR LINK
-mirror_lit_label: .byte 76,73,84,0 ; LIT
-mirror_space_label: .byte 83,80,65,67,69,0 ; SPACE
-mirror_turn_label: .byte 82,79,84,65,84,69,0 ; ROTATE
-mirror_return_label: .byte 82,69,84,85,82,78,0 ; RETURN
+; Band, side, first glyph column (L/G/U/P); footer text starts farther inward.
+mirror_hud_bands: .byte 1,0,62,1,160,28,4,0,62,4,160,62,7,0,0,7,160,0,0
 
 .section .text, code
 game_bonus:

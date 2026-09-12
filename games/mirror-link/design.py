@@ -29,6 +29,37 @@ def orientation(board,positions,mask):
     for i,p in enumerate(positions):b[p]=2+((mask>>i)&1)
     return b
 
+def useful_sources(board,sources,marks):
+    """Keep emitters that can reach a receiver or optional mark in any orientation."""
+    positions=[p for p,tile in enumerate(board) if tile in (2,3)]
+    objectives=sum(1<<p for p in set(marks)|{p for p,tile in enumerate(board) if tile==4})
+    useful=set()
+    for mask in range(1<<len(positions)):
+        b=orientation(board,positions,mask)
+        for source in sources:
+            if source not in useful and trace(b,[source])[0]&objectives:useful.add(source)
+        if len(useful)==len(sources):break
+    return [source for source in sources if source in useful]
+
+def prune_sources(board,sources,marks):
+    """Remove purposeless beams while preserving every objective-lighting state."""
+    kept=useful_sources(board,sources,marks)
+    removed=set(sources)-set(kept)
+    clean=board[:]
+    for source in removed:clean[source]=0
+    if removed:
+        positions=[p for p,tile in enumerate(board) if tile in (2,3)]
+        objectives=sum(1<<p for p in set(marks)|{p for p,tile in enumerate(board) if tile==4})
+        for mask in range(1<<len(positions)):
+            before=trace(orientation(board,positions,mask),sources)[0]&objectives
+            after=trace(orientation(clean,positions,mask),kept)[0]&objectives
+            if before!=after:
+                # An emitter also blocks incoming light. Preserve that barrier
+                # if an empty cell would open a new route to an objective.
+                for source in removed:clean[source]=1
+                break
+    return clean,kept
+
 def bonus_route(initial,positions,lit,won,marks,limit):
     wanted=(1<<len(marks))-1
     pickup=[sum((1<<i) for i,p in enumerate(marks) if bits>>p&1) for bits in lit]
@@ -101,8 +132,8 @@ def run():
                 marks=rng.sample(free,2);bonus,work=bonus_route(initial,positions,lights,won,marks,distance+8)
                 if bonus and len(bonus)>=distance+2:break
             else:continue
-            b=orientation(board,positions,initial)
-            stages.append({'initial':{'board':b,'sources':sources},'normal':normal,'bonus':bonus,'bonus_cells':marks,
+            b,active_sources=prune_sources(orientation(board,positions,initial),sources,marks)
+            stages.append({'initial':{'board':b,'sources':active_sources},'normal':normal,'bonus':bonus,'bonus_cells':marks,
                            'par':len(bonus),'metrics':{'minimum_actions':distance,'bonus_minimum_actions':len(bonus),'mirrors':len(positions),'targets':required,'winning_orientations':len(winning),'bonus_search_states':work}})
             print(f'mirror {index+1:02}: {distance}/{len(bonus)} rotations, {len(positions)} mirrors',flush=True);break
         else:raise RuntimeError(f'No qualified mirror stage {index+1}')
