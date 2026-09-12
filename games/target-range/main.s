@@ -25,6 +25,8 @@ game_start:
     CLR range_misses
     CLR range_result
     CLR range_trial_pending
+    CLR range_flip_pending
+    CLR range_flip_step
     CLR range_time_display
     LDAA #255
     STAA range_target
@@ -80,6 +82,8 @@ range_place_decoys:
     ABX
     STAA 0,X
 range_trial_ready:
+    LDAA #255
+    STAA range_flip_cell
     LDAB stage
     LDX #range_limits
     ABX
@@ -88,6 +92,7 @@ range_trial_ready:
     LDAA #1
     STAA range_mode
     STAA range_trial_pending
+    STAA range_flip_pending
     STAA redraw
     CLR range_result
     LDAA input_ticks
@@ -95,6 +100,7 @@ range_trial_ready:
     JSR input_gate
     JMP range_time_value
 game_update:
+    JSR cursor_blink_tick
     TST resume_pending
     BNE range_reset_clock
     TST range_trial_pending
@@ -167,6 +173,7 @@ range_update_done:
     RTS
 range_shoot:
     LDAA cursor
+    STAA range_flip_cell
     CMPA range_target
     BNE range_wrong
     LDAA range_remaining
@@ -198,6 +205,7 @@ range_wrong:
     BRA range_feedback
 range_expire:
     LDAA range_target
+    STAA range_flip_cell
     CMPA #255
     BNE range_missed
     LDD range_score
@@ -218,6 +226,8 @@ range_feedback:
     CLR range_time_display
     LDAA #1
     STAA redraw
+    STAA range_flip_pending
+    STAA range_trial_pending
     LDAA range_misses
     CMPA #3
     BCS range_feedback_done
@@ -242,11 +252,103 @@ grid_value:
     LDX #board
     ABX
     LDAA 0,X
+    TST range_flip_step
+    BEQ range_tile_done
+    TSTA
+    BEQ range_tile_done
+    PSHA
+    LDAA range_flip_cell
+    CMPA #255
+    BEQ range_tile_turn
+    CMPB range_flip_cell
+    BEQ range_tile_turn
+    PULA
+    RTS
+range_tile_turn:
+    PULA
+    LDAB range_flip_step
+    CMPB #3
+    BEQ range_tile_front
+    TBA
+    ADDA #4
+    RTS
+range_tile_front:
+    ADDA #6
+range_tile_done:
     RTS
 game_render:
-    JSR paint_board
+    JSR cursor_blink_prepare
+    TST range_flip_pending
+    BNE range_flip
+    JSR cursor_blink_board
     JMP visual_hud
+; Turn the physical panel through its narrow back, edge and narrow face.
+; Time and controls resume only after the final face reaches the LCD.
+.global range_flip_frame
+.global range_flip_step
+range_flip:
+    CLR range_flip_pending
+    CLR range_flip_bytes
+    CLR range_flip_bytes + 1
+    LDAA #1
+    STAA range_flip_step
+range_flip_draw:
+    CLR cursor_blink_mask
+    JSR cursor_blink_board
+    JSR visual_hud
+    JSR range_flip_transfer
+range_flip_frame:
+    LDAA input_ticks
+    STAA range_flip_clock
+range_flip_wait:
+    JSR input_poll
+    LDAA input_ticks
+    SUBA range_flip_clock
+    CMPA #3
+    BCS range_flip_wait
+    INC range_flip_step
+    LDAA range_flip_step
+    CMPA #4
+    BNE range_flip_draw
+    CLR range_flip_step
+    LDAA #128
+    STAA cursor_blink_mask
+    LDAA input_ticks
+    STAA cursor_blink_clock
+    JSR cursor_blink_board
+    LDAA phase
+    CMPA #5
+    BNE range_flip_finish
+    JSR lose_game
+range_flip_finish:
+    JSR range_flip_transfer
+    JSR input_gate
+    JSR input_poll
+    LDAA #1
+    STAA resume_pending
+    CLR redraw
+    LDD range_flip_bytes
+    STD dirty_bytes
+    LDS #$5FFF
+    JMP frame_ready
+range_flip_transfer:
+    JSR dirty_begin
+range_flip_transfer_loop:
+    JSR dirty_next
+    BEQ range_flip_transfer_done
+    JSR input_poll
+    BRA range_flip_transfer_loop
+range_flip_transfer_done:
+    LDD dirty_bytes
+    ADDD range_flip_bytes
+    STD range_flip_bytes
+    RTS
 .section .bss, bss
+range_flip_pending: .space 1
+range_flip_step: .space 1
+range_flip_cell: .space 1
+range_flip_clock: .space 1
+range_flip_bytes: .space 2
 range_trial_pending: .space 1
 range_round: .space 1
 range_mode: .space 1
@@ -283,3 +385,50 @@ range_labels:
     .byte 83,65,70,69,32,32,32,32,32,32,0
     .byte 77,73,83,83,32,32,32,32,32,32,0
     .byte 87,82,79,78,71,32,32,32,32,32,0
+
+; The JR-800 input timer drives focus blinking; input immediately restores it.
+.global cursor_blink_mask
+.global cursor_blink_clock
+.section .text, code
+cursor_blink_prepare:
+    TST hud_ready
+    BEQ cursor_blink_show
+    RTS
+cursor_blink_tick:
+    TST input_event
+    BNE cursor_blink_show
+    LDAA input_ticks
+    SUBA cursor_blink_clock
+    CMPA #25
+    BCS cursor_blink_idle
+    LDAA cursor_blink_mask
+    EORA #128
+    BRA cursor_blink_store
+cursor_blink_show:
+    LDAA #128
+cursor_blink_store:
+    CMPA cursor_blink_mask
+    BEQ cursor_blink_time
+    STAA cursor_blink_mask
+    LDAA #1
+    STAA redraw
+cursor_blink_time:
+    LDAA input_ticks
+    STAA cursor_blink_clock
+cursor_blink_idle:
+    RTS
+cursor_blink_board:
+    LDAA cursor
+    PSHA
+    TST cursor_blink_mask
+    BNE cursor_blink_paint
+    LDAA #255
+    STAA cursor
+cursor_blink_paint:
+    JSR paint_board
+    PULA
+    STAA cursor
+    RTS
+.section .bss, bss
+cursor_blink_mask: .space 1
+cursor_blink_clock: .space 1

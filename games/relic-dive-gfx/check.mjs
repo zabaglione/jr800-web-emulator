@@ -16,6 +16,11 @@ source=source.replace(/from "\.\/([^\"]+)"/g,(_,name)=>'from '+JSON.stringify(ne
 source=source.replace(/new URL\("([^\"]+)",\s*import.meta.url\)/g,(_,name)=>'new URL('+JSON.stringify(new URL(name,name==='hard-clear.json'?new URL('./',import.meta.url):original).href)+')');
 source='import {png as capturePng} from '+JSON.stringify(new URL('../tools/harness.mjs',import.meta.url).href)+';\n'+source;
 once('const panel = lcd(), paths = [];','const panel = lcd(), paths = [];\n    const base=name.replace(/\\.svg$/,"");\n    await writeFile(resolve(outputDirectory,base+".png"),capturePng(panel.dots));\n    await writeFile(resolve(outputDirectory,base+"-1x.png"),capturePng(panel.dots,1));');
+// Startup blink time is measured separately from ordinary world turns.
+once('const before = Number(machine.state().cycleCount), turns = word("G_TURNS"), floor = read("G_FLOOR");','const before = Number(machine.state().cycleCount), intro = machine.memory(symbols.gfx_intro_count,1)[0], turns = word("G_TURNS"), floor = read("G_FLOOR");');
+once('    if (read("G_FLOOR") !== floor) maxFloorCycles', '    if(machine.memory(symbols.gfx_intro_count,1)[0]!==intro) maxIntroCycles=Math.max(maxIntroCycles,Number(machine.state().cycleCount)-before);\n    else if (read("G_FLOOR") !== floor) maxFloorCycles');
+source='let maxIntroCycles=0;\n'+source;
+once('        if(mode === "test")assert.ok(maxTurnCycles <= 307200,', '        if(mode === "test")assert.ok(maxIntroCycles>400000 && maxIntroCycles<1200000,`Startup cue bounded: ${maxIntroCycles}`);\n        if(mode === "test")assert.ok(maxTurnCycles <= 307200,');
 // A separate instruction/key event stream handles this original turn-driven loop.
 // No gameplay addresses or replay behavior are added to the emulator host.
 source=source.replaceAll('machine.setKeyboardKeyState(', 'eventKey(').replaceAll('machine.step()', 'eventStep()').replaceAll('machine.run(', 'eventRun(');

@@ -21,11 +21,17 @@ for stage in range(20):
  r=random.Random(42000+stage)
  for attempt in range(5000):
   b=[1 if y in (0,6) or x in (0,13) else 0 for y in range(7) for x in range(14)]
-  for x in (5,9):
-   openings=r.sample(range(1,6),2)
-   for y in range(1,6):
-    if y not in openings:b[y*14+x]=1
-  floors=[p for p in range(98) if b[p]==0 and p not in (15,82)];r.shuffle(floors);cameras=floors[:3];terminals=floors[3:5];bases=[r.randrange(4) for _ in range(3)];b[terminals[0]]=2;b[terminals[1]]=3;b[82]=4
+  if stage==0:
+   # A protected entry room teaches walking onto a terminal before hacking.
+   for y in range(1,5):b[y*14+5]=1
+   cameras=[35,39,63];terminals=[31,76];bases=[2,2,0]
+   b[terminals[0]]=2;b[terminals[1]]=3;b[82]=4
+  else:
+   for x in (5,9):
+    openings=r.sample(range(1,6),2)
+    for y in range(1,6):
+     if y not in openings:b[y*14+x]=1
+   floors=[p for p in range(98) if b[p]==0 and p not in (15,82)];r.shuffle(floors);cameras=floors[:3];terminals=floors[3:5];bases=[r.randrange(4) for _ in range(3)];b[terminals[0]]=2;b[terminals[1]]=3;b[82]=4
   views={(t,m):vision(b,cameras,bases,t,m) for t in range(4) for m in range(4)}
   if 15 in views[(0,0)]:continue
   # Keep the common first move/action safe for all start screens.
@@ -44,7 +50,10 @@ for stage in range(20):
     if n in views[(turn,mask)]:continue
     state=(n,turn,mask)
     if state not in seen:seen.add(state);q.append((state,path+[keys[action] if action<4 else 'space']))
-  if answer and len(answer)>=20 and answer.count('space')>=3:
+  if answer and (stage==0 or len(answer)>=20 and answer.count('space')>=3):
+   if stage==0:
+    assert len(answer)==17 and answer.count('space')==2
+    assert all(not ({15,16,17,31}&views[(t,0)]) for t in range(4))
    levels.append({'board':b,'cameras':cameras,'bases':bases});solutions.append(answer);break
  else:raise RuntimeError('No stealth route')
 s=[Bitmap(8,8)]

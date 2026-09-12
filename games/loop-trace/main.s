@@ -44,6 +44,7 @@ loop_found_start:
     STAA 0,X
     RTS
 game_update:
+    JSR cursor_blink_tick
     LDAA input_event
     BITA #16
     BEQ loop_input_direction
@@ -284,6 +285,7 @@ loop_bonus_second:
 loop_bonus_done:
     RTS
 game_render:
+    JSR cursor_blink_prepare
     TST hud_ready
     BNE loop_render_board
     JSR hud_begin
@@ -317,7 +319,7 @@ loop_panel_next:
     CMPA #112
     BNE loop_panel_cache
 loop_render_board:
-    JSR paint_board
+    JSR cursor_blink_board
     JSR visual_hud
     LDD challenge_moves
     LDX #loop_hud_used
@@ -450,3 +452,50 @@ loop_hud_par:
 loop_hud_bonus:
     .byte 171,6,1,0,0,0
     .word loop_hud_cache + 6,0
+
+; The JR-800 input timer drives focus blinking; input immediately restores it.
+.global cursor_blink_mask
+.global cursor_blink_clock
+.section .text, code
+cursor_blink_prepare:
+    TST hud_ready
+    BEQ cursor_blink_show
+    RTS
+cursor_blink_tick:
+    TST input_event
+    BNE cursor_blink_show
+    LDAA input_ticks
+    SUBA cursor_blink_clock
+    CMPA #25
+    BCS cursor_blink_idle
+    LDAA cursor_blink_mask
+    EORA #128
+    BRA cursor_blink_store
+cursor_blink_show:
+    LDAA #128
+cursor_blink_store:
+    CMPA cursor_blink_mask
+    BEQ cursor_blink_time
+    STAA cursor_blink_mask
+    LDAA #1
+    STAA redraw
+cursor_blink_time:
+    LDAA input_ticks
+    STAA cursor_blink_clock
+cursor_blink_idle:
+    RTS
+cursor_blink_board:
+    LDAA cursor
+    PSHA
+    TST cursor_blink_mask
+    BNE cursor_blink_paint
+    LDAA #255
+    STAA cursor
+cursor_blink_paint:
+    JSR paint_board
+    PULA
+    STAA cursor
+    RTS
+.section .bss, bss
+cursor_blink_mask: .space 1
+cursor_blink_clock: .space 1

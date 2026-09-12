@@ -29,6 +29,15 @@ for frightened in (False,True):
  if not frightened:b.dot(2,3,0);b.dot(5,3,0)
  else:b.line(2,3,5,3)
  sprites.append(b)
+# Connected inset walls replace the isolated diagonal boxes.
+for mask in range(16):
+ b=Bitmap(8,8);b.rect(1,1,6,6,1,True)
+ for bit,(x,y,w,h) in enumerate(((1,0,6,2),(1,6,6,2),(0,1,2,6),(6,1,2,6))):
+  if mask&(1<<bit):b.rect(x,y,w,h,1,True)
+ # A single consistent upper-left highlight reads as a rounded tunnel wall.
+ if not mask&1:b.line(2,2,5,2,0)
+ if not mask&4:b.line(2,2,2,5,0)
+ sprites.append(b)
 data=asm_bytes('maze_levels',sum(levels,[]))
 assets(root,'MAZE CHASE','maze-chase',15,7,1,1,sprites,12,data,aux=('PAUSE','RESET'))
 (root/'levels.json').write_text(json.dumps(levels)+'\n')

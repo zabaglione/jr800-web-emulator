@@ -3,6 +3,7 @@
 from pathlib import Path
 import sys,re
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
+sys.path.insert(0,str(Path(__file__).resolve().parent))
 from art import Bitmap,asm_bytes
 from visual_art import tiny
 from hud_layouts import n,t,b as byte,inc
@@ -64,10 +65,10 @@ for i in range(3):
  field(card,x+3,5,9,values=effects)
  cost=card+'\nCMPB #12\nBEQ @empty\nASLB\nASLB\nASLB\nLDX #card_stats\nABX\nLDAB 0,X\nCLRA\nBRA @done\n@empty:\nLDD #0\n@done:'
  field(cost,x+37,6,1)
- chosen=f'LDAB selected\nCMPB #{i}\nBEQ @yes\nLDD #0\nBRA @done\n@yes:\nLDD #1\n@done:'
+ chosen=f'LDAB selected\nCMPB #{i}\nBEQ @yes\nLDD #0\nBRA @done\n@yes:\nLDD #0\nTST cursor_blink_mask\nBEQ @done\nLDD #1\n@done:'
  field(chosen,x+3,6,5,values=['','PLAY'])
 panel(art,147,32,45,24);art.rect(149,32,41,16,1,True)
-button='LDD #0\nTST deck_reward_view\nBNE @reward\nLDAB selected\nCMPB #3\nBNE @plain\nLDD #1\nBRA @done\n@plain:\nLDD #0\nBRA @done\n@reward:\nLDD #2\n@done:'
+button='LDD #0\nTST deck_reward_view\nBNE @reward\nLDAB selected\nCMPB #3\nBNE @plain\nTST cursor_blink_mask\nBEQ @plain\nLDD #1\nBRA @done\n@plain:\nLDD #0\nBRA @done\n@reward:\nLDD #2\n@done:'
 field(button,149,5,10,values=[' TURN END ','>TURN END<','PICK CARD '],dark=True)
 field(byte('deck_reward_view'),157,4,6,values=['ACTION','REWARD'],dark=True)
 field(byte('deck_reward_view'),157,6,6,values=[' SPACE','HP +12'])
@@ -108,4 +109,5 @@ for flip in (False,True):
   result.line(px(2),y,px(24),y);result.line(px(24),y,px(28),y+(3 if y==11 else -3))
 s+='\n.section .data, data\n'
 for name,b in [('battle',art),('arrival',arrival),('result',result)]:s+=asm_bytes('deck_'+name+'_art',pack(b.bytes()))
-Path(__file__).with_name('visuals.s').write_text(s)
+SPEC={'render':lambda compile_layout: (s,layout)}
+if __name__=='__main__':Path(__file__).with_name('visuals.s').write_text(s)

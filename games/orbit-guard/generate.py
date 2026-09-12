@@ -23,6 +23,7 @@ for cell in range(112):
 enemy_base=len(s)
 for hp in (1,2):
  b=Bitmap(8,8);b.rect(1,1,6,6,1,hp==1);b.line(2,2,5,5);b.line(2,5,5,2);s.append(b)
+warning=len(s);b=Bitmap(8,8);b.rect(1,1,6,6);b.line(3,2,3,4);b.dot(3,6);s.append(b)
 beam=len(s);b=Bitmap(8,8);b.line(0,3,7,3);b.line(3,0,3,7);b.rect(2,2,3,3);s.append(b)
 player=len(s)
 for dx,dy in ((0,-1),(1,-1),(1,0),(1,1),(0,1),(-1,1),(-1,0),(-1,-1)):
@@ -36,6 +37,6 @@ for stage in range(12):
  for i in range(12+stage):
   a=r.choice([n for n in range(8) if n!=last]);wave.append(a+(8 if stage>=4 and i%3==0 else 0));last=a
  levels.append(wave)
-data=f'.equ ORBIT_ENEMY,{enemy_base}\n.equ ORBIT_BEAM,{beam}\n.equ ORBIT_PLAYER,{player}\n'+asm_bytes('orbit_background',back)+asm_bytes('orbit_slots',slots)+asm_bytes('orbit_levels',sum([v+[255]*(24-len(v)) for v in levels],[]))
+data=f'.equ ORBIT_WARNING,{warning}\n.equ ORBIT_ENEMY,{enemy_base}\n.equ ORBIT_BEAM,{beam}\n.equ ORBIT_PLAYER,{player}\n'+asm_bytes('orbit_x',[x*8 for ring in rings for x,y in ring])+asm_bytes('orbit_y',[y*8+8 for ring in rings for x,y in ring])+asm_bytes('orbit_background',back)+asm_bytes('orbit_slots',slots)+asm_bytes('orbit_levels',sum([v+[255]*(24-len(v)) for v in levels],[]))
 assets(root,'ORBIT GUARD','orbit-guard',16,7,1,1,s,12,data,aux=('PULSE','RESET'))
 (root/'levels.json').write_text(json.dumps(levels)+'\n')

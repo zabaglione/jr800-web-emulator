@@ -6,9 +6,12 @@
 .global pipe_visit
 .global pipe_trace
 .global pipe_connections
+.global pipe_cursor_mask
+.global pipe_blink_clock
 .section .text, code
 game_start:
     JSR grid_reset
+    JSR pipe_cursor_show
     CLR undo_valid
     JSR challenge_start
     LDX #board
@@ -37,6 +40,7 @@ pipe_expand:
     BPL pipe_expand
     JMP pipe_trace
 game_update:
+    JSR pipe_cursor_tick
     TST pipe_running
     BEQ pipe_controls
     LDAA input_ticks
@@ -207,6 +211,7 @@ pipe_visit_next:
     JMP grid_changed
 pipe_flow_done:
     CLR pipe_running
+    JSR pipe_cursor_show
     JSR grid_changed
     TST pipe_wet+35
     BEQ pipe_idle_return
@@ -260,6 +265,13 @@ game_bonus:
 pipe_bonus_done:
     RTS
 game_render:
+    TST resume_pending
+    BEQ pipe_render_ready
+    JSR pipe_cursor_show
+    LDAA input_ticks
+    STAA pipe_clock
+    CLR resume_pending
+pipe_render_ready:
     TST hud_ready
     BNE pipe_render_begin
     JSR hud_begin
@@ -284,7 +296,7 @@ pipe_render_next:
     LDAB pipe_render_cell
     CMPB cursor
     BNE pipe_render_face
-    ORAA #128
+    ORAA pipe_cursor_mask
 pipe_render_face:
     LDX #tile_cache
     ABX
@@ -424,9 +436,31 @@ pipe_render_count: .space 1
 pipe_render_pixels: .space 2
 pipe_render_low: .space 1
 pipe_render_high: .space 1
+pipe_cursor_mask: .space 1
+pipe_blink_clock: .space 1
 .section .data, data
 pipe_bits: .byte 1,2,4,8
 pipe_opposite: .byte 2,1,8,4
-pipe_leak_label: .byte 76,69,65,75,0
-pipe_blank_label: .byte 32,32,32,32,32,32,32,32,32,32,0
-pipe_turn_label: .byte 84,85,82,78,0
+
+; Cursor timing is independent of the water traversal and costs no move.
+.section .runtime, code
+pipe_cursor_tick:
+    TST input_event
+    BNE pipe_cursor_show
+    LDAA input_ticks
+    SUBA pipe_blink_clock
+    CMPA #25
+    BCS pipe_cursor_idle
+    LDAA pipe_cursor_mask
+    EORA #128
+    BRA pipe_cursor_store
+pipe_cursor_show:
+    LDAA #128
+pipe_cursor_store:
+    STAA pipe_cursor_mask
+    LDAA input_ticks
+    STAA pipe_blink_clock
+    LDAA #1
+    STAA redraw
+pipe_cursor_idle:
+    RTS

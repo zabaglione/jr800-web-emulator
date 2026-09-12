@@ -199,6 +199,7 @@ game_update:
     LDAA #1
     STAA undo_valid
     STAB slide_pending
+    JSR slide_animate
     JSR challenge_step
     LDAB slide_pending
     JSR slide_swap
@@ -213,9 +214,17 @@ slide_not_stamped:
     JSR grid_count_move
     JSR slide_count
     TST grid_stat
-    BNE slide_idle
+    BNE slide_present
     LDAA #4
     STAA phase
+slide_present:
+    JSR render_play_result
+    JSR slide_anim_flush
+    JSR input_gate
+    LDD slide_anim_bytes
+    STD dirty_bytes
+    PULX
+    JMP frame_ready
 slide_idle:
     RTS
 game_aux:
@@ -283,3 +292,230 @@ slide_edge_high: .space 1
 .section .text, code
 game_bonus:
     RTS
+
+; Translate the two adjacent tile images by eight real LCD pixels per step.
+; The final compositor restores the stationary STAMP frame and empty recess.
+.global slide_anim_frame
+.global slide_anim_step
+.global slide_anim_vertical
+.section .text, code
+slide_animate:
+    CLR slide_anim_bytes
+    CLR slide_anim_bytes + 1
+    CLR slide_anim_step
+    CLR slide_anim_reverse
+    CLR slide_anim_vertical
+    LDAA slide_pending
+    SUBA slide_last
+    BPL slide_anim_distance
+    INC slide_anim_reverse
+    NEGA
+slide_anim_distance:
+    CMPA #3
+    BNE slide_anim_horizontal
+    INC slide_anim_vertical
+slide_anim_horizontal:
+    LDAB slide_last
+    CMPB slide_pending
+    BCS slide_anim_find_origin
+    LDAB slide_pending
+slide_anim_find_origin:
+    ASLB
+    LDX #slide_frame_origins
+    ABX
+    LDAA 0,X
+    SUBA #8
+    STAA slide_anim_x
+    STAA paint_x
+    LDAA 1,X
+    STAA slide_anim_band
+    STAA paint_band
+    JSR paint_address
+    LDD paint_dest
+    STD slide_anim_origin
+slide_anim_next:
+    LDX slide_anim_origin
+    TST slide_anim_vertical
+    BEQ slide_anim_horizontal_next
+    JMP slide_anim_columns
+slide_anim_horizontal_next:
+    STX slide_anim_line
+    LDAA #2
+    STAA slide_anim_rows
+slide_anim_row:
+    LDAA #8
+    STAA slide_anim_pixels
+slide_anim_pixel:
+    LDX slide_anim_line
+    LDAB #63
+    TST slide_anim_reverse
+    BNE slide_anim_right
+    LDAA 0,X
+    STAA slide_anim_temp
+slide_anim_left_loop:
+    LDAA 1,X
+    STAA 0,X
+    INX
+    DECB
+    BNE slide_anim_left_loop
+    BRA slide_anim_wrap
+slide_anim_right:
+    ABX
+    LDAA 0,X
+    STAA slide_anim_temp
+slide_anim_right_loop:
+    DEX
+    LDAA 0,X
+    STAA 1,X
+    DECB
+    BNE slide_anim_right_loop
+slide_anim_wrap:
+    LDAA slide_anim_temp
+    STAA 0,X
+    DEC slide_anim_pixels
+    BNE slide_anim_pixel
+    LDD slide_anim_line
+    ADDD #192
+    STD slide_anim_line
+    DEC slide_anim_rows
+    BNE slide_anim_row
+    BRA slide_anim_dirty
+.section .runtime, code
+slide_anim_columns:
+    LDAA #32
+    STAA slide_anim_pixels
+slide_anim_column:
+    STX slide_anim_line
+    LDAA #4
+    STAA slide_anim_bits
+slide_anim_bit:
+    LDAB #192
+    TST slide_anim_reverse
+    BNE slide_anim_down
+    LDAA 0,X
+    LSRA
+    ABX
+    ABX
+    ABX
+    ROR 0,X
+    LDX slide_anim_line
+    ABX
+    ABX
+    ROR 0,X
+    LDX slide_anim_line
+    ABX
+    ROR 0,X
+    LDX slide_anim_line
+    ROR 0,X
+    BRA slide_anim_bit_next
+slide_anim_down:
+    ABX
+    ABX
+    ABX
+    LDAA 0,X
+    ASLA
+    LDX slide_anim_line
+    ROL 0,X
+    ABX
+    ROL 0,X
+    ABX
+    ROL 0,X
+    ABX
+    ROL 0,X
+slide_anim_bit_next:
+    LDX slide_anim_line
+    DEC slide_anim_bits
+    BNE slide_anim_bit
+    INX
+    DEC slide_anim_pixels
+    BNE slide_anim_column
+    JMP slide_anim_dirty
+.section .text, code
+slide_anim_dirty:
+    ; Mark the small rectangle, including partial 32-byte transfer spans.
+    LDAA slide_anim_band
+    STAA slide_anim_row_band
+    LDAA #2
+    TST slide_anim_vertical
+    BEQ slide_anim_dirty_rows
+    ASLA
+slide_anim_dirty_rows:
+    STAA slide_anim_rows
+slide_anim_mark:
+    LDAA slide_anim_row_band
+    LDAB slide_anim_x
+    JSR dirty_mark
+    LDAA slide_anim_row_band
+    LDAB slide_anim_x
+    ADDB #31
+    JSR dirty_mark
+    TST slide_anim_vertical
+    BNE slide_anim_mark_next
+    LDAA slide_anim_row_band
+    LDAB slide_anim_x
+    ADDB #63
+    JSR dirty_mark
+slide_anim_mark_next:
+    INC slide_anim_row_band
+    DEC slide_anim_rows
+    BNE slide_anim_mark
+    JSR slide_anim_flush
+slide_anim_frame:
+    LDAA input_ticks
+    STAA slide_anim_clock
+slide_anim_wait:
+    JSR input_poll
+    LDAA input_ticks
+    SUBA slide_anim_clock
+    CMPA #6
+    BCS slide_anim_wait
+    INC slide_anim_step
+    LDAA slide_anim_step
+    CMPA #3
+    BEQ slide_anim_done
+    JMP slide_anim_next
+slide_anim_done:
+    ; The cache must repaint both tile images after their pixel translation.
+    CLRB
+slide_anim_invalidate:
+    LDX #view_cells
+    ABX
+    LDAA 0,X
+    CMPA #255
+    BEQ slide_anim_cache_next
+    LDX #tile_cache
+    ABX
+    LDAA #255
+    STAA 0,X
+slide_anim_cache_next:
+    INCB
+    CMPB #112
+    BNE slide_anim_invalidate
+    RTS
+slide_anim_flush:
+    JSR dirty_begin
+slide_anim_transfer:
+    JSR dirty_next
+    BEQ slide_anim_sum
+    JSR input_poll
+    BRA slide_anim_transfer
+slide_anim_sum:
+    LDD dirty_bytes
+    ADDD slide_anim_bytes
+    STD slide_anim_bytes
+    RTS
+.section .bss, bss
+slide_anim_bytes: .space 2
+slide_anim_origin: .space 2
+slide_anim_line: .space 2
+slide_anim_step: .space 1
+slide_anim_reverse: .space 1
+slide_anim_vertical: .space 1
+slide_anim_rows: .space 1
+slide_anim_pixels: .space 1
+slide_anim_temp: .space 1
+slide_anim_x: .space 1
+slide_anim_band: .space 1
+slide_anim_row_band: .space 1
+slide_anim_clock: .space 1
+slide_anim_bits: .space 1

@@ -12,6 +12,8 @@ def once(s,old,new):
  return s.replace(old,new)
 main=(original/'main.s').read_text()
 main=once(main,'    JSR init\n','    JSR init\n    JSR gfx_init\n')
+main=once(main,'new_game:\n','new_game:\n    LDAA #1\n    STAA gfx_intro_pending\n')
+main=once(main,'transfer_done:\n    JSR poll_key','transfer_done:\n    JSR poll_key\n    JSR gfx_intro')
 main=once(main,'idle:\n    JSR poll_key','idle:\n    JSR poll_key\n    JSR gfx_tick\n    TSTA\n    BEQ gfx_idle_continue\n    JMP redraw\ngfx_idle_continue:')
 main=once(main,'dispatch:\n    STAA G_KEY','dispatch:\n    TST gfx_clear_active\n    BEQ gfx_dispatch\n    CLR G_PENDING\n    JMP idle\ngfx_dispatch:\n    CMPA #5\n    BNE gfx_no_chirp\n    PSHA\n    JSR gfx_chirp\n    PULA\ngfx_no_chirp:\n    STAA G_KEY')
 main=main.replace('    JSR present_begin','    JSR dirty_begin').replace('    JSR present_next','    JSR dirty_next')

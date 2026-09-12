@@ -11,15 +11,34 @@ for stage in range(12):
  candidates=[p for p in range(105) if b[p]==0 and p%15>3 and p not in (49,77,88)];r.shuffle(candidates)
  for p in candidates[:8+stage%5]:b[p]=2
  b[88]=3;assert b.count(4)==3;levels.append(b)
-s=[Bitmap(8,8)]
-b=Bitmap(8,8);b.rect(0,0,8,8);b.line(0,0,7,7);s.append(b)
-b=Bitmap(8,8);b.rect(1,1,6,6);b.line(1,1,6,6);b.line(1,6,6,1);s.append(b)
-b=Bitmap(8,8);b.rect(1,0,6,8);b.line(3,2,5,4);b.line(5,4,3,6);s.append(b)
-b=Bitmap(8,8);b.rect(0,0,8,8);b.line(2,1,2,6);b.line(2,4,5,1);b.line(2,3,5,6);s.append(b)
-b=Bitmap(8,8);b.rect(1,1,3,3);b.line(3,3,6,6);b.dot(6,4);s.append(b)
-b=Bitmap(8,8);b.rect(2,2,4,5,1,True);b.line(4,1,6,0);s.append(b)
-b=Bitmap(8,8);b.line(0,3,7,3);b.line(3,0,3,7);b.line(1,1,6,6);b.line(1,6,6,1);s.append(b)
-b=Bitmap(8,8);b.rect(1,1,6,6,1,True);b.dot(2,3,0);b.dot(5,3,0);b.line(1,7,2,6);b.line(5,6,6,7);s.append(b)
-b=Bitmap(8,8);b.rect(2,0,4,3,1,True);b.line(1,4,6,4);b.line(3,3,3,6);b.dot(2,7);b.dot(5,7);b.p=[[1-v for v in row] for row in b.p];s.append(b)
+# Each silhouette is authored for the real 8x8 LCD cell: light falls from above left.
+rows=[
+ ['........','........','........','........','........','........','.#......','........'],
+ ['########','#......#','#.######','#.######','#.######','#.######','#.######','########'],
+ ['.######.','#......#','#.####.#','#.#..#.#','#..##..#','#.####.#','#......#','.######.'],
+ ['.######.','.#....#.','.#.##.#.','.#.##.#.','.#.##.#.','.#.##.#.','.#....#.','########'],
+ ['..###...','.#...#..','.#.#.#..','..###...','...#....','...###..','...#....','........'],
+ ['........','..###...','.#.#.#..','..###...','...#....','...###..','........','........'],
+ ['.....#.#','....#.#.','...##...','..####..','.#.####.','.#.####.','..####..','...##...'],
+ ['...#....','.#.##.#.','..####..','###..###','.##..##.','..####..','.#.##.#.','....#...'],
+ ['...###..','..#####.','.#..#.##','.#######','..###.#.','..####..','.#..##..','.#...#..'],
+ ['..###...','..#.#...','..###...','.####...','.#.###..','...##.#.','..##.#..','..#..#..'],
+]
+s=[Bitmap.from_rows(r) for r in rows]
+# The grid compositor highlights the actor; pre-invert its face to retain
+# a dark, upright figure instead of a solid selection square during play.
+s[9].p=[[1-v for v in row] for row in s[9].p]
+# Continuous wall blocks: bright exposed top/left edges, heavy lower shadows.
+for mask in range(16):
+ b=Bitmap(8,8);b.rect(0,0,8,8,1,True)
+ if not mask&1:b.line(1,1,6,1,0)
+ if not mask&4:b.line(1,1,1,6,0)
+ if not mask&2:
+  b.dot(2,6,0);b.dot(4,6,0)
+ if not mask&8:b.dot(6,3,0);b.dot(6,5,0)
+ if not mask&5:b.dot(0,0,0)
+ if not mask&10:b.dot(7,7,0)
+ b.dot(3,3,0);b.dot(4,3,0)
+ s.append(b)
 assets(root,'BOMB VAULT','bomb-vault',15,7,1,1,s,12,asm_bytes('bomb_levels',sum(levels,[])),aux=('PAUSE','RESET'))
 (root/'levels.json').write_text(json.dumps(levels)+'\n')

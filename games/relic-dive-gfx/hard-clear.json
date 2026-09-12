@@ -1357,6 +1357,6 @@
     "keypad-3",
     "keypad-5"
   ],
-  "sha256": "fc0fd9e971aad29fe7e6a026072b94529006076829c9cfdb93df4d5fcd9dadcb",
+  "sha256": "45a52fc06968fa7c36ec71ab9e0e45a1c4dc85a99729224668bc6701d17e79d7",
   "oracle": "Full map and item identities read; candidate actions searched in a lightweight model and checked against the original emulator; actual adventure receives keys only"
 }

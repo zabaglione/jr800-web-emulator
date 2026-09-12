@@ -5,7 +5,9 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 from grid_assets import assets,Bitmap,asm_bytes
 root=Path(__file__).parent;levels=[]
 for stage in range(12):
- levels.append([0 if stage%4 and (i+stage)%7==0 else 2 if stage>=4 and (i*3+stage)%4==0 else 1 for i in range(20)])
+ order=sorted(range(20),key=lambda i:((i*7+stage*3)%20,i))
+ armored=set(order[:stage])
+ levels.append([2 if i in armored else 1 for i in range(20)])
 s=[Bitmap(8,8)]
 for hp in (1,2):
  b=Bitmap(8,8);b.line(2,1,5,1);b.rect(1,2,6,3,1,True);b.dot(2,3,0);b.dot(5,3,0);b.line(0,5,0,6);b.line(7,5,7,6);b.dot(2,6);b.dot(5,6)

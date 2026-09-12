@@ -13,6 +13,12 @@
 .global wall_hit
 .section .text, code
 game_start:
+    JSR actor_initial_state
+    LDAA #1
+    STAA actor_intro_pending
+    RTS
+actor_initial_state:
+    CLR wall_sound
     CLR wall_score
     CLR wall_score + 1
     CLR wall_left
@@ -133,8 +139,12 @@ wall_launch:
     LDAA input_event
     BITA #16
     BEQ wall_update_done
+    TST wall_active
+    BNE wall_update_done
     LDAA #1
     STAA wall_active
+    STAA wall_sound
+    STAA redraw
 wall_update_done:
     RTS
 ; Restore only previous moving-object tiles before drawing the new scene.
@@ -152,6 +162,7 @@ wall_erase:
     JMP scene_rect
 ; One integer movement step; axis-separated contacts cannot skip a brick.
 wall_step:
+    CLR wall_sound
     LDAA wall_x
     ADDA wall_dx
     CMPA #1
@@ -167,6 +178,11 @@ wall_step:
     STAA wall_x
     BRA wall_vertical
 wall_bounce_x:
+    TST wall_sound
+    BNE wall_bounce_x_move
+    LDAA #2
+    STAA wall_sound
+wall_bounce_x_move:
     NEG wall_dx
 wall_vertical:
     LDAA wall_y
@@ -185,6 +201,11 @@ wall_vertical:
     STAA wall_y
     RTS
 wall_bounce_y:
+    TST wall_sound
+    BNE wall_bounce_y_move
+    LDAA #2
+    STAA wall_sound
+wall_bounce_y_move:
     NEG wall_dy
     RTS
 wall_paddle_contact:
@@ -220,6 +241,8 @@ wall_deflect_left:
     LDAA #255
 wall_deflect:
     STAA wall_dx
+    LDAA #4
+    STAA wall_sound
     LDAA #255
     STAA wall_dy
     RTS
@@ -232,6 +255,8 @@ wall_store_y:
     STAA wall_y
     RTS
 wall_miss:
+    LDAA #5
+    STAA wall_sound
     DEC wall_lives
     BEQ wall_failed
     JMP wall_ready
@@ -266,6 +291,8 @@ wall_hit:
     BNE wall_hit_points
     DEC wall_left
 wall_hit_points:
+    LDAA #3
+    STAA wall_sound
     LDD wall_score
     ADDD #10
     STD wall_score
@@ -298,6 +325,14 @@ wall_tile_blank:
     CLRA
     RTS
 game_render:
+    JSR actor_render_scene
+    TST actor_intro_pending
+    BEQ actor_render_done
+    CLR actor_intro_pending
+    JMP actor_intro
+actor_render_done:
+    JMP wall_play_sound
+actor_render_scene:
     JSR paint_board
     LDAA wall_x
     LDAB wall_y
@@ -363,3 +398,125 @@ wall_life_label: .byte 76,73,70,69,0
 wall_return_label: .byte 82,69,84,85,82,78,0
 wall_start_label: .byte 83,80,65,67,69,0
 wall_blank_label: .byte 32,32,32,32,32,0
+
+; A short, cycle-timed start cue highlights the actor before controls begin.
+.global actor_intro_frame
+.global actor_intro_step
+.global actor_intro_x
+.global actor_intro_band
+.section .text, code
+actor_intro:
+    LDAA wall_paddle
+    ADDA #VIEW_X
+    STAA paint_x
+    LDAA #7
+    STAA paint_band
+    LDAA paint_x
+    STAA actor_intro_x
+    LDAA paint_band
+    STAA actor_intro_band
+    CLR actor_intro_step
+    CLR actor_intro_bytes
+    CLR actor_intro_bytes + 1
+actor_intro_blink:
+    LDAA actor_intro_band
+    STAA paint_band
+    LDAA actor_intro_x
+    STAA paint_x
+    JSR paint_address
+    LDAA #1
+    STAA actor_intro_rows
+actor_intro_row:
+    LDX paint_dest
+    LDAB #24
+actor_intro_pixels:
+    COM 0,X
+    INX
+    DECB
+    BNE actor_intro_pixels
+    LDAA paint_band
+    LDAB actor_intro_x
+    JSR dirty_mark
+    LDAA paint_band
+    LDAB actor_intro_x
+    ADDB #23
+    JSR dirty_mark
+    LDD paint_dest
+    ADDD #192
+    STD paint_dest
+    INC paint_band
+    DEC actor_intro_rows
+    BNE actor_intro_row
+    JSR dirty_begin
+actor_intro_transfer:
+    JSR dirty_next
+    BEQ actor_intro_sum
+    JSR input_poll
+    BRA actor_intro_transfer
+actor_intro_sum:
+    LDD dirty_bytes
+    ADDD actor_intro_bytes
+    STD actor_intro_bytes
+actor_intro_frame:
+    TST actor_intro_step
+    BNE actor_intro_wait
+    LDX #180
+    LDD #20
+    JSR sound_tone
+actor_intro_wait:
+    LDAA input_ticks
+    STAA actor_intro_clock
+actor_intro_delay:
+    JSR input_poll
+    LDAA input_ticks
+    SUBA actor_intro_clock
+    CMPA #8
+    BCS actor_intro_delay
+    INC actor_intro_step
+    LDAA actor_intro_step
+    CMPA #4
+    BEQ actor_intro_done
+    JMP actor_intro_blink
+actor_intro_done:
+    JSR input_gate
+    LDAA #1
+    STAA resume_pending
+    CLR redraw
+    LDD actor_intro_bytes
+    STD dirty_bytes
+    ; Finish the complete shell frame for both stage starts and menu resets.
+    LDS #$5FFF
+    JMP frame_ready
+.section .bss, bss
+actor_intro_pending: .space 1
+actor_intro_x: .space 1
+actor_intro_band: .space 1
+actor_intro_step: .space 1
+actor_intro_clock: .space 1
+actor_intro_rows: .space 1
+actor_intro_bytes: .space 2
+
+; Collision logic records one cue. Playback follows rendering, never physics.
+.global wall_sound
+.global wall_sound_frame
+.section .text, code
+wall_play_sound:
+    LDAB wall_sound
+    BEQ wall_sound_done
+    CLR wall_sound
+    DECB
+    ASLB
+    LDX #wall_sound_notes
+    ABX
+    LDX 0,X
+wall_sound_frame:
+    LDD #16
+    JSR sound_tone
+    JMP input_poll
+wall_sound_done:
+    RTS
+.section .data, data
+; Serve, wall, brick, paddle, lost ball: five clearly separated pitches.
+wall_sound_notes: .word 189,452,110,226,678
+.section .bss, bss
+wall_sound: .space 1

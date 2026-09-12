@@ -36,6 +36,7 @@ luck_clear_trail:
     BNE luck_clear_trail
     RTS
 game_update:
+    JSR cursor_blink_tick
     TST luck_side
     BNE luck_cpu_update
     LDAA input_event
@@ -178,7 +179,7 @@ luck_banner_fill:
     BNE luck_banner_fill
     LDAA #5
     STAA hud_play_field + 3
-    LDAA #128
+    LDAA cursor_blink_mask
     STAA hud_play_field + 4
     LDX #luck_banner_label
     LDAA #72
@@ -357,6 +358,7 @@ luck_tile_blank:
     CLRA
     RTS
 game_render:
+    JSR cursor_blink_prepare
     JSR paint_board
     LDX #luck_turn_human
     TST luck_side
@@ -429,7 +431,7 @@ luck_draw_buttons:
     CLR hud_play_field + 4
     TST luck_action
     BNE luck_draw_roll
-    LDAA #128
+    LDAA cursor_blink_mask
     STAA hud_play_field + 4
 luck_draw_roll:
     LDX #luck_roll_button
@@ -439,7 +441,7 @@ luck_draw_roll:
     CLR hud_play_field + 4
     TST luck_action
     BEQ luck_draw_bank
-    LDAA #128
+    LDAA cursor_blink_mask
     STAA hud_play_field + 4
 luck_draw_bank:
     LDX #luck_bank_button
@@ -486,3 +488,40 @@ luck_cpu_short: .byte 67,80,85,0
 luck_goal_label: .byte 71,79,65,76,0
 luck_return_label: .byte 82,69,84,85,82,78,0
 luck_messages: .byte 82,69,65,68,89,32,0,82,79,76,76,32,32,0,66,85,83,84,32,32,0,66,65,78,75,32,32,0
+
+; The JR-800 input timer drives focus blinking; input immediately restores it.
+.global cursor_blink_mask
+.global cursor_blink_clock
+.section .text, code
+cursor_blink_prepare:
+    TST hud_ready
+    BEQ cursor_blink_show
+    RTS
+cursor_blink_tick:
+    TST luck_side
+    BNE cursor_blink_show
+    TST input_event
+    BNE cursor_blink_show
+    LDAA input_ticks
+    SUBA cursor_blink_clock
+    CMPA #25
+    BCS cursor_blink_idle
+    LDAA cursor_blink_mask
+    EORA #128
+    BRA cursor_blink_store
+cursor_blink_show:
+    LDAA #128
+cursor_blink_store:
+    CMPA cursor_blink_mask
+    BEQ cursor_blink_time
+    STAA cursor_blink_mask
+    LDAA #1
+    STAA redraw
+cursor_blink_time:
+    LDAA input_ticks
+    STAA cursor_blink_clock
+cursor_blink_idle:
+    RTS
+.section .bss, bss
+cursor_blink_mask: .space 1
+cursor_blink_clock: .space 1

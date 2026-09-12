@@ -14,6 +14,8 @@
 
 RETURNメニューから1手戻しと再挑戦ができます。
 
+移動するパネルが空き場所へ滑り込む途中も表示します。目標位置の枠模様は、移動後にその場所へ戻ります。
+
 ## ゲーム画面
 
 ![第1面の初期配置と規定手数](../../docs/games/screenshots/slide-nine/gameplay-1.png)
@@ -27,6 +29,10 @@ RETURNメニューから1手戻しと再挑戦ができます。
 ![第40面を規定手数と追加目標の両方を満たしてクリア](../../docs/games/screenshots/slide-nine/gameplay-3.png)
 
 第40面を規定手数と追加目標の両方を満たしてクリア。
+
+![空き場所へ滑り込む途中のパネル](../../docs/games/screenshots/slide-nine/motion.png)
+
+空き場所へ滑り込む途中のパネル。
 
 ## 40面のチャレンジと評価
 

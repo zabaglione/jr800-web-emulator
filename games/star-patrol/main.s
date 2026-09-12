@@ -20,6 +20,11 @@
 .global star_contact
 .section .text, code
 game_start:
+    JSR actor_initial_state
+    LDAA #1
+    STAA actor_intro_pending
+    RTS
+actor_initial_state:
     JSR grid_reset
     CLR star_steps
     CLR star_score
@@ -441,6 +446,14 @@ star_tile_board:
     LDAA 0,X
     RTS
 game_render:
+    JSR actor_render_scene
+    TST actor_intro_pending
+    BEQ actor_render_done
+    CLR actor_intro_pending
+    JMP actor_intro
+actor_render_done:
+    RTS
+actor_render_scene:
     JSR paint_board
     JMP visual_hud
 .section .bss, bss
@@ -479,3 +492,120 @@ star_score_label: .byte 83,67,79,82,69,0
 star_menu_label: .byte 82,69,84,85,82,78,0
 star_shoot_label: .byte 83,80,65,67,69,32,70,73,82,69,0
 star_start_label: .byte 83,80,65,67,69,32,71,79,32,32,0
+
+; A short, cycle-timed start cue highlights the actor before controls begin.
+.global actor_intro_frame
+.global actor_intro_step
+.global actor_intro_x
+.global actor_intro_band
+.section .text, code
+actor_intro:
+    CLRB
+    LDX #view_cells
+actor_intro_find:
+    LDAA 0,X
+    CMPA cursor
+    BEQ actor_intro_found
+    INX
+    INCB
+    CMPB #112
+    BNE actor_intro_find
+actor_intro_found:
+    TBA
+    ANDA #15
+    ASLA
+    ASLA
+    ASLA
+    ADDA #VIEW_X
+    STAA paint_x
+    TBA
+    LSRA
+    LSRA
+    LSRA
+    LSRA
+    INCA
+    STAA paint_band
+    LDAA paint_x
+    STAA actor_intro_x
+    LDAA paint_band
+    STAA actor_intro_band
+    CLR actor_intro_step
+    CLR actor_intro_bytes
+    CLR actor_intro_bytes + 1
+actor_intro_blink:
+    LDAA actor_intro_band
+    STAA paint_band
+    LDAA actor_intro_x
+    STAA paint_x
+    JSR paint_address
+    LDAA #1
+    STAA actor_intro_rows
+actor_intro_row:
+    LDX paint_dest
+    LDAB #8
+actor_intro_pixels:
+    COM 0,X
+    INX
+    DECB
+    BNE actor_intro_pixels
+    LDAA paint_band
+    LDAB actor_intro_x
+    JSR dirty_mark
+    LDAA paint_band
+    LDAB actor_intro_x
+    ADDB #7
+    JSR dirty_mark
+    LDD paint_dest
+    ADDD #192
+    STD paint_dest
+    INC paint_band
+    DEC actor_intro_rows
+    BNE actor_intro_row
+    JSR dirty_begin
+actor_intro_transfer:
+    JSR dirty_next
+    BEQ actor_intro_sum
+    JSR input_poll
+    BRA actor_intro_transfer
+actor_intro_sum:
+    LDD dirty_bytes
+    ADDD actor_intro_bytes
+    STD actor_intro_bytes
+actor_intro_frame:
+    TST actor_intro_step
+    BNE actor_intro_wait
+    LDX #180
+    LDD #20
+    JSR sound_tone
+actor_intro_wait:
+    LDAA input_ticks
+    STAA actor_intro_clock
+actor_intro_delay:
+    JSR input_poll
+    LDAA input_ticks
+    SUBA actor_intro_clock
+    CMPA #8
+    BCS actor_intro_delay
+    INC actor_intro_step
+    LDAA actor_intro_step
+    CMPA #4
+    BEQ actor_intro_done
+    JMP actor_intro_blink
+actor_intro_done:
+    JSR input_gate
+    LDAA #1
+    STAA resume_pending
+    CLR redraw
+    LDD actor_intro_bytes
+    STD dirty_bytes
+    ; Finish the complete shell frame for both stage starts and menu resets.
+    LDS #$5FFF
+    JMP frame_ready
+.section .bss, bss
+actor_intro_pending: .space 1
+actor_intro_x: .space 1
+actor_intro_band: .space 1
+actor_intro_step: .space 1
+actor_intro_clock: .space 1
+actor_intro_rows: .space 1
+actor_intro_bytes: .space 2

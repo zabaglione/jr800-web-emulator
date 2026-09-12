@@ -19,7 +19,7 @@ function verify(g) {
   const board = g.read('board', 36), wet = g.read('pipe_wet', 36), cursor = g.read('cursor');
   const dots = g.machine.lcdPanel().dots;
   const pixel = (x, y) => dots[y * 192 + x] === 2;
-  const cellPixel = (cell, x, y) => pixel(16 + cell % 6 * 16 + x, 2 + Math.floor(cell / 6) * 10 + y) !== (cell === cursor);
+  const cellPixel = (cell, x, y) => pixel(16 + cell % 6 * 16 + x, 2 + Math.floor(cell / 6) * 10 + y) !== (cell === cursor && g.read('pipe_cursor_mask') !== 0);
   // Validate every pixel against the unscaled original artwork. The two LCD
   // pages share neighboring cells, so cursor/flow redraws must preserve both.
   for (let cell = 0; cell < 36; cell++) {
@@ -64,7 +64,7 @@ for (const index of [0, 10, 30, 39]) {
     g.tap('return'); g.tap('return');
     assert.deepEqual([...g.machine.lcdPanel().dots], panel, 'Menu return restores the tall grid and cursor');
     aim(g, stage.bonus[0], 6); g.tap('space');
-    assert.equal(g.read('pipe_running'), 1);
+    assert.equal(g.read('pipe_wet'), 1, 'Rotation restarts water from S, even when its first visit ends immediately');
     g.menu(1); settle(g);
     assert.deepEqual(g.read('board', 36), board, 'Undo during flowing water restores pipe orientation');
     g.menu(3); settle(g);

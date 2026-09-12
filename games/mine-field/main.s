@@ -34,6 +34,7 @@ game_start:
     LDAB cursor
     JMP mine_reveal
 game_update:
+    JSR cursor_blink_tick
     TST mine_control
     BNE mine_control_update
     LDAA input_event
@@ -401,6 +402,7 @@ game_bonus:
 mine_bonus_done:
     RTS
 game_render:
+    JSR cursor_blink_prepare
     LDAA cursor
     PSHA
     TST mine_control
@@ -408,13 +410,14 @@ game_render:
     LDAA #255
     STAA cursor
 mine_render_board:
-    JSR paint_board
+    JSR cursor_blink_board
     PULA
     STAA cursor
     JSR hud_begin
     LDAA mine_control
     LSRA
     RORA
+    ANDA cursor_blink_mask
     STAA hud_field_6 + 4
     CLR hud_cache + 18
     JSR visual_hud
@@ -449,3 +452,51 @@ mine_chord_pointer: .space 2
 mine_tile_value: .space 1
 .section .runtime, data
 mine_mode_hint: .byte 69,68,71,69,58,77,79,68,69,0
+
+; The JR-800 input timer drives focus blinking; input immediately restores it.
+.global cursor_blink_mask
+.global cursor_blink_clock
+.section .text, code
+cursor_blink_prepare:
+    TST hud_ready
+    BEQ cursor_blink_show
+    RTS
+cursor_blink_tick:
+    TST input_event
+    BNE cursor_blink_show
+    LDAA input_ticks
+    SUBA cursor_blink_clock
+    CMPA #25
+    BCS cursor_blink_idle
+    LDAA cursor_blink_mask
+    EORA #128
+    BRA cursor_blink_store
+cursor_blink_show:
+    LDAA #128
+cursor_blink_store:
+    CMPA cursor_blink_mask
+    BEQ cursor_blink_time
+    STAA cursor_blink_mask
+    LDAA #1
+    STAA redraw
+cursor_blink_time:
+    LDAA input_ticks
+    STAA cursor_blink_clock
+cursor_blink_idle:
+    RTS
+.section .text, code
+cursor_blink_board:
+    LDAA cursor
+    PSHA
+    TST cursor_blink_mask
+    BNE cursor_blink_paint
+    LDAA #255
+    STAA cursor
+cursor_blink_paint:
+    JSR paint_board
+    PULA
+    STAA cursor
+    RTS
+.section .bss, bss
+cursor_blink_mask: .space 1
+cursor_blink_clock: .space 1

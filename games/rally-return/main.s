@@ -18,6 +18,12 @@
 .global rally_deflect
 .section .text, code
 game_start:
+    CLR rally_point_pending
+    JSR actor_initial_state
+    LDAA #1
+    STAA actor_intro_pending
+    RTS
+actor_initial_state:
     CLR rally_you
     CLR rally_them
     CLR rally_spin
@@ -231,6 +237,8 @@ rally_move_x:
 rally_cpu_point:
     INC rally_them
     JSR rally_ready
+    LDAA #2
+    STAA rally_point_pending
     LDAA rally_them
     CMPA #5
     BCS rally_motion_done
@@ -240,6 +248,8 @@ rally_cpu_point:
 rally_player_point:
     INC rally_you
     JSR rally_ready
+    LDAA #1
+    STAA rally_point_pending
     LDAA rally_you
     CMPA #5
     BCS rally_motion_done
@@ -301,6 +311,18 @@ rally_tile_blank:
     CLRA
     RTS
 game_render:
+    JSR actor_render_scene
+    TST actor_intro_pending
+    BEQ actor_render_done
+    CLR actor_intro_pending
+    JMP actor_intro
+actor_render_done:
+    TST rally_point_pending
+    BEQ rally_render_done
+    JMP rally_point_music
+rally_render_done:
+    RTS
+actor_render_scene:
     JSR paint_board
     LDAA #2
     STAA rally_draw_height
@@ -366,3 +388,169 @@ rally_blank_label: .byte 32,32,32,32,32,0
 rally_spin_zero: .byte 32,48,32,0
 rally_spin_minus: .byte 45,49,32,0
 rally_spin_positive: .byte 43,49,32,0
+
+; A short, cycle-timed start cue highlights the actor before controls begin.
+.global actor_intro_frame
+.global actor_intro_step
+.global actor_intro_x
+.global actor_intro_band
+.section .text, code
+actor_intro:
+    LDAA #VIEW_X + 8
+    STAA paint_x
+    LDAA rally_player
+    LSRA
+    LSRA
+    LSRA
+    STAA paint_band
+    LDAA paint_x
+    STAA actor_intro_x
+    LDAA paint_band
+    STAA actor_intro_band
+    CLR actor_intro_step
+    CLR actor_intro_bytes
+    CLR actor_intro_bytes + 1
+actor_intro_blink:
+    LDAA actor_intro_band
+    STAA paint_band
+    LDAA actor_intro_x
+    STAA paint_x
+    JSR paint_address
+    LDAA #3
+    STAA actor_intro_rows
+actor_intro_row:
+    LDX paint_dest
+    LDAB #4
+actor_intro_pixels:
+    COM 0,X
+    INX
+    DECB
+    BNE actor_intro_pixels
+    LDAA paint_band
+    LDAB actor_intro_x
+    JSR dirty_mark
+    LDAA paint_band
+    LDAB actor_intro_x
+    ADDB #3
+    JSR dirty_mark
+    LDD paint_dest
+    ADDD #192
+    STD paint_dest
+    INC paint_band
+    DEC actor_intro_rows
+    BNE actor_intro_row
+    JSR dirty_begin
+actor_intro_transfer:
+    JSR dirty_next
+    BEQ actor_intro_sum
+    JSR input_poll
+    BRA actor_intro_transfer
+actor_intro_sum:
+    LDD dirty_bytes
+    ADDD actor_intro_bytes
+    STD actor_intro_bytes
+actor_intro_frame:
+    TST actor_intro_step
+    BNE actor_intro_wait
+    LDX #180
+    LDD #20
+    JSR sound_tone
+actor_intro_wait:
+    LDAA input_ticks
+    STAA actor_intro_clock
+actor_intro_delay:
+    JSR input_poll
+    LDAA input_ticks
+    SUBA actor_intro_clock
+    CMPA #8
+    BCS actor_intro_delay
+    INC actor_intro_step
+    LDAA actor_intro_step
+    CMPA #4
+    BEQ actor_intro_done
+    JMP actor_intro_blink
+actor_intro_done:
+    JSR input_gate
+    LDAA #1
+    STAA resume_pending
+    CLR redraw
+    LDD actor_intro_bytes
+    STD dirty_bytes
+    ; Finish the complete shell frame for both stage starts and menu resets.
+    LDS #$5FFF
+    JMP frame_ready
+.section .bss, bss
+actor_intro_pending: .space 1
+actor_intro_x: .space 1
+actor_intro_band: .space 1
+actor_intro_step: .space 1
+actor_intro_clock: .space 1
+actor_intro_rows: .space 1
+actor_intro_bytes: .space 2
+
+.section .text, code
+.global rally_point_frame
+.global rally_point_note
+rally_point_music:
+    CLR rally_point_note
+    CLR rally_point_bytes
+    CLR rally_point_bytes + 1
+    JSR rally_point_flush
+rally_point_frame:
+    LDAB rally_point_note
+    ASLB
+    LDX #rally_point_notes
+    LDAA rally_point_pending
+    CMPA #2
+    BNE rally_point_notes_ready
+    ADDB #6
+rally_point_notes_ready:
+    ABX
+    LDX 0,X
+    LDD #128
+    JSR sound_tone
+    JSR input_poll
+    INC rally_point_note
+    LDAA rally_point_note
+    CMPA #3
+    BNE rally_point_frame
+    LDAA phase
+    CMPA #4
+    BNE rally_point_loss
+    JSR win_game
+    BRA rally_point_finish
+rally_point_loss:
+    CMPA #5
+    BNE rally_point_finish
+    JSR lose_game
+rally_point_finish:
+    CLR rally_point_pending
+    JSR rally_point_flush
+    JSR input_gate
+    JSR input_poll
+    LDAA #1
+    STAA resume_pending
+    CLR redraw
+    LDD rally_point_bytes
+    STD dirty_bytes
+    LDS #$5FFF
+    JMP frame_ready
+rally_point_flush:
+    JSR dirty_begin
+rally_point_transfer:
+    JSR dirty_next
+    BEQ rally_point_sum
+    JSR input_poll
+    BRA rally_point_transfer
+rally_point_sum:
+    LDD dirty_bytes
+    ADDD rally_point_bytes
+    STD rally_point_bytes
+    RTS
+
+.section .bss, bss
+rally_point_pending: .space 1
+rally_point_note: .space 1
+rally_point_bytes: .space 2
+.section .data, data
+rally_point_notes: .word 189,139,110,226,286,339

@@ -18,6 +18,13 @@
 .global orbit_weapon_clock
 .section .text, code
 game_start:
+    JSR actor_initial_state
+    LDAA #1
+    STAA actor_intro_pending
+    RTS
+actor_initial_state:
+    CLR orbit_motion
+    CLR orbit_sound
     JSR grid_reset
     CLR orbit_position
     CLR orbit_aim
@@ -55,6 +62,9 @@ orbit_load_wave:
     LDX #orbit_enemies
     ABX
     CLR 0,X
+    LDX #orbit_drawn
+    ABX
+    CLR 0,X
     INC orbit_index
     LDAA orbit_index
     CMPA #24
@@ -85,6 +95,8 @@ orbit_burst:
     TST orbit_pulse
     BEQ orbit_burst_done
     CLR orbit_pulse
+    LDAA #5
+    STAA orbit_sound
     CLR orbit_index
 orbit_burst_loop:
     LDAB orbit_index
@@ -160,10 +172,13 @@ orbit_weapon_ready:
     BCS orbit_timer
     LDAA input_ticks
     STAA orbit_weapon_clock
+    STAA orbit_beam_clock
     LDAA #2
     STAA orbit_flash
     LDAA #1
     STAA redraw
+    LDAA #2
+    STAA orbit_sound
     JSR orbit_shoot
 orbit_timer:
     LDAA phase
@@ -175,7 +190,7 @@ orbit_timer:
     LSRA
     LSRA
     TAB
-    LDX #orbit_periods
+    LDX #orbit_motion_periods
     ABX
     LDAA input_ticks
     SUBA orbit_clock
@@ -183,7 +198,23 @@ orbit_timer:
     BCS orbit_update_done
     LDAA input_ticks
     STAA orbit_clock
+    INC orbit_motion
+    LDAA orbit_motion
+    CMPA #16
+    BNE orbit_motion_finish
     JSR orbit_world
+    LDAA orbit_position
+    CMPA orbit_total
+    BCC orbit_motion_redraw
+    LDAA #1
+    STAA orbit_sound
+    BRA orbit_motion_redraw
+orbit_motion_finish:
+    CMPA #32
+    BNE orbit_motion_redraw
+    CLR orbit_motion
+    JSR orbit_world
+orbit_motion_redraw:
     LDAA #1
     STAA redraw
 orbit_update_done:
@@ -198,12 +229,35 @@ orbit_shoot_ring:
     ADDB #8
     CMPB #24
     BCS orbit_shoot_ring
+    ; In the latter half of a spiral step, also accept the sector the
+    ; visible enemy is approaching. Inner enemies move straight to the core.
+    LDAA stage
+    CMPA #8
+    BCS orbit_shoot_done
+    LDAA orbit_motion
+    CMPA #16
+    BCS orbit_shoot_done
+    LDAB orbit_aim
+    DECB
+    ANDB #7
+    ADDB #8
+orbit_visible_ring:
+    LDX #orbit_enemies
+    ABX
+    TST 0,X
+    BNE orbit_hit
+    ADDB #8
+    CMPB #24
+    BCS orbit_visible_ring
+orbit_shoot_done:
     RTS
 orbit_hit:
     DEC 0,X
     BNE orbit_hit_score
     DEC orbit_left
 orbit_hit_score:
+    LDAA #3
+    STAA orbit_sound
     LDD orbit_score
     ADDD #10
     STD orbit_score
@@ -231,6 +285,8 @@ orbit_leak_loop:
     TST orbit_core
     BEQ orbit_leak_next
     DEC orbit_core
+    LDAA #4
+    STAA orbit_sound
 orbit_leak_next:
     INC orbit_index
     LDAA orbit_index
@@ -341,14 +397,35 @@ orbit_tile_slot:
     LDAB 0,X
     CMPB #255
     BEQ orbit_tile_background
-    LDX #orbit_enemies
+    ; Warning belongs to the upcoming entry sector. Enemy sprites themselves
+    ; are drawn between the rings at pixel positions, below.
+    CMPB #16
+    BCS orbit_tile_flash
+    LDAA orbit_motion
+    CMPA #16
+    BCS orbit_tile_flash
+    BITA #4
+    BNE orbit_tile_flash
+    LDAA orbit_position
+    CMPA orbit_total
+    BCC orbit_tile_flash
+    STAB orbit_warning_slot
+    TAB
+    LDX #orbit_wave
     ABX
     LDAA 0,X
-    BEQ orbit_tile_flash
-    DECA
-    ADDA #ORBIT_ENEMY
+    ANDA #7
+    ADDA #16
+    LDAB orbit_warning_slot
+    CBA
+    BNE orbit_tile_flash
+    LDAA #ORBIT_WARNING
     RTS
 orbit_tile_flash:
+    LDAA input_ticks
+    SUBA orbit_beam_clock
+    CMPA #6
+    BCC orbit_tile_background
     TST orbit_flash
     BEQ orbit_tile_background
     TBA
@@ -364,7 +441,17 @@ orbit_tile_background:
     LDAA 0,X
     RTS
 game_render:
+    JSR actor_render_scene
+    TST actor_intro_pending
+    BEQ actor_render_done
+    CLR actor_intro_pending
+    JMP actor_intro
+actor_render_done:
+    JMP orbit_play_sound
+actor_render_scene:
+    JSR orbit_erase_sprites
     JSR paint_board
+    JSR orbit_draw_sprites
     JMP visual_hud
 .section .bss, bss
 orbit_enemies: .space 24
@@ -404,3 +491,327 @@ orbit_pulse_label: .byte 80,85,76,83,69,0
 orbit_score_label: .byte 83,0
 orbit_fire_label: .byte 83,80,65,67,69,32,70,73,82,69,0
 orbit_start_label: .byte 83,80,65,67,69,32,71,79,32,32,0
+
+; A short, cycle-timed start cue highlights the actor before controls begin.
+.global actor_intro_frame
+.global actor_intro_step
+.global actor_intro_x
+.global actor_intro_band
+.section .text, code
+actor_intro:
+    CLRB
+    LDX #view_cells
+actor_intro_find:
+    LDAA 0,X
+    CMPA cursor
+    BEQ actor_intro_found
+    INX
+    INCB
+    CMPB #112
+    BNE actor_intro_find
+actor_intro_found:
+    TBA
+    ANDA #15
+    ASLA
+    ASLA
+    ASLA
+    ADDA #VIEW_X
+    STAA paint_x
+    TBA
+    LSRA
+    LSRA
+    LSRA
+    LSRA
+    INCA
+    STAA paint_band
+    LDAA paint_x
+    STAA actor_intro_x
+    LDAA paint_band
+    STAA actor_intro_band
+    CLR actor_intro_step
+    CLR actor_intro_bytes
+    CLR actor_intro_bytes + 1
+actor_intro_blink:
+    LDAA actor_intro_band
+    STAA paint_band
+    LDAA actor_intro_x
+    STAA paint_x
+    JSR paint_address
+    LDAA #1
+    STAA actor_intro_rows
+actor_intro_row:
+    LDX paint_dest
+    LDAB #8
+actor_intro_pixels:
+    COM 0,X
+    INX
+    DECB
+    BNE actor_intro_pixels
+    LDAA paint_band
+    LDAB actor_intro_x
+    JSR dirty_mark
+    LDAA paint_band
+    LDAB actor_intro_x
+    ADDB #7
+    JSR dirty_mark
+    LDD paint_dest
+    ADDD #192
+    STD paint_dest
+    INC paint_band
+    DEC actor_intro_rows
+    BNE actor_intro_row
+    JSR dirty_begin
+actor_intro_transfer:
+    JSR dirty_next
+    BEQ actor_intro_sum
+    JSR input_poll
+    BRA actor_intro_transfer
+actor_intro_sum:
+    LDD dirty_bytes
+    ADDD actor_intro_bytes
+    STD actor_intro_bytes
+actor_intro_frame:
+    TST actor_intro_step
+    BNE actor_intro_wait
+    LDX #180
+    LDD #20
+    JSR sound_tone
+actor_intro_wait:
+    LDAA input_ticks
+    STAA actor_intro_clock
+actor_intro_delay:
+    JSR input_poll
+    LDAA input_ticks
+    SUBA actor_intro_clock
+    CMPA #8
+    BCS actor_intro_delay
+    INC actor_intro_step
+    LDAA actor_intro_step
+    CMPA #4
+    BEQ actor_intro_done
+    JMP actor_intro_blink
+actor_intro_done:
+    JSR input_gate
+    LDAA #1
+    STAA resume_pending
+    CLR redraw
+    LDD actor_intro_bytes
+    STD dirty_bytes
+    ; Finish the complete shell frame for both stage starts and menu resets.
+    LDS #$5FFF
+    JMP frame_ready
+.section .bss, bss
+actor_intro_pending: .space 1
+actor_intro_x: .space 1
+actor_intro_band: .space 1
+actor_intro_step: .space 1
+actor_intro_clock: .space 1
+actor_intro_rows: .space 1
+actor_intro_bytes: .space 2
+
+; One radial approach takes 32 visible substeps. Integer interpolation moves
+; no coordinate by more than one dot per substep, including the spiral waves.
+.global orbit_motion
+.global orbit_draw_x
+.global orbit_draw_y
+.global orbit_sound
+.global orbit_sound_frame
+.section .text, code
+orbit_erase_sprites:
+    CLR orbit_sprite_index
+orbit_erase_next:
+    LDAB orbit_sprite_index
+    LDX #orbit_drawn
+    ABX
+    TST 0,X
+    BEQ orbit_erase_skip
+    CLR 0,X
+    LDX #orbit_draw_x
+    ABX
+    LDAA 0,X
+    STAA scene_x
+    LDX #orbit_draw_y
+    ABX
+    LDAB 0,X
+    STAB scene_y
+    LDAA #8
+    STAA scene_w
+    STAA scene_h
+    LDAA scene_x
+    JSR scene_rect
+orbit_erase_skip:
+    INC orbit_sprite_index
+    LDAA orbit_sprite_index
+    CMPA #24
+    BNE orbit_erase_next
+    RTS
+orbit_draw_sprites:
+    CLR orbit_sprite_index
+orbit_sprite_next:
+    LDAB orbit_sprite_index
+    LDX #orbit_enemies
+    ABX
+    LDAA 0,X
+    BNE orbit_sprite_live
+    JMP orbit_sprite_skip
+orbit_sprite_live:
+    DECA
+    ADDA #ORBIT_ENEMY
+    LDAB #8
+    MUL
+    ADDD #tiles
+    STD orbit_sprite_source
+    LDAB orbit_sprite_index
+    LDX #orbit_x
+    ABX
+    LDAA 0,X
+    STAA orbit_from_x
+    LDX #orbit_y
+    ABX
+    LDAA 0,X
+    STAA orbit_from_y
+    LDAA #56
+    STAA orbit_to_x
+    LDAA #32
+    STAA orbit_to_y
+    CMPB #8
+    BCS orbit_sprite_target
+    SUBB #8
+    STAB orbit_sprite_target_index
+    LDAA stage
+    CMPA #8
+    BCS orbit_sprite_target_ready
+    TBA
+    ANDA #248
+    STAA orbit_sprite_ring
+    INCB
+    ANDB #7
+    ADDB orbit_sprite_ring
+orbit_sprite_target_ready:
+    LDX #orbit_x
+    ABX
+    LDAA 0,X
+    STAA orbit_to_x
+    LDX #orbit_y
+    ABX
+    LDAA 0,X
+    STAA orbit_to_y
+orbit_sprite_target:
+    LDAA orbit_to_x
+    SUBA orbit_from_x
+    JSR orbit_interpolate
+    ADDA orbit_from_x
+    STAA orbit_sprite_x
+    LDAB orbit_sprite_index
+    LDX #orbit_draw_x
+    ABX
+    STAA 0,X
+    LDAA orbit_to_y
+    SUBA orbit_from_y
+    JSR orbit_interpolate
+    ADDA orbit_from_y
+    STAA orbit_sprite_y
+    LDAB orbit_sprite_index
+    LDX #orbit_draw_y
+    ABX
+    STAA 0,X
+    LDX #orbit_drawn
+    ABX
+    INC 0,X
+    LDAA #8
+    STAA scene_w
+    STAA scene_h
+    LDAA orbit_sprite_x
+    LDAB orbit_sprite_y
+    JSR scene_rect
+    CLR orbit_sprite_col
+orbit_sprite_column:
+    LDX orbit_sprite_source
+    LDAB orbit_sprite_col
+    ABX
+    LDAA 0,X
+    STAA orbit_sprite_bits
+    CLR orbit_sprite_row
+orbit_sprite_pixel:
+    LSR orbit_sprite_bits
+    BCC orbit_sprite_pixel_next
+    LDAA orbit_sprite_x
+    ADDA orbit_sprite_col
+    LDAB orbit_sprite_y
+    ADDB orbit_sprite_row
+    JSR scene_pixel
+orbit_sprite_pixel_next:
+    INC orbit_sprite_row
+    LDAA orbit_sprite_row
+    CMPA #8
+    BNE orbit_sprite_pixel
+    INC orbit_sprite_col
+    LDAA orbit_sprite_col
+    CMPA #8
+    BNE orbit_sprite_column
+orbit_sprite_skip:
+    INC orbit_sprite_index
+    LDAA orbit_sprite_index
+    CMPA #24
+    BEQ orbit_sprites_done
+    JMP orbit_sprite_next
+orbit_sprites_done:
+    RTS
+orbit_interpolate:
+    CLR orbit_delta_negative
+    TSTA
+    BPL orbit_delta_absolute
+    INC orbit_delta_negative
+    NEGA
+orbit_delta_absolute:
+    LDAB orbit_motion
+    MUL
+    LSRD
+    LSRD
+    LSRD
+    LSRD
+    LSRD
+    TBA
+    TST orbit_delta_negative
+    BEQ orbit_delta_done
+    NEGA
+orbit_delta_done:
+    RTS
+orbit_play_sound:
+    LDAB orbit_sound
+    BEQ orbit_sprites_done
+    CLR orbit_sound
+    DECB
+    ASLB
+    LDX #orbit_sound_notes
+    ABX
+    LDX 0,X
+orbit_sound_frame:
+    LDD #14
+    JSR sound_tone
+    JMP input_poll
+.section .data, data
+orbit_motion_periods: .byte 4,3,3
+orbit_sound_notes: .word 339,139,90,508,226
+.section .bss, bss
+orbit_motion: .space 1
+orbit_draw_x: .space 24
+orbit_draw_y: .space 24
+orbit_drawn: .space 24
+orbit_sprite_index: .space 1
+orbit_sprite_target_index: .space 1
+orbit_sprite_ring: .space 1
+orbit_sprite_source: .space 2
+orbit_from_x: .space 1
+orbit_from_y: .space 1
+orbit_to_x: .space 1
+orbit_to_y: .space 1
+orbit_sprite_x: .space 1
+orbit_sprite_y: .space 1
+orbit_sprite_col: .space 1
+orbit_sprite_row: .space 1
+orbit_sprite_bits: .space 1
+orbit_delta_negative: .space 1
+orbit_warning_slot: .space 1
+orbit_beam_clock: .space 1
+orbit_sound: .space 1

@@ -12,7 +12,15 @@
 .global turns
 .section .text, code
 game_start:
+    JSR actor_initial_state
+    LDAA #1
+    STAA actor_intro_pending
+    RTS
+actor_initial_state:
     JSR challenge_start
+    LDD #$FFFF
+    STD challenge_view_cells
+    CLR step_death_pending
     LDX #player
     JSR challenge_load
     LDX #bullet_cells
@@ -220,6 +228,8 @@ step_cleared:
     STAA phase
     RTS
 step_dead:
+    LDAA #1
+    STAA step_death_pending
     LDAA #5
     STAA phase
     RTS
@@ -352,6 +362,25 @@ step_tile_bullet:
     LDX #board
     ABX
     LDAA 0,X
+    BNE step_tile_done
+    CMPB challenge_cells
+    BEQ step_tile_intel_one
+    CMPB challenge_cells + 1
+    BNE step_tile_done
+    LDAA challenge_bonus
+    ANDA #2
+    BRA step_tile_intel
+step_tile_intel_one:
+    LDAA challenge_bonus
+    ANDA #1
+step_tile_intel:
+    TSTA
+    BNE step_tile_collected
+    LDAA #9
+    RTS
+step_tile_collected:
+    LDAA #10
+step_tile_done:
     RTS
 step_tile_projectile:
     LDX #bullet_dirs
@@ -366,6 +395,18 @@ step_tile_enemy:
 game_bonus:
     RTS
 game_render:
+    JSR actor_render_scene
+    TST actor_intro_pending
+    BEQ step_render_death
+    CLR actor_intro_pending
+    JMP actor_intro
+step_render_death:
+    TST step_death_pending
+    BEQ actor_render_done
+    JMP actor_intro
+actor_render_done:
+    RTS
+actor_render_scene:
     JSR paint_board
     JMP visual_hud
 .section .bss, bss
@@ -404,3 +445,133 @@ step_fire_label: .byte 70,73,82,69,0 ; FIRE
 step_return: .byte 82,69,84,85,82,78,0 ; RETURN
 
 step_wait_help: .byte 77,69,78,85,32,87,65,73,84,0 ; MENU WAIT
+
+; A short, cycle-timed start cue highlights the actor before controls begin.
+.global actor_intro_frame
+.global actor_intro_step
+.global actor_intro_x
+.global actor_intro_band
+.section .text, code
+actor_intro:
+    LDAB player
+    TBA
+    ANDA #15
+    ASLA
+    ASLA
+    ASLA
+    ADDA #VIEW_X
+    STAA paint_x
+    TBA
+    LSRA
+    LSRA
+    LSRA
+    LSRA
+    INCA
+    STAA paint_band
+    LDAA paint_x
+    STAA actor_intro_x
+    LDAA paint_band
+    STAA actor_intro_band
+    CLR actor_intro_step
+    CLR actor_intro_bytes
+    CLR actor_intro_bytes + 1
+actor_intro_blink:
+    LDAA actor_intro_band
+    STAA paint_band
+    LDAA actor_intro_x
+    STAA paint_x
+    JSR paint_address
+    LDAA #1
+    STAA actor_intro_rows
+actor_intro_row:
+    LDX paint_dest
+    LDAB #8
+actor_intro_pixels:
+    COM 0,X
+    INX
+    DECB
+    BNE actor_intro_pixels
+    LDAA paint_band
+    LDAB actor_intro_x
+    JSR dirty_mark
+    LDAA paint_band
+    LDAB actor_intro_x
+    ADDB #7
+    JSR dirty_mark
+    LDD paint_dest
+    ADDD #192
+    STD paint_dest
+    INC paint_band
+    DEC actor_intro_rows
+    BNE actor_intro_row
+    JSR step_intro_flush
+actor_intro_frame:
+    TST actor_intro_step
+    BNE actor_intro_wait
+    LDX #180
+    TST step_death_pending
+    BEQ step_intro_tone
+    LDX #508
+step_intro_tone:
+    LDD #20
+    JSR sound_tone
+actor_intro_wait:
+    LDAA input_ticks
+    STAA actor_intro_clock
+actor_intro_delay:
+    JSR input_poll
+    LDAA input_ticks
+    SUBA actor_intro_clock
+    CMPA #8
+    BCS actor_intro_delay
+    INC actor_intro_step
+    LDAA actor_intro_step
+    CMPA #4
+    BEQ actor_intro_done
+    JMP actor_intro_blink
+actor_intro_done:
+    TST step_death_pending
+    BEQ step_intro_finish
+    LDAA input_ticks
+    STAA actor_intro_clock
+step_death_hold:
+    JSR input_poll
+    LDAA input_ticks
+    SUBA actor_intro_clock
+    CMPA #12
+    BCS step_death_hold
+    CLR step_death_pending
+    JSR lose_game
+    JSR step_intro_flush
+step_intro_finish:
+    JSR input_gate
+    LDAA #1
+    STAA resume_pending
+    CLR redraw
+    LDD actor_intro_bytes
+    STD dirty_bytes
+    ; Finish the complete shell frame for both stage starts and menu resets.
+    LDS #$5FFF
+    JMP frame_ready
+step_intro_flush:
+    JSR dirty_begin
+step_intro_transfer:
+    JSR dirty_next
+    BEQ step_intro_sum
+    JSR input_poll
+    BRA step_intro_transfer
+step_intro_sum:
+    LDD dirty_bytes
+    ADDD actor_intro_bytes
+    STD actor_intro_bytes
+    RTS
+.global step_death_pending
+.section .bss, bss
+step_death_pending: .space 1
+actor_intro_pending: .space 1
+actor_intro_x: .space 1
+actor_intro_band: .space 1
+actor_intro_step: .space 1
+actor_intro_clock: .space 1
+actor_intro_rows: .space 1
+actor_intro_bytes: .space 2

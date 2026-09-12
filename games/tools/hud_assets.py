@@ -18,10 +18,14 @@ def design(ident):
     return SPECS[ident]
 
 def make(ident):
-    if ident in ('arc-duel','circuit-deck','market-harbor'):
+    own=ROOT/'games'/ident/'hud.py'
+    spec=design(ident) if own.is_file() else None
+    if spec is not None and 'render' in spec:
+        return spec['render'](compile_layout)
+    if ident=='arc-duel':
         from hud_custom import make_custom
         return make_custom(ident,compile_layout)
-    spec=design(ident);view=spec['view'];theme=spec['theme'];dark=theme in DARK
+    spec=spec or design(ident);view=spec['view'];theme=spec['theme'];dark=theme in DARK
     b=Bitmap();head_dark=theme not in {'folio','ink','ice','garden','water','golf','tile','pegboard'}
     b.rect(0,0,192,8,int(head_dark),True)
     sides=[(0,32),(160,32)] if view==32 else [(128 if view==0 else 0,64)]
@@ -101,6 +105,7 @@ def make(ident):
         assert y==0 or x+w<=view or x>=view+128,(ident,f,'field overlaps play area')
         for X,Y,W,H in regions:assert x+w<=X or X+W<=x or y+height<=Y or Y+H<=y,(ident,f,'overlapping values')
         regions.append((x,y,w,height))
+    if 'decorate' in spec:spec['decorate'](b,slots)
     return compile_layout(ident,spec,b,slots,sides,regions)
 
 def compile_layout(ident,spec,b,slots,sides,regions,custom_spans=None,alternate_spans=None):

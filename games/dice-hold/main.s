@@ -33,6 +33,7 @@ dice_zero_scores:
     CLR dice_category
     JMP dice_new_round
 game_update:
+    JSR cursor_blink_tick
     TST selection_active
     BNE dice_select_score
     TST dice_action
@@ -351,6 +352,7 @@ grid_value:
 dice_sprite_done:
     RTS
 game_render:
+    JSR cursor_blink_prepare
     TST selection_active
     BEQ dice_render_main
     JMP dice_render_scores
@@ -362,7 +364,7 @@ dice_render_main:
     LDAA #255
     STAA cursor
 dice_render_dice:
-    JSR paint_board
+    JSR cursor_blink_board
     PULA
     STAA cursor
     LDX #dice_hold_label
@@ -395,7 +397,7 @@ dice_render_dice:
     LDAA dice_action
     CMPA #1
     BNE dice_render_roll
-    LDAA #128
+    LDAA cursor_blink_mask
     STAA hud_play_field + 4
 dice_render_roll:
     LDX #dice_roll_button
@@ -406,7 +408,7 @@ dice_render_roll:
     LDAA dice_action
     CMPA #2
     BNE dice_render_score
-    LDAA #128
+    LDAA cursor_blink_mask
     STAA hud_play_field + 4
 dice_render_score:
     LDX #dice_score_button
@@ -460,6 +462,8 @@ dice_line_label:
     LDAA dice_display
     CMPA dice_category
     BNE dice_line_used
+    TST cursor_blink_mask
+    BEQ dice_line_used
     LDAA #62
     STAA dice_line
 dice_line_used:
@@ -551,3 +555,50 @@ dice_total_label: .byte 84,79,84,65,76,0
 dice_goal_label: .byte 71,79,65,76,0
 dice_left_label: .byte 76,69,70,84,0
 dice_line: .byte 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,0
+
+; The JR-800 input timer drives focus blinking; input immediately restores it.
+.global cursor_blink_mask
+.global cursor_blink_clock
+.section .text, code
+cursor_blink_prepare:
+    TST hud_ready
+    BEQ cursor_blink_show
+    RTS
+cursor_blink_tick:
+    TST input_event
+    BNE cursor_blink_show
+    LDAA input_ticks
+    SUBA cursor_blink_clock
+    CMPA #25
+    BCS cursor_blink_idle
+    LDAA cursor_blink_mask
+    EORA #128
+    BRA cursor_blink_store
+cursor_blink_show:
+    LDAA #128
+cursor_blink_store:
+    CMPA cursor_blink_mask
+    BEQ cursor_blink_time
+    STAA cursor_blink_mask
+    LDAA #1
+    STAA redraw
+cursor_blink_time:
+    LDAA input_ticks
+    STAA cursor_blink_clock
+cursor_blink_idle:
+    RTS
+cursor_blink_board:
+    LDAA cursor
+    PSHA
+    TST cursor_blink_mask
+    BNE cursor_blink_paint
+    LDAA #255
+    STAA cursor
+cursor_blink_paint:
+    JSR paint_board
+    PULA
+    STAA cursor
+    RTS
+.section .bss, bss
+cursor_blink_mask: .space 1
+cursor_blink_clock: .space 1

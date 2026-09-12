@@ -1,7 +1,7 @@
 ; SPDX-License-Identifier: MIT
 ; gravity-run: vector, play origin 64
 .equ VIEW_X,64
-.equ HUD_FIELDS,6
+.equ HUD_FIELDS,7
 .section .text, code
 visual_hud:
     JSR hud_begin
@@ -26,12 +26,20 @@ visual_hud:
     LDX #hud_field_4
     JSR hud_number
     CLRB
-    TST gravity_direction
+    TST gravity_banner
     BEQ hud_expr_5_done
     INCB
 hud_expr_5_done:
     CLRA
     LDX #hud_field_5
+    JSR hud_choice
+    CLRB
+    TST gravity_direction
+    BEQ hud_expr_6_done
+    INCB
+hud_expr_6_done:
+    CLRA
+    LDX #hud_field_6
     JSR hud_choice
     RTS
 hud_select_background:
@@ -55,9 +63,15 @@ hud_field_4:
     .byte 43,6,4,0,128,0
     .word hud_cache + 12,0
 hud_field_5:
-    .byte 4,7,14,0,128,2
+    .byte 78,0,5,0,128,2
     .word hud_cache + 15,hud_choices_5
 hud_choices_5:
+    .byte $52,$55,$4E,$20,$20,$43,$4C,$45,$41,$52
+
+hud_field_6:
+    .byte 4,7,14,0,128,2
+    .word hud_cache + 18,hud_choices_6
+hud_choices_6:
     .byte $47,$52,$41,$56,$49,$54,$59,$20,$44,$4F,$57,$4E,$20,$20,$47,$52,$41,$56,$49,$54,$59,$20,$55,$50
     .byte $20,$20,$20,$20
 

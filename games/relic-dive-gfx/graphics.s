@@ -2,6 +2,8 @@
 .section .gfx, code
 gfx_init:
     CLR gfx_last_mode
+    CLR gfx_intro_pending
+    CLR gfx_intro_count
     LDAA #16
     STAA $0000
     LDAA #$EF
@@ -263,3 +265,82 @@ gfx_note: .space 1
 gfx_started: .space 1
 gfx_delay: .space 1
 gfx_clock: .space 2
+
+; The new adventure's actor is identified before the first world action.
+.section .gfx, code
+gfx_intro:
+    TST gfx_intro_pending
+    BNE gfx_intro_begin
+    RTS
+gfx_intro_begin:
+    INC gfx_intro_count
+    CLR gfx_intro_pending
+    LDD dirty_bytes
+    STD gfx_intro_bytes
+    LDAA #4
+    STAA gfx_intro_left
+    JSR gfx_chirp
+    JMP gfx_intro_blink
+.section .gfx_intro, code
+.global gfx_intro_frame
+gfx_intro_blink:
+    LDD G_X
+    STD NX
+    JSR tile_destination
+    LDX DRAW
+    LDAB #8
+gfx_intro_invert:
+    COM 0,X
+    INX
+    DECB
+    BNE gfx_intro_invert
+    LDAA G_Y
+    SUBA VIEW_Y
+    INCA
+    JSR gfx_dirty_band
+    JSR dirty_begin
+gfx_intro_transfer:
+    JSR dirty_next
+    BEQ gfx_intro_sum
+    JSR poll_key
+    BRA gfx_intro_transfer
+gfx_intro_sum:
+    LDD dirty_bytes
+    ADDD gfx_intro_bytes
+    STD gfx_intro_bytes
+    JMP gfx_intro_frame
+.section .gfx_audio, code
+gfx_intro_frame:
+    LDAA #6
+    STAA gfx_intro_delay
+gfx_intro_tick:
+    LDD $0009
+    STD gfx_clock
+gfx_intro_wait:
+    JSR poll_key
+    LDD $0009
+    SUBD gfx_clock
+    SUBD #20000
+    BCS gfx_intro_wait
+    DEC gfx_intro_delay
+    BNE gfx_intro_tick
+    DEC gfx_intro_left
+    BNE gfx_intro_again
+    JMP gfx_intro_done
+gfx_intro_again:
+    JMP gfx_intro_blink
+.section .gfx_intro, code
+gfx_intro_done:
+    CLR G_PENDING
+    LDD gfx_intro_bytes
+    STD dirty_bytes
+    RTS
+.section .gfx_state, bss
+gfx_intro_pending: .space 1
+gfx_intro_left: .space 1
+gfx_intro_delay: .space 1
+gfx_intro_bytes: .space 2
+
+.global gfx_intro_count
+.section .gfx_state, bss
+gfx_intro_count: .space 1

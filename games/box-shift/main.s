@@ -17,6 +17,9 @@ game_start:
     CLR moves + 1
     CLR undo_valid
     CLR show_help
+    CLR box_intro_kind
+    LDAA #1
+    STAA box_intro_pending
     RTS
 game_update:
     LDAA input_event
@@ -162,6 +165,15 @@ box_help:
     STAA show_help
     RTS
 game_tile:
+    TST box_intro_kind
+    BEQ box_player_tile
+    LDAA box_intro_kind
+    CMPA #3
+    BNE box_intro_map
+    LDAA box_intro_step
+    BITA #1
+    BNE box_map_tile
+box_player_tile:
     CMPB player
     BNE box_map_tile
     LDAA #8
@@ -171,9 +183,133 @@ box_map_tile:
     ABX
     LDAA 0,X
     RTS
+box_intro_map:
+    LDX #board
+    ABX
+    LDAA 0,X
+    LDAB box_intro_kind
+    CMPB #1
+    BNE box_intro_goals
+    ANDA #$FD
+    LDAB paint_index
+    CMPB box_intro_limit
+    BCS box_intro_tile_done
+    ANDA #$FB
+    RTS
+box_intro_goals:
+    LDAB paint_index
+    CMPB box_intro_limit
+    BCS box_intro_tile_done
+    ANDA #$FD
+box_intro_tile_done:
+    RTS
 game_render:
+    TST box_intro_pending
+    BEQ box_render_scene
+    CLR box_intro_pending
+    JMP box_intro
+box_render_scene:
     JSR paint_board
     JMP visual_hud
+
+; Reveal each crate, then each goal, while the logical board stays intact.
+; The final player cue uses a higher two-note sound and two off/on blinks.
+box_intro:
+    CLR box_intro_bytes
+    CLR box_intro_bytes + 1
+    CLR box_intro_limit
+    CLR box_intro_step
+    LDAA #1
+    STAA box_intro_kind
+    JSR box_render_scene
+    JSR box_intro_flush
+    LDAA #4
+    STAA box_intro_mask
+box_intro_group:
+    CLR box_intro_index
+box_intro_scan:
+    LDAB box_intro_index
+    LDX #board
+    ABX
+    LDAA 0,X
+    BITA box_intro_mask
+    BEQ box_intro_next
+    INCB
+    STAB box_intro_limit
+    JSR box_render_scene
+    JSR box_intro_flush
+box_intro_frame:
+    LDX #320
+    LDAA box_intro_kind
+    CMPA #1
+    BEQ box_intro_note
+    LDX #230
+box_intro_note:
+    LDD #16
+    JSR sound_tone
+    JSR box_intro_wait
+box_intro_next:
+    INC box_intro_index
+    LDAA box_intro_index
+    CMPA #112
+    BNE box_intro_scan
+    INC box_intro_kind
+    LDAA box_intro_kind
+    CMPA #3
+    BEQ box_intro_player
+    CLR box_intro_limit
+    LDAA #2
+    STAA box_intro_mask
+    BRA box_intro_group
+box_intro_player:
+    JSR box_render_scene
+    JSR box_intro_flush
+box_intro_player_frame:
+    TST box_intro_step
+    BNE box_intro_player_wait
+    LDX #180
+    LDD #16
+    JSR sound_tone
+    LDX #135
+    LDD #20
+    JSR sound_tone
+box_intro_player_wait:
+    JSR box_intro_wait
+    INC box_intro_step
+    LDAA box_intro_step
+    CMPA #5
+    BNE box_intro_player
+    CLR box_intro_kind
+    JSR input_gate
+    JSR input_poll
+    ; The intro owns the start frame's LCD transfers, including its base.
+    LDD box_intro_bytes
+    STD dirty_bytes
+    CLR redraw
+    LDS #$5FFF
+    JMP frame_ready
+box_intro_flush:
+    JSR dirty_begin
+box_intro_transfer:
+    JSR dirty_next
+    BEQ box_intro_accumulate
+    JSR input_poll
+    BRA box_intro_transfer
+box_intro_accumulate:
+    LDD dirty_bytes
+    ADDD box_intro_bytes
+    STD box_intro_bytes
+    RTS
+box_intro_wait:
+    LDAA input_ticks
+    STAA box_intro_clock
+box_intro_delay:
+    JSR input_poll
+    LDAA input_ticks
+    SUBA box_intro_clock
+    CMPA #8
+    BCS box_intro_delay
+    RTS
 .section .bss, bss
 board: .space 112
 undo_board: .space 112
@@ -188,6 +324,19 @@ box_delta: .space 1
 box_next: .space 1
 box_beyond: .space 1
 show_help: .space 1
+.global box_intro_kind
+.global box_intro_index
+.global box_intro_step
+.global box_intro_frame
+.global box_intro_player_frame
+box_intro_kind: .space 1
+box_intro_pending: .space 1
+box_intro_index: .space 1
+box_intro_limit: .space 1
+box_intro_mask: .space 1
+box_intro_step: .space 1
+box_intro_clock: .space 1
+box_intro_bytes: .space 2
 .section .data, data
 box_heading: .byte 66,79,88,32,83,72,73,70,84,32,32,32,83,84,65,71,69,0 ; BOX SHIFT   STAGE
 box_moves_label: .byte 77,79,86,69,83,0 ; MOVES

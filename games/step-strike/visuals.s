@@ -129,8 +129,8 @@ hud_pixels_6:
     .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$00
 
 hud_pixels_7:
-    .byte $00,$BD,$BD,$FF,$FF,$DD,$C1,$DD,$FF,$C1,$E3,$C1,$FF,$FD,$C1,$FD,$FF,$C1,$D5,$DD,$FF,$C1,$DF,$DF
-    .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+    .byte $00,$BD,$BD,$FF,$FF,$FF,$81,$9D,$95,$B1,$83,$FF,$FF,$FF,$FF,$FF,$DD,$C1,$DD,$FF,$C1,$E3,$C1,$FF
+    .byte $FD,$C1,$FD,$FF,$C1,$D5,$DD,$FF,$C1,$DF,$DF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
     .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$00
 
 .section .ui_fonts, data

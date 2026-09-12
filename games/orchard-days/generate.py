@@ -51,26 +51,51 @@ for stage in range(12):
   beam=sorted(unique.values(),key=lambda n:rank(n[0],n[1],days-day-1,rain[day+1]),reverse=True)[:320]
  if not winner:raise RuntimeError(f'Uncertified goal {stage+1}: best cash {max(n[0] for n in beam)}')
  levels.append({'days':days,'goal':goal,'rain':rain});solutions.append(winner)
-s=[Bitmap(16,16)]
-for x in range(2,15,4):s[0].line(x,10,x+2,13)
-s[0].rect(0,0,16,16)
-for water in range(3):
- for crop in (1,2):
-  for age in range(3):
-   b=Bitmap(16,16);b.rect(0,0,16,16)
-   for x in range(2,15,4):b.line(x,11,x+2,13)
-   if age==0:b.line(7,10,7,7);b.line(7,8,4,6);b.line(7,9,10,6)
-   else:
-    b.line(7,11,7,3);b.line(7,6,3,3);b.line(7,8,12,5);b.line(7,9,3,7)
-    if age==2:
-     for x,y in ((3,3),(11,5),(3,7)):
-      if crop==1:b.rect(x,y,2,5,1,True)
-      else:b.rect(x,y,3,3,1,True);b.dot(x+1,y+1,0)
-   if water==1:
-    for x in (2,6,10):b.line(x,14,x+2,14)
-   elif water==2:b.line(11,1,14,4);b.line(11,4,14,1)
-   s.append(b)
+def plot(crop=0,age=0,water=0):
+ b=Bitmap(16,16)
+ # Raised earth bed with open corners, ridges and a darker near edge.
+ b.line(2,1,13,1);b.line(1,2,1,13);b.line(14,2,14,13)
+ b.line(2,14,13,14);b.line(3,15,12,15)
+ for x in (3,7,11):b.line(x,12,x+1,13)
+ if crop:
+  if age==0:
+   b.line(7,11,7,7);b.line(7,8,4,6);b.line(7,8,10,5);b.dot(4,7);b.dot(9,6)
+   b.dot(6,11);b.dot(8,11)
+  elif crop==1:
+   b.line(7,11,7,3)
+   for x,y in ((3,4),(10,6),(3,8)):
+    b.line(7,y+1,x,y);b.line(x,y,x+2,y-1)
+    if age==2:b.rect(x,y,2,4,1,True);b.dot(x,y+1,0)
+  else:
+   b.line(7,11,7,7)
+   for x,y in ((4,5),(8,4),(10,7),(5,8)):
+    b.rect(x-1,y-1,4,3,1,True);b.dot(x,y-2)
+    if age==2:b.rect(x,y,3,3,1,True);b.dot(x+1,y,0)
+ if water==1:
+  b.line(3,13,11,13);b.dot(12,10);b.line(11,11,13,11)
+ elif water==2:
+  b.line(12,3,12,5);b.dot(12,7)
+ return b
+s=[plot()]+[plot(crop,age,water) for water in range(3) for crop in (1,2) for age in range(3)]
 raw=[]
 for l in levels:raw += [l['days'],l['goal']]+l['rain']+[0]*(14-l['days'])
 assets(root,'ORCHARD DAYS','orchard-days',6,3,2,2,s,12,asm_bytes('orchard_levels',raw),aux=('NEXT DAY','SWAP SEED'))
+# Garden fence and grass outside the eighteen beds.
+b=Bitmap(128,56)
+for base in (0,112):
+ for x in (base+3,base+10):
+  b.line(x,2,x,45);b.line(x+2,2,x+2,45);b.dot(x+1,1)
+ for y in (9,25,41):
+  b.line(base,y,base+15,y);b.line(base,y+2,base+15,y+2)
+ for x in (base+1,base+7,base+13):
+  b.line(x,50,x-1,47);b.line(x,50,x+2,48)
+raw=b.bytes();patterns={};lookup=[];first=1+len(s)*4
+for row in range(7):
+ for col in range(16):
+  if row<6 and 2<=col<14:lookup.append(0);continue
+  tile=tuple(raw[row*128+col*8:row*128+col*8+8])
+  if tile not in patterns:patterns[tile]=first+len(patterns)
+  lookup.append(patterns[tile])
+assert first+len(patterns)<=128
+p=root/'assets.s';text=p.read_text();at=text.index('view_cells:');p.write_text(text[:at]+asm_bytes('orchard_back_tiles',sum((list(t) for t in patterns),[]))+text[at:]+asm_bytes('orchard_back_lookup',lookup))
 (root/'levels.json').write_text(json.dumps(levels)+'\n');(root/'solutions.json').write_text(json.dumps(solutions)+'\n');print('Certified 12 farming plans:',','.join(str(len(p)) for p in solutions))

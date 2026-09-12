@@ -1,7 +1,7 @@
 ; SPDX-License-Identifier: MIT
 ; market-harbor: harbor-ledger, play origin 0
 .equ VIEW_X,0
-.equ HUD_FIELDS,42
+.equ HUD_FIELDS,44
 .section .text, code
 visual_hud:
     JSR hud_begin
@@ -184,183 +184,211 @@ hud_skip_19:
 hud_skip_20:
     TST selection_active
     BNE hud_skip_21
-    LDAB market_reason
+    LDAB market_good
     CLRA
+    CMPB #3
+    BEQ hud_expr_21_yes
+    LDD #0
+    BRA hud_expr_21_done
+hud_expr_21_yes:
+    LDD #1
+hud_expr_21_done:
     LDX #hud_field_21
     JSR hud_choice
 hud_skip_21:
     TST selection_active
-    BEQ hud_skip_22
-    LDAB market_trip_days
+    BNE hud_skip_22
+    LDAB market_good
     CLRA
+    CMPB #3
+    BEQ hud_expr_22_yes
+    LDD #0
+    BRA hud_expr_22_done
+hud_expr_22_yes:
+    LDD #1
+hud_expr_22_done:
     LDX #hud_field_22
-    JSR hud_number
+    JSR hud_choice
 hud_skip_22:
     TST selection_active
-    BEQ hud_skip_23
-    LDAB market_trip_days
+    BNE hud_skip_23
+    LDAB market_reason
     CLRA
-    ASLB
     LDX #hud_field_23
-    JSR hud_number
+    JSR hud_choice
 hud_skip_23:
     TST selection_active
     BEQ hud_skip_24
-    LDD market_cash
+    LDAB market_trip_days
+    CLRA
     LDX #hud_field_24
     JSR hud_number
 hud_skip_24:
     TST selection_active
     BEQ hud_skip_25
-    LDAB market_destination
+    LDAB market_trip_days
     CLRA
-    CMPB #0
-    BEQ hud_expr_25_yes
-    LDD #0
-    BRA hud_expr_25_done
-hud_expr_25_yes:
-    LDD #1
-hud_expr_25_done:
+    ASLB
     LDX #hud_field_25
-    JSR hud_choice
+    JSR hud_number
 hud_skip_25:
     TST selection_active
     BEQ hud_skip_26
-    LDAB market_quotes + 0
-    CLRA
+    LDD market_cash
     LDX #hud_field_26
     JSR hud_number
 hud_skip_26:
     TST selection_active
     BEQ hud_skip_27
-    LDAB market_quotes + 1
+    LDAB market_destination
     CLRA
+    CMPB #0
+    BEQ hud_expr_27_yes
+    LDD #0
+    BRA hud_expr_27_done
+hud_expr_27_yes:
+    LDD #1
+hud_expr_27_done:
     LDX #hud_field_27
-    JSR hud_number
+    JSR hud_choice
 hud_skip_27:
     TST selection_active
     BEQ hud_skip_28
-    LDAB market_quotes + 2
+    LDAB market_quotes + 0
     CLRA
     LDX #hud_field_28
     JSR hud_number
 hud_skip_28:
     TST selection_active
     BEQ hud_skip_29
-    LDAB market_destination
+    LDAB market_quotes + 1
     CLRA
-    CMPB #1
-    BEQ hud_expr_29_yes
-    LDD #0
-    BRA hud_expr_29_done
-hud_expr_29_yes:
-    LDD #1
-hud_expr_29_done:
     LDX #hud_field_29
-    JSR hud_choice
+    JSR hud_number
 hud_skip_29:
     TST selection_active
     BEQ hud_skip_30
-    LDAB market_quotes + 3
+    LDAB market_quotes + 2
     CLRA
     LDX #hud_field_30
     JSR hud_number
 hud_skip_30:
     TST selection_active
     BEQ hud_skip_31
-    LDAB market_quotes + 4
+    LDAB market_destination
     CLRA
+    CMPB #1
+    BEQ hud_expr_31_yes
+    LDD #0
+    BRA hud_expr_31_done
+hud_expr_31_yes:
+    LDD #1
+hud_expr_31_done:
     LDX #hud_field_31
-    JSR hud_number
+    JSR hud_choice
 hud_skip_31:
     TST selection_active
     BEQ hud_skip_32
-    LDAB market_quotes + 5
+    LDAB market_quotes + 3
     CLRA
     LDX #hud_field_32
     JSR hud_number
 hud_skip_32:
     TST selection_active
     BEQ hud_skip_33
-    LDAB market_destination
+    LDAB market_quotes + 4
     CLRA
-    CMPB #2
-    BEQ hud_expr_33_yes
-    LDD #0
-    BRA hud_expr_33_done
-hud_expr_33_yes:
-    LDD #1
-hud_expr_33_done:
     LDX #hud_field_33
-    JSR hud_choice
+    JSR hud_number
 hud_skip_33:
     TST selection_active
     BEQ hud_skip_34
-    LDAB market_quotes + 6
+    LDAB market_quotes + 5
     CLRA
     LDX #hud_field_34
     JSR hud_number
 hud_skip_34:
     TST selection_active
     BEQ hud_skip_35
-    LDAB market_quotes + 7
+    LDAB market_destination
     CLRA
+    CMPB #2
+    BEQ hud_expr_35_yes
+    LDD #0
+    BRA hud_expr_35_done
+hud_expr_35_yes:
+    LDD #1
+hud_expr_35_done:
     LDX #hud_field_35
-    JSR hud_number
+    JSR hud_choice
 hud_skip_35:
     TST selection_active
     BEQ hud_skip_36
-    LDAB market_quotes + 8
+    LDAB market_quotes + 6
     CLRA
     LDX #hud_field_36
     JSR hud_number
 hud_skip_36:
     TST selection_active
     BEQ hud_skip_37
-    LDAB market_destination
+    LDAB market_quotes + 7
     CLRA
-    CMPB #3
-    BEQ hud_expr_37_yes
-    LDD #0
-    BRA hud_expr_37_done
-hud_expr_37_yes:
-    LDD #1
-hud_expr_37_done:
     LDX #hud_field_37
-    JSR hud_choice
+    JSR hud_number
 hud_skip_37:
     TST selection_active
     BEQ hud_skip_38
-    LDAB market_quotes + 9
+    LDAB market_quotes + 8
     CLRA
     LDX #hud_field_38
     JSR hud_number
 hud_skip_38:
     TST selection_active
     BEQ hud_skip_39
-    LDAB market_quotes + 10
+    LDAB market_destination
     CLRA
+    CMPB #3
+    BEQ hud_expr_39_yes
+    LDD #0
+    BRA hud_expr_39_done
+hud_expr_39_yes:
+    LDD #1
+hud_expr_39_done:
     LDX #hud_field_39
-    JSR hud_number
+    JSR hud_choice
 hud_skip_39:
     TST selection_active
     BEQ hud_skip_40
-    LDAB market_quotes + 11
+    LDAB market_quotes + 9
     CLRA
     LDX #hud_field_40
     JSR hud_number
 hud_skip_40:
     TST selection_active
     BEQ hud_skip_41
-    CLRB
-    TST market_message
-    BEQ hud_expr_41_done
-    INCB
-hud_expr_41_done:
+    LDAB market_quotes + 10
     CLRA
     LDX #hud_field_41
-    JSR hud_choice
+    JSR hud_number
 hud_skip_41:
+    TST selection_active
+    BEQ hud_skip_42
+    LDAB market_quotes + 11
+    CLRA
+    LDX #hud_field_42
+    JSR hud_number
+hud_skip_42:
+    TST selection_active
+    BEQ hud_skip_43
+    CLRB
+    TST market_message
+    BEQ hud_expr_43_done
+    INCB
+hud_expr_43_done:
+    CLRA
+    LDX #hud_field_43
+    JSR hud_choice
+hud_skip_43:
     RTS
 hud_select_background:
     LDX #hud_span_table
@@ -459,9 +487,21 @@ hud_field_20:
     .byte 82,6,2,0,0,0
     .word hud_cache + 60,0
 hud_field_21:
-    .byte 4,7,46,0,128,3
+    .byte 110,6,1,0,0,2
     .word hud_cache + 63,hud_choices_21
 hud_choices_21:
+    .byte $20,$3E
+
+hud_field_22:
+    .byte 147,6,9,0,0,2
+    .word hud_cache + 66,hud_choices_22
+hud_choices_22:
+    .byte $20,$20,$20,$20,$20,$20,$20,$20,$20,$53,$50,$41,$43,$45,$20,$20,$20,$20
+
+hud_field_23:
+    .byte 4,7,46,0,128,3
+    .word hud_cache + 69,hud_choices_23
+hud_choices_23:
     .byte $41,$2F,$44,$3A,$20,$42,$55,$59,$2F,$53,$45,$4C,$4C,$20,$20,$53,$50,$41,$43,$45,$3A,$20,$54,$52
     .byte $41,$44,$45,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$54,$49
     .byte $4D,$45,$20,$4C,$49,$4D,$49,$54,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20
@@ -469,79 +509,79 @@ hud_choices_21:
     .byte $4F,$46,$20,$43,$41,$53,$48,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20
     .byte $20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20
 
-hud_field_22:
-    .byte 27,1,2,1,0,0
-    .word hud_cache + 66,0
-hud_field_23:
-    .byte 85,1,2,1,0,0
-    .word hud_cache + 69,0
 hud_field_24:
-    .byte 145,1,5,0,0,0
+    .byte 27,1,2,1,0,0
     .word hud_cache + 72,0
 hud_field_25:
-    .byte 4,3,1,0,0,2
-    .word hud_cache + 75,hud_choices_25
-hud_choices_25:
-    .byte $20,$3E
-
+    .byte 85,1,2,1,0,0
+    .word hud_cache + 75,0
 hud_field_26:
-    .byte 72,3,3,1,0,0
+    .byte 145,1,5,0,0,0
     .word hud_cache + 78,0
 hud_field_27:
-    .byte 114,3,3,1,0,0
-    .word hud_cache + 81,0
+    .byte 4,3,1,0,0,2
+    .word hud_cache + 81,hud_choices_27
+hud_choices_27:
+    .byte $20,$3E
+
 hud_field_28:
-    .byte 156,3,3,1,0,0
+    .byte 72,3,3,1,0,0
     .word hud_cache + 84,0
 hud_field_29:
-    .byte 4,4,1,0,0,2
-    .word hud_cache + 87,hud_choices_29
-hud_choices_29:
-    .byte $20,$3E
-
+    .byte 114,3,3,1,0,0
+    .word hud_cache + 87,0
 hud_field_30:
-    .byte 72,4,3,1,0,0
+    .byte 156,3,3,1,0,0
     .word hud_cache + 90,0
 hud_field_31:
-    .byte 114,4,3,1,0,0
-    .word hud_cache + 93,0
+    .byte 4,4,1,0,0,2
+    .word hud_cache + 93,hud_choices_31
+hud_choices_31:
+    .byte $20,$3E
+
 hud_field_32:
-    .byte 156,4,3,1,0,0
+    .byte 72,4,3,1,0,0
     .word hud_cache + 96,0
 hud_field_33:
-    .byte 4,5,1,0,0,2
-    .word hud_cache + 99,hud_choices_33
-hud_choices_33:
-    .byte $20,$3E
-
+    .byte 114,4,3,1,0,0
+    .word hud_cache + 99,0
 hud_field_34:
-    .byte 72,5,3,1,0,0
+    .byte 156,4,3,1,0,0
     .word hud_cache + 102,0
 hud_field_35:
-    .byte 114,5,3,1,0,0
-    .word hud_cache + 105,0
-hud_field_36:
-    .byte 156,5,3,1,0,0
-    .word hud_cache + 108,0
-hud_field_37:
-    .byte 4,6,1,0,0,2
-    .word hud_cache + 111,hud_choices_37
-hud_choices_37:
+    .byte 4,5,1,0,0,2
+    .word hud_cache + 105,hud_choices_35
+hud_choices_35:
     .byte $20,$3E
 
+hud_field_36:
+    .byte 72,5,3,1,0,0
+    .word hud_cache + 108,0
+hud_field_37:
+    .byte 114,5,3,1,0,0
+    .word hud_cache + 111,0
 hud_field_38:
-    .byte 72,6,3,1,0,0
+    .byte 156,5,3,1,0,0
     .word hud_cache + 114,0
 hud_field_39:
-    .byte 114,6,3,1,0,0
-    .word hud_cache + 117,0
+    .byte 4,6,1,0,0,2
+    .word hud_cache + 117,hud_choices_39
+hud_choices_39:
+    .byte $20,$3E
+
 hud_field_40:
-    .byte 156,6,3,1,0,0
+    .byte 72,6,3,1,0,0
     .word hud_cache + 120,0
 hud_field_41:
+    .byte 114,6,3,1,0,0
+    .word hud_cache + 123,0
+hud_field_42:
+    .byte 156,6,3,1,0,0
+    .word hud_cache + 126,0
+hud_field_43:
     .byte 4,7,46,0,128,2
-    .word hud_cache + 123,hud_choices_41
-hud_choices_41:
+    .word hud_cache + 129,hud_choices_43
+hud_choices_43:
     .byte $53,$50,$41,$43,$45,$3A,$20,$53,$41,$49,$4C,$20,$20,$20,$52,$45,$54,$55,$52,$4E,$3A,$20,$42,$41
     .byte $43,$4B,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$4E,$4F
     .byte $54,$20,$45,$4E,$4F,$55,$47,$48,$20,$43,$41,$53,$48,$20,$46,$4F,$52,$20,$46,$41,$52,$45,$20,$20
@@ -582,70 +622,70 @@ hud_span_table:
     .byte 5,0,64
     .word hud_pixels_10
     .byte 5,64,64
-    .word hud_pixels_11
-    .byte 5,128,64
     .word hud_pixels_14
-    .byte 6,0,64
+    .byte 5,128,64
     .word hud_pixels_15
-    .byte 6,64,64
+    .byte 6,0,64
     .word hud_pixels_16
+    .byte 6,64,64
+    .word hud_pixels_17
     .byte 6,128,64
-    .word hud_pixels_17
+    .word hud_pixels_18
     .byte 7,0,64
-    .word hud_pixels_17
+    .word hud_pixels_18
     .byte 7,64,64
-    .word hud_pixels_17
+    .word hud_pixels_18
     .byte 7,128,64
     .word 0
     .byte 0,0,0
 hud_span_alternate:
-    .word hud_pixels_18
+    .word hud_pixels_19
     .byte 0,0,64
     .word hud_pixels_1
     .byte 0,64,64
     .word hud_pixels_2
     .byte 0,128,64
-    .word hud_pixels_19
-    .byte 1,0,64
     .word hud_pixels_20
-    .byte 1,64,64
+    .byte 1,0,64
     .word hud_pixels_21
-    .byte 1,128,64
+    .byte 1,64,64
     .word hud_pixels_22
-    .byte 2,0,64
+    .byte 1,128,64
     .word hud_pixels_23
-    .byte 2,64,64
+    .byte 2,0,64
     .word hud_pixels_24
-    .byte 2,128,64
+    .byte 2,64,64
     .word hud_pixels_25
+    .byte 2,128,64
+    .word hud_pixels_26
     .byte 3,0,64
     .word hud_pixels_10
     .byte 3,64,64
     .word hud_pixels_11
     .byte 3,128,64
-    .word hud_pixels_26
+    .word hud_pixels_27
     .byte 4,0,64
     .word hud_pixels_10
     .byte 4,64,64
     .word hud_pixels_11
     .byte 4,128,64
-    .word hud_pixels_27
+    .word hud_pixels_28
     .byte 5,0,64
     .word hud_pixels_10
     .byte 5,64,64
     .word hud_pixels_11
     .byte 5,128,64
-    .word hud_pixels_28
+    .word hud_pixels_29
     .byte 6,0,64
     .word hud_pixels_10
     .byte 6,64,64
     .word hud_pixels_11
     .byte 6,128,64
-    .word hud_pixels_17
+    .word hud_pixels_18
     .byte 7,0,64
-    .word hud_pixels_17
+    .word hud_pixels_18
     .byte 7,64,64
-    .word hud_pixels_17
+    .word hud_pixels_18
     .byte 7,128,64
     .word 0
     .byte 0,0,0
@@ -720,76 +760,81 @@ hud_pixels_13:
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$00,$00,$00,$00
 
 hud_pixels_14:
+    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$7F,$00,$00,$00,$00,$00,$00,$00,$00
+    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$00
+
+hud_pixels_15:
     .byte $00,$FF,$00,$00,$3E,$20,$20,$00,$1C,$22,$1C,$00,$3C,$0A,$3C,$00,$3E,$22,$1C,$00,$00,$00,$00,$00
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$00,$00,$00,$00
 
-hud_pixels_15:
+hud_pixels_16:
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$30,$08,$06,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$3E,$0A,$34,$00,$3E,$2A
-
-hud_pixels_16:
-    .byte $22,$00,$02,$3E,$02,$00,$3E,$20,$3E,$00,$3E,$0A,$34,$00,$3E,$FF,$3E,$00,$00,$14,$00,$00,$00,$00
-    .byte $00,$00,$24,$2A,$12,$00,$3C,$0A,$3C,$00,$22,$3E,$22,$00,$3E,$20,$20,$00,$00,$00,$00,$00,$00,$00
-    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$00
+    .byte $00,$00,$00,$00,$00,$24,$2A,$12,$00,$3C,$0A,$3C,$00,$22,$3E,$22
 
 hud_pixels_17:
+    .byte $00,$3E,$20,$20,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$00
+
+hud_pixels_18:
     .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
     .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
     .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 
-hud_pixels_18:
+hud_pixels_19:
     .byte $FF,$FF,$FF,$DB,$D5,$ED,$FF,$C3,$F5,$C3,$FF,$DD,$C1,$DD,$FF,$C1,$DF,$DF,$FF,$FF,$FF,$FF,$FF,$C1
     .byte $F5,$FD,$FF,$C1,$F5,$CB,$FF,$E3,$DD,$E3,$FF,$C1,$F3,$C1,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
     .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 
-hud_pixels_19:
+hud_pixels_20:
     .byte $00,$00,$00,$3E,$22,$1C,$00,$3C,$0A,$3C,$00,$06,$38,$06,$00,$24,$2A,$12,$00,$00,$00,$00,$00,$00
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$3E,$0A,$02
 
-hud_pixels_20:
+hud_pixels_21:
     .byte $00,$3C,$0A,$3C,$00,$3E,$0A,$34,$00,$3E,$2A,$22,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$1C,$22,$22,$00,$3C,$0A,$3C
 
-hud_pixels_21:
+hud_pixels_22:
     .byte $00,$24,$2A,$12,$00,$3E,$08,$3E,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
-hud_pixels_22:
+hud_pixels_23:
     .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$C1,$F5,$FB,$FF,$E3,$DD,$E3,$FF,$C1,$F5,$CB,$FF,$FD
     .byte $C1,$FD,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
     .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 
-hud_pixels_23:
+hud_pixels_24:
     .byte $FF,$FF,$FF,$FF,$FF,$C1,$F5,$CB,$FF,$DD,$C1,$DD,$FF,$E3,$DD,$DD,$FF,$C1,$D5,$DD,$FF,$FF,$FF,$FF
     .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$E3
     .byte $DD,$E3,$FF,$C1,$F5,$CB,$FF,$C1,$D5,$DD,$FF,$FF,$FF,$FF,$FF,$FF
 
-hud_pixels_24:
+hud_pixels_25:
     .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$DB
     .byte $D5,$ED,$FF,$C1,$F5,$FB,$FF,$DD,$C1,$DD,$FF,$E3,$DD,$DD,$FF,$C1,$D5,$DD,$FF,$FF,$FF,$FF,$FF,$FF
     .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 
-hud_pixels_25:
+hud_pixels_26:
     .byte $00,$FF,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$3E,$1C,$3E,$00,$1C,$22,$1C,$00,$3E,$0A,$34,$00
     .byte $02,$3E,$02,$00,$3E,$08,$3E,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$00,$00,$00,$00
 
-hud_pixels_26:
+hud_pixels_27:
     .byte $00,$FF,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$3E,$2A,$22,$00,$3C,$0A,$3C,$00,$24,$2A,$12,$00
     .byte $02,$3E,$02,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$00,$00,$00,$00
 
-hud_pixels_27:
+hud_pixels_28:
     .byte $00,$FF,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$24,$2A,$12,$00,$1C,$22,$1C,$00,$3E,$20,$3E,$00
     .byte $02,$3E,$02,$00,$3E,$08,$3E,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$00,$00,$00,$00
 
-hud_pixels_28:
+hud_pixels_29:
     .byte $00,$FF,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$3E,$18,$3E,$00,$3E,$2A,$22,$00,$24,$2A,$12,$00
     .byte $02,$3E,$02,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$00,$00,$00,$00

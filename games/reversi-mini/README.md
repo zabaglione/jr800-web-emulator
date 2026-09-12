@@ -18,6 +18,8 @@ YOUとCPUは現在の枚数、MOVESは自分の手数です。置ける場所が
 
 RETURNからUNDO TURNで自分の前の手番まで戻れます。自動パスに続くCPUの複数手もまとめて戻します。RESETまたはRETRYで最初から再対戦できます。
 
+操作対象のマスや項目はゆっくり点滅します。方向キーを押すと選択位置がすぐにはっきり表示されます。
+
 ## ゲーム画面
 
 ![中央の4枚と合法手を示す＋印](../../docs/games/screenshots/reversi-mini/gameplay-1.png)

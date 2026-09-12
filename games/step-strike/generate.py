@@ -35,6 +35,13 @@ for d in range(4):
   if 0<=x<8 and 0<=y<8:tiles[2+d][x]|=1<<y
 from depth_art import block8
 tiles[1]=block8('metal').bytes()
+tiles += [Bitmap.from_rows([
+ '........', '.####...', '.#..##..', '.#.###..',
+ '.#...#..', '.###.#..', '.#####..', '........',
+]).bytes(), Bitmap.from_rows([
+ '........', '......#.', '.....##.', '.#..##..',
+ '.####...', '..##....', '........', '........',
+]).bytes()]
 s='; SPDX-License-Identifier: MIT\n.equ STAGES,40\n.section .data, data\ngame_name: .byte "STEP STRIKE",0\naux1_label: .byte "WAIT ONE TURN",0\naux2_label: .byte "HELP",0\n'+asm_bytes('tiles',sum(tiles,[]))+asm_bytes('title_art',title('STEP STRIKE','step-strike'))+level_records([[s['initial']['start'],len(s['initial']['guards'])]+s['initial']['guards']+[255]*(4-len(s['initial']['guards']))+s['initial']['board'] for s in levels])+challenge_data(out,levels)
 s=re.sub(r'\.byte "([^"\n]*)",0',lambda m:'.byte '+','.join(str(c) for c in m[1].encode())+',0 ; '+m[1],s)
 (out/'assets.s').write_text(s)

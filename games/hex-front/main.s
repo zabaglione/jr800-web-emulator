@@ -10,20 +10,49 @@ game_start:
     CLR undo_valid
     CLR hex_result
     CLR selection_active
+    CLR hex_control
     LDAA #1
     STAA hex_charge
     LDAA #14
     STAA cursor
     JMP hex_refresh
 game_update:
+    JSR cursor_blink_tick
+    TST hex_control
+    BNE hex_control_input
     LDAA input_event
     BITA #16
     BNE hex_action
     JSR grid_move
     CMPB #255
-    BEQ hex_idle
+    BEQ hex_control_edge
     STAB cursor
     JMP grid_changed
+hex_control_edge:
+    LDAA input_event
+    BITA #10
+    BEQ hex_control_idle
+    LDAA #1
+    STAA hex_control
+    JMP grid_changed
+hex_control_input:
+    LDAA input_event
+    BITA #16
+    BEQ hex_control_back
+    TST hex_charge
+    BEQ hex_control_leave
+    LDAA selection_active
+    EORA #1
+    STAA selection_active
+    BRA hex_control_leave
+hex_control_back:
+    BITA #5
+    BEQ hex_control_idle
+hex_control_leave:
+    CLR hex_control
+    JMP grid_changed
+hex_control_idle:
+    RTS
 hex_action:
     LDAB cursor
     LDX #board
@@ -408,6 +437,7 @@ hex_cpu_chosen:
     STAA 0,X
     RTS
 game_aux:
+    CLR hex_control
     CMPA #1
     BNE hex_undo
     TST hex_charge
@@ -431,7 +461,17 @@ grid_value:
     LDAA 0,X
     RTS
 game_render:
-    JSR paint_board
+    JSR cursor_blink_prepare
+    LDAA cursor
+    PSHA
+    TST hex_control
+    BEQ hex_render_board
+    LDAA #255
+    STAA cursor
+hex_render_board:
+    JSR cursor_blink_board
+    PULA
+    STAA cursor
     LDX #hex_left_label
     LDAA #VIEW_X + 4
     LDAB #3
@@ -444,6 +484,14 @@ game_render:
     LDAA #VIEW_X + 70
     LDAB #7
     JSR paint_text
+    JSR hud_begin
+    LDAA #128
+    TST hex_control
+    BEQ hex_render_mode
+    EORA cursor_blink_mask
+hex_render_mode:
+    STAA hud_field_4 + 4
+    CLR hud_cache + 12
     JSR visual_hud
     LDX #hex_bottom_label
     LDAA #VIEW_X + 70
@@ -452,6 +500,8 @@ game_render:
 
 .section .bss, bss
 hex_charge: .space 1
+.global hex_control
+hex_control: .space 1
 hex_saved_charge: .space 1
 hex_result: .space 1
 hex_maps: .space 144
@@ -492,3 +542,50 @@ hex_convert_label: .byte 67,79,78,86,69,82,84,32,32,32,0
 hex_blank_label: .byte 32,32,32,32,32,32,32,32,32,32,0
 hex_win_label: .byte 89,79,85,32,87,73,78,0
 hex_lose_label: .byte 67,80,85,32,87,73,78,0
+
+; The JR-800 input timer drives focus blinking; input immediately restores it.
+.global cursor_blink_mask
+.global cursor_blink_clock
+.section .text, code
+cursor_blink_prepare:
+    TST hud_ready
+    BEQ cursor_blink_show
+    RTS
+cursor_blink_tick:
+    TST input_event
+    BNE cursor_blink_show
+    LDAA input_ticks
+    SUBA cursor_blink_clock
+    CMPA #25
+    BCS cursor_blink_idle
+    LDAA cursor_blink_mask
+    EORA #128
+    BRA cursor_blink_store
+cursor_blink_show:
+    LDAA #128
+cursor_blink_store:
+    CMPA cursor_blink_mask
+    BEQ cursor_blink_time
+    STAA cursor_blink_mask
+    LDAA #1
+    STAA redraw
+cursor_blink_time:
+    LDAA input_ticks
+    STAA cursor_blink_clock
+cursor_blink_idle:
+    RTS
+cursor_blink_board:
+    LDAA cursor
+    PSHA
+    TST cursor_blink_mask
+    BNE cursor_blink_paint
+    LDAA #255
+    STAA cursor
+cursor_blink_paint:
+    JSR paint_board
+    PULA
+    STAA cursor
+    RTS
+.section .bss, bss
+cursor_blink_mask: .space 1
+cursor_blink_clock: .space 1

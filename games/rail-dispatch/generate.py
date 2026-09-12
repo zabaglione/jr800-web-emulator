@@ -19,7 +19,7 @@ for mask in range(16):
   if mask&bit:b.line(3,3,x,y);b.line(4,4,min(7,x+1),min(7,y+1))
  s.append(b)
 for letter in ('A','B'):
- b=Bitmap(8,8);b.text(letter,1,0);b.line(0,7,7,7);s.append(b)
+ b=Bitmap(8,8);b.text(letter,1,0);s.append(b)
 b=Bitmap(8,8);b.line(0,3,7,3);b.line(2,1,6,5);b.line(2,5,6,1);s.append(b)
 b=Bitmap(8,8);b.line(0,3,7,3);b.rect(3,1,2,5);s.append(b)
 levels=[]

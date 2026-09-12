@@ -30,6 +30,10 @@ visual_hud:
     LDX #hud_field_5
     JSR hud_number
     LDD #0
+    TST echo_left
+    BNE hud_expr_6_done
+    INCB
+hud_expr_6_done:
     LDX #hud_field_6
     JSR hud_choice
     RTS
@@ -57,10 +61,10 @@ hud_field_5:
     .byte 171,6,4,0,128,0
     .word hud_cache + 15,0
 hud_field_6:
-    .byte 132,7,14,0,128,1
+    .byte 142,7,11,0,128,2
     .word hud_cache + 18,hud_choices_6
 hud_choices_6:
-    .byte $53,$50,$41,$43,$45,$3A,$20,$50,$49,$4E,$47,$20,$20,$20
+    .byte $45,$58,$49,$54,$20,$4C,$4F,$43,$4B,$45,$44,$45,$58,$49,$54,$20,$4F,$50,$45,$4E,$20,$20
 
 hud_span_table:
     .word hud_pixels_0
@@ -81,7 +85,7 @@ hud_span_table:
     .byte 5,128,64
     .word hud_pixels_7
     .byte 6,128,64
-    .word hud_pixels_3
+    .word hud_pixels_8
     .byte 7,128,64
     .word 0
     .byte 0,0,0
@@ -122,6 +126,11 @@ hud_pixels_6:
 
 hud_pixels_7:
     .byte $00,$BD,$BD,$FF,$FF,$DB,$D5,$ED,$FF,$E3,$DD,$DD,$FF,$E3,$DD,$E3,$FF,$C1,$F5,$CB,$FF,$C1,$D5,$DD
+    .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+    .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$00
+
+hud_pixels_8:
+    .byte $00,$F7,$F7,$FF,$FF,$01,$00,$7C,$6C,$10,$01,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
     .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
     .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$00
 

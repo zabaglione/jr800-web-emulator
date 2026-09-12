@@ -127,6 +127,9 @@ hud_expr_12_done:
     LDD #0
     BRA hud_expr_13_done
 hud_expr_13_yes:
+    LDD #0
+    TST cursor_blink_mask
+    BEQ hud_expr_13_done
     LDD #1
 hud_expr_13_done:
     LDX #hud_field_13
@@ -186,6 +189,9 @@ hud_expr_16_done:
     LDD #0
     BRA hud_expr_17_done
 hud_expr_17_yes:
+    LDD #0
+    TST cursor_blink_mask
+    BEQ hud_expr_17_done
     LDD #1
 hud_expr_17_done:
     LDX #hud_field_17
@@ -245,6 +251,9 @@ hud_expr_20_done:
     LDD #0
     BRA hud_expr_21_done
 hud_expr_21_yes:
+    LDD #0
+    TST cursor_blink_mask
+    BEQ hud_expr_21_done
     LDD #1
 hud_expr_21_done:
     LDX #hud_field_21
@@ -255,6 +264,8 @@ hud_expr_21_done:
     LDAB selected
     CMPB #3
     BNE hud_expr_22_plain
+    TST cursor_blink_mask
+    BEQ hud_expr_22_plain
     LDD #1
     BRA hud_expr_22_done
 hud_expr_22_plain:

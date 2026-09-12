@@ -16,6 +16,8 @@
 
 RETURNメニューの UNDO で直前の反転を戻せます。
 
+操作対象のマスや項目はゆっくり点滅します。方向キーを押すと選択位置がすぐにはっきり表示されます。
+
 ## ゲーム画面
 
 ![第1面の初期配置と規定手数](../../docs/games/screenshots/lamp-grid/gameplay-1.png)
@@ -32,7 +34,7 @@ RETURNメニューの UNDO で直前の反転を戻せます。
 
 ![追加目標の回収とランプの反転アニメーション](../../docs/games/screenshots/lamp-grid/flip-animation.gif)
 
-反転中もRETURNで一時停止できます。UNDOでは直前の反転を戻します。
+追加目標の回収とランプの反転アニメーション。
 
 ## 40面のチャレンジと評価
 

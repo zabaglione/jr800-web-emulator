@@ -5,12 +5,12 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 from grid_assets import assets,Bitmap,asm_bytes
 root=Path(__file__).parent;levels=[]
 for stage in range(12):
- cells=[]
- for y in range(3):
-  for x in range(8):
-   present=stage%4==0 or (x+y+stage)%4!=0
-   cells.append((2 if stage>=4 and (x*3+y+stage)%5==0 else 1) if present else 0)
- levels.append(cells)
+ # Gradually fill the wall, then increase its durability. Later boards never
+ # lose a quarter of their bricks merely because their motif changes.
+ count=min(24,18+stage)
+ order=sorted(range(24),key=lambda p:((p%8*5+p//8*3+stage*7)%24,p))
+ present=set(order[:count]);armored=set(order[:max(0,stage-2)])
+ levels.append([0 if p not in present else 2 if p in armored else 1 for p in range(24)])
 from depth_art import raised
 sprites=[Bitmap(16,8)]
 for strength in (1,2):

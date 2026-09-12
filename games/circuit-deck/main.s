@@ -162,6 +162,7 @@ draw_store:
     BNE draw_hand_loop
     RTS
 game_update:
+    JSR cursor_blink_tick
     TST deck_active
     BEQ deck_accept_input
     JMP deck_animation_update
@@ -459,6 +460,7 @@ game_tile:
     CLRA
     RTS
 game_render:
+    JSR cursor_blink_prepare
     JMP deck_render
 .section .bss, bss
 hp: .space 1
@@ -494,3 +496,38 @@ card_x: .space 1
 card_attack: .space 1
 card_cost: .space 1
 card_help: .space 1
+
+; The JR-800 input timer drives focus blinking; input immediately restores it.
+.global cursor_blink_mask
+.global cursor_blink_clock
+.section .text, code
+cursor_blink_prepare:
+    TST hud_ready
+    BEQ cursor_blink_show
+    RTS
+cursor_blink_tick:
+    TST input_event
+    BNE cursor_blink_show
+    LDAA input_ticks
+    SUBA cursor_blink_clock
+    CMPA #25
+    BCS cursor_blink_idle
+    LDAA cursor_blink_mask
+    EORA #128
+    BRA cursor_blink_store
+cursor_blink_show:
+    LDAA #128
+cursor_blink_store:
+    CMPA cursor_blink_mask
+    BEQ cursor_blink_time
+    STAA cursor_blink_mask
+    LDAA #1
+    STAA redraw
+cursor_blink_time:
+    LDAA input_ticks
+    STAA cursor_blink_clock
+cursor_blink_idle:
+    RTS
+.section .bss, bss
+cursor_blink_mask: .space 1
+cursor_blink_clock: .space 1

@@ -76,6 +76,7 @@ game_aux:
 putt_aux_done:
     RTS
 game_update:
+    JSR cursor_blink_tick
     TST resume_pending
     BEQ putt_resumed
     CLR resume_pending
@@ -339,6 +340,7 @@ game_tile:
     INCA
     RTS
 game_render:
+    JSR cursor_blink_prepare
     JSR paint_board
     LDAA #1
     STAA putt_draw_step
@@ -347,6 +349,8 @@ game_render:
     JSR putt_ball
     TST putt_left
     BNE putt_render_hud
+    TST cursor_blink_mask
+    BEQ putt_render_hud
     JSR putt_aim_position
     LDAA #2
     STAA putt_draw_step
@@ -411,3 +415,41 @@ putt_limit_label: .byte 47,48,49,50,0
 putt_wind_none: .byte 87,73,78,68,32,45,0
 putt_wind_west: .byte 87,73,78,68,32,60,0
 putt_wind_right: .byte 87,73,78,68,32,62,0
+
+.global cursor_blink_mask
+.global cursor_blink_clock
+.section .text, code
+cursor_blink_prepare:
+    TST hud_ready
+    BNE cursor_blink_done
+cursor_blink_show:
+    LDAA #128
+    BRA cursor_blink_store
+cursor_blink_tick:
+    TST putt_left
+    BNE cursor_blink_show
+    TST input_event
+    BNE cursor_blink_show
+    LDAA input_ticks
+    SUBA cursor_blink_clock
+    CMPA #25
+    BCS cursor_blink_done
+    LDAA cursor_blink_mask
+    EORA #128
+cursor_blink_store:
+    CMPA cursor_blink_mask
+    BEQ cursor_blink_clock_set
+    PSHA
+    JSR putt_erase
+    PULA
+    STAA cursor_blink_mask
+    LDAA #1
+    STAA redraw
+cursor_blink_clock_set:
+    LDAA input_ticks
+    STAA cursor_blink_clock
+cursor_blink_done:
+    RTS
+.section .bss, bss
+cursor_blink_mask: .space 1
+cursor_blink_clock: .space 1

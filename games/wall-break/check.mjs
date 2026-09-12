@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 import assert from 'node:assert/strict';
-import {playPixelVisible} from './harness.mjs';
+import {playPixelVisible} from '../tools/harness.mjs';
 import {readFile} from 'node:fs/promises';
 function pixels(g){
  const board=g.read('wall_board',24),x=g.read('wall_x'),y=g.read('wall_y'),p=g.read('wall_paddle'),fb=g.machine.memory(g.symbols.framebuffer,1536);
@@ -18,7 +18,7 @@ function pixels(g){
  }
 }
 export async function checkWall(g){
- const levels=JSON.parse(await readFile(new URL('../wall-break/levels.json',import.meta.url)));await g.start();await g.save('gameplay-1');g.frame();assert.equal(g.word('dirty_bytes'),0);pixels(g);let second=false,third=false;
+ const levels=JSON.parse(await readFile(new URL('./levels.json',import.meta.url)));await g.start();await g.save('gameplay-1');g.frame();assert.equal(g.word('dirty_bytes'),0);pixels(g);let second=false,third=false;
  // Relaunch is an explicit lost ball, and a failed screen retries the same stage.
  for(let i=0;i<3;i++){g.tap('space');g.menu(1);}assert.equal(g.read('phase'),5);g.tap('space');assert.equal(g.read('stage'),0);
  for(let stage=0;stage<12;stage++){
@@ -30,7 +30,7 @@ export async function checkWall(g){
    const x=g.read('wall_x'),y=g.read('wall_y'),dy=g.read('wall_dy'),paddle=g.read('wall_paddle');
    if(dy===255&&previousDy===1)returns++;previousDy=dy;
    // Catch the descending ball near alternating ends to vary its next route.
-   const target=Math.max(0,Math.min(106,x-[2,7,14,19][returns%4]));const left=paddle>target+1,right=paddle<target-1;
+   const target=Math.max(0,Math.min(106,x-[2,14,7,19,4,17,9,13,3,18,6,15][(returns+Math.floor(frames/900))%12]));const left=paddle>target+1,right=paddle<target-1;
    g.hold('left',left);g.hold('right',right);g.frame();
    const board=g.read('wall_board',24);for(let i=0;i<24;i++){assert.ok(board[i]<=previous[i]);score+=(previous[i]-board[i])*10;}previous=board;if(frames%47===0)pixels(g);assert.equal(g.word('wall_score'),score);assert.equal(g.read('wall_left'),board.filter(Boolean).length);
    if(g.read('phase')===2&&!g.read('wall_active')){g.hold('left',false);g.hold('right',false);g.tap('space');}

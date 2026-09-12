@@ -51,6 +51,8 @@
 | 8 | VOID WARD |
 | 9 | CORE ZERO |
 
+操作対象のマスや項目はゆっくり点滅します。方向キーを押すと選択位置がすぐにはっきり表示されます。
+
 ## ゲーム画面
 
 ![手札・エナジー・敵の予告](../../docs/games/screenshots/circuit-deck/gameplay-1.png)

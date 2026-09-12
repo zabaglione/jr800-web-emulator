@@ -11,6 +11,7 @@ game_start:
     STAA grid_stat
     RTS
 game_update:
+    JSR cursor_blink_tick
     LDAA input_event
     BITA #16
     BNE five_play
@@ -173,7 +174,8 @@ grid_value:
     LDAA 0,X
     RTS
 game_render:
-    JSR paint_board
+    JSR cursor_blink_prepare
+    JSR cursor_blink_board
     JMP visual_hud
 
 .section .bss, bss
@@ -188,3 +190,50 @@ five_lose_label: .byte 67,80,85,32,87,73,78,0
 five_draw_label: .byte 68,82,65,87,32,32,32,0
 five_attack: .byte 0,0,0,8,8,8,16,16,16,24,24,140,32,225,230
 five_defense: .byte 0,0,0,6,6,6,12,12,12,18,18,130,24,150,220
+
+; The JR-800 input timer drives focus blinking; input immediately restores it.
+.global cursor_blink_mask
+.global cursor_blink_clock
+.section .text, code
+cursor_blink_prepare:
+    TST hud_ready
+    BEQ cursor_blink_show
+    RTS
+cursor_blink_tick:
+    TST input_event
+    BNE cursor_blink_show
+    LDAA input_ticks
+    SUBA cursor_blink_clock
+    CMPA #25
+    BCS cursor_blink_idle
+    LDAA cursor_blink_mask
+    EORA #128
+    BRA cursor_blink_store
+cursor_blink_show:
+    LDAA #128
+cursor_blink_store:
+    CMPA cursor_blink_mask
+    BEQ cursor_blink_time
+    STAA cursor_blink_mask
+    LDAA #1
+    STAA redraw
+cursor_blink_time:
+    LDAA input_ticks
+    STAA cursor_blink_clock
+cursor_blink_idle:
+    RTS
+cursor_blink_board:
+    LDAA cursor
+    PSHA
+    TST cursor_blink_mask
+    BNE cursor_blink_paint
+    LDAA #255
+    STAA cursor
+cursor_blink_paint:
+    JSR paint_board
+    PULA
+    STAA cursor
+    RTS
+.section .bss, bss
+cursor_blink_mask: .space 1
+cursor_blink_clock: .space 1

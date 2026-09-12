@@ -18,6 +18,7 @@ place .gfx_data RUNTIME
 place .gfx_dirty RUNTIME
 place .gfx_state CONTEXT
 place .context CONTEXT
+place .gfx_intro CONTEXT
 place .generation GENERATION
 place .gfx_audio GENERATION
 place .gfx_notes GENERATION

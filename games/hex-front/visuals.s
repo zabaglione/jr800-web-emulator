@@ -23,9 +23,14 @@ visual_hud:
     LDX #hud_field_3
     JSR hud_number
     CLRB
+    TST hex_charge
+    BEQ hud_expr_4_used
     TST selection_active
     BEQ hud_expr_4_done
     INCB
+    BRA hud_expr_4_done
+hud_expr_4_used:
+    LDAB #2
 hud_expr_4_done:
     CLRA
     LDX #hud_field_4
@@ -49,11 +54,11 @@ hud_field_3:
     .byte 175,5,3,0,128,0
     .word hud_cache + 9,0
 hud_field_4:
-    .byte 132,7,14,0,128,2
+    .byte 132,7,14,0,128,3
     .word hud_cache + 12,hud_choices_4
 hud_choices_4:
-    .byte $50,$4C,$41,$43,$45,$20,$41,$20,$4E,$4F,$44,$45,$20,$20,$43,$4F,$4E,$56,$45,$52,$54,$20,$4E,$4F
-    .byte $44,$45,$20,$20
+    .byte $52,$45,$4C,$41,$59,$3A,$20,$4F,$46,$46,$20,$20,$20,$20,$52,$45,$4C,$41,$59,$3A,$20,$4F,$4E,$20
+    .byte $20,$20,$20,$20,$52,$45,$4C,$41,$59,$3A,$20,$55,$53,$45,$44,$20,$20,$20
 
 hud_span_table:
     .word hud_pixels_0

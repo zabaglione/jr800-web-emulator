@@ -1,49 +1,86 @@
 ; SPDX-License-Identifier: MIT
-; orchard-days: garden, play origin 0
+; orchard-days: seed-packet, play origin 0
 .equ VIEW_X,0
-.equ HUD_FIELDS,9
+.equ HUD_FIELDS,13
 .section .text, code
 visual_hud:
     JSR hud_begin
-    LDAB stage
+    LDAB orchard_day
     CLRA
     ADDD #1
     LDX #hud_field_0
     JSR hud_number
-    LDD orchard_coins
-    LDX #hud_field_1
-    JSR hud_number
-    LDAB orchard_actions
-    CLRA
-    LDX #hud_field_2
-    JSR hud_number
-    LDAB orchard_day
-    CLRA
-    ADDD #1
-    LDX #hud_field_3
-    JSR hud_number
     LDAB orchard_limit
     CLRA
+    LDX #hud_field_1
+    JSR hud_number
+    LDAB orchard_rain
+    CLRA
+    LDX #hud_field_2
+    JSR hud_choice
+    LDAB orchard_actions
+    CLRA
+    LDX #hud_field_3
+    JSR hud_number
+    LDAB stage
+    CLRA
+    ADDD #1
     LDX #hud_field_4
+    JSR hud_number
+    LDD orchard_coins
+    LDX #hud_field_5
     JSR hud_number
     LDAB orchard_goal
     CLRA
-    LDX #hud_field_5
+    LDX #hud_field_6
     JSR hud_number
     LDAB orchard_seed
-    CLRA
-    LDX #hud_field_6
-    JSR hud_choice
-    CLRB
-    TST orchard_rain
-    BEQ hud_expr_7_done
-    INCB
-hud_expr_7_done:
+    DECB
     CLRA
     LDX #hud_field_7
     JSR hud_choice
-    LDD #0
+    LDAB orchard_seed
+    LDX #orchard_costs
+    ABX
+    LDAB 0,X
+    CLRA
     LDX #hud_field_8
+    JSR hud_number
+    LDAB orchard_seed
+    LDX #orchard_durations
+    ABX
+    LDAB 0,X
+    CLRA
+    LDX #hud_field_9
+    JSR hud_number
+    LDAB orchard_seed
+    LDX #orchard_prices
+    ABX
+    LDAB 0,X
+    CLRA
+    LDX #hud_field_10
+    JSR hud_number
+    CLRB
+    LDAA orchard_button
+    CMPA #1
+    BNE hud_expr_11_done
+    TST cursor_blink_mask
+    BEQ hud_expr_11_done
+    INCB
+hud_expr_11_done:
+    CLRA
+    LDX #hud_field_11
+    JSR hud_choice
+    CLRB
+    LDAA orchard_button
+    CMPA #2
+    BNE hud_expr_12_done
+    TST cursor_blink_mask
+    BEQ hud_expr_12_done
+    INCB
+hud_expr_12_done:
+    CLRA
+    LDX #hud_field_12
     JSR hud_choice
     RTS
 hud_select_background:
@@ -52,40 +89,55 @@ hud_select_background:
 .section .data, data
 view_origin: .byte 0
 hud_field_0:
-    .byte 176,0,3,0,0,0
+    .byte 17,0,2,0,128,0
     .word hud_cache + 0,0
 hud_field_1:
-    .byte 138,2,4,3,0,0
+    .byte 34,0,2,0,128,0
     .word hud_cache + 3,0
 hud_field_2:
-    .byte 175,4,3,0,0,0
-    .word hud_cache + 6,0
-hud_field_3:
-    .byte 175,5,3,0,0,0
-    .word hud_cache + 9,0
-hud_field_4:
-    .byte 175,6,3,0,0,0
-    .word hud_cache + 12,0
-hud_field_5:
-    .byte 14,0,3,0,0,0
-    .word hud_cache + 15,0
-hud_field_6:
-    .byte 56,0,5,0,0,2
-    .word hud_cache + 18,hud_choices_6
-hud_choices_6:
-    .byte $42,$45,$41,$4E,$20,$42,$45,$52,$52,$59
-
-hud_field_7:
-    .byte 98,0,4,0,0,2
-    .word hud_cache + 21,hud_choices_7
-hud_choices_7:
+    .byte 52,0,4,0,128,2
+    .word hud_cache + 6,hud_choices_2
+hud_choices_2:
     .byte $53,$55,$4E,$20,$52,$41,$49,$4E
 
+hud_field_3:
+    .byte 104,0,1,0,128,0
+    .word hud_cache + 9,0
+hud_field_4:
+    .byte 178,0,3,0,128,0
+    .word hud_cache + 12,0
+hud_field_5:
+    .byte 164,1,4,1,0,0
+    .word hud_cache + 15,0
+hud_field_6:
+    .byte 170,2,3,1,0,0
+    .word hud_cache + 18,0
+hud_field_7:
+    .byte 163,3,5,0,0,2
+    .word hud_cache + 21,hud_choices_7
+hud_choices_7:
+    .byte $42,$45,$41,$4E,$20,$42,$45,$52,$52,$59
+
 hud_field_8:
-    .byte 132,7,14,0,0,1
-    .word hud_cache + 24,hud_choices_8
-hud_choices_8:
-    .byte $53,$50,$41,$43,$45,$3A,$20,$54,$45,$4E,$44,$20,$20,$20
+    .byte 174,4,2,0,0,0
+    .word hud_cache + 24,0
+hud_field_9:
+    .byte 174,5,2,0,0,0
+    .word hud_cache + 27,0
+hud_field_10:
+    .byte 174,6,2,0,0,0
+    .word hud_cache + 30,0
+hud_field_11:
+    .byte 4,7,1,0,128,2
+    .word hud_cache + 33,hud_choices_11
+hud_choices_11:
+    .byte $20,$3E
+
+hud_field_12:
+    .byte 68,7,1,0,128,2
+    .word hud_cache + 36,hud_choices_12
+hud_choices_12:
+    .byte $20,$3E
 
 hud_span_table:
     .word hud_pixels_0
@@ -95,65 +147,84 @@ hud_span_table:
     .word hud_pixels_2
     .byte 0,128,64
     .word hud_pixels_3
-    .byte 1,128,64
+    .byte 7,0,64
     .word hud_pixels_4
-    .byte 2,128,64
+    .byte 7,64,64
     .word hud_pixels_5
-    .byte 3,128,64
-    .word hud_pixels_6
-    .byte 4,128,64
-    .word hud_pixels_7
-    .byte 5,128,64
-    .word hud_pixels_8
-    .byte 6,128,64
-    .word hud_pixels_4
     .byte 7,128,64
+    .word hud_pixels_6
+    .byte 1,128,64
+    .word hud_pixels_7
+    .byte 2,128,64
+    .word hud_pixels_8
+    .byte 3,128,64
+    .word hud_pixels_9
+    .byte 4,128,64
+    .word hud_pixels_10
+    .byte 5,128,64
+    .word hud_pixels_11
+    .byte 6,128,64
     .word 0
     .byte 0,0,0
 hud_pixels_0:
-    .byte $1C,$22,$3A,$00,$1C,$22,$1C,$00,$3C,$0A,$3C,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$24,$2A,$12,$00,$3E,$2A
-    .byte $22,$00,$3E,$2A,$22,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .byte $FF,$FF,$C1,$DD,$E3,$FF,$C3,$F5,$C3,$FF,$F9,$C7,$F9,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+    .byte $FF,$FF,$FF,$FF,$CF,$F7,$F9,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+    .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 
 hud_pixels_1:
-    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$24,$2A,$12,$00
-    .byte $3E,$08,$36,$00,$06,$38,$06,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+    .byte $FF,$C3,$F5,$C3,$FF,$E3,$DD,$DD,$FF,$FD,$C1,$FD,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+    .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 
 hud_pixels_2:
-    .byte $00,$00,$1C,$22,$1C,$00,$3E,$0A,$34,$00,$1C,$22,$22,$00,$3E,$08,$3E,$00,$3C,$0A,$3C,$00,$3E,$0A
-    .byte $34,$00,$3E,$22,$1C,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .byte $FF,$FF,$FF,$E3,$DD,$E3,$FF,$C1,$F5,$CB,$FF,$E3,$DD,$DD,$FF,$C1,$F7,$C1,$FF,$C3,$F5,$C3,$FF,$C1
+    .byte $F5,$CB,$FF,$C1,$DD,$E3,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+    .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 
 hud_pixels_3:
-    .byte $00,$00,$00,$00,$00,$1C,$22,$22,$00,$1C,$22,$1C,$00,$22,$3E,$22,$00,$3E,$1C,$3E,$00,$24,$2A,$12
-    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .byte $FF,$C1,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$C1,$E3,$C1,$FF,$C1,$D5,$DD,$FF,$C9,$F7,$C9,$FF
+    .byte $FD,$C1,$FD,$FF,$FF,$FF,$FF,$FF,$C1,$DD,$E3,$FF,$C3,$F5,$C3,$FF,$F9,$C7,$F9,$FF,$FF,$FF,$FF,$FF
+    .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$BF,$FF
 
 hud_pixels_4:
-    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .byte $FF,$C1,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$DB,$D5,$ED,$FF,$C1,$E7,$C1,$FF,$C3,$F5,$C3,$FF
+    .byte $C1,$F5,$FB,$FF,$FF,$FF,$FF,$FF,$DB,$D5,$ED,$FF,$C1,$D5,$DD,$FF,$C1,$D5,$DD,$FF,$C1,$DD,$E3,$FF
+    .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$BF,$FF
+
+hud_pixels_5:
+    .byte $00,$00,$00,$00,$3F,$20,$20,$20,$32,$35,$29,$20,$3F,$35,$31,$20,$3F,$35,$31,$20,$3F,$31,$2E,$20
+    .byte $20,$20,$20,$20,$21,$3F,$21,$20,$2E,$31,$2E,$20,$20,$20,$20,$20,$3F,$25,$22,$20,$3F,$30,$30,$20
+    .byte $3E,$25,$3E,$20,$3F,$2E,$3F,$20,$21,$3F,$21,$20,$20,$20,$3F,$00
+
+hud_pixels_6:
+    .byte $00,$00,$00,$00,$00,$38,$44,$44,$00,$38,$44,$38,$00,$44,$7C,$44,$00,$7C,$38,$7C,$00,$48,$54,$24
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
-hud_pixels_5:
-    .byte $00,$00,$80,$80,$00,$00,$00,$00,$80,$80,$00,$00,$00,$00,$80,$80,$00,$00,$00,$00,$80,$80,$00,$00
-    .byte $00,$00,$80,$80,$00,$00,$00,$00,$80,$80,$00,$00,$00,$00,$80,$80,$00,$00,$00,$00,$80,$80,$00,$00
-    .byte $00,$00,$80,$80,$00,$00,$00,$00,$80,$80,$00,$00,$00,$00,$00,$00
-
-hud_pixels_6:
-    .byte $00,$00,$00,$00,$01,$3D,$0A,$3C,$00,$1C,$23,$23,$00,$02,$3E,$02,$01,$01,$00,$00,$00,$00,$01,$01
-    .byte $00,$00,$00,$00,$01,$01,$00,$00,$00,$00,$01,$01,$00,$00,$00,$00,$01,$01,$00,$00,$00,$00,$01,$01
-    .byte $00,$00,$00,$00,$01,$01,$00,$00,$00,$00,$01,$01,$00,$00,$00,$00
-
 hud_pixels_7:
-    .byte $00,$00,$00,$00,$00,$3E,$22,$1C,$00,$3C,$0A,$3C,$00,$06,$38,$06,$00,$00,$00,$00,$00,$00,$00,$00
+    .byte $00,$00,$00,$00,$00,$38,$44,$74,$00,$38,$44,$38,$00,$78,$14,$78,$00,$7C,$40,$40,$00,$00,$00,$00
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
     .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
 hud_pixels_8:
-    .byte $00,$00,$40,$40,$80,$BE,$20,$20,$40,$62,$BE,$A2,$00,$3E,$4C,$7E,$80,$A2,$3E,$22,$40,$42,$BE,$82
-    .byte $00,$00,$40,$40,$80,$80,$00,$00,$40,$40,$80,$80,$00,$00,$40,$40,$80,$80,$00,$00,$40,$40,$80,$80
-    .byte $00,$00,$40,$40,$80,$80,$00,$00,$40,$40,$80,$80,$00,$00,$00,$00
+    .byte $00,$00,$00,$00,$FC,$03,$81,$C9,$D5,$A5,$81,$FD,$D5,$C5,$81,$FD,$D5,$C5,$81,$FD,$C5,$B9,$81,$81
+    .byte $81,$81,$81,$81,$81,$81,$81,$81,$81,$81,$81,$81,$81,$81,$81,$81,$81,$81,$81,$81,$81,$81,$81,$81
+    .byte $81,$81,$81,$81,$81,$81,$81,$81,$81,$81,$81,$81,$82,$04,$F8,$00
+
+hud_pixels_9:
+    .byte $00,$00,$00,$00,$FF,$00,$00,$00,$00,$38,$44,$44,$00,$38,$44,$38,$00,$48,$54,$24,$00,$04,$7C,$04
+    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$00
+
+hud_pixels_10:
+    .byte $00,$00,$00,$00,$FF,$00,$00,$00,$00,$38,$44,$74,$00,$7C,$14,$68,$00,$38,$44,$38,$00,$7C,$30,$7C
+    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .byte $00,$00,$00,$00,$00,$00,$00,$00,$7C,$44,$38,$00,$00,$00,$FF,$00
+
+hud_pixels_11:
+    .byte $00,$00,$00,$00,$FF,$00,$00,$00,$00,$48,$54,$24,$00,$7C,$54,$44,$00,$7C,$40,$40,$00,$7C,$40,$40
+    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$00
 
 .section .ui_fonts, data
 hud_font_tiny:

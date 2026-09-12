@@ -1,7 +1,7 @@
 ; SPDX-License-Identifier: MIT
 ; river-hop: water, play origin 0
 .equ VIEW_X,0
-.equ HUD_FIELDS,7
+.equ HUD_FIELDS,8
 .section .text, code
 visual_hud:
     JSR hud_begin
@@ -26,16 +26,24 @@ visual_hud:
     CLRA
     LDX #hud_field_4
     JSR hud_number
-    LDD river_score
+    LDD river_display_score
     LDX #hud_field_5
     JSR hud_number
     CLRB
-    TST river_running
+    TST river_banner
     BEQ hud_expr_6_done
     INCB
 hud_expr_6_done:
     CLRA
     LDX #hud_field_6
+    JSR hud_choice
+    CLRB
+    TST river_running
+    BEQ hud_expr_7_done
+    INCB
+hud_expr_7_done:
+    CLRA
+    LDX #hud_field_7
     JSR hud_choice
     RTS
 hud_select_background:
@@ -62,11 +70,17 @@ hud_field_5:
     .byte 171,6,4,0,0,0
     .word hud_cache + 15,0
 hud_field_6:
-    .byte 132,7,14,0,0,2
+    .byte 14,0,4,0,0,2
     .word hud_cache + 18,hud_choices_6
 hud_choices_6:
-    .byte $53,$50,$41,$43,$45,$3A,$20,$53,$54,$41,$52,$54,$20,$20,$43,$52,$4F,$53,$53,$20,$53,$41,$46,$45
-    .byte $4C,$59,$20,$20
+    .byte $20,$20,$20,$20,$4E,$45,$58,$54
+
+hud_field_7:
+    .byte 132,7,14,0,0,2
+    .word hud_cache + 21,hud_choices_7
+hud_choices_7:
+    .byte $53,$50,$41,$43,$45,$3A,$20,$52,$45,$53,$55,$4D,$45,$20,$48,$4F,$50,$20,$54,$4F,$20,$41,$20,$48
+    .byte $4F,$4D,$45,$20
 
 hud_span_table:
     .word hud_pixels_0

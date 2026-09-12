@@ -24,6 +24,8 @@ MICRO ROGUEは独立した小規模ローグライクです。元のRELIC DIVE�
 
 RETURNで停止メニューを開きます。WAITで1手待機し、RESETとRETRYは装備も含めて1階からやり直します。失敗画面ではSPACEで再挑戦します。開始時のDIFFICULTY画面で難易度を選べます。
 
+ゲーム開始時は、自分の位置が効果音とともに短く点滅します。
+
 ## ゲーム画面
 
 ![装備と薬を拾い、追跡する敵に備える](../../docs/games/screenshots/micro-rogue/gameplay-1.png)

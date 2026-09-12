@@ -18,6 +18,7 @@
 .global penalty_patrol
 .section .text, code
 game_start:
+    CLR penalty_goal_pending
     CLR penalty_kicks
     CLR penalty_goals
     CLR penalty_height
@@ -66,6 +67,7 @@ game_aux:
 penalty_aux_done:
     RTS
 game_update:
+    JSR cursor_blink_tick
     TST resume_pending
     BEQ penalty_resumed
     CLR resume_pending
@@ -295,6 +297,7 @@ penalty_positive_distance:
 penalty_goal:
     LDAA #1
     STAA penalty_reason
+    STAA penalty_goal_pending
     INC penalty_goals
 penalty_record:
     INC penalty_kicks
@@ -362,6 +365,14 @@ game_tile:
     INCA
     RTS
 game_render:
+    JSR penalty_scene
+    TST penalty_goal_pending
+    BEQ penalty_render_done
+    JMP penalty_goal_music
+penalty_render_done:
+    RTS
+penalty_scene:
+    JSR cursor_blink_prepare
     JSR paint_board
     LDAA #2
     STAA penalty_w
@@ -421,6 +432,8 @@ penalty_keeper_pose:
     LDAA penalty_mode
     CMPA #2
     BCC penalty_hud_check
+    TST cursor_blink_mask
+    BEQ penalty_hud_check
     JSR penalty_aim_position
     LDAA penalty_aim_x
     SUBA #2
@@ -444,6 +457,59 @@ penalty_keeper_pose:
     JSR scene_pixel
 penalty_hud_check:
     JMP visual_hud
+.global penalty_goal_frame
+.global penalty_goal_note
+penalty_goal_music:
+    CLR penalty_goal_pending
+    CLR penalty_goal_note
+    CLR penalty_goal_bytes
+    CLR penalty_goal_bytes + 1
+    JSR penalty_goal_flush
+penalty_goal_frame:
+    LDAB penalty_goal_note
+    ASLB
+    LDX #penalty_goal_notes
+    ABX
+    LDX 0,X
+    LDD #128
+    JSR sound_tone
+    JSR input_poll
+    INC penalty_goal_note
+    LDAA penalty_goal_note
+    CMPA #3
+    BNE penalty_goal_frame
+    LDAA phase
+    CMPA #4
+    BNE penalty_goal_loss
+    JSR win_game
+    BRA penalty_goal_finish
+penalty_goal_loss:
+    CMPA #5
+    BNE penalty_goal_finish
+    JSR lose_game
+penalty_goal_finish:
+    JSR penalty_goal_flush
+    JSR input_gate
+    JSR input_poll
+    LDAA #1
+    STAA resume_pending
+    CLR redraw
+    LDD penalty_goal_bytes
+    STD dirty_bytes
+    LDS #$5FFF
+    JMP frame_ready
+penalty_goal_flush:
+    JSR dirty_begin
+penalty_goal_transfer:
+    JSR dirty_next
+    BEQ penalty_goal_sum
+    JSR input_poll
+    BRA penalty_goal_transfer
+penalty_goal_sum:
+    LDD dirty_bytes
+    ADDD penalty_goal_bytes
+    STD penalty_goal_bytes
+    RTS
 penalty_rect:
     STAA penalty_draw_left
     STAB penalty_draw_y
@@ -467,6 +533,9 @@ penalty_rect_pixel:
     BNE penalty_rect_row
     RTS
 .section .bss, bss
+penalty_goal_pending: .space 1
+penalty_goal_note: .space 1
+penalty_goal_bytes: .space 2
 penalty_mode: .space 1
 penalty_power: .space 1
 penalty_power_dir: .space 1
@@ -509,3 +578,45 @@ penalty_low_label: .byte 76,79,87,32,0
 penalty_high_label: .byte 72,73,71,72,0
 penalty_ten_label: .byte 47,48,49,48,0
 penalty_slash_label: .byte 47,0
+
+.global cursor_blink_mask
+.global cursor_blink_clock
+.section .text, code
+cursor_blink_prepare:
+    TST hud_ready
+    BNE cursor_blink_done
+cursor_blink_show:
+    LDAA #128
+    BRA cursor_blink_store
+cursor_blink_tick:
+    LDAA penalty_mode
+    CMPA #2
+    BCC cursor_blink_show
+    TST input_event
+    BNE cursor_blink_show
+    LDAA input_ticks
+    SUBA cursor_blink_clock
+    CMPA #25
+    BCS cursor_blink_done
+    LDAA cursor_blink_mask
+    EORA #128
+cursor_blink_store:
+    CMPA cursor_blink_mask
+    BEQ cursor_blink_clock_set
+    PSHA
+    JSR penalty_erase
+    PULA
+    STAA cursor_blink_mask
+    LDAA #1
+    STAA redraw
+cursor_blink_clock_set:
+    LDAA input_ticks
+    STAA cursor_blink_clock
+cursor_blink_done:
+    RTS
+.section .bss, bss
+cursor_blink_mask: .space 1
+cursor_blink_clock: .space 1
+
+.section .data, data
+penalty_goal_notes: .word 189,139,110

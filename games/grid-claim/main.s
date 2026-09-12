@@ -14,6 +14,11 @@
 .global claim_step
 .section .text, code
 game_start:
+    JSR actor_initial_state
+    LDAA #1
+    STAA actor_intro_pending
+    RTS
+actor_initial_state:
     CLR claim_wins
     CLR claim_losses
     CLR claim_steps
@@ -21,6 +26,7 @@ game_start:
     ASLA
     STAA claim_arena
 claim_round:
+    CLR claim_sound_pending
     JSR grid_reset
     LDAA claim_arena
     LDAB #112
@@ -93,6 +99,7 @@ claim_next_arena:
     JSR paint_clear
     JSR claim_round
     LDAA #1
+    STAA actor_intro_pending
     STAA resume_pending
     STAA redraw
     RTS
@@ -205,6 +212,7 @@ claim_cpu_crash:
     BNE claim_draw
     INC claim_wins
     LDAA #2
+    STAA claim_sound_pending
     STAA claim_mode
     LDAA claim_wins
     CMPA #2
@@ -215,6 +223,7 @@ claim_cpu_crash:
 claim_lost:
     INC claim_losses
     LDAA #3
+    STAA claim_sound_pending
     STAA claim_mode
     LDAA claim_losses
     CMPA #2
@@ -224,6 +233,7 @@ claim_lost:
     RTS
 claim_draw:
     LDAA #4
+    STAA claim_sound_pending
     STAA claim_mode
 claim_step_done:
     RTS
@@ -410,6 +420,18 @@ claim_tile_board:
     LDAA 0,X
     RTS
 game_render:
+    JSR actor_render_scene
+    TST actor_intro_pending
+    BEQ actor_render_done
+    CLR actor_intro_pending
+    JMP actor_intro
+actor_render_done:
+    TST claim_sound_pending
+    BEQ claim_no_cue
+    JMP claim_result_cue
+claim_no_cue:
+    RTS
+actor_render_scene:
     JSR paint_board
     JMP visual_hud
 .section .bss, bss
@@ -461,3 +483,231 @@ claim_mode_labels:
     .byte 89,79,85,32,87,79,78,32,32,0
     .byte 89,79,85,32,76,79,83,84,32,0
     .byte 68,82,65,87,32,32,32,32,32,0
+
+; A short, cycle-timed start cue highlights the actor before controls begin.
+.global actor_intro_frame
+.global actor_intro_step
+.global actor_intro_x
+.global actor_intro_band
+.section .text, code
+actor_intro:
+    CLRB
+    LDX #view_cells
+actor_intro_find:
+    LDAA 0,X
+    CMPA cursor
+    BEQ actor_intro_found
+    INX
+    INCB
+    CMPB #112
+    BNE actor_intro_find
+actor_intro_found:
+    TBA
+    ANDA #15
+    ASLA
+    ASLA
+    ASLA
+    ADDA #VIEW_X
+    STAA paint_x
+    TBA
+    LSRA
+    LSRA
+    LSRA
+    LSRA
+    INCA
+    STAA paint_band
+    LDAA paint_x
+    STAA actor_intro_x
+    LDAA paint_band
+    STAA actor_intro_band
+    CLR actor_intro_step
+    CLR actor_intro_bytes
+    CLR actor_intro_bytes + 1
+actor_intro_blink:
+    LDAA actor_intro_band
+    STAA paint_band
+    LDAA actor_intro_x
+    STAA paint_x
+    JSR paint_address
+    LDAA #1
+    STAA actor_intro_rows
+actor_intro_row:
+    LDX paint_dest
+    LDAB #8
+actor_intro_pixels:
+    COM 0,X
+    INX
+    DECB
+    BNE actor_intro_pixels
+    LDAA paint_band
+    LDAB actor_intro_x
+    JSR dirty_mark
+    LDAA paint_band
+    LDAB actor_intro_x
+    ADDB #7
+    JSR dirty_mark
+    LDD paint_dest
+    ADDD #192
+    STD paint_dest
+    INC paint_band
+    DEC actor_intro_rows
+    BNE actor_intro_row
+    JSR dirty_begin
+actor_intro_transfer:
+    JSR dirty_next
+    BEQ actor_intro_sum
+    JSR input_poll
+    BRA actor_intro_transfer
+actor_intro_sum:
+    LDD dirty_bytes
+    ADDD actor_intro_bytes
+    STD actor_intro_bytes
+actor_intro_frame:
+    LDAB actor_intro_step
+    ASLB
+    LDX #actor_start_notes
+    ABX
+    LDX 0,X
+    LDD #48
+    JSR sound_tone
+actor_intro_wait:
+    LDAA input_ticks
+    STAA actor_intro_clock
+actor_intro_delay:
+    JSR input_poll
+    LDAA input_ticks
+    SUBA actor_intro_clock
+    CMPA #8
+    BCS actor_intro_delay
+    INC actor_intro_step
+    LDAA actor_intro_step
+    CMPA #4
+    BEQ actor_intro_done
+    JMP actor_intro_blink
+actor_intro_done:
+    LDAA #1
+    STAA claim_mode
+    LDAA input_ticks
+    STAA claim_clock
+    JSR actor_render_scene
+    JSR dirty_begin
+actor_intro_finish_flush:
+    JSR dirty_next
+    BEQ actor_intro_finish_sum
+    JSR input_poll
+    BRA actor_intro_finish_flush
+actor_intro_finish_sum:
+    LDD dirty_bytes
+    ADDD actor_intro_bytes
+    STD actor_intro_bytes
+    JSR input_gate
+    LDAA #1
+    STAA resume_pending
+    CLR redraw
+    LDD actor_intro_bytes
+    STD dirty_bytes
+    ; Finish the complete shell frame for both stage starts and menu resets.
+    LDS #$5FFF
+    JMP frame_ready
+.section .bss, bss
+actor_intro_pending: .space 1
+actor_intro_x: .space 1
+actor_intro_band: .space 1
+actor_intro_step: .space 1
+actor_intro_clock: .space 1
+actor_intro_rows: .space 1
+actor_intro_bytes: .space 2
+
+.section .data, data
+actor_start_notes: .word 286,226,189,139
+
+; Present the result first, then play one bounded cadence per round.
+.global claim_sound_pending
+.global claim_sound_note
+.global claim_sound_frame
+.section .text, code
+claim_result_cue:
+    CLR actor_intro_bytes
+    CLR actor_intro_bytes + 1
+    JSR claim_sound_flush
+    LDAA phase
+    CMPA #4
+    BEQ claim_sound_result
+    LDAB claim_sound_pending
+    SUBB #2
+    ASLB
+    LDX #claim_result_notes
+    ABX
+    LDX 0,X
+    LDAA phase
+    CMPA #5
+    BNE claim_sound_begin
+    LDX #claim_gameover_notes
+claim_sound_begin:
+    STX claim_sound_pointer
+    CLR claim_sound_note
+claim_sound_next:
+    LDX claim_sound_pointer
+    LDD 0,X
+    BEQ claim_sound_result
+    XGDX
+    STX claim_sound_period
+claim_sound_frame:
+    LDAA input_ticks
+    STAA actor_intro_clock
+claim_sound_hold:
+    LDX claim_sound_period
+    LDD #4
+    JSR sound_tone
+    JSR input_poll
+    LDAA input_ticks
+    SUBA actor_intro_clock
+    CMPA #6
+    BCS claim_sound_hold
+    INC claim_sound_note
+    LDD claim_sound_pointer
+    ADDD #2
+    STD claim_sound_pointer
+    BRA claim_sound_next
+claim_sound_result:
+    CLR claim_sound_pending
+    LDAA phase
+    CMPA #4
+    BNE claim_sound_loss
+    JSR win_game
+    BRA claim_sound_finish
+claim_sound_loss:
+    CMPA #5
+    BNE claim_sound_finish
+    JSR lose_game
+claim_sound_finish:
+    JSR claim_sound_flush
+    JSR input_gate
+    CLR redraw
+    LDD actor_intro_bytes
+    STD dirty_bytes
+    LDS #$5FFF
+    JMP frame_ready
+claim_sound_flush:
+    JSR dirty_begin
+claim_sound_transfer:
+    JSR dirty_next
+    BEQ claim_sound_sum
+    JSR input_poll
+    BRA claim_sound_transfer
+claim_sound_sum:
+    LDD dirty_bytes
+    ADDD actor_intro_bytes
+    STD actor_intro_bytes
+    RTS
+.section .data, data
+claim_result_notes: .word claim_roundwin_notes,claim_roundloss_notes,claim_draw_notes
+claim_roundwin_notes: .word 226,189,139,110,0
+claim_roundloss_notes: .word 189,226,286,339,0
+claim_draw_notes: .word 254,254,286,0
+claim_gameover_notes: .word 226,286,339,381,452,0
+.section .bss, bss
+claim_sound_pending: .space 1
+claim_sound_note: .space 1
+claim_sound_pointer: .space 2
+claim_sound_period: .space 2

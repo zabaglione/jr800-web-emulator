@@ -92,6 +92,7 @@ market_sell_loop:
     JSR market_goal_check
     JMP market_changed
 game_update:
+    JSR cursor_blink_tick
     CLR resume_pending
     TST selection_active
     BEQ market_trade_input
@@ -102,7 +103,7 @@ market_trade_input:
     BEQ market_good_down
     TST market_good
     BNE market_good_up
-    LDAA #3
+    LDAA #4
     STAA market_good
 market_good_up:
     DEC market_good
@@ -113,7 +114,7 @@ market_good_down:
     BEQ market_mode_input
     INC market_good
     LDAA market_good
-    CMPA #3
+    CMPA #4
     BCS market_good_changed
     CLR market_good
 market_good_changed:
@@ -138,6 +139,12 @@ market_confirm_trade:
     LDAA input_event
     BITA #16
     BEQ market_input_done
+    LDAB market_good
+    CMPB #3
+    BNE market_confirm_goods
+    LDAA #1
+    JMP game_aux
+market_confirm_goods:
     JMP market_trade
 market_port_input:
     LDAA input_event
@@ -164,6 +171,8 @@ market_input_done:
     RTS
 market_trade:
     LDAB market_good
+    CMPB #3
+    BCC market_input_done
     LDX #market_prices
     ABX
     LDAB 0,X
@@ -359,6 +368,7 @@ game_tile:
     CLRA
     RTS
 game_render:
+    JSR cursor_blink_prepare
     LDAA selection_active
     CMPA market_old_view
     BNE market_layout
@@ -375,7 +385,22 @@ market_render_view:
     JSR market_distance
     STAA market_trip_days
 market_render_values:
+    ; Hide only selection arrows; prices, cargo and trip calculations stay real.
+    LDAA market_good
+    PSHA
+    LDAA market_destination
+    PSHA
+    TST cursor_blink_mask
+    BNE market_blink_hud
+    LDAA #255
+    STAA market_good
+    STAA market_destination
+market_blink_hud:
     JSR visual_hud
+    PULA
+    STAA market_destination
+    PULA
+    STAA market_good
     CLR market_dirty
     RTS
 .section .bss, bss
@@ -438,3 +463,38 @@ market_fare_label: .byte 70,65,82,69,0
 market_port_label: .byte 80,79,82,84,0
 market_sail_help: .byte 83,80,65,67,69,32,83,65,73,76,32,82,69,84,85,82,78,32,66,65,67,75,0
 market_no_fare_label: .byte 78,79,32,70,65,82,69,32,0
+
+; The JR-800 input timer drives focus blinking; input immediately restores it.
+.global cursor_blink_mask
+.global cursor_blink_clock
+.section .text, code
+cursor_blink_prepare:
+    TST hud_ready
+    BEQ cursor_blink_show
+    RTS
+cursor_blink_tick:
+    TST input_event
+    BNE cursor_blink_show
+    LDAA input_ticks
+    SUBA cursor_blink_clock
+    CMPA #25
+    BCS cursor_blink_idle
+    LDAA cursor_blink_mask
+    EORA #128
+    BRA cursor_blink_store
+cursor_blink_show:
+    LDAA #128
+cursor_blink_store:
+    CMPA cursor_blink_mask
+    BEQ cursor_blink_time
+    STAA cursor_blink_mask
+    LDAA #1
+    STAA redraw
+cursor_blink_time:
+    LDAA input_ticks
+    STAA cursor_blink_clock
+cursor_blink_idle:
+    RTS
+.section .bss, bss
+cursor_blink_mask: .space 1
+cursor_blink_clock: .space 1

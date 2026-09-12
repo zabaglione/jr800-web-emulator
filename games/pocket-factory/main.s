@@ -81,6 +81,7 @@ factory_clear_items:
     BNE factory_clear_items
     RTS
 game_update:
+    JSR cursor_blink_tick
     TST resume_pending
     BEQ factory_clock_ready
     CLR resume_pending
@@ -136,7 +137,7 @@ factory_down:
     BEQ factory_left
     LDAA cursor
     CMPA #96
-    BCC factory_simulate
+    BCC factory_main_tool
     ADDA #16
     BRA factory_move
 factory_left:
@@ -144,7 +145,7 @@ factory_left:
     BEQ factory_right
     LDAA cursor
     BITA #15
-    BEQ factory_simulate
+    BEQ factory_main_tool
     DECA
     BRA factory_move
 factory_right:
@@ -187,6 +188,12 @@ factory_changed:
     STAA redraw
 factory_idle:
     RTS
+factory_main_tool:
+    TST running
+    BNE factory_simulate
+    LDAA #1
+    STAA selection_active
+    JMP factory_changed
 factory_simulate:
     TST running
     BEQ factory_idle
@@ -411,15 +418,18 @@ game_tile:
 factory_tile_base:
     LDAA factory_tile
 factory_tile_cursor:
+    TST selection_active
+    BNE factory_tile_done
     LDAB factory_tile_cell
     CMPB cursor
     BNE factory_tile_done
-    ORAA #128
+    ORAA cursor_blink_mask
 factory_tile_done:
     RTS
 game_bonus:
     RTS
 game_render:
+    JSR cursor_blink_prepare
     JSR paint_board
     JMP visual_hud
 .section .bss, bss
@@ -443,3 +453,38 @@ factory_item: .space 1
 factory_tile: .space 1
 factory_next: .space 1
 factory_tile_cell: .space 1
+
+; The JR-800 input timer drives focus blinking; input immediately restores it.
+.global cursor_blink_mask
+.global cursor_blink_clock
+.section .text, code
+cursor_blink_prepare:
+    TST hud_ready
+    BEQ cursor_blink_show
+    RTS
+cursor_blink_tick:
+    TST input_event
+    BNE cursor_blink_show
+    LDAA input_ticks
+    SUBA cursor_blink_clock
+    CMPA #25
+    BCS cursor_blink_idle
+    LDAA cursor_blink_mask
+    EORA #128
+    BRA cursor_blink_store
+cursor_blink_show:
+    LDAA #128
+cursor_blink_store:
+    CMPA cursor_blink_mask
+    BEQ cursor_blink_time
+    STAA cursor_blink_mask
+    LDAA #1
+    STAA redraw
+cursor_blink_time:
+    LDAA input_ticks
+    STAA cursor_blink_clock
+cursor_blink_idle:
+    RTS
+.section .bss, bss
+cursor_blink_mask: .space 1
+cursor_blink_clock: .space 1

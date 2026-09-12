@@ -5,7 +5,7 @@ const keys=['up','down','left','right'],delta=[-15,15,-1,1];
 function neighbor(p,d){const x=p%15+(d===2?-1:d===3?1:0),y=Math.floor(p/15)+(d===0?-1:d===1?1:0);return x>=0&&x<15&&y>=0&&y<7?y*15+x:255;}
 function distances(board,start){const dist=Array(105).fill(255),q=[start];dist[start]=0;for(let i=0;i<q.length;i++)for(let d=0;d<4;d++){const n=neighbor(q[i],d);if(n!==255&&board[n]!==1&&dist[n]===255){dist[n]=dist[q[i]]+1;q.push(n);}}return dist;}
 function reset(s){s.p=16;s.ghosts=[88,76];s.sleep=[0,0];s.power=32;s.ticks=0;s.running=0;s.direction=3;s.queued=3;}
-function fresh(board){const s={board:[...board],lives:3,score:0,phase:2};s.board[16]=0;reset(s);return s;}
+function fresh(board){const s={board:[...board],lives:3,score:0,phase:2};s.board[16]=0;reset(s);s.running=1;return s;}
 function contact(s){for(let i=0;i<2;i++)if(!s.sleep[i]&&s.ghosts[i]===s.p){if(s.power){s.sleep[i]=2;s.ghosts[i]=[88,76][i];s.score+=50;}else{if(--s.lives)reset(s);else{s.running=0;s.phase=5;}return;}}}
 function world(s){if(s.power)s.power--;let n=neighbor(s.p,s.queued);if(n!==255&&s.board[n]!==1)s.direction=s.queued;else n=neighbor(s.p,s.direction);
  if(n!==255&&s.board[n]!==1){s.p=n;if(s.board[n]>=2){s.score+=s.board[n]===3?20:10;if(s.board[n]===3)s.power=32;s.board[n]=0;}}
@@ -18,7 +18,7 @@ function pulse(g,s,key){g.hold(key,true);frame(g,s,key);g.hold(key,false);frame(
 function choose(s){const dist=distances(s.board,s.p),food=Array.from({length:105},(_,p)=>p).filter(p=>s.board[p]>=2);let targets=food;if(s.power<14){const powers=food.filter(p=>s.board[p]===3&&dist[p]<28);if(powers.length)targets=powers;}targets.sort((a,b)=>dist[a]-dist[b]||a-b);const target=targets[0],toTarget=distances(s.board,target);let best=null;
  for(let d=0;d<4;d++){const t=structuredClone(s);t.queued=d;world(t);if(t.lives<s.lives)continue;const score=(s.board[t.p]>=2?20:0)-toTarget[t.p]+(t.power&&!s.power?30:0);if(!best||score>best.score)best={d,score};}return best?.d??0;
 }
-export async function checkMaze(g){const levels=JSON.parse(await readFile(new URL('../maze-chase/levels.json',import.meta.url)));await g.start();const losing=fresh(levels[0]);
+export async function checkMaze(g){const levels=JSON.parse(await readFile(new URL('./levels.json',import.meta.url)));await g.start();const losing=fresh(levels[0]);
  for(let frames=0;losing.phase===2;frames++){assert.ok(frames<8000);if(!losing.running)pulse(g,losing,'space');else frame(g,losing);}
  assert.equal(losing.phase,5);g.tap('space');let second=false,third=false;
  for(let stage=0;stage<12;stage++){
