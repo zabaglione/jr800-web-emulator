@@ -2,12 +2,147 @@
 .global undo_valid
 .section .text, code
 game_render:
-    JSR paint_board
-    JMP visual_hud
+    CLR paint_index
+slide_render_tile:
+    LDAB paint_index
+    JSR game_tile
+    ANDA #127
+    BEQ slide_render_face
+    STAA paint_id
+    LDAB grid_subtile
+    ANDB #3
+    BEQ slide_render_edge
+    CMPB #3
+    BEQ slide_render_edge
+    LDX #board
+    LDAB grid_cell
+    ABX
+    LDAB 0,X
+    CMPB slide_token
+    BNE slide_render_base
+    DECB
+    ASLB
+    ASLB
+    ASLB
+    LDX #slide_token_tiles
+    ABX
+    LDAB grid_subtile
+    ABX
+    LDAA 0,X
+    BRA slide_render_face
+slide_render_edge:
+    LDAB grid_cell
+    CMPB challenge_cells
+    BNE slide_render_base
+    LDAA #105
+    TST challenge_bonus
+    BEQ slide_render_border
+    LDAA #113
+slide_render_border:
+    ADDA grid_subtile
+    BRA slide_render_face
+slide_render_base:
+    LDAA paint_id
+slide_render_face:
+    LDAB paint_index
+    JSR paint_tile
+    INC paint_index
+    LDAA paint_index
+    ANDA #7
+    BNE slide_render_next
+    JSR input_poll
+slide_render_next:
+    LDAA paint_index
+    CMPA #112
+    BNE slide_render_tile
+    JSR slide_frame_center
+    JSR visual_hud
+    ; Match the STAMP number to the inverse tile that must be moved.
+    LDAA slide_token
+    DECA
+    LDAB #6
+    MUL
+    ADDD #slide_stamp_faces
+    STD paint_source
+    LDAA #54
+    STAA paint_x
+    LDAA #6
+    STAA paint_band
+    STAA paint_count
+    JSR paint_address
+    CLR paint_id
+    JMP paint_blit
+
+; Continue the destination's border across the number-bearing middle tiles.
+; Preserve the digit rows, including when the stamped tile leaves this cell.
+slide_frame_center:
+    LDAB challenge_cells
+    ASLB
+    LDX #slide_frame_origins
+    ABX
+    LDAA 0,X
+    STAA paint_x
+    LDAA 1,X
+    STAA paint_band
+    JSR paint_address
+    LDAA #4
+    TST challenge_bonus
+    BEQ slide_frame_bits
+    LDAA #6
+slide_frame_bits:
+    STAA slide_edge_bits
+    LDAA #16
+    STAA paint_count
+slide_frame_column:
+    LDX paint_dest
+    LDAA 0,X
+    ANDA #$F9
+    ORAA slide_edge_bits
+    STAA 0,X
+    LDAA slide_edge_bits
+    ASLA
+    ASLA
+    ASLA
+    ASLA
+    STAA slide_edge_high
+    LDAA 192,X
+    ANDA #$9F
+    ORAA slide_edge_high
+    STAA 192,X
+    INX
+    STX paint_dest
+    TST challenge_bonus
+    BNE slide_frame_next
+    LDAA slide_edge_bits
+    EORA #6
+    STAA slide_edge_bits
+slide_frame_next:
+    DEC paint_count
+    BNE slide_frame_column
+    LDAA paint_band
+    LDAB paint_x
+    JSR dirty_mark
+    LDAA paint_band
+    LDAB paint_x
+    ADDB #15
+    JSR dirty_mark
+    LDAA paint_band
+    INCA
+    LDAB paint_x
+    JSR dirty_mark
+    LDAA paint_band
+    INCA
+    LDAB paint_x
+    ADDB #15
+    JMP dirty_mark
 
 game_start:
     JSR grid_reset
     JSR challenge_start
+    ; The destination has a complete patterned frame, rather than a tiny mark.
+    LDAA #255
+    STAA challenge_view_cells
+    STAA challenge_view_cells + 1
     CLR undo_valid
     LDX #board
     JSR challenge_load
@@ -117,6 +252,8 @@ undo_valid: .space 1
 .section .bss, bss
 slide_token: .space 1
 slide_pending: .space 1
+slide_edge_bits: .space 1
+slide_edge_high: .space 1
 .section .text, code
 game_bonus:
     RTS
