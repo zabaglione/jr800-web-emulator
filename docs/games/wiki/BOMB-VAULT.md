@@ -18,17 +18,21 @@ FUSEが0になると、上下左右へ最大3マスの爆風が広がります�
 
 右側のSCOREが得点で、箱30点、鍵50点、敵100点、脱出200点です。得点は面ごとに集計します。RETURNでメニューを開くと敵と導火線が止まります。PAUSEはメニューを閉じた後も停止を保ち、移動またはSPACEで再開します。RESETとRETRYはその面の箱・鍵・敵も最初に戻します。12面は開始時のSTAGE画面で選べます。
 
+ゲーム開始時は、自分の位置が効果音とともに短く点滅します。
+
+厚みのあるつながった壁、金属扉、爆弾と鍵の形を描き分けています。
+
 ## ゲーム画面
 
-![鍵入りの箱と巡回する敵を確認](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/bomb-vault/gameplay-1.png)
+![鍵入りの箱と巡回する敵を確認](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/bomb-vault/gameplay-1.png)
 
 鍵入りの箱と巡回する敵を確認。
 
-![壁に隠れて爆風を避ける](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/bomb-vault/gameplay-2.png)
+![壁に隠れて爆風を避ける](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/bomb-vault/gameplay-2.png)
 
 壁に隠れて爆風を避ける。
 
-![鍵を集めて出口へ向かう](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/bomb-vault/gameplay-3.png)
+![鍵を集めて出口へ向かう](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/bomb-vault/gameplay-3.png)
 
 鍵を集めて出口へ向かう。
 

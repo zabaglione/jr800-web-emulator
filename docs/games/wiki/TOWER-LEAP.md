@@ -18,17 +18,21 @@ FLOORは到達した最高階、SAVEは落下時に戻る階です。太い足�
 
 RETURNのメニューでは動きが止まります。CHECKPOINTはLIVESを1使って中間地点へ戻ります。RESETとRETRYはそのコースの1階からLIVES3で再挑戦します。開始時のSTAGE画面で12コースを選べます。
 
+ゲーム開始時は、自分の位置が効果音とともに短く点滅します。
+
+横向きの矢印がある足場は左右へ動き、乗っている自分も運ばれます。ひび割れた足場は着地後しばらくすると崩れるので、立ち止まらず次へ跳んでください。空中を巡回する敵に触れてもLIVESを失います。後半のコースほど動く足場や崩れる足場が増え、崩れるまでの猶予も短くなります。
+
 ## ゲーム画面
 
-![足場を見上げて最初のジャンプを準備](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/tower-leap/gameplay-1.png)
+![足場を見上げて最初のジャンプを準備](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/tower-leap/gameplay-1.png)
 
 足場を見上げて最初のジャンプを準備。
 
-![中間地点から次の足場へ跳ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/tower-leap/gameplay-2.png)
+![中間地点から次の足場へ跳ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/tower-leap/gameplay-2.png)
 
 中間地点から次の足場へ跳ぶ。
 
-![頂上へ向けて高い階を登る](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/tower-leap/gameplay-3.png)
+![頂上へ向けて高い階を登る](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/tower-leap/gameplay-3.png)
 
 頂上へ向けて高い階を登る。
 

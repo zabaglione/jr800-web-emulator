@@ -51,17 +51,19 @@
 | 8 | VOID WARD |
 | 9 | CORE ZERO |
 
+操作対象のマスや項目はゆっくり点滅します。方向キーを押すと選択位置がすぐにはっきり表示されます。
+
 ## ゲーム画面
 
-![手札・エナジー・敵の予告](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/df21a0b943c83ab75afbf738d28a5a4286b72324/docs/games/screenshots/circuit-deck/gameplay-1.png)
+![手札・エナジー・敵の予告](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/circuit-deck/gameplay-1.png)
 
 手札・エナジー・敵の予告。
 
-![勝利後の3択報酬](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/df21a0b943c83ab75afbf738d28a5a4286b72324/docs/games/screenshots/circuit-deck/gameplay-2.png)
+![勝利後の3択報酬](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/circuit-deck/gameplay-2.png)
 
 勝利後の3択報酬。
 
-![最終戦のボス](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/df21a0b943c83ab75afbf738d28a5a4286b72324/docs/games/screenshots/circuit-deck/gameplay-3.png)
+![最終戦のボス](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/circuit-deck/gameplay-3.png)
 
 最終戦のボス。
 

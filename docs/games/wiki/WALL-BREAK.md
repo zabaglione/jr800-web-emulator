@@ -16,17 +16,21 @@
 
 RETURNでメニューを開くとボールとパドルが止まります。RELAUNCHはボールを1個消費して発射位置へ戻します。RESETやRETRYでは、選んだ面を3個のボールで最初から遊び直します。得点は面ごとに集計します。12面は開始時のSTAGE画面で自由に選べます。
 
+ゲーム開始時は、自分の位置が効果音とともに短く点滅します。
+
+ブロックは1面の18個から7面の24個まで増え、8面以降も24個を保ちながら装甲付きが増えます。発射、壁への反射、ブロック命中、パドルでの打ち返し、ボールの落下は、それぞれ異なる効果音で知らせます。
+
 ## ゲーム画面
 
-![最初の配置と発射位置](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/wall-break/gameplay-1.png)
+![最初の配置と発射位置](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/wall-break/gameplay-1.png)
 
 最初の配置と発射位置。
 
-![複数回当てるブロックを含む盤面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/wall-break/gameplay-2.png)
+![複数回当てるブロックを含む盤面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/wall-break/gameplay-2.png)
 
 複数回当てるブロックを含む盤面。
 
-![最後に残ったブロックを狙う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/wall-break/gameplay-3.png)
+![最後に残ったブロックを狙う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/wall-break/gameplay-3.png)
 
 最後に残ったブロックを狙う。
 

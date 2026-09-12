@@ -18,17 +18,19 @@
 
 自分の手番ではRETURNのRESETで対戦を最初からやり直せます。メニューのRETRYでも再開できます。方向キーはROLL / BANKと、メニューや難易度の選択に使います。
 
+操作対象のマスや項目はゆっくり点滅します。方向キーを押すと選択位置がすぐにはっきり表示されます。
+
 ## ゲーム画面
 
-![1が出てPOTを失いCPUの手番へ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/beb386220901f9861b50f8c8c72e1e3a7ecc22ed/docs/games/screenshots/push-luck/gameplay-1.png)
+![1が出てPOTを失いCPUの手番へ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/push-luck/gameplay-1.png)
 
 1が出てPOTを失いCPUの手番へ。
 
-![CPUが出目を重ねながら確定を判断](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/beb386220901f9861b50f8c8c72e1e3a7ecc22ed/docs/games/screenshots/push-luck/gameplay-2.png)
+![CPUが出目を重ねながら確定を判断](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/push-luck/gameplay-2.png)
 
 CPUが出目を重ねながら確定を判断。
 
-![21点を確定するか続けるかを選ぶ場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/beb386220901f9861b50f8c8c72e1e3a7ecc22ed/docs/games/screenshots/push-luck/gameplay-3.png)
+![21点を確定するか続けるかを選ぶ場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/push-luck/gameplay-3.png)
 
 21点を確定するか続けるかを選ぶ場面。
 

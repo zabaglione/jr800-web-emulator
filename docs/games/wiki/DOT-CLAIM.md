@@ -16,17 +16,19 @@
 
 CPUの難易度1は空いている辺を順に選び、2はすぐ閉じられる四角を優先し、3は相手に3辺の四角を渡す手も避けます。RETURNのUNDO TURNで直前に引いた辺と、その後のCPUの連続手番をまとめて戻します。RESETで新しい対局にします。
 
+操作対象のマスや項目はゆっくり点滅します。方向キーを押すと選択位置がすぐにはっきり表示されます。
+
 ## ゲーム画面
 
-![点と辺を選んで始める対局](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/5366b5e8b2210c26f39777e1941845eb84cb36a4/docs/games/screenshots/dot-claim/gameplay-1.png)
+![点と辺を選んで始める対局](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/dot-claim/gameplay-1.png)
 
 点と辺を選んで始める対局。
 
-![連続して四角を取り自分の陣地を広げる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/5366b5e8b2210c26f39777e1941845eb84cb36a4/docs/games/screenshots/dot-claim/gameplay-2.png)
+![連続して四角を取り自分の陣地を広げる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/dot-claim/gameplay-2.png)
 
 連続して四角を取り自分の陣地を広げる。
 
-![12個の四角を分け合った対局結果](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/5366b5e8b2210c26f39777e1941845eb84cb36a4/docs/games/screenshots/dot-claim/gameplay-3.png)
+![12個の四角を分け合った対局結果](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/dot-claim/gameplay-3.png)
 
 12個の四角を分け合った対局結果。
 

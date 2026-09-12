@@ -20,17 +20,21 @@ DIFFICULTYは3段階です。難易度を上げるとCPUが球を追う頻度が
 
 RETURNのメニューでは球とCPUが止まります。RESETまたはRETRYで0対0からやり直し、失敗画面のSPACEでも再挑戦できます。勝利後のSPACEで次の難易度へ進みます。
 
+ゲーム開始時は、自分の位置が効果音とともに短く点滅します。
+
+自分とCPUのどちらが得点しても、得点表示の後にジングルが鳴ります。自分の得点は上がる音、CPUの得点は下がる音で区別できます。
+
 ## ゲーム画面
 
-![中央の球をSPACEでサーブし、先に5点を目指す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/rally-return/gameplay-1.png)
+![中央の球をSPACEでサーブし、先に5点を目指す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/rally-return/gameplay-1.png)
 
 中央の球をSPACEでサーブし、先に5点を目指す。
 
-![打点をずらして、CPUが追いにくい角度へ返す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/rally-return/gameplay-2.png)
+![打点をずらして、CPUが追いにくい角度へ返す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/rally-return/gameplay-2.png)
 
 打点をずらして、CPUが追いにくい角度へ返す。
 
-![速いCPUとのラリーで、上下の壁も利用する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/rally-return/gameplay-3.png)
+![速いCPUとのラリーで、上下の壁も利用する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/rally-return/gameplay-3.png)
 
 速いCPUとのラリーで、上下の壁も利用する。
 

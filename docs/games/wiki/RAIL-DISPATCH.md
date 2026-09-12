@@ -22,17 +22,19 @@
 
 まずは中央の区間へ1本ずつ通す運行を試してください。RETURNのRESETまたはRETRYで課題を最初からやり直せます。失敗画面ではSPACEで再挑戦します。全12課題は開始時のSTAGE画面で選べます。
 
+操作対象のマスや項目はゆっくり点滅します。方向キーを押すと選択位置がすぐにはっきり表示されます。
+
 ## ゲーム画面
 
-![上下の入口信号とA・B駅への分岐を設定する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/rail-dispatch/gameplay-1.png)
+![上下の入口信号とA・B駅への分岐を設定する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/rail-dispatch/gameplay-1.png)
 
 上下の入口信号とA・B駅への分岐を設定する。
 
-![待機列車を残し、中央へ1本ずつ通す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/rail-dispatch/gameplay-2.png)
+![待機列車を残し、中央へ1本ずつ通す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/rail-dispatch/gameplay-2.png)
 
 待機列車を残し、中央へ1本ずつ通す。
 
-![終盤の列車を正しい行き先へ送り出す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/rail-dispatch/gameplay-3.png)
+![終盤の列車を正しい行き先へ送り出す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/rail-dispatch/gameplay-3.png)
 
 終盤の列車を正しい行き先へ送り出す。
 

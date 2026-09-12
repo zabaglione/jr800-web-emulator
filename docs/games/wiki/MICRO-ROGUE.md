@@ -24,17 +24,19 @@ MICRO ROGUEは独立した小規模ローグライクです。元のRELIC DIVE�
 
 RETURNで停止メニューを開きます。WAITで1手待機し、RESETとRETRYは装備も含めて1階からやり直します。失敗画面ではSPACEで再挑戦します。開始時のDIFFICULTY画面で難易度を選べます。
 
+ゲーム開始時は、自分の位置が効果音とともに短く点滅します。
+
 ## ゲーム画面
 
-![装備と薬を拾い、追跡する敵に備える](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/micro-rogue/gameplay-1.png)
+![装備と薬を拾い、追跡する敵に備える](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/micro-rogue/gameplay-1.png)
 
 装備と薬を拾い、追跡する敵に備える。
 
-![3階で強化した装備を使って戦う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/micro-rogue/gameplay-2.png)
+![3階で強化した装備を使って戦う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/micro-rogue/gameplay-2.png)
 
 3階で強化した装備を使って戦う。
 
-![最終階で残った強敵と向き合う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/micro-rogue/gameplay-3.png)
+![最終階で残った強敵と向き合う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/micro-rogue/gameplay-3.png)
 
 最終階で残った強敵と向き合う。
 

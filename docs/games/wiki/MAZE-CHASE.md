@@ -10,7 +10,7 @@
 
 ## 遊び方
 
-SPACEで開始し、方向キーで迷路を進みます。小さな粒をすべて集めるとクリアです。小さな粒は10点、大きな粒は20点です。SCOREが得点、FOODが残りの粒数です。方向入力は保持され、曲がれる場所で入力した方向へ曲がります。曲がれない場合は現在の方向へ進み、壁の前では止まります。
+開始位置の点滅とジングルの後に自動で開始し、方向キーで迷路を進みます。小さな粒をすべて集めるとクリアです。小さな粒は10点、大きな粒は20点です。SCOREが得点、FOODが残りの粒数です。方向入力は保持され、曲がれる場所で入力した方向へ曲がります。曲がれない場合は現在の方向へ進み、壁の前では止まります。
 
 追跡者はプレイヤーへの距離を計算して近づきます。大きな粒を取るとPOWERが32になり、その間は追跡者が逃げるようになります。接触すると50点を獲得し、その追跡者はしばらく消えてから開始位置へ戻ります。POWERは時間経過で減り、メニューを開いた間は減りません。開始時と残機を失った後にもPOWERが32あります。
 
@@ -18,17 +18,19 @@ POWERがない状態で追跡者に触れるとLIVESを1失います。集めた
 
 RETURNでメニューを開くと全体が止まります。PAUSEではメニューを閉じても停止を保ち、SPACEで再開します。RESETやRETRYは粒も含めて選んだ面を最初からやり直します。独自制作の12迷路を、開始時のSTAGE画面から選べます。
 
+ゲーム開始時は、自分の位置が効果音とともに短く点滅します。
+
 ## ゲーム画面
 
-![粒とパワー粒の位置を確認して開始](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/maze-chase/gameplay-1.png)
+![粒とパワー粒の位置を確認して開始](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/maze-chase/gameplay-1.png)
 
 粒とパワー粒の位置を確認して開始。
 
-![追跡者をかわしながら迷路を巡る](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/maze-chase/gameplay-2.png)
+![追跡者をかわしながら迷路を巡る](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/maze-chase/gameplay-2.png)
 
 追跡者をかわしながら迷路を巡る。
 
-![残り9個の粒を狙う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/maze-chase/gameplay-3.png)
+![残り9個の粒を狙う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/maze-chase/gameplay-3.png)
 
 残り9個の粒を狙う。
 

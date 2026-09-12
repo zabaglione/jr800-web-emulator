@@ -16,17 +16,19 @@ CPUは即勝利・リーチへの防御・両端が空いている三連や四�
 
 RETURNからUNDO TURNで自分とCPUの直前の1ターンを戻せます。RESETまたはRETRYで新しい対局を開始します。
 
+操作対象のマスや項目はゆっくり点滅します。方向キーを押すと選択位置がすぐにはっきり表示されます。
+
 ## ゲーム画面
 
-![白と黒が中央から攻める序盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/five-stones/gameplay-1.png)
+![白と黒が中央から攻める序盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/five-stones/gameplay-1.png)
 
 白と黒が中央から攻める序盤。
 
-![複数の方向へ石を伸ばす中盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/five-stones/gameplay-2.png)
+![複数の方向へ石を伸ばす中盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/five-stones/gameplay-2.png)
 
 複数の方向へ石を伸ばす中盤。
 
-![最後の攻め筋を作る場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/five-stones/gameplay-3.png)
+![最後の攻め筋を作る場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/five-stones/gameplay-3.png)
 
 最後の攻め筋を作る場面。
 

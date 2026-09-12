@@ -14,19 +14,25 @@
 
 RETURNメニューから1手戻しと再挑戦ができます。
 
+移動するパネルが空き場所へ滑り込む途中も表示します。目標位置の枠模様は、移動後にその場所へ戻ります。
+
 ## ゲーム画面
 
-![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/52eaa055b473287ca5188b3cae2d908bb0a533f8/docs/games/screenshots/slide-nine/gameplay-1.png)
+![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/slide-nine/gameplay-1.png)
 
 第1面の初期配置と規定手数。
 
-![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/52eaa055b473287ca5188b3cae2d908bb0a533f8/docs/games/screenshots/slide-nine/gameplay-2.png)
+![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/slide-nine/gameplay-2.png)
 
 第31面で追加目標に挑戦している場面。
 
-![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/52eaa055b473287ca5188b3cae2d908bb0a533f8/docs/games/screenshots/slide-nine/gameplay-3.png)
+![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/slide-nine/gameplay-3.png)
 
 第40面を規定手数と追加目標の両方を満たしてクリア。
+
+![空き場所へ滑り込む途中のパネル](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/slide-nine/motion.png)
+
+空き場所へ滑り込む途中のパネル。
 
 ## 40面のチャレンジと評価
 
@@ -59,7 +65,7 @@ HUDの **USED** は使った手数、**PAR** は規定手数です。規定手�
 
 コードは**面と評価**を記録します。盤面の途中状態は含みません。BASICへ戻る前にLOAD RECORDを控えると、次回の起動後に記録を復元できます。入力したLOAD RECORDの内容で全40面のBESTが置き換わるため、新しい記録を控えてから復元してください。
 
-![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/52eaa055b473287ca5188b3cae2d908bb0a533f8/docs/games/screenshots/slide-nine/selection.png)
+![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/slide-nine/selection.png)
 
 面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。
 

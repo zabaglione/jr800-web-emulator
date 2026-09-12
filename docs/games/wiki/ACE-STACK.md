@@ -16,17 +16,19 @@ Aは1、Tは10、Jは11、Qは12、Kは13です。下に重なる2枚がなく�
 
 ピラミッド28枚をすべて取り除くとクリアです。山札が尽き、取り除けるKも合計13の組もないと失敗します。山札の使い切りには注意してください。RETURNのUNDOは直前の組の除去またはDRAWを1回戻します。RETRYで同じ配札を最初から遊び直せます。20面すべては標準52枚の各数字4枚から作った独自配札です。MOVESは除去とDRAWを数えた手数です。
 
+操作対象のマスや項目はゆっくり点滅します。方向キーを押すと選択位置がすぐにはっきり表示されます。
+
 ## ゲーム画面
 
-![下段から取り除きピラミッドを崩す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/741b3fd2a54a74533ba3c763e9b1bff70868e079/docs/games/screenshots/ace-stack/gameplay-1.png)
+![下段から取り除きピラミッドを崩す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/ace-stack/gameplay-1.png)
 
 下段から取り除きピラミッドを崩す。
 
-![捨て札との組を選んで上段を開ける](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/741b3fd2a54a74533ba3c763e9b1bff70868e079/docs/games/screenshots/ace-stack/gameplay-2.png)
+![捨て札との組を選んで上段を開ける](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/ace-stack/gameplay-2.png)
 
 捨て札との組を選んで上段を開ける。
 
-![残り7枚になった最終面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/741b3fd2a54a74533ba3c763e9b1bff70868e079/docs/games/screenshots/ace-stack/gameplay-3.png)
+![残り7枚になった最終面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/ace-stack/gameplay-3.png)
 
 残り7枚になった最終面。
 

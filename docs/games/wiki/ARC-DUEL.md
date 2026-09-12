@@ -14,17 +14,19 @@ Aは角度（15〜75度）、Pは威力（2〜9）、Wは風です。>の風は�
 
 上下で角度、左右で威力を調整し、SPACEで発射します。ラウンド終了後もSPACEで続行。RETURNの **NEXT TERRAIN** は次の地形で対戦を最初からやり直し、**TOGGLE HELP** は案内を切り替えます。
 
+ゲーム開始時は、自分の位置が効果音とともに短く点滅します。
+
 ## ゲーム画面
 
-![風・角度・威力を決める](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/arc-duel/gameplay-1.png)
+![風・角度・威力を決める](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/arc-duel/gameplay-1.png)
 
 風・角度・威力を決める。
 
-![放物線を描く砲弾](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/arc-duel/gameplay-2.png)
+![放物線を描く砲弾](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/arc-duel/gameplay-2.png)
 
 放物線を描く砲弾。
 
-![爆発で変形した地形での対戦](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/arc-duel/gameplay-3.png)
+![爆発で変形した地形での対戦](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/arc-duel/gameplay-3.png)
 
 爆発で変形した地形での対戦。
 

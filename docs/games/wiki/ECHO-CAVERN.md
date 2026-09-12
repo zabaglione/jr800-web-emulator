@@ -16,23 +16,25 @@
 
 AIRは1〜4面が64、5〜8面が60、9〜12面が56で始まります。酸素ボンベを拾うと24回復し、上限は99です。消費後のAIRが0になると、ボンベや出口のマスでも失敗します。ボンベは一度拾うと消えるため、往復して回復を繰り返すことはできません。
 
-菱形の結晶を3個集めてGEMSを0にし、矢印の出口へ進むとクリアします。結晶は各100点、クリア時は残りAIR×5点です。SCOREは得点、右上の数字は面番号、MAPPEDは調査済みのマス数を表します。
+菱形の結晶を3個集めてGEMSを0にし、扉の出口へ進むとクリアします。扉は最初は閉じていて、結晶をすべて集めると開きます。右下の同じ扉アイコンとEXIT LOCKED／EXIT OPENでも状態を確認できます。結晶は各100点、クリア時は残りAIR×5点です。SCOREは得点、右上の数字は面番号、MAPPEDは調査済みのマス数を表します。
 
 RETURNでメニューを開きます。SONARはSPACEと同じ音波操作、RESETとRETRYはその面のやり直しです。失敗画面ではSPACEで再挑戦します。全12面は開始時のSTAGE画面で選べます。
 
+ゲーム開始時は、自分の位置が効果音とともに短く点滅します。
+
 ## ゲーム画面
 
-![入口から音波で調べた範囲と未調査の洞窟](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/echo-cavern/gameplay-1.png)
+![入口から音波で調べた範囲と未調査の洞窟](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/echo-cavern/gameplay-1.png)
 
 入口から音波で調べた範囲と未調査の洞窟。
 
-![通路に沿って広がる調査記録](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/echo-cavern/gameplay-2.png)
+![結晶が残っている間は閉じている出口](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/echo-cavern/gameplay-2.png)
 
-通路に沿って広がる調査記録。
+結晶が残っている間は閉じている出口。
 
-![結晶を集め、酸素を残して出口を探す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/echo-cavern/gameplay-3.png)
+![結晶を3個集めて開いた出口](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/echo-cavern/gameplay-3.png)
 
-結晶を集め、酸素を残して出口を探す。
+結晶を3個集めて開いた出口。
 
 ## 共通操作
 

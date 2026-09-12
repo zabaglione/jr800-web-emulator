@@ -16,17 +16,19 @@
 
 CPUの難易度1は前進を優先し、2は取り合いと取り返される危険を評価し、3は次の手で突破される配置も避けます。FOESはCPUの残り駒数です。RETURNは選択取消、選択していないときはメニューです。UNDO TURNで直前の自分とCPUの手をまとめて戻し、RESETで対局をやり直せます。
 
+操作対象のマスや項目はゆっくり点滅します。方向キーを押すと選択位置がすぐにはっきり表示されます。
+
 ## ゲーム画面
 
-![白と黒の12個ずつの駒で対局開始](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/b03a0eac526893f05942666005d2b6243419d758/docs/games/screenshots/pawn-race/gameplay-1.png)
+![白と黒の12個ずつの駒で対局開始](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/pawn-race/gameplay-1.png)
 
 白と黒の12個ずつの駒で対局開始。
 
-![選択した駒の移動先を確認](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/b03a0eac526893f05942666005d2b6243419d758/docs/games/screenshots/pawn-race/gameplay-2.png)
+![選択した駒の移動先を確認](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/pawn-race/gameplay-2.png)
 
 選択した駒の移動先を確認。
 
-![突破を狙う駒と後方の守り](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/b03a0eac526893f05942666005d2b6243419d758/docs/games/screenshots/pawn-race/gameplay-3.png)
+![突破を狙う駒と後方の守り](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/pawn-race/gameplay-3.png)
 
 突破を狙う駒と後方の守り。
 

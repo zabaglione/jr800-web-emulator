@@ -12,21 +12,27 @@
 
 方向キーでマスを選び、SPACEで選択中の設備を置きます。ベルトは矢印方向へ送り、PRESS A/Bは対応する原料を製品へ加工して右へ送ります。両製品を指定数出荷すればクリアです。追加目標は、加工済みの製品を2か所の印へ通してからクリアすることです。
 
-RETURNメニューの SELECT TOOL でベルト4方向・加工機2種類・ERASEを選び、RUN / PAUSE で生産と配置を切り替えます。設備の新設・変更・消去がそれぞれ1手です。同じ設備の再指定、カーソル移動、工具選択、実行切替は手数に含めません。規定手数は、両方の印を経由する確認済み設備配置が基準です。
+配置中に盤面の左端から左、または下端から下を押すと、メイン画面の工具選択へ移ります。方向キーでベルト4方向・加工機2種類・ERASEを選び、SPACEで決定して盤面へ戻ります。RETURNメニューのRUN / PAUSEで生産と配置を切り替えます。設備の新設・変更・消去がそれぞれ1手です。同じ設備の再指定、カーソル移動、工具選択、実行切替は手数に含めません。規定手数は、両方の印を経由する確認済み設備配置が基準です。
+
+操作対象のマスや項目はゆっくり点滅します。方向キーを押すと選択位置がすぐにはっきり表示されます。
 
 ## ゲーム画面
 
-![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/pocket-factory/gameplay-1.png)
+![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/pocket-factory/gameplay-1.png)
 
 第1面の初期配置と規定手数。
 
-![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/pocket-factory/gameplay-2.png)
+![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/pocket-factory/gameplay-2.png)
 
 第31面で追加目標に挑戦している場面。
 
-![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/pocket-factory/gameplay-3.png)
+![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/pocket-factory/gameplay-3.png)
 
 第40面を規定手数と追加目標の両方を満たしてクリア。
+
+![メイン画面で選択できる工具](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/pocket-factory/motion.png)
+
+メイン画面で選択できる工具。
 
 ## 40面のチャレンジと評価
 
@@ -59,7 +65,7 @@ HUDの **USED** は使った手数、**PAR** は規定手数です。規定手�
 
 コードは**面と評価**を記録します。盤面の途中状態は含みません。BASICへ戻る前にLOAD RECORDを控えると、次回の起動後に記録を復元できます。入力したLOAD RECORDの内容で全40面のBESTが置き換わるため、新しい記録を控えてから復元してください。
 
-![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/pocket-factory/selection.png)
+![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/pocket-factory/selection.png)
 
 面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。
 

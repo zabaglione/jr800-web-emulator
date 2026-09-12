@@ -20,17 +20,19 @@ HPは9から始まり、0になると失敗します。鍵を拾うとKEYSが増
 
 RETURNで停止メニューを開き、RESETまたはRETRYでその面をやり直せます。失敗画面ではSPACEで再挑戦します。全12面は開始時のSTAGE画面で選択できます。
 
+ゲーム開始時は、自分の位置が効果音とともに短く点滅します。
+
 ## ゲーム画面
 
-![扉と資源の位置を読み、遺跡の順路を考える](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/relay-quest/gameplay-1.png)
+![扉と資源の位置を読み、遺跡の順路を考える](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/relay-quest/gameplay-1.png)
 
 扉と資源の位置を読み、遺跡の順路を考える。
 
-![守衛へ向かって攻撃し、通路を確保する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/relay-quest/gameplay-2.png)
+![守衛へ向かって攻撃し、通路を確保する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/relay-quest/gameplay-2.png)
 
 守衛へ向かって攻撃し、通路を確保する。
 
-![2基を回収し、残り体力を保って出口へ向かう](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/relay-quest/gameplay-3.png)
+![2基を回収し、残り体力を保って出口へ向かう](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/relay-quest/gameplay-3.png)
 
 2基を回収し、残り体力を保って出口へ向かう。
 

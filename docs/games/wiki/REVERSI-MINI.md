@@ -18,21 +18,23 @@ YOUとCPUは現在の枚数、MOVESは自分の手数です。置ける場所が
 
 RETURNからUNDO TURNで自分の前の手番まで戻れます。自動パスに続くCPUの複数手もまとめて戻します。RESETまたはRETRYで最初から再対戦できます。
 
+操作対象のマスや項目はゆっくり点滅します。方向キーを押すと選択位置がすぐにはっきり表示されます。
+
 ## ゲーム画面
 
-![中央の4枚と合法手を示す＋印](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f766716440814d6dc06e63faa0997e0615832381/docs/games/screenshots/reversi-mini/gameplay-1.png)
+![中央の4枚と合法手を示す＋印](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/reversi-mini/gameplay-1.png)
 
 中央の4枚と合法手を示す＋印。
 
-![辺を確保して返す範囲が広がった中盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f766716440814d6dc06e63faa0997e0615832381/docs/games/screenshots/reversi-mini/gameplay-2.png)
+![辺を確保して返す範囲が広がった中盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/reversi-mini/gameplay-2.png)
 
 辺を確保して返す範囲が広がった中盤。
 
-![残りの空きマスと枚数を読み合う終盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f766716440814d6dc06e63faa0997e0615832381/docs/games/screenshots/reversi-mini/gameplay-3.png)
+![残りの空きマスと枚数を読み合う終盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/reversi-mini/gameplay-3.png)
 
 残りの空きマスと枚数を読み合う終盤。
 
-![白の着手と反転、CPUの着手位置の点滅、黒への反転の順に進む演出](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f766716440814d6dc06e63faa0997e0615832381/docs/games/screenshots/reversi-mini/turn-animation.gif)
+![白の着手と反転、CPUの着手位置の点滅、黒への反転の順に進む演出](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/reversi-mini/turn-animation.gif)
 
 白の着手と反転、CPUの着手位置の点滅、黒への反転の順に進む演出。
 

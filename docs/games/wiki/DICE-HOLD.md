@@ -18,17 +18,19 @@ ONES〜SIXESは対応する数字の合計です。3-KINDと4-KINDは同じ目�
 
 13欄をすべて埋めたとき、TOTALがGOAL以上ならクリアです。難易度1・2・3の目標は150・200・250点です。LEFTは残りの得点欄です。得点を確定した後の取り消しはありません。RETRYで新しいゲームを始めます。
 
+操作対象のマスや項目はゆっくり点滅します。方向キーを押すと選択位置がすぐにはっきり表示されます。
+
 ## ゲーム画面
 
-![5個の出目から保持するダイスを選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/1262d910e072b89cf5e77ecf6250ce098f80d9dd/docs/games/screenshots/dice-hold/gameplay-1.png)
+![5個の出目から保持するダイスを選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/dice-hold/gameplay-1.png)
 
 5個の出目から保持するダイスを選ぶ。
 
-![保持したダイスを残して振り直した場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/1262d910e072b89cf5e77ecf6250ce098f80d9dd/docs/games/screenshots/dice-hold/gameplay-2.png)
+![保持したダイスを残して振り直した場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/dice-hold/gameplay-2.png)
 
 保持したダイスを残して振り直した場面。
 
-![得点欄ごとの点数と使用済みの印を確認](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/1262d910e072b89cf5e77ecf6250ce098f80d9dd/docs/games/screenshots/dice-hold/gameplay-3.png)
+![得点欄ごとの点数と使用済みの印を確認](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/dice-hold/gameplay-3.png)
 
 得点欄ごとの点数と使用済みの印を確認。
 

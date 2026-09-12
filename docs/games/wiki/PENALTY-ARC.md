@@ -20,17 +20,21 @@ SHOTは現在のシュート番号、GOALSは決まった本数、上部のNEE�
 
 RETURNのメニューではPOWER・キーパー・球が止まります。CANCELはPOWERを溜めている状態だけを取り消し、シュートを消費せずREADYへ戻します。飛行中と結果表示中は取り消せません。RESETまたはRETRYで10本の挑戦を最初からやり直します。失敗画面のSPACEで再挑戦、クリア後のSPACEで次の難易度へ進みます。
 
+操作対象のマスや項目はゆっくり点滅します。方向キーを押すと選択位置がすぐにはっきり表示されます。
+
+ゴールが決まると得点を表示して、短い上昇音のジングルを鳴らします。
+
 ## ゲーム画面
 
-![5つのコースと高低を選び、SPACEで強さの計測を始める](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/penalty-arc/gameplay-1.png)
+![5つのコースと高低を選び、SPACEで強さの計測を始める](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/penalty-arc/gameplay-1.png)
 
 5つのコースと高低を選び、SPACEで強さの計測を始める。
 
-![キーパーの位置とPOWERを見て蹴る瞬間を選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/penalty-arc/gameplay-2.png)
+![キーパーの位置とPOWERを見て蹴る瞬間を選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/penalty-arc/gameplay-2.png)
 
 キーパーの位置とPOWERを見て蹴る瞬間を選ぶ。
 
-![飛び込むキーパーをかわしてゴールを狙う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/penalty-arc/gameplay-3.png)
+![飛び込むキーパーをかわしてゴールを狙う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/penalty-arc/gameplay-3.png)
 
 飛び込むキーパーをかわしてゴールを狙う。
 

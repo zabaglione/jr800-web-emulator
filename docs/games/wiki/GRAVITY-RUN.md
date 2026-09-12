@@ -10,27 +10,29 @@
 
 ## 遊び方
 
-SPACEで走り始めます。走行中にSPACEを押すと重力が反転し、車体が床または天井へ引かれます。1回の進行ごとに縦へ1マス移動するため、反対側へ渡るには4回の進行が必要です。障害物が近づく前に切り替えてください。
+開始位置の点滅と短いジングルの後、自動で走り始めます。走行中にSPACEを押すと重力が反転し、車体が床または天井へ引かれます。1回の進行ごとに縦へ1マス移動するため、反対側へ渡るには4回の進行が必要です。障害物が近づく前に切り替えてください。
 
 上またはW・テンキー8で天井方向、下またはS・テンキー2で床方向を直接指定することもできます。車体の白い印と画面上のGRAVITY UP／GRAVITY DOWNが現在の向きです。左右の移動は自動です。SPACEを押し続けても反転は1回だけで、次の反転には一度キーを離す必要があります。
 
-三角の障害物へ触れるとLIVESを1失います。DISTが32未満なら開始地点、32以降なら中間地点へ戻り、SPACEで再開します。LIVES3を使い切ると失敗です。DISTが64になるとクリアします。
+三角の障害物へ触れるとLIVESを1失います。DISTが32未満なら開始地点、32以降なら中間地点へ戻り、SPACEで再開します。LIVES3を使い切ると失敗です。DISTが64になると右側にCLEARを表示し、走行を止めずに次のコースへ進みます。12コース目の後は1コース目へ続きます。
 
-星は1個10点で、クリアすると100点が加わります。星をすべて取る必要はありません。一度取った星は落下後も取得済みのままで、二重に得点できません。左側のSCOREが得点です。後半のコースほど進行間隔が短く、障害物の高さも増えます。
+星は1個10点で、クリアすると100点が加わります。星をすべて取る必要はありません。一度取った星は落下後も取得済みのままで、二重に得点できません。左側のSCOREが得点です。得点と残機は次のコースへ引き継ぎます。序盤から低い障害物、上下の棚、中央を塞ぐ障害物、段状の突起がコースごとに切り替わります。後半ほど進行間隔も短くなります。画面は車体の上下移動に合わせて少し縦にも動きます。
 
 RETURNでメニューを開くと停止します。PAUSEはメニューを閉じた後も停止を保ち、SPACEで再開します。RESETとRETRYは星と得点も含めて、そのコースの最初からやり直します。12コースは開始時のSTAGE画面で選べます。
 
+ゲーム開始時は、自分の位置が効果音とともに短く点滅します。
+
 ## ゲーム画面
 
-![障害物と星が近づく開始地点](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/gravity-run/gameplay-1.png)
+![障害物と星が近づく開始地点](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/gravity-run/gameplay-1.png)
 
 障害物と星が近づく開始地点。
 
-![重力を切り替えて通路を横断](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/gravity-run/gameplay-2.png)
+![重力を切り替えて通路を横断](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/gravity-run/gameplay-2.png)
 
 重力を切り替えて通路を横断。
 
-![後半の障害物の間を通り抜ける](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/gravity-run/gameplay-3.png)
+![後半の障害物の間を通り抜ける](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/gravity-run/gameplay-3.png)
 
 後半の障害物の間を通り抜ける。
 

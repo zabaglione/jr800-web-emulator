@@ -18,17 +18,19 @@ SPACEで移動を開始します。方向キーで進行方向を変え、ひし
 
 RETURNでメニューを開くと時間が止まります。PAUSEはメニューを閉じた後も停止し、SPACEで再開します。RESETやRETRYで最初から遊び直します。食べ物は空いているマスにJR-800側の乱数で配置します。
 
+ゲーム開始時は、自分の位置が効果音とともに短く点滅します。
+
 ## ゲーム画面
 
-![食べ物と進む方向を見て開始](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/tail-trail/gameplay-1.png)
+![食べ物と進む方向を見て開始](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/tail-trail/gameplay-1.png)
 
 食べ物と進む方向を見て開始。
 
-![食べ物を10個集めて長くなった尾](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/tail-trail/gameplay-2.png)
+![食べ物を10個集めて長くなった尾](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/tail-trail/gameplay-2.png)
 
 食べ物を10個集めて長くなった尾。
 
-![高速な難易度で自分の尾を避ける](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/tail-trail/gameplay-3.png)
+![高速な難易度で自分の尾を避ける](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/tail-trail/gameplay-3.png)
 
 高速な難易度で自分の尾を避ける。
 

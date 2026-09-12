@@ -144,17 +144,19 @@ THIEFに盗まれた分は含まれません。
 SUSPENDからはSPACEで再開します。エミュレーターの汎用状態保存は任意の場面で使えます。BREAKでBASICへ終了します。元版のRETURN決定／SPACE取消から、この版では共通操作に合わせて変更しています。クリア時は完成した盤面を残し、ジングル後にGOLDなどの結果を表示します。
 
 
+ゲーム開始時は、自分の位置が効果音とともに短く点滅します。
+
 ## ゲーム画面
 
-![HARDの1階。明るい床と石壁をたどり、食料と装備を集める](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/relic-dive-gfx/gameplay-1.png)
+![HARDの1階。明るい床と石壁をたどり、食料と装備を集める](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/relic-dive-gfx/gameplay-1.png)
 
 HARDの1階。明るい床と石壁をたどり、食料と装備を集める。
 
-![10階で毒を受けた場面。回復手段と食料を考えて進む](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/relic-dive-gfx/gameplay-2.png)
+![10階で毒を受けた場面。回復手段と食料を考えて進む](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/relic-dive-gfx/gameplay-2.png)
 
 10階で毒を受けた場面。回復手段と食料を考えて進む。
 
-![20階の遺物を回収した瞬間。残った盤面のままクリアジングルが流れる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/relic-dive-gfx/gameplay-3.png)
+![20階の遺物を回収した瞬間。残った盤面のままクリアジングルが流れる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/relic-dive-gfx/gameplay-3.png)
 
 20階の遺物を回収した瞬間。残った盤面のままクリアジングルが流れる。
 

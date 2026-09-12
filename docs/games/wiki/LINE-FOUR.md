@@ -18,21 +18,23 @@ RETURNからUNDO TURNで自分とCPUの直前の1ターンを戻し、RESETま�
 
 自分とCPUのディスクは、選んだ列の最上段から1段ずつ落下します。着地してから次の手を処理するため、どこへ置いたかを追えます。落下中もRETURNで停止でき、UNDOは途中からでも直前のターンへ戻ります。
 
+操作対象のマスや項目はゆっくり点滅します。方向キーを押すと選択位置がすぐにはっきり表示されます。
+
 ## ゲーム画面
 
-![最初のディスク配置と選択中の列](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/line-four/gameplay-1.png)
+![最初のディスク配置と選択中の列](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/line-four/gameplay-1.png)
 
 最初のディスク配置と選択中の列。
 
-![両端のリーチを狙う中盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/line-four/gameplay-2.png)
+![両端のリーチを狙う中盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/line-four/gameplay-2.png)
 
 両端のリーチを狙う中盤。
 
-![最高難易度で縦と斜めを競う場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/line-four/gameplay-3.png)
+![最高難易度で縦と斜めを競う場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/line-four/gameplay-3.png)
 
 最高難易度で縦と斜めを競う場面。
 
-![ディスクが最下段へ落ちていく途中](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/line-four/motion.png)
+![ディスクが最下段へ落ちていく途中](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/line-four/motion.png)
 
 ディスクが最下段へ落ちていく途中。
 

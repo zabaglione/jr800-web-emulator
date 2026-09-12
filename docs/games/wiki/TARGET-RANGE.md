@@ -10,7 +10,7 @@
 
 ## 遊び方
 
-SPACEで始めると、9枚のパネルに標的が現れます。方向キーで照準を動かし、丸い標的に合わせてSPACEを押してください。白黒が反転したパネルが現在の照準です。早く撃つほど命中の得点が増えます。
+SPACEで始めると、9枚のパネルに標的が現れます。方向キーで照準を動かし、丸い標的に合わせてSPACEを押してください。白黒がゆっくり反転するパネルが現在の照準です。早く撃つほど命中の得点が増えます。
 
 大きなバツ印は撃ってはいけません。バツ印しか出ない回は、何も撃たずにTIMEが尽きるまで待つとSAFEになり、10点が入ります。丸い標的を時間内に撃てなければMISS、別のパネルを撃つとWRONGで、どちらもミスが1増えます。ミス3回で失敗です。
 
@@ -20,19 +20,27 @@ SPACEで始めると、9枚のパネルに標的が現れます。方向キー�
 
 RETURNでメニューを開くと残り時間を保って停止します。RETRYとRESETは得点・ミス・提示回数を最初に戻します。開始時のDIFFICULTY画面で3段階を選べます。
 
+操作対象のマスや項目はゆっくり点滅します。方向キーを押すと選択位置がすぐにはっきり表示されます。
+
+木枠のパネルが横から回転し、標的や命中・失敗の印を表示します。回転中は制限時間を止め、表の図柄が見えてから判断できるようにしています。
+
 ## ゲーム画面
 
-![9枚のパネルから照準を選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/target-range/gameplay-1.png)
+![9枚のパネルから照準を選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/target-range/gameplay-1.png)
 
 9枚のパネルから照準を選ぶ。
 
-![丸い標的へ照準を合わせる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/target-range/gameplay-2.png)
+![丸い標的へ照準を合わせる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/target-range/gameplay-2.png)
 
 丸い標的へ照準を合わせる。
 
-![バツ印を見送ってSAFEを得る](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/target-range/gameplay-3.png)
+![バツ印を見送ってSAFEを得る](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/target-range/gameplay-3.png)
 
 バツ印を見送ってSAFEを得る。
+
+![横向きまで回転したパネル](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/target-range/motion.png)
+
+横向きまで回転したパネル。
 
 ## 共通操作
 

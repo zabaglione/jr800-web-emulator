@@ -12,7 +12,7 @@
 
 取引画面では上／下（8／2、W／S）で商品を選び、左（4、A）でBUY、右（6、D）でSELLを選びます。SPACEで1個を売買します。RICEは米、OREは鉱石、SPICEは香辛料です。PRICEは現在の価格、HOLDはその商品の所持数、LOADは合計積載数／上限です。資金不足・満載・在庫なしの場合は取引せず、資金や荷物を変更しません。
 
-RETURNのメニューからSAILを選ぶと出航先の一覧を開きます。方向キーで港を選び、SPACEで出航、RETURNで取り消します。一覧の価格は各港へ到着する日の価格です。DAYSが日数、FAREが運賃、CASHが現在の所持金です。同じ港を選ぶと取引画面へ戻り、日数と運賃はかかりません。
+商品リストのSPICEの次にあるSAILを上／下で選び、SPACEを押すと出航先の一覧を開きます。方向キーで港を選び、SPACEで出航、RETURNで取り消します。一覧の価格は各港へ到着する日の価格です。DAYSが日数、FAREが運賃、CASHが現在の所持金です。同じ港を選ぶと取引画面へ戻り、日数と運賃はかかりません。
 
 港はNORTH・EAST・SOUTH・WESTの順に輪でつながり、隣の港は1日、反対側は2日かかります。運賃は1日あたり2コインです。価格は港・商品・日付によって変化します。同じ日の同じ港では買値と売値は同じです。出航の取消では日数・資金・荷物は変わりません。
 
@@ -22,17 +22,19 @@ GOAL以上の現金を得る売却でクリアします。商品の評価額は�
 
 課題1〜4は容量6・期限8日、5〜8は容量8・期限10日、9〜12は容量10・期限12日です。目標は80から20刻みで300まで、初期資金は課題順に24・28・32を繰り返します。右上は課題番号です。RETURNのRETRYでやり直し、失敗画面ではSPACEで再挑戦します。全12課題は開始時のSTAGE画面で選べます。
 
+操作対象のマスや項目はゆっくり点滅します。方向キーを押すと選択位置がすぐにはっきり表示されます。
+
 ## ゲーム画面
 
-![港の相場と積載量を見て売買する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/market-harbor/gameplay-1.png)
+![港の相場と積載量を見て売買する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/market-harbor/gameplay-1.png)
 
 港の相場と積載量を見て売買する。
 
-![到着日の価格と運賃を比べて出航先を選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/market-harbor/gameplay-2.png)
+![到着日の価格と運賃を比べて出航先を選ぶ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/market-harbor/gameplay-2.png)
 
 到着日の価格と運賃を比べて出航先を選ぶ。
 
-![仕入れた積荷を売り、現金の目標へ近づく](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/market-harbor/gameplay-3.png)
+![仕入れた積荷を売り、現金の目標へ近づく](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/market-harbor/gameplay-3.png)
 
 仕入れた積荷を売り、現金の目標へ近づく。
 

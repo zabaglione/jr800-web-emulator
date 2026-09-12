@@ -14,23 +14,27 @@
 
 射撃は同じ方向にいる最も近い敵へ当たります。黒い敵は1発、枠のある敵は2発で撃破でき、1回の命中につき10点です。敵のいない方向へ撃っても得点は入りません。SPACEを押し続けても連射にはならず、発射には短い待ち時間があります。
 
-敵は外側の軌道から現れ、一定間隔で中央へ近づきます。内側の軌道を越えるとCOREが1減り、CORE5をすべて失うと失敗です。FOESは未到着の敵を含む残数で、撃破か侵入で減ります。すべての敵を処理した時点でCOREが残っていればクリアします。9ウェーブ目以降は、敵が近づくたびに時計回りへ1方向ずれます。
+敵が現れる位置は外側の点滅と予告音で先に示します。出現後は軌道の間を細かく移動しながら中央へ近づきます。内側の軌道を越えるとCOREが1減り、CORE5をすべて失うと失敗です。FOESは未到着の敵を含む残数で、撃破か侵入で減ります。すべての敵を処理した時点でCOREが残っていればクリアします。9ウェーブ目以降は、時計回りへ角度を変えながら近づきます。
 
 RETURNのメニューからPULSEを選ぶと、画面にいる敵を一度に撃破します。ウェーブごとに1回だけ使え、未到着の敵には当たりません。装甲の残りにも応じて得点が入ります。右側のSCOREが得点です。
 
 RETURNでメニューを開いている間は停止します。RESETとRETRYはCORE・PULSE・得点を含めて、そのウェーブの最初からやり直します。12ウェーブは開始時のSTAGE画面で選べます。
 
+ゲーム開始時は、自分の位置が効果音とともに短く点滅します。
+
+出現予告、発射、撃破、中央への侵入、PULSEで、それぞれ異なる効果音が鳴ります。
+
 ## ゲーム画面
 
-![中央の砲台と3重の接近軌道](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/orbit-guard/gameplay-1.png)
+![中央の砲台と3重の接近軌道](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/orbit-guard/gameplay-1.png)
 
 中央の砲台と3重の接近軌道。
 
-![複数方向から迫る装甲付きの敵](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/orbit-guard/gameplay-2.png)
+![複数方向から迫る装甲付きの敵](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/orbit-guard/gameplay-2.png)
 
 複数方向から迫る装甲付きの敵。
 
-![角度を変えながら接近する後半ウェーブ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/orbit-guard/gameplay-3.png)
+![角度を変えながら接近する後半ウェーブ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/orbit-guard/gameplay-3.png)
 
 角度を変えながら接近する後半ウェーブ。
 

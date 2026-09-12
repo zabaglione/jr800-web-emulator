@@ -10,21 +10,23 @@
 
 ## 遊び方
 
+開始時は荷物を1個ずつ、続いてゴールをSE付きで表示します。最後に別のSEとプレイヤーの点滅で、操作開始を知らせます。
+
 方向キーで移動し、箱を1個ずつ押します。箱は引けません。追加目標は、プレイヤー自身が2か所の小さな印を通ることです。箱を印に乗せるだけでは回収できません。
 
 RETURNメニューの UNDO ONE MOVE で1手戻し、HELP で説明、RETRY で再挑戦できます。
 
 ## ゲーム画面
 
-![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/a7b1c707291fc7e2df911fc01f9fe5310d224a76/docs/games/screenshots/box-shift/gameplay-1.png)
+![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/box-shift/gameplay-1.png)
 
 第1面の初期配置と規定手数。
 
-![14×5マスに広がった第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/a7b1c707291fc7e2df911fc01f9fe5310d224a76/docs/games/screenshots/box-shift/gameplay-2.png)
+![14×5マスに広がった第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/box-shift/gameplay-2.png)
 
 14×5マスに広がった第31面で追加目標に挑戦している場面。
 
-![右側まで使う第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/a7b1c707291fc7e2df911fc01f9fe5310d224a76/docs/games/screenshots/box-shift/gameplay-3.png)
+![右側まで使う第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/box-shift/gameplay-3.png)
 
 右側まで使う第40面を規定手数と追加目標の両方を満たしてクリア。
 
@@ -59,7 +61,7 @@ HUDの **USED** は使った手数、**PAR** は規定手数です。規定手�
 
 コードは**面と評価**を記録します。盤面の途中状態は含みません。BASICへ戻る前にLOAD RECORDを控えると、次回の起動後に記録を復元できます。入力したLOAD RECORDの内容で全40面のBESTが置き換わるため、新しい記録を控えてから復元してください。
 
-![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/a7b1c707291fc7e2df911fc01f9fe5310d224a76/docs/games/screenshots/box-shift/selection.png)
+![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/box-shift/selection.png)
 
 面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。
 

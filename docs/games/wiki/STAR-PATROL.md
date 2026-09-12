@@ -12,7 +12,7 @@
 
 左右で自機を動かし、SPACEで開始・発射します。自分の弾は画面内に1発だけです。SPACEを押し続けても連射にはならないので、弾が消えてから押し直してください。敵弾に自分の弾を当てて打ち消すこともできます。
 
-敵は左右へ移動し、左右端で2回折り返すごとに1段下がります。敵をすべて倒せばクリアです。外枠のある敵は2発必要で、命中1回につき10点が入ります。後半のステージほど編隊の移動間隔が短くなります。
+敵は左右へ移動し、左右端で2回折り返すごとに1段下がります。敵をすべて倒せばクリアです。外枠のある敵は2発必要で、命中1回につき10点が入ります。敵はどのステージも20体です。ステージが進むごとに装甲付きの敵が1体ずつ増え、編隊の移動間隔も短くなります。
 
 自機の上にある3か所の防壁は、それぞれ左右2マスでできています。各マスは自分や敵の弾を2発受けると壊れます。防壁の隙間から撃つか、自分で穴を開けて射線を作ってください。防壁と弾はステージが変わると元に戻ります。
 
@@ -20,17 +20,19 @@
 
 RETURNでメニューを開くと停止します。PAUSEはメニューを閉じた後も停止を保ち、SPACEで再開します。RESETとRETRYは敵と防壁を含めて、そのステージの最初からやり直します。12ステージは開始時のSTAGE画面で選べます。
 
+ゲーム開始時は、自分の位置が効果音とともに短く点滅します。
+
 ## ゲーム画面
 
-![防壁の隙間から編隊を狙う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/star-patrol/gameplay-1.png)
+![防壁の隙間から編隊を狙う](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/star-patrol/gameplay-1.png)
 
 防壁の隙間から編隊を狙う。
 
-![装甲を持つ敵と敵弾をかわす](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/star-patrol/gameplay-2.png)
+![装甲を持つ敵と敵弾をかわす](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/star-patrol/gameplay-2.png)
 
 装甲を持つ敵と敵弾をかわす。
 
-![残った敵を追い込む終盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/star-patrol/gameplay-3.png)
+![残った敵を追い込む終盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/star-patrol/gameplay-3.png)
 
 残った敵を追い込む終盤。
 

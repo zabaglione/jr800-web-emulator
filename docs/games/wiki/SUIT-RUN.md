@@ -16,17 +16,19 @@
 
 RETURNのUNDOは直前の除去またはDRAWを1回戻し、得点とCHAINも復元します。RETRYで同じ配札をやり直せます。すべての数字を4枚ずつ使う標準52枚構成の独自配札を20面収録しています。
 
+操作対象のマスや項目はゆっくり点滅します。方向キーを押すと選択位置がすぐにはっきり表示されます。
+
 ## ゲーム画面
 
-![各列の下から前後の数字をつなぐ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/a295f56815d2fae5edc8a4972fffd9feb2877044/docs/games/screenshots/suit-run/gameplay-1.png)
+![各列の下から前後の数字をつなぐ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/suit-run/gameplay-1.png)
 
 各列の下から前後の数字をつなぐ。
 
-![4連続で得点を伸ばしている場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/a295f56815d2fae5edc8a4972fffd9feb2877044/docs/games/screenshots/suit-run/gameplay-2.png)
+![4連続で得点を伸ばしている場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/suit-run/gameplay-2.png)
 
 4連続で得点を伸ばしている場面。
 
-![14連続を保ちながら最終面を進める](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/a295f56815d2fae5edc8a4972fffd9feb2877044/docs/games/screenshots/suit-run/gameplay-3.png)
+![14連続を保ちながら最終面を進める](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/suit-run/gameplay-3.png)
 
 14連続を保ちながら最終面を進める。
 

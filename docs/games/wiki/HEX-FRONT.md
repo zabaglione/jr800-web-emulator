@@ -12,23 +12,29 @@
 
 自分は白い輪で左辺から右辺へ、CPUは黒い拠点で上辺から下辺への接続を目指します。上下左右に加えて右上・左下の2方向が隣接します。盤面の線と外側の矢印がつながる方向と目標です。方向キーで空き拠点を選び、SPACEで配置します。
 
-RETURNのRELAYを選ぶと変換モードになります。自分の拠点が隣に2個以上あるCPUの拠点を選び、SPACEで自分のものに変換できます。1局1回で、RLYが残り回数です。変換の後もCPUが1手進めます。RETURNで変換選択を取り消せます。
+盤面の右端から右、または下端から下を押すと、メイン画面のRELAYに選択が移ります。SPACEで変換モードのON／OFFを切り替えます。上または左で盤面へ戻れます。自分の拠点が隣に2個以上あるCPUの拠点を選び、SPACEで自分のものに変換できます。1局1回で、RELAYがONなら変換を選択中、USEDなら使用済みです。変換の後もCPUが1手進めます。RELAYをもう一度選び、SPACEでOFFにすれば通常の配置へ戻ります。
 
 NEEDは通常の配置で接続するために必要な最小の空き拠点数、MOVESは自分の行動回数です。RETURNからUNDO TURNで直前の自分とCPUの行動を戻せます。リレーを使った手を戻すと残り回数も戻ります。RETRYで新しい対局にします。
 
+操作対象のマスや項目はゆっくり点滅します。方向キーを押すと選択位置がすぐにはっきり表示されます。
+
 ## ゲーム画面
 
-![左右と上下の接続を目指す序盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/hex-front/gameplay-1.png)
+![左右と上下の接続を目指す序盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/hex-front/gameplay-1.png)
 
 左右と上下の接続を目指す序盤。
 
-![リレーで相手拠点を変換する選択画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/hex-front/gameplay-2.png)
+![リレーで相手拠点を変換する選択画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/hex-front/gameplay-2.png)
 
 リレーで相手拠点を変換する選択画面。
 
-![リレーを使った後の接続経路](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/hex-front/gameplay-3.png)
+![リレーを使った後の接続経路](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/hex-front/gameplay-3.png)
 
 リレーを使った後の接続経路。
+
+![盤面の端からメイン画面のRELAYを選択](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/hex-front/motion.png)
+
+盤面の端からメイン画面のRELAYを選択。
 
 ## 共通操作
 
