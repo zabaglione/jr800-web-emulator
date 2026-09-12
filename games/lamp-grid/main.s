@@ -2,7 +2,53 @@
 .global undo_valid
 .section .text, code
 game_render:
-    JSR paint_board
+    TST hud_ready
+    BNE lamp_render_board
+    JSR hud_begin
+    LDX #framebuffer
+    STX unpack_dest
+    LDX #lamp_panel_art
+    JSR puzzle_unpack
+    JSR dirty_all
+    ; Empty logical tiles preserve the panel; lamps repaint over their sockets.
+    CLR paint_index
+lamp_panel_cache:
+    LDAB paint_index
+    LDX #view_cells
+    ABX
+    LDAA 0,X
+    CMPA #255
+    BNE lamp_panel_next
+    LDX #tile_cache
+    ABX
+    CLR 0,X
+lamp_panel_next:
+    INC paint_index
+    LDAA paint_index
+    CMPA #112
+    BNE lamp_panel_cache
+lamp_render_board:
+    CLR paint_index
+lamp_render_tile:
+    LDAB paint_index
+    JSR game_tile
+    TSTA
+    BPL lamp_render_face
+    ; The shared selection bit chooses corner brackets, preserving lamp color.
+    ANDA #127
+    ADDA #LAMP_CURSOR_TILE_OFFSET
+lamp_render_face:
+    LDAB paint_index
+    JSR paint_tile
+    INC paint_index
+    LDAA paint_index
+    ANDA #7
+    BNE lamp_render_next
+    JSR input_poll
+lamp_render_next:
+    LDAA paint_index
+    CMPA #112
+    BNE lamp_render_tile
     JMP visual_hud
 
 game_start:

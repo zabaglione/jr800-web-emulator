@@ -3,6 +3,8 @@ GAME := lamp-grid
 GAME_SOURCES := ../common/grid.s main.s animation.s
 include ../common/game.mk
 
+assets.s: hud.py
+
 .PHONY: animation-test
 animation-test: all
 	"$(NODE)" check-animation.mjs "$(WASM_DIR)" "$(BUILD_DIR)"

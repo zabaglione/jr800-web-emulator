@@ -82,6 +82,16 @@ function completed() {
   assert.deepEqual(current.seen.map(s => s.key), current.order.flatMap((_, i) => [1, 2, 3, 4].map(p => `${i}:${p}`)));
   assert.equal(current.cues, current.order.length, 'Exactly one cue accompanies each lamp');
   assert.equal(g.read('lamp_view_bonus'), current.afterBonus);
+  if (g.read('phase') === 2) {
+    const p = g.read('cursor'), base = face(current.after[p], p, current.afterBonus);
+    const tile = machine.memory(symbols.tiles + 8 + base * 16, 16), panel = machine.lcdPanel();
+    const left = 24 + p % 5 * 16, top = 16 + Math.floor(p / 5) * 8;
+    for (let y = 0; y < 8; y++) for (let x = 3; x < 13; x++)
+      assert.equal(panel.dots[(top + y) * 192 + left + x], 1 + ((tile[x] >> y) & 1),
+        'The cursor preserves the lamp and bonus colors');
+    for (const x of [0,15]) for (const y of [0,7])
+      assert.equal(panel.dots[(top + y) * 192 + left + x], 2, 'Corner brackets identify the selected lamp');
+  }
 }
 
 machine.setExecutionBreakpoint(marker, true);
