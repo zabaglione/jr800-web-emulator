@@ -6,6 +6,7 @@ from grid_assets import assets, Bitmap, asm_bytes
 
 from puzzle_assets import campaign, level_records, challenge_data, pack
 from hud import panel_art
+from title import title_art
 root=Path(__file__).parent
 levels=campaign(root)
 sprites=[]
@@ -42,3 +43,8 @@ data=level_records([s['initial']['board'] for s in levels])+challenge_data(root,
 data+=f'.equ LAMP_CURSOR_TILE_OFFSET,{cursor_offset}\n'
 data+=asm_bytes('lamp_panel_art',pack(panel_art(sprites).bytes()))
 assets(root,'LAMP GRID','lamp-grid',5,5,2,1,sprites,40,data)
+# Keep this game's title source and rebuild dependency local to LAMP GRID.
+source=(root/'assets.s').read_text()
+header,body=source.split('title_art:\n',1)
+_,body=body.split('tiles:\n',1)
+(root/'assets.s').write_text(header+asm_bytes('title_art',title_art(sprites).bytes())+'tiles:\n'+body)
