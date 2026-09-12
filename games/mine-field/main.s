@@ -5,8 +5,10 @@
 .global mine_blast
 .global mine_generate
 .global mine_reveal
+.global mine_control
 .section .text, code
 game_start:
+    CLR mine_control
     JSR grid_reset
     CLR mine_armed
     CLR mine_flags
@@ -32,13 +34,35 @@ game_start:
     LDAB cursor
     JMP mine_reveal
 game_update:
+    TST mine_control
+    BNE mine_control_update
     LDAA input_event
     BITA #16
     BNE mine_action
     JSR grid_move
     CMPB #255
     BNE mine_skip_1
-    JMP mine_idle
+    LDAA input_event
+    BITA #10
+    BEQ mine_control_idle
+    INC mine_control
+    JMP grid_changed
+mine_control_update:
+    LDAA input_event
+    BITA #16
+    BEQ mine_control_back
+    LDAA selection_active
+    EORA #1
+    STAA selection_active
+    BRA mine_control_done
+mine_control_back:
+    BITA #5
+    BEQ mine_control_idle
+mine_control_done:
+    CLR mine_control
+    JMP grid_changed
+mine_control_idle:
+    RTS
 mine_skip_1:
     STAB cursor
     JMP grid_changed
@@ -326,6 +350,7 @@ mine_victory:
 game_aux:
     CMPA #1
     BNE mine_restart
+    CLR mine_control
     LDAA #1
     STAA selection_active
     RTS
@@ -376,10 +401,34 @@ game_bonus:
 mine_bonus_done:
     RTS
 game_render:
+    LDAA cursor
+    PSHA
+    TST mine_control
+    BEQ mine_render_board
+    LDAA #255
+    STAA cursor
+mine_render_board:
     JSR paint_board
-    JMP visual_hud
+    PULA
+    STAA cursor
+    JSR hud_begin
+    LDAA mine_control
+    LSRA
+    RORA
+    STAA hud_field_6 + 4
+    CLR hud_cache + 18
+    JSR visual_hud
+    LDAA #128
+    STAA hud_play_field + 4
+    LDX #mine_mode_hint
+    LDAA #64
+    CLRB
+    JSR hud_play_text
+    CLR hud_play_field + 4
+    RTS
 
 .section .bss, bss
+mine_control: .space 1
 mine_armed: .space 1
 mine_count: .space 1
 mine_flags: .space 1
@@ -398,9 +447,5 @@ mine_chord_number: .space 1
 mine_chord_flags: .space 1
 mine_chord_pointer: .space 2
 mine_tile_value: .space 1
-.section .data, data
-mine_f_label: .byte 70,0
-mine_m_label: .byte 77,0
-mine_blank_label: .byte 32,32,32,32,32,32,32,32,32,32,0
-mine_open_label: .byte 79,80,69,78,0
-mine_flag_label: .byte 70,76,65,71,0
+.section .runtime, data
+mine_mode_hint: .byte 69,68,71,69,58,77,79,68,69,0

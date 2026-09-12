@@ -149,12 +149,16 @@ mine_links:
     .byte $4B,$4C,$4D,$59,$5B,$FF,$FF,$FF,$4C,$4D,$4E,$5A,$5C,$FF,$FF,$FF,$4D,$4E,$4F,$5B,$5D,$FF,$FF,$FF
     .byte $4E,$4F,$50,$5C,$5E,$FF,$FF,$FF,$4F,$50,$51,$5D,$5F,$FF,$FF,$FF,$50,$51,$52,$5E,$60,$FF,$FF,$FF
     .byte $51,$52,$53,$5F,$61,$FF,$FF,$FF,$52,$53,$FF,$60,$FF,$FF,$FF,$FF
+
+.section .runtime, data
 mine_totals:
     .byte $0A,$0A,$0A,$0B,$0B,$0B,$0C,$0C,$0D,$0D,$0D,$0E,$0E,$0F,$0F,$0F,$10,$10,$10,$11,$11,$12,$12,$12
     .byte $13,$13,$14,$14,$14,$15,$15,$15,$16,$16,$17,$17,$17,$18,$18,$19
 mine_starts:
     .byte $48,$48,$5A,$61,$30,$4F,$48,$43,$13,$2D,$04,$12,$51,$49,$44,$4C,$5C,$3E,$5E,$5B,$1D,$54,$44,$51
     .byte $40,$33,$34,$26,$55,$26,$06,$29,$44,$3C,$27,$4B,$25,$31,$15,$38
+
+.section .data, data
 level_ptrs: .word level_00,level_01,level_02,level_03,level_04,level_05,level_06,level_07,level_08,level_09,level_10,level_11,level_12,level_13,level_14,level_15,level_16,level_17,level_18,level_19,level_20,level_21,level_22,level_23,level_24,level_25,level_26,level_27,level_28,level_29,level_30,level_31,level_32,level_33,level_34,level_35,level_36,level_37,level_38,level_39
 level_00:
     .byte $0D,$10,$11,$30,$00,$80,$00,$04,$20,$00,$00,$00,$20,$02,$00
