@@ -4,13 +4,15 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=reversi-mini) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/reversi-mini)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/reversi-mini/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f766716440814d6dc06e63faa0997e0615832381/docs/games/screenshots/reversi-mini/title.png)
 
-6×6の盤面で相手のディスクを挟んで返す、CPU対戦のリバーシです。置ける場所の表示と自動パスがあります。
+6×6の盤面で相手のディスクを挟んで返す、CPU対戦のリバーシです。1枚ずつの反転アニメーションとSE、置ける場所の表示、自動パスがあります。
 
 ## 遊び方
 
 自分は先手の白い輪、CPUは黒い円です。方向キーでカーソルを動かし、＋印の合法手にSPACEで置きます。縦・横・斜めに相手のディスクを挟むと、その列が自分の色に返ります。
+
+置いたディスクがSEとともに現れ、挟んだディスクは1枚ずつSE付きで裏返ります。CPUは置いた場所を約0.8秒間、3回点滅させてから反転を始めます。反転がすべて終わると次の手番になります。演出中は駒の移動・配置を受け付けませんが、RETURNで一時停止し、途中から再開したりUNDO TURNで戻したりできます。
 
 YOUとCPUは現在の枚数、MOVESは自分の手数です。置ける場所がない側は自動的にパスし、YOU PASSまたはCPU PASSと表示します。両者とも置けなくなった時点で、枚数の多い側が勝ちです。引き分けもあります。CPUは角・辺・取られやすい角の周囲・返せる枚数を評価します。
 
@@ -18,17 +20,21 @@ RETURNからUNDO TURNで自分の前の手番まで戻れます。自動パス�
 
 ## ゲーム画面
 
-![中央の4枚と合法手を示す＋印](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/reversi-mini/gameplay-1.png)
+![中央の4枚と合法手を示す＋印](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f766716440814d6dc06e63faa0997e0615832381/docs/games/screenshots/reversi-mini/gameplay-1.png)
 
 中央の4枚と合法手を示す＋印。
 
-![辺を確保して返す範囲が広がった中盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/reversi-mini/gameplay-2.png)
+![辺を確保して返す範囲が広がった中盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f766716440814d6dc06e63faa0997e0615832381/docs/games/screenshots/reversi-mini/gameplay-2.png)
 
 辺を確保して返す範囲が広がった中盤。
 
-![残りの空きマスと枚数を読み合う終盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/reversi-mini/gameplay-3.png)
+![残りの空きマスと枚数を読み合う終盤](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f766716440814d6dc06e63faa0997e0615832381/docs/games/screenshots/reversi-mini/gameplay-3.png)
 
 残りの空きマスと枚数を読み合う終盤。
+
+![白の着手と反転、CPUの着手位置の点滅、黒への反転の順に進む演出](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f766716440814d6dc06e63faa0997e0615832381/docs/games/screenshots/reversi-mini/turn-animation.gif)
+
+白の着手と反転、CPUの着手位置の点滅、黒への反転の順に進む演出。
 
 ## 共通操作
 
