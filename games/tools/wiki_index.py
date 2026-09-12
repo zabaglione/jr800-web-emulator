@@ -14,6 +14,18 @@ def title_image_url(ident):
             + title_image_path(ident))
 
 
+def video_section(root, ident, site):
+    catalog = root / 'docs/games/videos/catalog.json'
+    if not catalog.exists():
+        return ''
+    game = next((g for g in json.loads(catalog.read_text())['games'] if g['id'] == ident), None)
+    if not game:
+        return ''
+    return (f'## プレイ動画\n\n'
+            f'[プレイ動画を見る（{game["duration"]}秒・音声あり）]({site}videos/#{ident})\n\n'
+            '通常速度で操作と演出を確認できます。再生・一時停止・シークは動画ページで操作できます。\n\n')
+
+
 def write_index(root, games, genres, verified, site, repo):
     copy = json.loads((root / 'games/tools/gallery.json').read_text())
     if set(copy['games']) != {g['id'] for g in games}:
@@ -22,6 +34,9 @@ def write_index(root, games, genres, verified, site, repo):
         raise ValueError('Every genre needs a gallery introduction')
     wiki = root / 'docs/games/wiki'
     wiki.mkdir(parents=True, exist_ok=True)
+    video_catalog = root / 'docs/games/videos/catalog.json'
+    videos = ({g['id'] for g in json.loads(video_catalog.read_text())['games']}
+              if video_catalog.exists() else set())
 
     def link(page):
         return f'{repo}/wiki/{page}'
@@ -33,7 +48,8 @@ def write_index(root, games, genres, verified, site, repo):
         ident = game['id']
         start = (f'[プレイ]({site}?program={ident})' if ident in verified
                  else f'[ビルド可能なソース]({repo}/tree/main/games/{ident})')
-        return f'{start} · [遊び方を見る]({link(ident.upper())})'
+        film = f' · [動画を見る]({site}videos/#{ident})' if ident in videos else ''
+        return f'{start} · [遊び方を見る]({link(ident.upper())}){film}'
 
     def gallery(items):
         rows = ['| タイトル画面 | ゲーム・楽しみ方 |', '| --- | --- |']
@@ -64,6 +80,10 @@ def write_index(root, games, genres, verified, site, repo):
              f'じっくり挑戦したい方には、[40面のパズルチャレンジ]({link("Puzzle-Challenges")})も。'
              '規定手数と追加目標を両立して、最高評価を狙えます。パスワードで続きから遊べます。\n\n'
              '## タイトル画面ギャラリー\n\n')
+    if videos:
+        home = home.replace('## ジャンルから探す',
+            f'[全{len(videos)}作品のプレイ動画]({site}videos/)も掲載しています。'
+            '約30秒からの音声付き動画で、操作やゲームの雰囲気を確認できます。\n\n## ジャンルから探す', 1)
     for genre in genres:
         items = [g for g in games if g['genre'] == genre['id']]
         heading = f'{genre["title"]}（{len(items)}作品）'
@@ -106,6 +126,8 @@ def write_index(root, games, genres, verified, site, repo):
     sidebar = (f'[画像付きのゲーム一覧]({repo}/wiki)\n\n'
                f'[タイトル順の全作品]({link("All-Games")})\n\n'
                f'[はじめて遊ぶ方へ]({link("Controls")})\n\n')
+    if videos:
+        sidebar += f'[全作品のプレイ動画]({site}videos/)\n\n'
     for genre in genres:
         count = sum(g['genre'] == genre['id'] for g in games)
         sidebar += f'- [{genre["title"]} ({count})]({link(genre_page(genre))})\n'

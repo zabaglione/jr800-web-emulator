@@ -3,7 +3,7 @@
 import argparse,json,re,shutil
 from pathlib import Path
 from puzzle_assets import PUZZLES
-from wiki_index import title_image_path,title_image_url,write_index
+from wiki_index import title_image_path,title_image_url,video_section,write_index
 root=Path(__file__).resolve().parents[2]
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--live-check',type=Path)
@@ -54,6 +54,7 @@ for game in games:
   animation=manual['animation'];file=animation['file'];caption=animation['caption']
   assert re.fullmatch(r'[a-z-]+\.gif',file)
   page+=f'![{caption}]({raw}/{ident}/{file})\n\n{caption}。\n\n'
+ page+=video_section(root,ident,site)
  if ident in PUZZLES:
   page+=puzzle_common+f'\n![面選択とパスワード]({raw}/{ident}/selection.png)\n\n面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。\n\n'
  page+=common+f'\n## ビルド\n\n```sh\nmake -C games/{ident}\nmake -C games/{ident} test\n```\n\n環境の準備・一括ビルドは[Games README]({repo}/tree/main/games)を参照してください。画像とマップを含む新規制作物はMIT Licenseです。\n'

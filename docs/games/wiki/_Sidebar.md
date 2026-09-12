@@ -4,6 +4,8 @@
 
 [はじめて遊ぶ方へ](https://github.com/zabaglione/jr800-web-emulator/wiki/Controls)
 
+[全作品のプレイ動画](https://zabaglione.github.io/jr800-web-emulator/videos/)
+
 - [パズル・論理 (10)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Logic)
 - [盤上戦略 (8)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Board)
 - [カード・ダイス (5)](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Cards)

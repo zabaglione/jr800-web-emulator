@@ -36,6 +36,12 @@ RETURNでメニューを開きます。SONARはSPACEと同じ音波操作、RESE
 
 結晶を3個集めて開いた出口。
 
+## プレイ動画
+
+[プレイ動画を見る（30秒・音声あり）](https://zabaglione.github.io/jr800-web-emulator/videos/#echo-cavern)
+
+通常速度で操作と演出を確認できます。再生・一時停止・シークは動画ページで操作できます。
+
 ## 共通操作
 
 | 操作 | キー |

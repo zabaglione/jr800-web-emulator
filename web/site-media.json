@@ -1,0 +1,270 @@
+{
+  "version": 1,
+  "files": [
+    {
+      "source": "docs/games/videos/box-shift.mp4",
+      "target": "videos/box-shift-8558f178644527eb.mp4",
+      "sha256": "8558f178644527ebd9837d53df3810e64d3c0bad6e4411892006b8e3550e9c78"
+    },
+    {
+      "source": "docs/games/videos/mirror-link.mp4",
+      "target": "videos/mirror-link-bb11111fb448e33a.mp4",
+      "sha256": "bb11111fb448e33abd322a6657d50220525f020f43ebbc95c25fdcd87ebdf031"
+    },
+    {
+      "source": "docs/games/videos/step-strike.mp4",
+      "target": "videos/step-strike-df97eae327334b50.mp4",
+      "sha256": "df97eae327334b501c3ecc3316a7addfd5aef692f561247dcefb8d08d3f89ee6"
+    },
+    {
+      "source": "docs/games/videos/circuit-deck.mp4",
+      "target": "videos/circuit-deck-8434dfd0f8193d0b.mp4",
+      "sha256": "8434dfd0f8193d0bff06b2829d48c7cebaf6ceb8f6e2dce2ad87a8d310f30f8f"
+    },
+    {
+      "source": "docs/games/videos/pocket-factory.mp4",
+      "target": "videos/pocket-factory-460149c5864068e8.mp4",
+      "sha256": "460149c5864068e81a60326d289a3cd862fa1582041aba14157a856f0f3909a2"
+    },
+    {
+      "source": "docs/games/videos/arc-duel.mp4",
+      "target": "videos/arc-duel-2b1146d00d1828f7.mp4",
+      "sha256": "2b1146d00d1828f7a6832ee5cfb60bbba65866556c4f053a83d3c5f8a803bf4e"
+    },
+    {
+      "source": "docs/games/videos/lamp-grid.mp4",
+      "target": "videos/lamp-grid-47d12fbb2de3c5e9.mp4",
+      "sha256": "47d12fbb2de3c5e97ae88d5804646ad5574ad28bf2022bf767a2df4cc1f9cf72"
+    },
+    {
+      "source": "docs/games/videos/slide-nine.mp4",
+      "target": "videos/slide-nine-9805d4d905e00bd8.mp4",
+      "sha256": "9805d4d905e00bd87f66cc0df0cb8e64cc961f0847bd5d2623f083bf8adb0c88"
+    },
+    {
+      "source": "docs/games/videos/ice-route.mp4",
+      "target": "videos/ice-route-673a0b67bff2cad3.mp4",
+      "sha256": "673a0b67bff2cad3154892ca23342f41eed0234570945af654c599b9c9f6759f"
+    },
+    {
+      "source": "docs/games/videos/switch-maze.mp4",
+      "target": "videos/switch-maze-08acf864394c4cf0.mp4",
+      "sha256": "08acf864394c4cf0d4652debfcffb537f0bd87b6ca22d980f1c189eb79b17cdd"
+    },
+    {
+      "source": "docs/games/videos/line-four.mp4",
+      "target": "videos/line-four-7d51f692202858c5.mp4",
+      "sha256": "7d51f692202858c5020ea087e8739c2b06fb0877186428db23bed573375756c6"
+    },
+    {
+      "source": "docs/games/videos/reversi-mini.mp4",
+      "target": "videos/reversi-mini-c53a8883b9867467.mp4",
+      "sha256": "c53a8883b98674672cb5e0a0e0165fc83c6534ae731adc70da56748f9eead8d4"
+    },
+    {
+      "source": "docs/games/videos/five-stones.mp4",
+      "target": "videos/five-stones-c942702db04401aa.mp4",
+      "sha256": "c942702db04401aacc7100ae5278f72e6495b1cb1f9dd47317f039b34c7e2798"
+    },
+    {
+      "source": "docs/games/videos/hex-front.mp4",
+      "target": "videos/hex-front-e0e801f97f8fabf2.mp4",
+      "sha256": "e0e801f97f8fabf2cd0a802b1c80ffd3db68fa732e0ecc970972bd73982acd4f"
+    },
+    {
+      "source": "docs/games/videos/knight-tour.mp4",
+      "target": "videos/knight-tour-88229d54100c9dcf.mp4",
+      "sha256": "88229d54100c9dcf8ddd418d7123591b7f91e31f391adf3f44da6a30faa8f861"
+    },
+    {
+      "source": "docs/games/videos/peg-rescue.mp4",
+      "target": "videos/peg-rescue-fe057535734617d9.mp4",
+      "sha256": "fe057535734617d9e8d5e2dd0b4910a48665d5fa1af55db3a5e8e6ef478623cf"
+    },
+    {
+      "source": "docs/games/videos/pawn-race.mp4",
+      "target": "videos/pawn-race-c1592574007abbbf.mp4",
+      "sha256": "c1592574007abbbf9a334a9627c6433cc9385b2fdb838dbdfdcb6c5b24ef45a7"
+    },
+    {
+      "source": "docs/games/videos/dot-claim.mp4",
+      "target": "videos/dot-claim-eb4077cb06544392.mp4",
+      "sha256": "eb4077cb065443928dc23bfbe4481ac75fd21226fa64d876367b70f22be67b28"
+    },
+    {
+      "source": "docs/games/videos/pipe-weave.mp4",
+      "target": "videos/pipe-weave-d0f08dbfaa92eeaa.mp4",
+      "sha256": "d0f08dbfaa92eeaa28545a8590ce541a68f9a3c077bcf3b916b146de5128e976"
+    },
+    {
+      "source": "docs/games/videos/number-rail.mp4",
+      "target": "videos/number-rail-58ab79d45c250ca6.mp4",
+      "sha256": "58ab79d45c250ca6b2b70aaddde85c5386664b1ff0251a46ad748640fade66a3"
+    },
+    {
+      "source": "docs/games/videos/mine-field.mp4",
+      "target": "videos/mine-field-8d8ebf1f021506e6.mp4",
+      "sha256": "8d8ebf1f021506e642fa952c6e61bd1527ad6210d159099c8a4327fe45be8721"
+    },
+    {
+      "source": "docs/games/videos/loop-trace.mp4",
+      "target": "videos/loop-trace-609441c9c6c2c84a.mp4",
+      "sha256": "609441c9c6c2c84a149e3d85468c5b1d781bff07199ebcf5b2ad3af8c85c5024"
+    },
+    {
+      "source": "docs/games/videos/ace-stack.mp4",
+      "target": "videos/ace-stack-5ddff223ef9549e0.mp4",
+      "sha256": "5ddff223ef9549e0b40b6299347e303510b5261cfb1f17cd39a6c9a5be788d75"
+    },
+    {
+      "source": "docs/games/videos/suit-run.mp4",
+      "target": "videos/suit-run-481d25ab9e5f416e.mp4",
+      "sha256": "481d25ab9e5f416e5f8dc8829fe089fc3eea4c5657a4e31a31c48315bf63be66"
+    },
+    {
+      "source": "docs/games/videos/dice-hold.mp4",
+      "target": "videos/dice-hold-258a48ee5afcc6c1.mp4",
+      "sha256": "258a48ee5afcc6c12363c78af6b4200376f710f1ebac3e53bc285f2384fc30e6"
+    },
+    {
+      "source": "docs/games/videos/push-luck.mp4",
+      "target": "videos/push-luck-5bc30253ed38f46e.mp4",
+      "sha256": "5bc30253ed38f46e94a429e958cc6c4c1fc759ead0ddb88f43c7ae2d74386a56"
+    },
+    {
+      "source": "docs/games/videos/wall-break.mp4",
+      "target": "videos/wall-break-bbdfa53705facc8b.mp4",
+      "sha256": "bbdfa53705facc8bba4ea76e74185d06b3a4fe180f0492ce6ab0047cd8f47d2b"
+    },
+    {
+      "source": "docs/games/videos/tail-trail.mp4",
+      "target": "videos/tail-trail-1e99b9f0d78f7828.mp4",
+      "sha256": "1e99b9f0d78f7828452859d999f0febb705fd33468bf3ab5c634f0d84aecd9ca"
+    },
+    {
+      "source": "docs/games/videos/maze-chase.mp4",
+      "target": "videos/maze-chase-c3effec2dca9621d.mp4",
+      "sha256": "c3effec2dca9621d90d0e075192856e29329b5e17affe54d5335ed3d98cd09a7"
+    },
+    {
+      "source": "docs/games/videos/river-hop.mp4",
+      "target": "videos/river-hop-5d0e6311a284d1e9.mp4",
+      "sha256": "5d0e6311a284d1e97233e7cc5eeff0204d3edfe25aaa81657aa44d88ede54e6a"
+    },
+    {
+      "source": "docs/games/videos/tower-leap.mp4",
+      "target": "videos/tower-leap-57fac7826f2a2f8b.mp4",
+      "sha256": "57fac7826f2a2f8b4180d3959872e488f9462de389f86b50acd2fdfd69ac9fe4"
+    },
+    {
+      "source": "docs/games/videos/bomb-vault.mp4",
+      "target": "videos/bomb-vault-b3080ebfdae346a0.mp4",
+      "sha256": "b3080ebfdae346a0ba63db2ad5474a7b7072d28a9b398f4d6e07b02592b3dcc3"
+    },
+    {
+      "source": "docs/games/videos/grid-claim.mp4",
+      "target": "videos/grid-claim-ce88d6b1f7252de3.mp4",
+      "sha256": "ce88d6b1f7252de361f61b75c49310ccc4fe3872b3578a55f05dc5cb93647e22"
+    },
+    {
+      "source": "docs/games/videos/gravity-run.mp4",
+      "target": "videos/gravity-run-d935745994bbc490.mp4",
+      "sha256": "d935745994bbc4902316d74946b6577ee8647cd26fb5233184759d09d8d84883"
+    },
+    {
+      "source": "docs/games/videos/star-patrol.mp4",
+      "target": "videos/star-patrol-805f256698a2795d.mp4",
+      "sha256": "805f256698a2795d198e6dc1e318e7a88d57d884139e3cfc301a7210e8fbbd84"
+    },
+    {
+      "source": "docs/games/videos/orbit-guard.mp4",
+      "target": "videos/orbit-guard-7a9b0316db47bf62.mp4",
+      "sha256": "7a9b0316db47bf6273d7f1b644ac4a10adf94cbbcb4006d6a9d6a1a2d67d5bb6"
+    },
+    {
+      "source": "docs/games/videos/target-range.mp4",
+      "target": "videos/target-range-831be8205f46ab59.mp4",
+      "sha256": "831be8205f46ab59a1b83b1daac7878483e267dd55fc68b4ae6f7205dc21a6bd"
+    },
+    {
+      "source": "docs/games/videos/ricochet-ops.mp4",
+      "target": "videos/ricochet-ops-f7abb3084f3461d3.mp4",
+      "sha256": "f7abb3084f3461d3c02f8f47d2cf6c3fd627a82f129025ec8173a5f4def4cd62"
+    },
+    {
+      "source": "docs/games/videos/relay-quest.mp4",
+      "target": "videos/relay-quest-90410124a898a5f0.mp4",
+      "sha256": "90410124a898a5f0a56105818bb415adcc12a214940f1fd2cd7d0ddcd4491e9d"
+    },
+    {
+      "source": "docs/games/videos/echo-cavern.mp4",
+      "target": "videos/echo-cavern-33e586bfbb562194.mp4",
+      "sha256": "33e586bfbb562194f2a31ddf4e41c0e8015f27c714abe8454cf1f3fdacba14b8"
+    },
+    {
+      "source": "docs/games/videos/micro-rogue.mp4",
+      "target": "videos/micro-rogue-20bd8d53a2651c52.mp4",
+      "sha256": "20bd8d53a2651c526bda20c6f195cb94e5a5bdee846c27055e4d3e223a6a1ad9"
+    },
+    {
+      "source": "docs/games/videos/signal-ghost.mp4",
+      "target": "videos/signal-ghost-8922ad3e1020bf6a.mp4",
+      "sha256": "8922ad3e1020bf6ad4edf2fb476ea6c9659346a6d3420efea90475dfeb1f14a4"
+    },
+    {
+      "source": "docs/games/videos/rail-dispatch.mp4",
+      "target": "videos/rail-dispatch-b10d423e298a0c11.mp4",
+      "sha256": "b10d423e298a0c11a811ca033806109e13e69f75b140223720d3473932fcfae8"
+    },
+    {
+      "source": "docs/games/videos/orchard-days.mp4",
+      "target": "videos/orchard-days-5d37f5d4bef3f181.mp4",
+      "sha256": "5d37f5d4bef3f1811dc1a321fbf352ad55aa6238ab7875f6925ecaa59ed0f516"
+    },
+    {
+      "source": "docs/games/videos/market-harbor.mp4",
+      "target": "videos/market-harbor-73063114ba5a36ac.mp4",
+      "sha256": "73063114ba5a36ace9d9840712980f426180572af6ef1bad38378cae6c051aa8"
+    },
+    {
+      "source": "docs/games/videos/wind-putt.mp4",
+      "target": "videos/wind-putt-a14d1a7aa5b999d5.mp4",
+      "sha256": "a14d1a7aa5b999d5722bf58efec0ac3748a27993c987c0e9564834a77fafe175"
+    },
+    {
+      "source": "docs/games/videos/rally-return.mp4",
+      "target": "videos/rally-return-04e0026b79b9d683.mp4",
+      "sha256": "04e0026b79b9d6830096d7b2ec4042c30b56fadd40a77e547fa88e01dc03b6e0"
+    },
+    {
+      "source": "docs/games/videos/penalty-arc.mp4",
+      "target": "videos/penalty-arc-404614a9beb2479d.mp4",
+      "sha256": "404614a9beb2479d1698fbab9bed9ab3a506bf7d2b1be307e20c94b9bcdfca7e"
+    },
+    {
+      "source": "docs/games/videos/beat-step.mp4",
+      "target": "videos/beat-step-3d3e0cd55632cc02.mp4",
+      "sha256": "3d3e0cd55632cc02d396dd95febcc40ce9c992af4842d3ec1111013e24d90410"
+    },
+    {
+      "source": "docs/games/videos/balance-dock.mp4",
+      "target": "videos/balance-dock-a11a3390f6a8a0e2.mp4",
+      "sha256": "a11a3390f6a8a0e29fa2012d89dfef49375adc0e02f88a1660b0d6a331e08e9a"
+    },
+    {
+      "source": "docs/games/videos/relic-dive-gfx.mp4",
+      "target": "videos/relic-dive-gfx-6f924ccc23ab98e0.mp4",
+      "sha256": "6f924ccc23ab98e062c039fa11454906718dcee6f5bf2cf3fa7232a2245776a2"
+    },
+    {
+      "source": "docs/games/videos/index.html",
+      "target": "videos/index.html",
+      "sha256": "1bea40130fe20ee9f58c9829b0687e0b18fb264bf2f8f35116f906b6f829252c"
+    },
+    {
+      "source": "docs/games/videos/catalog.json",
+      "target": "videos/catalog.json",
+      "sha256": "1880dab0b5319149b3d9b086e92587e469966b36b316c4ba42d9ff962b778eea"
+    }
+  ]
+}

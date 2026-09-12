@@ -22,17 +22,23 @@ RETURNのメニューでは譜面が止まり、復帰後に続きから再開�
 
 ## ゲーム画面
 
-![矢印の中央が縦線へ来るタイミングで対応する方向を押す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/beat-step/gameplay-1.png)
+![矢印の中央が縦線へ来るタイミングで対応する方向を押す](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/beat-step/gameplay-1.png)
 
 矢印の中央が縦線へ来るタイミングで対応する方向を押す。
 
-![押して離すリズムを保ち、コンボをつなぐ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/beat-step/gameplay-2.png)
+![押して離すリズムを保ち、コンボをつなぐ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/beat-step/gameplay-2.png)
 
 押して離すリズムを保ち、コンボをつなぐ。
 
-![速い譜面では次に来る方向も先に読む](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/beat-step/gameplay-3.png)
+![速い譜面では次に来る方向も先に読む](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/beat-step/gameplay-3.png)
 
 速い譜面では次に来る方向も先に読む。
+
+## プレイ動画
+
+[プレイ動画を見る（30秒・音声あり）](https://zabaglione.github.io/jr800-web-emulator/videos/#beat-step)
+
+通常速度で操作と演出を確認できます。再生・一時停止・シークは動画ページで操作できます。
 
 ## 共通操作
 

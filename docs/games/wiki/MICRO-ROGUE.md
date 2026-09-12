@@ -40,6 +40,12 @@ RETURNで停止メニューを開きます。WAITで1手待機し、RESETとRETR
 
 最終階で残った強敵と向き合う。
 
+## プレイ動画
+
+[プレイ動画を見る（30秒・音声あり）](https://zabaglione.github.io/jr800-web-emulator/videos/#micro-rogue)
+
+通常速度で操作と演出を確認できます。再生・一時停止・シークは動画ページで操作できます。
+
 ## 共通操作
 
 | 操作 | キー |

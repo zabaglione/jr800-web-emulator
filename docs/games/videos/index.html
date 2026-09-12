@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>JR-800 | Gameplay films</title>
+<style>
+  :root { color-scheme: dark; font: 16px/1.55 system-ui, sans-serif; color: #e1e8d1; background: #111c18; }
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: #c4daa5; text-underline-offset: .2em; }
+  button, input, select { font: inherit; }
+  button, a, input, select { outline-offset: 5px; }
+  header, main, footer { max-width: 1144px; margin: auto; padding: 24px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid #425047; }
+  .brand { font: 700 18px ui-monospace, monospace; letter-spacing: .12em; text-decoration: none; }
+  .eyebrow { margin: 12px 0 2px; color: #a3b58f; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; }
+  h1 { font-size: clamp(24px, 4vw, 40px); line-height: 1.2; margin: 8px 0 12px; }
+  .intro { color: #bac6b7; max-width: 62ch; margin-bottom: 24px; }
+  .screen { padding: 12px; border: 1px solid #61735b; border-radius: 12px; background: #26372d; box-shadow: 0 10px 40px #0004; }
+  video { display: block; width: 100%; aspect-ratio: 800/288; background: #1f2c23; border-radius: 4px; }
+  .caption { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin: 16px 0 30px; }
+  h2 { margin: 0; font-size: 20px; }
+  #details { color: #afbcaa; font: 13px ui-monospace, monospace; }
+  .links { display: flex; flex-wrap: wrap; gap: 20px; }
+  .filters { display: flex; align-items: end; gap: 16px; flex-wrap: wrap; border-top: 1px solid #425047; padding-top: 24px; margin-bottom: 20px; }
+  label { display: grid; gap: 6px; color: #bac6b7; font-size: 13px; }
+  input, select { border: 1px solid #61735b; border-radius: 4px; padding: 9px 12px; background: #203127; color: #edf3e3; }
+  #count { margin-left: auto; color: #afbcaa; font-size: 13px; }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .card { display: block; text-align: left; width: 100%; padding: 0; overflow: hidden; background: #1a2a21; border: 1px solid #425047; border-radius: 6px; color: inherit; cursor: pointer; }
+  .card:hover, .card[aria-pressed="true"] { border-color: #d1e5b4; background: #2a3b2d; }
+  .card img { display: block; width: 100%; aspect-ratio: 3; image-rendering: pixelated; background: #afb899; }
+  .card span { display: flex; align-items: center; justify-content: space-between; padding: 12px; gap: 8px; font-size: 13px; }
+  .card small { color: #bbcbaa; white-space: nowrap; }
+  footer { color: #9daa96; font-size: 13px; }
+  [hidden] { display: none !important; }
+  @media(max-width: 780px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media(max-width: 480px) { header, main, footer { padding: 16px; } .grid { grid-template-columns: 1fr; } .screen { padding: 5px; } #count { margin-left: 0; } input { width: 100%; } }
+</style>
+<header>
+  <a class="brand" href="../">JR-800</a>
+  <a href="https://github.com/zabaglione/jr800-web-emulator/wiki">Game library &amp; guides</a>
+</header>
+<main>
+  <p class="eyebrow">The game library in motion</p>
+  <h1>Find your next game.</h1>
+  <p class="intro">Short gameplay films with sound. Watch the moves, feel the timing, then try it yourself. Use the player controls to pause, seek or go fullscreen.</p>
+  <section aria-label="Selected gameplay video">
+    <div class="screen"><video id="player" controls playsinline preload="metadata" aria-label="Gameplay video"></video></div>
+    <div class="caption">
+      <div><h2 id="title">Loading games...</h2><span id="details"></span></div>
+      <nav class="links" aria-label="Selected game links"><a id="guide">How to play</a><a id="launch">Play game</a><a id="download" download>Download MP4</a></nav>
+    </div>
+  </section>
+  <div class="filters">
+    <label>Find a game<input id="search" type="search" placeholder="Search titles" autocomplete="off"></label>
+    <label>Genre<select id="genre"><option value="">All genres</option></select></label>
+    <span id="count" aria-live="polite"></span>
+  </div>
+  <div id="games" class="grid" aria-label="Choose a gameplay film"></div>
+  <p id="empty" hidden>No games match your search.</p>
+  <p id="error" role="alert" hidden>Unable to load the game library. Please reload this page.</p>
+  <noscript>This gallery requires JavaScript. Browse the <a href="https://github.com/zabaglione/jr800-web-emulator/wiki">game library</a> for screenshots and guides.</noscript>
+</main>
+<footer>Actual emulator footage at normal speed, with human-paced keyboard input. No ROM setup is needed to watch. Titles and game artwork are MIT licensed.</footer>
+<script type="module">
+  const $ = id => document.getElementById(id);
+  const repo = 'https://github.com/zabaglione/jr800-web-emulator';
+  const art = 'https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/';
+  const genres = {logic:'Logic & puzzles', board:'Board', cards:'Cards & dice', action:'Action', shooting:'Shooting', adventure:'Adventure', simulation:'Simulation', sports:'Sports & timing'};
+  const player = $('player');
+  try {
+    const response = await fetch('./catalog.json');
+    if (!response.ok) throw new Error('Catalog unavailable');
+    const {games} = await response.json();
+    const buttons = new Map();
+    for (const [id, name] of Object.entries(genres)) $('genre').add(new Option(name, id));
+    for (const game of [...games].sort((a,b) => a.title.localeCompare(b.title))) {
+      const button = document.createElement('button');
+      button.className = 'card'; button.type = 'button'; button.setAttribute('aria-pressed', 'false');
+      const img = document.createElement('img'); img.src = art + game.id + '.png'; img.alt = ''; img.loading = 'lazy'; img.width = 384; img.height = 128;
+      const label = document.createElement('span'), duration = document.createElement('small');
+      label.append(document.createTextNode(game.title)); duration.textContent = game.duration + ' sec'; label.append(duration);
+      button.append(img, label); $('games').append(button); buttons.set(game.id, button);
+      button.addEventListener('click', () => {
+        if (location.hash !== '#' + game.id) location.hash = game.id;
+        else select(game);
+        player.scrollIntoView({behavior:'auto', block:'center'});
+      });
+    }
+    function select(game) {
+      player.pause(); player.src = './' + game.file; player.poster = art + game.id + '.png'; player.playbackRate = 1;
+      player.setAttribute('aria-label', game.title + ' gameplay video');
+      $('title').textContent = game.title;
+      $('details').textContent = `${genres[game.genre]} / ${game.duration} sec / 1x / Sound`;
+      $('guide').href = repo + '/wiki/' + game.id.toUpperCase();
+      $('launch').href = '../?program=' + game.id;
+      $('download').href = player.src;
+      for (const [id, button] of buttons) button.setAttribute('aria-pressed', String(id === game.id));
+    }
+    function fromHash() { select(games.find(g => g.id === location.hash.slice(1)) || games[0]); }
+    function filter() {
+      let count = 0;
+      for (const game of games) {
+        const show = game.title.toLowerCase().includes($('search').value.toLowerCase().trim()) && (!$('genre').value || game.genre === $('genre').value);
+        buttons.get(game.id).hidden = !show; count += Number(show);
+      }
+      $('count').textContent = `${count} / ${games.length} games`; $('empty').hidden = count !== 0;
+    }
+    $('search').addEventListener('input', filter); $('genre').addEventListener('change', filter);
+    window.addEventListener('hashchange', fromHash); fromHash(); filter();
+    player.addEventListener('error', () => { $('error').textContent = 'This video could not be loaded. Please reload or try Download MP4.'; $('error').hidden = false; });
+    player.addEventListener('loadedmetadata', () => { $('error').hidden = true; });
+  } catch { $('error').hidden = false; $('title').textContent = 'Game library unavailable'; }
+</script>
+</html>

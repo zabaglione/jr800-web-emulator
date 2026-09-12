@@ -32,6 +32,12 @@ RETURNからUNDO TURNで自分とCPUの直前の1ターンを戻せます。RESE
 
 最後の攻め筋を作る場面。
 
+## プレイ動画
+
+[プレイ動画を見る（30秒・音声あり）](https://zabaglione.github.io/jr800-web-emulator/videos/#five-stones)
+
+通常速度で操作と演出を確認できます。再生・一時停止・シークは動画ページで操作できます。
+
 ## 共通操作
 
 | 操作 | キー |

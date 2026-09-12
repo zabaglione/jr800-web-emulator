@@ -22,17 +22,23 @@ RETURNのメニューでは移動・落下が止まります。FLIPは左右移�
 
 ## ゲーム画面
 
-![はみ出した部分が切れ、次に支えられる幅が小さくなる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/balance-dock/gameplay-1.png)
+![はみ出した部分が切れ、次に支えられる幅が小さくなる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/balance-dock/gameplay-1.png)
 
 はみ出した部分が切れ、次に支えられる幅が小さくなる。
 
-![同じ位置へ正確に重ねて幅と得点を保つ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/balance-dock/gameplay-2.png)
+![同じ位置へ正確に重ねて幅と得点を保つ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/balance-dock/gameplay-2.png)
 
 同じ位置へ正確に重ねて幅と得点を保つ。
 
-![20段を目指し、高くなった積み荷へ次の荷物を合わせる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/balance-dock/gameplay-3.png)
+![20段を目指し、高くなった積み荷へ次の荷物を合わせる](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/balance-dock/gameplay-3.png)
 
 20段を目指し、高くなった積み荷へ次の荷物を合わせる。
+
+## プレイ動画
+
+[プレイ動画を見る（30秒・音声あり）](https://zabaglione.github.io/jr800-web-emulator/videos/#balance-dock)
+
+通常速度で操作と演出を確認できます。再生・一時停止・シークは動画ページで操作できます。
 
 ## 共通操作
 

@@ -18,21 +18,27 @@
 
 ## ゲーム画面
 
-![第1面。空白の床、黒いプレイヤー、中抜きの宝石、大きな星形の追加目標](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/ice-route/gameplay-1.png)
+![第1面。空白の床、黒いプレイヤー、中抜きの宝石、大きな星形の追加目標](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/ice-route/gameplay-1.png)
 
 第1面。空白の床、黒いプレイヤー、中抜きの宝石、大きな星形の追加目標。
 
-![第31面の滑走途中。通過するマスと回収の様子を順に表示](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/ice-route/gameplay-2.png)
+![第31面の滑走途中。通過するマスと回収の様子を順に表示](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/ice-route/gameplay-2.png)
 
 第31面の滑走途中。通過するマスと回収の様子を順に表示。
 
-![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/ice-route/gameplay-3.png)
+![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/ice-route/gameplay-3.png)
 
 第40面を規定手数と追加目標の両方を満たしてクリア。
 
-![開始時のアイテム出現、プレイヤーの点滅、滑走とクリア演出（実プレイ、音声なし）](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/ice-route/playthrough.gif)
+![開始時のアイテム出現、プレイヤーの点滅、滑走とクリア演出（実プレイ、音声なし）](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/ice-route/playthrough.gif)
 
 開始時のアイテム出現、プレイヤーの点滅、滑走とクリア演出（実プレイ、音声なし）。
+
+## プレイ動画
+
+[プレイ動画を見る（30秒・音声あり）](https://zabaglione.github.io/jr800-web-emulator/videos/#ice-route)
+
+通常速度で操作と演出を確認できます。再生・一時停止・シークは動画ページで操作できます。
 
 ## 40面のチャレンジと評価
 
@@ -65,7 +71,7 @@ HUDの **USED** は使った手数、**PAR** は規定手数です。規定手�
 
 コードは**面と評価**を記録します。盤面の途中状態は含みません。BASICへ戻る前にLOAD RECORDを控えると、次回の起動後に記録を復元できます。入力したLOAD RECORDの内容で全40面のBESTが置き換わるため、新しい記録を控えてから復元してください。
 
-![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/ice-route/selection.png)
+![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/ice-route/selection.png)
 
 面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。
 
