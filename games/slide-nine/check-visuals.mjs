@@ -21,9 +21,9 @@ function verify(g, stage) {
     const ink = Boolean(tiles[8 + board[cell] * 64 + (y >> 3) * 32 + x] >> (y & 7) & 1);
     let expected = ink;
     if (board[cell] === stage.bonus_tile && x >= 8 && x < 24 && y >= 3 && y < 12) expected = x < 22 && !ink;
-    if (cell === target && (x < 8 || x >= 24 || [1, 2, 13, 14].includes(y))) {
+    if (cell === target) {
       const edge = x >= 1 && x <= 30 && y >= 1 && y <= 14 && ([1, 2, 29, 30].includes(x) || [1, 2, 13, 14].includes(y));
-      expected = edge && (done || (x + y) % 2 === 0);
+      if (edge) expected = done || (x + y) % 2 === 0;
     }
     const actual = dots[(8 + Math.floor(cell / 3) * 16 + y) * 192 + 80 + cell % 3 * 32 + x] === 2;
     assert.equal(actual, expected, `Cell ${cell}, number ${board[cell]}, pixel ${x},${y}: the number moves while the frame stays put`);

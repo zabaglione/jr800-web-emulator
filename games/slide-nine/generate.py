@@ -8,13 +8,16 @@ root=Path(__file__).parent
 from puzzle_assets import campaign, level_records, challenge_data
 levels=campaign(root)
 from digit_art import draw_digits
+from depth_art import raised
 from visual_art import tiny
+from panel import panel_art
+from puzzle_assets import pack
 sprites=[]
 for n in range(9):
     b=Bitmap(32,16)
-    # Flat, separated frames distinguish the stationary destination from the
-    # numbered tiles. The blank is a recessed central well, without a cursor.
-    b.rect(1,1,30,14)
+    # Beveled tiles sit inside the puzzle case. The stationary patterned frame
+    # and the inverse moving number retain separate visual roles.
+    raised(b)
     if n:
         draw_digits(b,str(n),10,4,'slide-nine',2,1)
     else:
@@ -27,7 +30,8 @@ for pair in range(4):
     b=Bitmap(32,16)
     for side in range(2):
         n=pair*2+side+1; face=Bitmap(16,16)
-        face.line(0,1,15,1);face.line(0,14,15,14)
+        for y in range(16):
+            for x in range(16):face.dot(x,y,sprites[n].p[y][x+8])
         face.rect(0,3,14,9,1,True)
         digit=Bitmap(32,16);draw_digits(digit,str(n),10,4,'slide-nine',2,1)
         for y in range(16):
@@ -39,6 +43,7 @@ for pair in range(4):
     sprites.append(b)
 for complete in (False,True):
     b=Bitmap(32,16)
+    raised(b)
     for y in range(1,15):
         for x in range(1,31):
             if x in (1,2,29,30) or y in (1,2,13,14):
@@ -51,4 +56,5 @@ stamp=[]
 for n in range(1,9):
     b=Bitmap(6,8);b.rect(0,0,6,7,1,True);tiny(b,str(n),1,1,0);stamp+=b.bytes()
 data+=asm_bytes('slide_stamp_faces',stamp)
+data+=asm_bytes('slide_panel_art',pack(panel_art().bytes()))
 assets(root,'SLIDE NINE','slide-nine',3,3,4,2,sprites,40,data,stat='LEFT',action='MOVE')

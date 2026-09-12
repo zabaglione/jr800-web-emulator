@@ -2,6 +2,32 @@
 .global undo_valid
 .section .text, code
 game_render:
+    TST hud_ready
+    BNE slide_render_begin
+    JSR hud_begin
+    LDX #framebuffer
+    STX unpack_dest
+    LDX #slide_panel_art
+    JSR puzzle_unpack
+    JSR dirty_all
+    ; Blank view cells retain the surrounding case instead of erasing it.
+    CLR paint_index
+slide_panel_cache:
+    LDAB paint_index
+    LDX #view_cells
+    ABX
+    LDAA 0,X
+    CMPA #255
+    BNE slide_panel_next
+    LDX #tile_cache
+    ABX
+    CLR 0,X
+slide_panel_next:
+    INC paint_index
+    LDAA paint_index
+    CMPA #112
+    BNE slide_panel_cache
+slide_render_begin:
     CLR paint_index
 slide_render_tile:
     LDAB paint_index
