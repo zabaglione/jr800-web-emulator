@@ -412,7 +412,31 @@ game_render:
     CLR paint_id
     JSR paint_blit
 pawn_render_values:
+; Align the turn digits with the label at y=33, leaving y=32 below the frame clear.
+; The HUD cache tells us when fresh, unshifted digits will be drawn.
+    LDX #hud_cache + 6
+    TST 0,X
+    BEQ pawn_render_turns
+    LDAB moves
+    CLRA
+    SUBD 1,X
+    BNE pawn_render_turns
     JMP visual_hud
+pawn_render_turns:
+    JSR visual_hud
+    LDX #framebuffer + 4 * 192 + 47
+    LDAB #12
+pawn_turns_lower:
+    ASL 0,X
+    INX
+    DECB
+    BNE pawn_turns_lower
+    LDAA #4
+    LDAB #47
+    JSR dirty_mark
+    LDAA #4
+    LDAB #58
+    JMP dirty_mark
 
 .section .bss, bss
 pawn_source: .space 1
