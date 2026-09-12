@@ -260,8 +260,146 @@ game_bonus:
 pipe_bonus_done:
     RTS
 game_render:
-    JSR paint_board
+    TST hud_ready
+    BNE pipe_render_begin
+    JSR hud_begin
+    ; The HUD uses only the right side. Reclaim its empty left header strip
+    ; for a 96 x 60 board, with two clear rows above and below.
+    LDX #framebuffer
+    LDAB #128
+    CLRA
+pipe_header_clear:
+    STAA 0,X
+    INX
+    DECB
+    BNE pipe_header_clear
+pipe_render_begin:
+    CLR pipe_render_cell
+    CLR pipe_render_row
+    LDAA #16
+    STAA pipe_render_x
+pipe_render_next:
+    LDAB pipe_render_cell
+    JSR grid_value
+    LDAB pipe_render_cell
+    CMPB cursor
+    BNE pipe_render_face
+    ORAA #128
+pipe_render_face:
+    LDX #tile_cache
+    ABX
+    CMPA 0,X
+    BEQ pipe_render_advance
+    STAA 0,X
+    JSR pipe_paint_cell
+    JSR input_poll
+pipe_render_advance:
+    INC pipe_render_cell
+    LDAA pipe_render_x
+    ADDA #16
+    CMPA #112
+    BNE pipe_render_column
+    LDAA #16
+    INC pipe_render_row
+pipe_render_column:
+    STAA pipe_render_x
+    LDAA pipe_render_cell
+    CMPA #36
+    BNE pipe_render_next
     JMP visual_hud
+
+; Expand the first and last sprite rows to two rows, leaving the lettering
+; and center unchanged. Merge each ten-bit column into its two LCD pages so
+; neighboring rows, selection and flowing water cannot erase one another.
+pipe_paint_cell:
+    STAA paint_id
+    ANDA #127
+    LDAB #16
+    MUL
+    ADDD #tiles + 8
+    STD paint_source
+    LDAB pipe_render_row
+    LDX #pipe_row_shifts
+    ABX
+    LDAA 0,X
+    STAA pipe_render_shift
+    LDX #pipe_row_clear_low
+    ABX
+    LDAA 0,X
+    STAA pipe_render_low
+    LDX #pipe_row_clear_high
+    ABX
+    LDAA 0,X
+    STAA pipe_render_high
+    LDX #pipe_row_bands
+    ABX
+    LDAA 0,X
+    STAA paint_band
+    LDAA pipe_render_x
+    STAA paint_x
+    JSR paint_address
+    LDAA #16
+    STAA paint_count
+pipe_paint_column:
+    LDX paint_source
+    LDAB 0,X
+    INX
+    STX paint_source
+    TST paint_id
+    BPL pipe_paint_normal
+    COMB
+pipe_paint_normal:
+    CLRA
+    ASLB
+    ROLA
+    BITB #2
+    BEQ pipe_paint_bottom
+    ORAB #1
+pipe_paint_bottom:
+    TSTA
+    BEQ pipe_paint_position
+    ORAA #2
+pipe_paint_position:
+    STD pipe_render_pixels
+    LDAA pipe_render_shift
+    BEQ pipe_paint_merge
+    STAA pipe_render_count
+    LDX #pipe_render_pixels
+pipe_paint_shift:
+    ASL 1,X
+    ROL 0,X
+    DEC pipe_render_count
+    BNE pipe_paint_shift
+pipe_paint_merge:
+    LDX paint_dest
+    LDAA 0,X
+    ANDA pipe_render_low
+    ORAA pipe_render_pixels + 1
+    STAA 0,X
+    LDAA 192,X
+    ANDA pipe_render_high
+    ORAA pipe_render_pixels
+    STAA 192,X
+    INX
+    STX paint_dest
+    DEC paint_count
+    BNE pipe_paint_column
+    LDAA paint_band
+    LDAB pipe_render_x
+    JSR dirty_mark
+    LDAA paint_band
+    LDAB pipe_render_x
+    ADDB #15
+    JSR dirty_mark
+    LDAA paint_band
+    INCA
+    LDAB pipe_render_x
+    JSR dirty_mark
+    LDAA paint_band
+    INCA
+    LDAB pipe_render_x
+    ADDB #15
+    JMP dirty_mark
 
 .section .bss, bss
 pipe_running: .space 1
@@ -278,6 +416,14 @@ pipe_pointer: .space 2
 pipe_mask: .space 1
 pipe_other: .space 1
 pipe_next: .space 1
+pipe_render_cell: .space 1
+pipe_render_row: .space 1
+pipe_render_x: .space 1
+pipe_render_shift: .space 1
+pipe_render_count: .space 1
+pipe_render_pixels: .space 2
+pipe_render_low: .space 1
+pipe_render_high: .space 1
 .section .data, data
 pipe_bits: .byte 1,2,4,8
 pipe_opposite: .byte 2,1,8,4
