@@ -525,8 +525,47 @@ int main(int argc,char** argv){try{
   for(unsigned wanted=0;wanted<12;++wanted){unsigned seed=1;while((((seed>>1)^((seed&1)?0xb8:0))%12)!=wanted)++seed;f.put("seed",seed);f.put("stage",2);f.put("rogue_floor",4);f.call("rogue_load_room");require(f.get("rogue_room")==wanted&&f.get("rogue_health")==12&&f.get("rogue_health",1)==7&&f.get("rogue_left")==3,"All twelve templates load their enemy spawns and selected-difficulty strong enemy");f.call("rogue_trace");for(unsigned p=0;p<98;++p)if(f.get("board",p)!=1)require(f.get("rogue_distance",p)!=255,"All items and exits remain connected in every template");}
  }
  if(selected("signal-ghost")){
-  Fixture f(root,"signal-ghost");const std::array<std::pair<int,int>,8> vectors{{{0,-1},{1,-1},{1,0},{1,1},{0,1},{-1,1},{-1,0},{-1,-1}}};std::uint32_t random=0x420042;
-  for(unsigned trial=0;trial<320;++trial){std::array<unsigned,98> board{},vision{};const std::array<unsigned,3> cameras{trial%98,(trial+33)%98,(trial+65)%98},bases{trial%4,(trial/3)%4,(trial/7)%4};const unsigned tick=trial%4,disabled=(trial/4)%4;for(unsigned p=0;p<98;++p){random=random*1664525U+1013904223U;board[p]=random%4==0?1:0;f.put("board",board[p],p);}for(unsigned actor=0;actor<3;++actor){board[cameras[actor]]=0;f.put("board",0,cameras[actor]);f.put("signal_cameras",cameras[actor],actor);f.put("signal_bases",bases[actor],actor);}for(unsigned actor=0;actor<3;++actor){if(disabled&(actor==1?2:1))continue;for(int ray=-1;ray<=1;++ray){const auto [dx,dy]=vectors[(static_cast<int>((bases[actor]+tick)*2)+ray+8)%8];int x=static_cast<int>(cameras[actor]%14),y=static_cast<int>(cameras[actor]/14);for(unsigned n=0;n<4;++n){x+=dx;y+=dy;if(x<0||x>=14||y<0||y>=7)break;const unsigned q=static_cast<unsigned>(y*14+x);if(board[q]==1||std::find(cameras.begin(),cameras.end(),q)!=cameras.end())break;vision[q]=1;}}}f.put("signal_tick",tick);f.put("signal_disabled",disabled);f.call("signal_trace");for(unsigned p=0;p<98;++p)require(f.get("signal_vision",p)==vision[p],"Rotating three-ray cameras clip edges and stop at walls or other cameras for every network mask");}
+  Fixture f(root,"signal-ghost");std::uint32_t random=0x420042;
+  const std::array<std::array<unsigned,2>,4> edge_shapes{{{2,1},{8,2},{4,8},{1,4}}};
+  for(unsigned trial=0;trial<320;++trial){
+   std::array<unsigned,98> board{},vision{},light{};
+   const std::array<unsigned,3> cameras{trial%98,(trial+33)%98,(trial+65)%98},bases{trial%4,(trial/3)%4,(trial/7)%4};
+   const unsigned tick=trial%4,disabled=(trial/4)%4;
+   for(unsigned p=0;p<98;++p){random=random*1664525U+1013904223U;board[p]=random%4==0?1:0;f.put("board",board[p],p);}
+   for(unsigned actor=0;actor<3;++actor){board[cameras[actor]]=0;f.put("board",0,cameras[actor]);f.put("signal_cameras",cameras[actor],actor);f.put("signal_bases",bases[actor],actor);}
+   for(unsigned actor=0;actor<3;++actor){
+    if(disabled&(actor==1?2:1))continue;
+    const unsigned facing=(bases[actor]+tick)%4;
+    for(int end=-4;end<=4;++end)for(int depth=1;depth<=4;++depth){
+     const int side=(end<0?-1:1)*((std::abs(end)*depth+2)/4);
+     int dx=side,dy=-depth;
+     for(unsigned turn=0;turn<facing;++turn){const int next=-dy;dy=dx;dx=next;}
+     const int x=static_cast<int>(cameras[actor]%14)+dx,y=static_cast<int>(cameras[actor]/14)+dy;
+     if(x<0||x>=14||y<0||y>=7)break;
+     const unsigned q=static_cast<unsigned>(y*14+x);
+     if(board[q]==1||std::find(cameras.begin(),cameras.end(),q)!=cameras.end())break;
+     vision[q]=1;light[q]|=std::abs(side)<depth?15:edge_shapes[facing][side>0];
+    }
+   }
+   f.put("signal_tick",tick);f.put("signal_disabled",disabled);f.call("signal_trace");
+   for(unsigned p=0;p<98;++p){
+    require(f.get("signal_vision",p)==vision[p],"Filled camera cones clip edges and stop at walls or cameras for every network mask");
+    require(f.get("signal_lightmask",p)==light[p],"Triangular light pieces combine as a union when cameras overlap");
+   }
+  }
+  const std::array<unsigned,4> origins{76,45,20,52};
+  for(unsigned facing=0;facing<4;++facing){
+   f.fill("board",98,0);f.put("signal_tick",0);f.put("signal_disabled",2);
+   for(unsigned actor:{0,2}){f.put("signal_cameras",origins[facing],actor);f.put("signal_bases",facing,actor);}
+   f.put("signal_cameras",0,1);f.call("signal_trace");
+   for(unsigned p=0;p<98;++p){
+    int side=static_cast<int>(p%14)-static_cast<int>(origins[facing]%14),forward=static_cast<int>(p/14)-static_cast<int>(origins[facing]/14);
+    for(unsigned turn=0;turn<facing;++turn){const int next=forward;forward=-side;side=next;}
+    forward=-forward;
+    const bool inside=forward>=1&&forward<=4&&std::abs(side)<=forward;
+    require(f.get("signal_vision",p)==static_cast<unsigned>(inside),"Every cell inside the ninety-degree cone is monitored, including former gaps between rays");
+   }
+  }
   f.fill("board",98,0);f.put("board",2,45);f.put("cursor",45);f.put("signal_cameras",43);f.put("signal_cameras",80,1);f.put("signal_cameras",30,2);f.put("signal_bases",0);f.put("signal_bases",0,1);f.put("signal_bases",1,2);f.put("signal_tick",0);f.put("signal_disabled",2);f.put("grid_stat",1);f.put("signal_score",0);f.put("signal_score",0,1);f.put("input_event",16);f.put("phase",2);f.call("game_update");require(f.get("signal_disabled")==3&&f.get("grid_stat")==0&&f.get("signal_score",1)==100&&f.get("phase")==2,"A terminal removes its entire network before the rotated view checks the player");f.call("game_update");require(f.get("signal_score",1)==100&&f.get("grid_stat")==0,"Disabled terminals cannot score or decrement links twice");
   for(unsigned moves:{0,99,100,254,255}){f.fill("board",98,0);f.put("board",4,45);f.put("cursor",45);f.put("signal_disabled",3);f.put("signal_score",0);f.put("signal_score",200,1);f.put("moves",moves);f.put("phase",2);f.call("signal_turn");const unsigned turns=std::min(255U,moves+1),score=200+(turns<100?100-turns:0);require(f.get("phase")==4&&f.get("moves")==turns&&f.get("signal_score")==score/256&&f.get("signal_score",1)==score%256,"Stealth completion bonus saturates safely across the step counter limit");}
  }

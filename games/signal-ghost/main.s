@@ -2,6 +2,7 @@
 .global signal_tick
 .global signal_disabled
 .global signal_vision
+.global signal_lightmask
 .global signal_cameras
 .global signal_bases
 .global signal_score
@@ -171,8 +172,9 @@ signal_camera_none:
     LDAA #255
     RTS
 signal_trace:
+    ; Detection flags and composited half-tile masks are contiguous.
     LDX #signal_vision
-    LDAB #98
+    LDAB #196
     CLRA
 signal_trace_clear:
     STAA 0,X
@@ -201,26 +203,46 @@ signal_origin_row:
     BRA signal_origin_row
 signal_origin_ready:
     STAA signal_origin_x
+    LDAB signal_actor
+    LDX #signal_bases
+    ABX
+    LDAA 0,X
+    ADDA signal_tick
+    ANDA #3
+    LDAB #36
+    MUL
+    ADDD #signal_paths
+    STD signal_path_base
     CLR signal_ray
 signal_ray_loop:
     LDAA signal_origin_x
     STAA signal_x
     LDAA signal_origin_y
     STAA signal_y
-    LDAB signal_actor
-    LDX #signal_bases
-    ABX
-    LDAA 0,X
-    ADDA signal_tick
-    ASLA
-    ADDA signal_ray
-    DECA
-    ANDA #7
-    STAA signal_direction
+    LDAA signal_ray
+    LDAB #4
+    MUL
+    ADDD signal_path_base
+    STD signal_path_pointer
     LDAA #4
     STAA signal_length
 signal_ray_step:
-    LDAB signal_direction
+    LDX signal_path_pointer
+    LDAA 0,X
+    INX
+    STX signal_path_pointer
+    STAA signal_path_step
+    LSRA
+    LSRA
+    LSRA
+    TAB
+    LDX #signal_shape_bits
+    ABX
+    LDAA 0,X
+    STAA signal_shape
+    LDAA signal_path_step
+    ANDA #7
+    TAB
     LDX #signal_dx
     ABX
     LDAA 0,X
@@ -250,13 +272,19 @@ signal_ray_step:
     ABX
     LDAA #1
     STAA 0,X
+    LDX #signal_lightmask
+    ABX
+    LDAA 0,X
+    ORAA signal_shape
+    STAA 0,X
     DEC signal_length
     BNE signal_ray_step
 signal_ray_next:
     INC signal_ray
     LDAA signal_ray
-    CMPA #3
-    BNE signal_ray_loop
+    CMPA #9
+    BEQ signal_actor_next
+    JMP signal_ray_loop
 signal_actor_next:
     JSR input_poll
     INC signal_actor
@@ -325,11 +353,12 @@ signal_tile_open:
     LDAA #5
     RTS
 signal_tile_vision:
-    LDX #signal_vision
+    LDX #signal_lightmask
     ABX
-    TST 0,X
-    BEQ signal_tile_done
-    LDAA #6
+    LDAB 0,X
+    LDX #signal_light_tiles
+    ABX
+    LDAA 0,X
 signal_tile_done:
     RTS
 game_render:
@@ -347,6 +376,7 @@ actor_render_scene:
 signal_tick: .space 1
 signal_disabled: .space 1
 signal_vision: .space 98
+signal_lightmask: .space 98
 signal_cameras: .space 3
 signal_bases: .space 3
 signal_score: .space 2
@@ -359,7 +389,10 @@ signal_origin_y: .space 1
 signal_ray: .space 1
 signal_x: .space 1
 signal_y: .space 1
-signal_direction: .space 1
+signal_path_base: .space 2
+signal_path_pointer: .space 2
+signal_path_step: .space 1
+signal_shape: .space 1
 signal_length: .space 1
 signal_tile_cell: .space 1
 signal_hud_force: .space 1

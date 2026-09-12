@@ -2,11 +2,28 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {letters} from '../tools/harness.mjs';
-const V=[[0,-1],[1,-1],[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1]],D=[-14,14,-1,1],K=['up','down','left','right'];
-const state=g=>({board:g.read('board',98),cameras:g.read('signal_cameras',3),bases:g.read('signal_bases',3),vision:g.read('signal_vision',98),p:g.read('cursor'),tick:g.read('signal_tick'),disabled:g.read('signal_disabled'),left:g.read('grid_stat'),moves:g.read('moves'),score:g.word('signal_score'),phase:g.read('phase')});
-function sight(s){const visible=Array(98).fill(0);for(let a=0;a<3;a++){if(s.disabled&(a===1?2:1))continue;for(const side of [-1,0,1]){const [dx,dy]=V[((s.bases[a]+s.tick)*2+side+8)%8];let x=s.cameras[a]%14,y=Math.floor(s.cameras[a]/14);for(let n=0;n<4;n++){x+=dx;y+=dy;if(x<0||x>=14||y<0||y>=7)break;const p=y*14+x;if(s.board[p]===1||s.cameras.includes(p))break;visible[p]=1;}}}return visible;}
+const D=[-14,14,-1,1],K=['up','down','left','right'];
+const state=g=>({board:g.read('board',98),cameras:g.read('signal_cameras',3),bases:g.read('signal_bases',3),vision:g.read('signal_vision',98),light:g.read('signal_lightmask',98),p:g.read('cursor'),tick:g.read('signal_tick'),disabled:g.read('signal_disabled'),left:g.read('grid_stat'),moves:g.read('moves'),score:g.word('signal_score'),phase:g.read('phase')});
+function lighting(s){
+ const vision=Array(98).fill(0),light=Array(98).fill(0);
+ for(let a=0;a<3;a++){
+  if(s.disabled&(a===1?2:1))continue;
+  const facing=(s.bases[a]+s.tick)%4;
+  for(let end=-4;end<=4;end++)for(let depth=1;depth<=4;depth++){
+   const side=Math.sign(end)*Math.floor((Math.abs(end)*depth+2)/4);
+   let dx=side,dy=-depth;for(let rotation=0;rotation<facing;rotation++)[dx,dy]=[-dy,dx];
+   const x=s.cameras[a]%14+dx,y=Math.floor(s.cameras[a]/14)+dy;
+   if(x<0||x>=14||y<0||y>=7)break;
+   const p=y*14+x;if(s.board[p]===1||s.cameras.includes(p))break;
+   const shape=Math.abs(side)<depth?15:[[2,1],[8,2],[4,8],[1,4]][facing][Number(side>0)];
+   vision[p]=1;light[p]|=shape;
+  }
+ }
+ return {vision,light};
+}
+function sight(s){return lighting(s).vision;}
 function action(s,k){if(k==='space'){const v=s.board[s.p];if(v===2||v===3){const bit=1<<(v-2);if(!(s.disabled&bit)){s.disabled|=bit;s.left--;s.score+=100;}}}else if(k!=='wait'){const p=s.p+D[K.indexOf(k)];if(s.board[p]===1||s.cameras.includes(p))return s;s.p=p;}
- s.moves=Math.min(255,s.moves+1);s.tick=(s.tick+1)%4;s.vision=sight(s);if(s.vision[s.p])s.phase=5;else if(s.disabled===3&&s.board[s.p]===4){s.phase=4;s.score+=Math.max(0,100-s.moves);}return s;}
+ s.moves=Math.min(255,s.moves+1);s.tick=(s.tick+1)%4;Object.assign(s,lighting(s));if(s.vision[s.p])s.phase=5;else if(s.disabled===3&&s.board[s.p]===4){s.phase=4;s.score+=Math.max(0,100-s.moves);}return s;}
 export async function checkSignal(g){
  const levels=JSON.parse(await readFile(new URL('./levels.json',import.meta.url))),solutions=JSON.parse(await readFile(new URL('./solutions.json',import.meta.url)));await g.start();await g.save('gameplay-1');
  function key(k,letter=false){const expected=action(state(g),k);if(k==='wait')g.menu(1);else g.tap(letter&&K.includes(k)?letters[k]:k);assert.deepEqual(state(g),expected,'Camera cones, wall occlusion, synchronized rotation, network switches and scoring match the model');}

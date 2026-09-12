@@ -4,14 +4,27 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 from grid_assets import assets,Bitmap,asm_bytes
 root=Path(__file__).parent;dirs=[(0,-1),(1,-1),(1,0),(1,1),(0,1),(-1,1),(-1,0),(-1,-1)];steps=[-14,14,-1,1];keys=['up','down','left','right'];levels=[];solutions=[]
+# Nine endpoint rays cover the cone; half tiles smooth its diagonal boundaries.
+paths=[]
+for facing in range(4):
+ for edge in range(-4,5):
+  ray=[];previous=(0,0)
+  for distance in range(1,5):
+   side=(1 if edge>=0 else -1)*((abs(edge)*distance+2)//4)
+   x,y=side,-distance
+   for turn in range(facing):x,y=-y,x
+   direction=dirs.index((x-previous[0],y-previous[1]));previous=(x,y)
+   shape=15 if abs(side)<distance else ((2,1),(8,2),(4,8),(1,4))[facing][side>0]
+   ray.append((x,y,direction,shape))
+  paths.append(ray)
 def vision(b,cameras,bases,turn,disabled):
  lit=set()
  for actor,p in enumerate(cameras):
   if disabled&(2 if actor==1 else 1):continue
-  for ray in (-1,0,1):
-   dx,dy=dirs[((bases[actor]+turn)*2+ray)%8];x=p%14;y=p//14
-   for distance in range(4):
-    x+=dx;y+=dy
+  facing=(bases[actor]+turn)%4
+  for ray in paths[facing*9:facing*9+9]:
+   for dx,dy,_,_ in ray:
+    x=p%14+dx;y=p//14+dy
     if not(0<=x<14 and 0<=y<7):break
     q=y*14+x
     if b[q]==1 or q in cameras:break
@@ -66,14 +79,25 @@ for rows in [('010','101','111','101','101'),('110','101','110','101','110')]:
  s.append(b)
 b=Bitmap(8,8);b.rect(0,0,8,8);b.line(1,1,6,6);b.line(1,6,6,1);s.append(b)
 b=Bitmap(8,8);b.rect(0,0,8,8);b.line(2,2,5,2);b.line(2,4,5,4);b.line(2,6,5,6);s.append(b)
-b=Bitmap(8,8)
-for x,y in ((2,2),(6,6)):b.dot(x,y)
-s.append(b)
+def light_tile(mask):
+ b=Bitmap(8,8)
+ def inside(x,y):return bool((mask&1 and x+y<=7) or (mask&2 and x>=y) or (mask&4 and x<=y) or (mask&8 and x+y>=7))
+ for y in range(8):
+  for x in range(8):
+   if not inside(x,y):continue
+   boundary=any(0<=x+dx<8 and 0<=y+dy<8 and not inside(x+dx,y+dy) for dx,dy in ((0,-1),(0,1),(-1,0),(1,0)))
+   if boundary or y%2==0 and x%2==(y//2)%2:b.dot(x,y)
+ return b
+s.append(light_tile(1))
 for dx,dy in ((0,-1),(1,0),(0,1),(-1,0)):
  b=Bitmap(8,8);b.rect(1,1,6,6);b.rect(2,2,4,4,1,True);b.line(3,3,3+dx*3,3+dy*3,0);s.append(b)
 b=Bitmap(8,8);b.rect(2,1,4,3,1,True);b.rect(1,4,6,2,1,True);b.dot(2,7);b.dot(5,7);b.p=[[1-v for v in row] for row in b.p];s.append(b)
 b=Bitmap(8,8);b.rect(1,1,6,6);b.line(2,2,5,5);s.append(b)
+s.extend(light_tile(mask) for mask in range(2,16))
 raw=[]
 for l in levels:raw += [(l['board'][i]<<4)|l['board'][i+1] for i in range(0,98,2)]+l['cameras']+l['bases']
-assets(root,'SIGNAL GHOST','signal-ghost',14,7,1,1,s,20,'.section .extra, data\n'+asm_bytes('signal_levels',raw),aux=('WAIT','RESET'))
+shape_bits=[15,1,2,4,8]
+packed=[direction|(shape_bits.index(shape)<<3) for ray in paths for _,_,direction,shape in ray]
+extra='.section .extra, data\n'+asm_bytes('signal_levels',raw)+asm_bytes('signal_paths',packed)+asm_bytes('signal_shape_bits',shape_bits)+asm_bytes('signal_light_tiles',[0,6]+list(range(13,27)))
+assets(root,'SIGNAL GHOST','signal-ghost',14,7,1,1,s,20,extra,aux=('WAIT','RESET'))
 (root/'levels.json').write_text(json.dumps(levels)+'\n');(root/'solutions.json').write_text(json.dumps(solutions)+'\n');print('Certified 20 timed stealth routes:',','.join(str(len(p)) for p in solutions))
