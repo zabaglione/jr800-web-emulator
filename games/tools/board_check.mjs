@@ -5,7 +5,7 @@ import {checkReversi} from './reversi_check.mjs';
 import {checkFive} from './five_check.mjs';
 import {checkHex} from './hex_check.mjs';
 import {checkPawn} from './pawn_check.mjs';
-import {checkDot} from './dot_check.mjs';
+import {checkDot} from '../dot-claim/check.mjs';
 export async function checkBoard(g,id){
  if(id==='dot-claim')return checkDot(g);
  if(id==='pawn-race')return checkPawn(g);

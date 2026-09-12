@@ -1,9 +1,12 @@
 name: GitHub Pages
 
+# Called only after all CI configurations pass. No second build or test run.
 on:
-  push:
-    branches: [main]
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      revision:
+        type: string
+        required: true
 
 permissions:
   contents: read
@@ -13,28 +16,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    if: github.event.repository.private == false
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: read
-    steps:
-      - uses: actions/checkout@v6
-      - uses: emscripten-core/setup-emsdk@v16
-        with:
-          version: 6.0.8
-      - uses: actions/configure-pages@v5
-      - run: emcmake cmake --preset wasm-release
-      - run: cmake --build --preset wasm-release
-      - run: ctest --preset wasm-release
-      - uses: actions/upload-pages-artifact@v4
-        with:
-          path: build/wasm-release/web
-
   deploy:
-    needs: build
-    runs-on: ubuntu-latest
+    if: github.event.repository.private == false
+    runs-on: ubuntu-24.04
     permissions:
       pages: write
       id-token: write
@@ -42,6 +26,29 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy
+      - uses: actions/configure-pages@v5
+        id: pages
+      - name: Compare the currently published entry page
+        id: current
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+          EXPECTED_REVISION: ${{ inputs.revision }}
+        run: |
+          python3 - <<'PY'
+          import hashlib, os, urllib.request
+          try:
+              request = urllib.request.Request(os.environ['SITE_URL'] + '/index.html',
+                                               headers={'Cache-Control': 'no-cache'})
+              with urllib.request.urlopen(request, timeout=10) as response:
+                  current = hashlib.sha256(response.read()).hexdigest()
+          except (OSError, ValueError):
+              current = ''
+          changed = current != os.environ['EXPECTED_REVISION']
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('changed=' + str(changed).lower() + '\n')
+          print('Deploy verified bundle' if changed else 'Published bundle is unchanged')
+          PY
+      - name: Deploy the CI artifact
         id: deployment
+        if: steps.current.outputs.changed == 'true'
         uses: actions/deploy-pages@v4

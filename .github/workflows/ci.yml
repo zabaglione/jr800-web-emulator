@@ -3,40 +3,52 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
+    inputs:
+      full:
+        description: Rebuild and retest all components, ignoring verified receipts
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   native:
-    name: ${{ matrix.preset }}
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        preset:
-          - native-debug
-          - native-release
-    steps:
-      - uses: actions/checkout@v6
-      - run: cmake --preset ${{ matrix.preset }}
-      - run: cmake --build --preset ${{ matrix.preset }}
-      - run: ctest --preset ${{ matrix.preset }}
+        preset: [native-debug, native-release]
+    uses: ./.github/workflows/ci-check.yml
+    with:
+      preset: ${{ matrix.preset }}
+      full: ${{ inputs.full == true }}
 
-  wasm:
-    name: ${{ matrix.preset }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        preset:
-          - wasm-debug
-          - wasm-release
-    steps:
-      - uses: actions/checkout@v6
-      - uses: emscripten-core/setup-emsdk@v16
-        with:
-          version: 6.0.8
-      - run: emcmake cmake --preset ${{ matrix.preset }}
-      - run: cmake --build --preset ${{ matrix.preset }}
-      - run: ctest --preset ${{ matrix.preset }}
+  wasm-debug:
+    uses: ./.github/workflows/ci-check.yml
+    with:
+      preset: wasm-debug
+      full: ${{ inputs.full == true }}
+
+  wasm-release:
+    uses: ./.github/workflows/ci-check.yml
+    with:
+      preset: wasm-release
+      full: ${{ inputs.full == true }}
+
+  pages:
+    needs: [native, wasm-debug, wasm-release]
+    if: >-
+      github.event.repository.private == false &&
+      github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    uses: ./.github/workflows/pages.yml
+    with:
+      revision: ${{ needs.wasm-release.outputs.revision }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write

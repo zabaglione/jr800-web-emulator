@@ -28,7 +28,6 @@ SPECS={
 'knight-tour':setup(64,'folio','KNIGHT',[n('LEFT',b('grid_stat')),n('HOPS',b('moves'))],status(c(0),['KNIGHT MOVE'])),
 'peg-rescue':setup(32,'pegboard','PEGS',[n('LEFT',b('grid_stat')),n('JUMPS',b('moves'))],status(flag('selection_active'),['SELECT','JUMP'])),
 'pawn-race':setup(64,'scoreboard','PAWNS',[n('FOES',b('grid_stat')),n('TURNS',b('moves'))],status(flag('selection_active'),['SELECT A PAWN','PICK A SQUARE'])),
-'dot-claim':setup(32,'graph','DOTS',[n('LEFT',b('grid_stat')),n('MOVES',b('moves')),n('YOU',b('dot_you')),n('CPU',b('dot_cpu'))],status(c(0),['CONNECT'])),
 'pipe-weave':setup(0,'plumbing','FLOW',[n('DRY',b('grid_stat')),n('TURNS',b('moves'))],status(c(0),['SPACE: TURN'])),
 'number-rail':setup(64,'ticker','MERGE',[n('TOP',lut('rail_values','grid_stat',True),4),n('GOAL',lut('rail_goals','stage')+'\nASLB\nLDX #rail_values\nABX\nLDD 0,X',4),n('MOVES',w('rail_moves'),4),n('SCORE',w('rail_score'),5)],status(c(0),['SLIDE TO MERGE'])),
 'mine-field':setup(0,'hazard','MINES',[n('SAFE',b('grid_stat')),n('FLAGS',b('mine_flags')),n('MINES',b('mine_count')),n('MOVES',b('moves'))],status(flag('selection_active'),['OPEN CELL','FLAG CELL'])),
@@ -62,8 +61,6 @@ SPECS={
 # Keep display units and limits identical to the game rules.
 SPECS['gravity-run']['fields'][0]=n('DIST',b('gravity_distance'))
 SPECS['orchard-days']['fields'][4]=n('GOAL',b('orchard_goal'))
-SPECS['dot-claim']['fields'][2]=n('YOU',b('dot_player_score'))
-SPECS['dot-claim']['fields'][3]=n('CPU',b('dot_cpu_score'))
 SPECS['switch-maze']['fields']=SPECS['switch-maze']['fields'][:2]
 SPECS['pipe-weave']['fields'].append(n('LEAKS',b('pipe_leaks')))
 SPECS['river-hop']['meter']=100

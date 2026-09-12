@@ -26,7 +26,8 @@ visual_hud:
     CLRA
     LDX #hud_field_4
     JSR hud_number
-    LDD #0
+    LDAB dot_cpu_active
+    CLRA
     LDX #hud_field_5
     JSR hud_choice
     RTS
@@ -51,10 +52,10 @@ hud_field_4:
     .byte 167,5,3,1,0,0
     .word hud_cache + 12,0
 hud_field_5:
-    .byte 2,7,7,0,0,1
+    .byte 2,7,7,0,0,2
     .word hud_cache + 15,hud_choices_5
 hud_choices_5:
-    .byte $43,$4F,$4E,$4E,$45,$43,$54
+    .byte $59,$4F,$55,$20,$20,$20,$20,$43,$50,$55,$20,$20,$20,$20
 
 hud_span_table:
     .word hud_pixels_0

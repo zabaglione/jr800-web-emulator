@@ -16,7 +16,7 @@ assets.s: generate.py $(wildcard challenges.json) $(wildcard $(ROOT)/games/tools
 	$(PYTHON) generate.py
 $(BUILD_DIR):
 	mkdir -p "$@"
-visuals.s: $(ROOT)/games/tools/digit_art.py $(ROOT)/games/tools/hud_assets.py $(ROOT)/games/tools/hud_layouts.py $(ROOT)/games/tools/hud_custom.py $(ROOT)/games/tools/visual_art.py $(SDK)/lcd/font.s
+visuals.s: $(wildcard hud.py) $(ROOT)/games/tools/digit_art.py $(ROOT)/games/tools/hud_assets.py $(ROOT)/games/tools/hud_layouts.py $(ROOT)/games/tools/hud_custom.py $(ROOT)/games/tools/visual_art.py $(SDK)/lcd/font.s
 	$(PYTHON) $(ROOT)/games/tools/hud_assets.py $(GAME)
 $(BUILD_DIR)/game.s: $(GAME_SOURCES) assets.s visuals.s $(COMMON)/runtime.s $(COMMON)/graphics.s $(COMMON)/visual-hud.s $(COMMON)/puzzle.s $(COMMON)/clear.s $(COMMON)/game.mk $(ROOT)/games/tools/compose.py $(ROOT)/games/tools/puzzle_assets.py | $(BUILD_DIR)
 	$(PYTHON) $(ROOT)/games/tools/compose.py $(GAME) "$@" visuals.s $(COMMON)/runtime.s $(COMMON)/graphics.s $(COMMON)/visual-hud.s $(GAME_SOURCES) assets.s

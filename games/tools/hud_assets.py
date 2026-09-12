@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Compile each game's HUD artwork, numeric typography and state bindings."""
-import sys,json,re
+import sys,json,re,runpy
 from pathlib import Path
 from art import Bitmap,FONT,asm_bytes
 from visual_art import TINY,tiny,circle,hatch,poly
@@ -9,11 +9,19 @@ from digit_art import digits,face
 ROOT=Path(__file__).resolve().parents[2]
 DARK={'terminal','radar','arcade','ticker','equalizer','sonar','vector'}
 
+def design(ident):
+    source=ROOT/'games'/ident/'hud.py'
+    if source.is_file():
+        return runpy.run_path(str(source))['SPEC']
+    if ident not in SPECS:
+        raise SystemExit('Missing HUD design: '+ident)
+    return SPECS[ident]
+
 def make(ident):
     if ident in ('arc-duel','circuit-deck','market-harbor'):
         from hud_custom import make_custom
         return make_custom(ident,compile_layout)
-    spec=SPECS[ident];view=spec['view'];theme=spec['theme'];dark=theme in DARK
+    spec=design(ident);view=spec['view'];theme=spec['theme'];dark=theme in DARK
     b=Bitmap();head_dark=theme not in {'folio','ink','ice','garden','water','golf','tile','pegboard'}
     b.rect(0,0,192,8,int(head_dark),True)
     sides=[(0,32),(160,32)] if view==32 else [(128 if view==0 else 0,64)]
@@ -149,7 +157,6 @@ def compile_layout(ident,spec,b,slots,sides,regions,custom_spans=None,alternate_
 
 if __name__=='__main__':
     ident=sys.argv[1]
-    if ident not in SPECS and ident not in ('arc-duel','circuit-deck','market-harbor'):raise SystemExit('Missing HUD design: '+ident)
     source,layout=make(ident)
     (ROOT/'games'/ident/'visuals.s').write_text(source)
     out=ROOT/'build/visual-redesign/layouts';out.mkdir(parents=True,exist_ok=True)

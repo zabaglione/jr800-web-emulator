@@ -1,48 +1,95 @@
 ; SPDX-License-Identifier: MIT
 .global dot_cursor
+.global dot_row
+.global dot_column
 .global dot_player_score
 .global dot_cpu_score
 .global dot_captured
 .global dot_edge
 .global dot_side
 .global dot_claim
+.global dot_cpu_active
+.global dot_flash_visible
+.global dot_flash_left
+.global dot_flash_clock
 .section .text, code
 game_start:
     JSR grid_reset
     CLR undo_valid
     CLR dot_cursor
-    JSR dot_set_cursor
+    CLR dot_cpu_active
+    JSR dot_sync_cursor
     JMP dot_counts
 game_update:
+    TST dot_cpu_active
+    BEQ dot_controls
+    JMP dot_flash_update
+dot_controls:
     LDAA input_event
     BITA #16
-    BNE dot_action
-    LDX #dot_neighbors
+    BEQ dot_directions
+    JMP dot_action
+dot_directions:
     BITA #1
-    BNE dot_direction
-    LDX #dot_neighbors + 31
+    BNE dot_up
     BITA #2
-    BNE dot_direction
-    LDX #dot_neighbors + 62
+    BNE dot_down
     BITA #4
-    BNE dot_direction
-    LDX #dot_neighbors + 93
+    BNE dot_left
     BITA #8
-    BEQ dot_idle
-dot_direction:
+    BEQ dot_control_idle
+dot_right:
     LDAB dot_cursor
+    LDX #dot_columns
+    ABX
+    LDAA 0,X
+    ADDA #2
+    CMPA #9
+    BCC dot_control_idle
+    STAA dot_column
+    BRA dot_select
+dot_left:
+    LDAB dot_cursor
+    LDX #dot_columns
+    ABX
+    LDAA 0,X
+    SUBA #2
+    BCS dot_control_idle
+    STAA dot_column
+    BRA dot_select
+dot_up:
+    TST dot_row
+    BEQ dot_control_idle
+    DEC dot_row
+    BRA dot_select
+dot_down:
+    LDAA dot_row
+    CMPA #6
+    BEQ dot_control_idle
+    INC dot_row
+; Keep the horizontal aim when crossing staggered rows so up/down never drifts.
+dot_select:
+    LDAA dot_row
+    LDAB #9
+    MUL
+    ADDB dot_column
+    LDX #dot_targets
     ABX
     LDAA 0,X
     STAA dot_cursor
     JSR dot_set_cursor
     JMP grid_changed
+dot_control_idle:
+    RTS
 dot_action:
     LDAB dot_cursor
     LDX #board
     ABX
     TST 0,X
-    BNE dot_idle
+    BNE dot_control_idle
     JSR grid_snapshot
+    LDAA dot_column
+    STAA dot_undo_column
     LDAA dot_cursor
     STAA dot_edge
     LDAA #1
@@ -50,19 +97,61 @@ dot_action:
     JSR dot_claim
     JSR grid_count_move
     TST dot_captured
-    BNE dot_finish_turn
+    BEQ dot_cpu_turn
+    JMP dot_finish_turn
 dot_cpu_turn:
     JSR dot_choose
     LDAA dot_best_edge
     CMPA #255
-    BEQ dot_finish_turn
+    BNE dot_cpu_claim
+    JMP dot_finish_turn
+dot_cpu_claim:
     STAA dot_edge
     LDAA #2
     STAA dot_side
     JSR dot_claim
-    JSR input_poll
+    JSR dot_counts
+    LDAA #1
+    STAA dot_cpu_active
+    STAA dot_flash_visible
+    LDAA #6
+    STAA dot_flash_left
+    LDAA input_ticks
+    STAA dot_flash_clock
+    CLR resume_pending
+    LDAA #255
+    STAA cursor
+    JMP grid_changed
+; Show every CPU edge for six 10-tick intervals, including extra turns.
+; The timer is measured by the JR-800 program; menus freeze the animation.
+dot_flash_update:
+    LDAA input_ticks
+    TST resume_pending
+    BEQ dot_flash_elapsed
+    STAA dot_flash_clock
+    CLR resume_pending
+dot_flash_elapsed:
+    SUBA dot_flash_clock
+    CMPA #10
+    BCC dot_flash_tick
+    RTS
+dot_flash_tick:
+    LDAA input_ticks
+    STAA dot_flash_clock
+    DEC dot_flash_left
+    BEQ dot_flash_done
+    LDAA dot_flash_visible
+    EORA #1
+    STAA dot_flash_visible
+    JMP grid_changed
+dot_flash_done:
+    CLR dot_cpu_active
+    JSR input_gate
+    JSR dot_set_cursor
+    JSR grid_changed
     TST dot_captured
-    BNE dot_cpu_turn
+    BEQ dot_finish_turn
+    JMP dot_cpu_turn
 dot_finish_turn:
     JSR dot_counts
     TST grid_stat
@@ -76,6 +165,16 @@ dot_finish_turn:
     STAA phase
 dot_idle:
     RTS
+dot_sync_cursor:
+    LDAB dot_cursor
+    LDX #dot_rows
+    ABX
+    LDAA 0,X
+    STAA dot_row
+    LDX #dot_columns
+    ABX
+    LDAA 0,X
+    STAA dot_column
 dot_set_cursor:
     LDAB dot_cursor
     LDX #dot_cells
@@ -239,13 +338,21 @@ dot_score_next:
 game_aux:
     CMPA #1
     BNE dot_restart
+    TST undo_valid
+    BEQ dot_aux_idle
+    CLR dot_cpu_active
     JSR grid_restore
     LDAB cursor
     LDX #dot_ids
     ABX
     LDAA 0,X
     STAA dot_cursor
+    JSR dot_sync_cursor
+    LDAA dot_undo_column
+    STAA dot_column
     JMP dot_counts
+dot_aux_idle:
+    RTS
 dot_restart:
     JMP game_start
 grid_value:
@@ -260,9 +367,8 @@ grid_value:
     BEQ dot_node_tile
     CMPA #3
     BEQ dot_box_tile
-    LDX #board
-    ABX
-    TST 0,X
+    JSR dot_visible_edge
+    TSTA
     BEQ dot_edge_blank
     LDAA #17
     BRA dot_edge_kind
@@ -279,6 +385,25 @@ dot_box_tile:
     LDX #board + 31
     ABX
     LDAA 0,X
+    CMPA #2
+    BNE dot_box_visible
+    TST dot_cpu_active
+    BEQ dot_box_visible
+    TST dot_flash_visible
+    BNE dot_box_visible
+    STAB dot_tile_box
+    LDAB dot_edge
+    ASLB
+    LDX #dot_edge_boxes
+    ABX
+    LDAB dot_tile_box
+    CMPB 0,X
+    BEQ dot_box_hidden
+    CMPB 1,X
+    BNE dot_box_visible
+dot_box_hidden:
+    CLRA
+dot_box_visible:
     ADDA #20
     RTS
 dot_node_tile:
@@ -298,9 +423,8 @@ dot_node_loop:
     LDAB 0,X
     CMPB #255
     BEQ dot_node_next
-    LDX #board
-    ABX
-    TST 0,X
+    JSR dot_visible_edge
+    TSTA
     BEQ dot_node_next
     LDAA dot_node_bit
     ORAA dot_node_value
@@ -313,12 +437,29 @@ dot_node_next:
     BNE dot_node_loop
     LDAA dot_node_value
     RTS
+; B = edge. Blink only its pixels, never its logical ownership.
+dot_visible_edge:
+    LDX #board
+    ABX
+    LDAA 0,X
+    TST dot_cpu_active
+    BEQ dot_visible_done
+    TST dot_flash_visible
+    BNE dot_visible_done
+    CMPB dot_edge
+    BNE dot_visible_done
+    CLRA
+dot_visible_done:
+    RTS
 game_render:
     JSR paint_board
     JMP visual_hud
 
 .section .bss, bss
 dot_cursor: .space 1
+dot_row: .space 1
+dot_column: .space 1
+dot_undo_column: .space 1
 dot_player_score: .space 1
 dot_cpu_score: .space 1
 dot_edge: .space 1
@@ -337,6 +478,11 @@ dot_node_pointer: .space 2
 dot_node_value: .space 1
 dot_node_bit: .space 1
 dot_node_index: .space 1
+dot_cpu_active: .space 1
+dot_flash_visible: .space 1
+dot_flash_left: .space 1
+dot_flash_clock: .space 1
+dot_tile_box: .space 1
 .section .data, data
 dot_you_label: .byte 89,0
 dot_cpu_label: .byte 67,0

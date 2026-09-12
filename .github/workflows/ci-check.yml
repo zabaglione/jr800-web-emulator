@@ -1,0 +1,72 @@
+name: Check affected components
+
+on:
+  workflow_call:
+    inputs:
+      preset:
+        type: string
+        required: true
+      full:
+        type: boolean
+        default: false
+    outputs:
+      revision:
+        value: ${{ jobs.check.outputs.revision }}
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: ${{ inputs.preset }}
+    runs-on: ubuntu-24.04
+    outputs:
+      revision: ${{ steps.bundle.outputs.revision }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Restore successful checks and their artifacts
+        uses: actions/cache/restore@v4
+        with:
+          path: build/ci-cache/${{ inputs.preset }}
+          key: verified-v1-${{ runner.os }}-${{ runner.arch }}-${{ inputs.preset }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            verified-v1-${{ runner.os }}-${{ runner.arch }}-${{ inputs.preset }}-
+      - name: Select affected components
+        id: plan
+        env:
+          PRESET: ${{ inputs.preset }}
+          FORCE_FULL: ${{ inputs.full }}
+        run: |
+          args=()
+          if [[ "$FORCE_FULL" == true ]]; then args+=(--force); fi
+          python3 tools/ci.py plan --preset "$PRESET" "${args[@]}" --github-output "$GITHUB_OUTPUT"
+      - uses: emscripten-core/setup-emsdk@v16
+        if: steps.plan.outputs.work == 'true' && startsWith(inputs.preset, 'wasm-')
+        with:
+          version: 6.0.8
+      - name: Build and test selected components
+        if: steps.plan.outputs.work == 'true'
+        env:
+          PRESET: ${{ inputs.preset }}
+        run: python3 tools/ci.py run --preset "$PRESET"
+      # PR jobs may read trusted caches but never publish a verification receipt.
+      - name: Save successful checks
+        if: steps.plan.outputs.work == 'true' && github.event_name != 'pull_request'
+        uses: actions/cache/save@v4
+        with:
+          path: build/ci-cache/${{ inputs.preset }}
+          key: verified-v1-${{ runner.os }}-${{ runner.arch }}-${{ inputs.preset }}-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Assemble the verified Release bundle
+        id: bundle
+        if: >-
+          inputs.preset == 'wasm-release' && github.event.repository.private == false &&
+          github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: python3 tools/ci.py bundle --preset wasm-release --github-output "$GITHUB_OUTPUT"
+      - name: Upload verified Pages bundle
+        if: >-
+          inputs.preset == 'wasm-release' &&
+          github.event.repository.private == false &&
+          github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: build/wasm-release/web

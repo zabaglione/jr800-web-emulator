@@ -357,6 +357,7 @@ CPU fault、未対応アクセス、停止時間上限などに到達した場�
 ## 関連文書
 
 - [JR-800アプリ開発ガイド](docs/sdk/application-development.md)
+- [CIの対象選択と手動実行](docs/ci.md)
 - [機械語プログラムWAVの利用ガイド](docs/user/machine-language-wav.md)
 - [BASICプログラムWAVの利用ガイド](docs/user/basic-program-wav.md)
 - [BASIC移行の実機テスト手順](docs/user/basic-program-physical-test.md)

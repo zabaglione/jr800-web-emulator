@@ -1,3 +1,16 @@
+add_test(NAME ci_selection COMMAND ${Python3_EXECUTABLE}
+    ${CMAKE_CURRENT_SOURCE_DIR}/ci_selection_test.py)
+
+    file(READ "${PROJECT_SOURCE_DIR}/games/catalog.json" GAME_CATALOG)
+    string(JSON GAME_COUNT LENGTH "${GAME_CATALOG}" programs)
+    math(EXPR GAME_LAST "${GAME_COUNT} - 1")
+    set(GAME_IDS "")
+    foreach(index RANGE 0 ${GAME_LAST})
+        string(JSON game GET "${GAME_CATALOG}" programs ${index} id)
+        list(APPEND GAME_IDS ${game})
+    endforeach()
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/games/catalog.json")
+
 if(EXISTS "${PROJECT_SOURCE_DIR}/docs/wasm/c-abi-v42.md")
     add_test(
         NAME abi_version_contract
@@ -25,15 +38,6 @@ if(EMSCRIPTEN)
         set(GAME_CHECK_MODE smoke)
         set(GAME_REPLAY_PREFIX "smoke-")
     endif()
-    file(READ "${PROJECT_SOURCE_DIR}/games/catalog.json" GAME_CATALOG)
-    string(JSON GAME_COUNT LENGTH "${GAME_CATALOG}" programs)
-    math(EXPR GAME_LAST "${GAME_COUNT} - 1")
-    set(GAME_IDS "")
-    foreach(index RANGE 0 ${GAME_LAST})
-        string(JSON game GET "${GAME_CATALOG}" programs ${index} id)
-        list(APPEND GAME_IDS ${game})
-    endforeach()
-    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/games/catalog.json")
     foreach(game IN LISTS GAME_IDS)
         add_test(NAME game_${game}
             COMMAND ${NODE_EXECUTABLE} ${PROJECT_SOURCE_DIR}/games/tools/check.mjs
@@ -45,6 +49,7 @@ if(EMSCRIPTEN)
                 ${PROJECT_SOURCE_DIR}/build/games/${game}/${game}.j8a
                 ${PROJECT_SOURCE_DIR}/build/games/${game}/${GAME_REPLAY_PREFIX}replay.txt
                 ${PROJECT_SOURCE_DIR}/build/games/${game}/${GAME_REPLAY_PREFIX}metrics.json)
+        set_tests_properties(game_${game} native_replay_${game} PROPERTIES LABELS "game;${game}")
         set_tests_properties(native_replay_${game} PROPERTIES DEPENDS game_${game})
     endforeach()
     add_test(
@@ -161,9 +166,15 @@ else()
 
     add_executable(game_rules_test game_rules_test.cpp)
     target_link_libraries(game_rules_test PRIVATE jr800::core jr800::formats)
-    add_test(NAME game_rules_test COMMAND ${Python3_EXECUTABLE}
-        ${CMAKE_CURRENT_SOURCE_DIR}/game_rules_driver.py ${PROJECT_SOURCE_DIR}
-        $<TARGET_FILE:jr8as> $<TARGET_FILE:jr8ld> $<TARGET_FILE:game_rules_test>)
+    foreach(game IN LISTS GAME_IDS)
+        # RELIC DIVE GFX uses its own key-driven parity checks in the WASM suite.
+        if(NOT game STREQUAL "relic-dive-gfx")
+            add_test(NAME game_rules_${game} COMMAND ${Python3_EXECUTABLE}
+                ${CMAKE_CURRENT_SOURCE_DIR}/game_rules_driver.py ${PROJECT_SOURCE_DIR}
+                $<TARGET_FILE:jr8as> $<TARGET_FILE:jr8ld> $<TARGET_FILE:game_rules_test> ${game})
+            set_tests_properties(game_rules_${game} PROPERTIES LABELS "game;${game}")
+        endif()
+    endforeach()
 
     add_executable(game_replay_test game_replay_test.cpp)
     target_link_libraries(game_replay_test PRIVATE jr800::core jr800::formats)
