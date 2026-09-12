@@ -20,6 +20,10 @@ game_start:
     LDAA #255
     STAA cursor
     JSR challenge_start
+    ; The entire destination stays highlighted, including empty/moving tiles.
+    LDAA #255
+    STAA challenge_view_cells
+    STAA challenge_view_cells + 1
     LDX #board
     JSR challenge_load
     LDAB #7
@@ -381,6 +385,7 @@ rail_spawn_value:
     STAA 0,X
     RTS
 rail_status:
+    JSR game_bonus
     CLR grid_stat
     CLR rail_empty
     LDAB #0
@@ -484,8 +489,99 @@ game_bonus:
 rail_bonus_done:
     RTS
 game_render:
-    JSR paint_board
-    JMP visual_hud
+    CLR paint_index
+rail_render_tile:
+    LDAB paint_index
+    JSR game_tile
+    TSTA
+    BEQ rail_render_face
+    LDAB grid_cell
+    CMPB challenge_cells
+    BNE rail_render_face
+    ORAA #128
+rail_render_face:
+    LDAB paint_index
+    JSR paint_tile
+    INC paint_index
+    LDAA paint_index
+    ANDA #7
+    BNE rail_render_next
+    JSR input_poll
+rail_render_next:
+    LDAA paint_index
+    CMPA #112
+    BNE rail_render_tile
+    JSR visual_hud
+    ; Outside the board, a pointer locates the fixed destination. On completion
+    ; both it and the legend become checks; the number itself stays unobscured.
+    LDAA challenge_cells
+    ANDA #3
+    ASLA
+    ASLA
+    ASLA
+    ASLA
+    ASLA
+    ADDA #VIEW_X + 12
+    STAA paint_x
+    LDAA #1
+    LDX #rail_hint_down
+    LDAB challenge_cells
+    CMPB #4
+    BCS rail_hint_position
+    LDAA #6
+    LDX #rail_hint_up
+rail_hint_position:
+    STAA paint_band
+    TST challenge_bonus
+    BEQ rail_hint_source
+    LDX #rail_hint_check
+rail_hint_source:
+    STX paint_source
+    JSR paint_address
+    CLR paint_id
+    LDAA #8
+    STAA paint_count
+    JSR paint_blit
+    LDAA #7
+    STAA paint_band
+    LDAA #70
+    STAA paint_x
+    JSR paint_address
+    LDX #rail_bonus_label
+    STX paint_source
+    LDAA #20
+    STAA paint_count
+    JSR paint_blit
+    ; Reuse the exact tile artwork for the required number in the legend.
+    LDAB stage
+    LDX #rail_goals
+    ABX
+    LDAA 0,X
+    LDAB #32
+    MUL
+    ADDD #tiles + 8
+    STD paint_source
+    LDAA #97
+    STAA paint_x
+    JSR paint_address
+    LDAA #128
+    STAA paint_id
+    LDAA #32
+    STAA paint_count
+    JSR paint_blit
+    CLR paint_id
+    LDAA #136
+    STAA paint_x
+    JSR paint_address
+    LDX #rail_hint_pending
+    TST challenge_bonus
+    BEQ rail_legend_source
+    LDX #rail_hint_check
+rail_legend_source:
+    STX paint_source
+    LDAA #8
+    STAA paint_count
+    JMP paint_blit
 
 .section .bss, bss
 rail_active: .space 1

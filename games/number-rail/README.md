@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [パズル・論理](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Logic) · モダン
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/number-rail)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=number-rail) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/number-rail)
 
 ![タイトル画面](../../docs/games/titles/number-rail.png)
 
@@ -10,7 +10,7 @@
 
 ## 遊び方
 
-方向キーで全タイルを滑らせ、同じ数字を合体させます。1回の移動で同じタイルが二重に合体することはありません。GOAL以上のタイルを作ればクリアです。追加目標は、その目標タイルを印のある隅で作ることです。毎回同じ出現順なので、再挑戦で手順を工夫できます。
+方向キーで全タイルを滑らせ、同じ数字を合体させます。1回の移動で同じタイルが二重に合体することはありません。GOAL以上のタイルを作ればクリアです。追加目標は、黒地・白数字で示した隅にGOAL以上のタイルを作ることです。盤面の外側の矢印が対象の隅を指し、下部のBONUSには完成させる数字の見本を表示します。達成すると矢印とBONUSの横がチェックに変わります。毎回同じ出現順なので、再挑戦で手順を工夫できます。
 
 変化しない方向への入力は手数に含めません。UNDOは出現順も戻します。規定手数は、指定の隅で完成させる確認済み手順が基準です。
 
@@ -18,9 +18,9 @@
 
 ## ゲーム画面
 
-![第1面の初期配置と規定手数](../../docs/games/screenshots/number-rail/gameplay-1.png)
+![第1面の初期配置。黒い隅と矢印が追加目標、下部のBONUSが完成させる数字の見本](../../docs/games/screenshots/number-rail/gameplay-1.png)
 
-第1面の初期配置と規定手数。
+第1面の初期配置。黒い隅と矢印が追加目標、下部のBONUSが完成させる数字の見本。
 
 ![第31面で追加目標に挑戦している場面](../../docs/games/screenshots/number-rail/gameplay-2.png)
 

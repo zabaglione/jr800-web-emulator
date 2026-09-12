@@ -232,3 +232,13 @@ challenge_hint:
 .section .data, data
 challenge_hint_0:
     .byte $4D,$41,$52,$4B,$45,$44,$20,$43,$4F,$52,$4E,$45,$52,$20,$20,$20,$20,$20,$00
+rail_hint_down:
+    .byte $02,$06,$0E,$1F,$0E,$06,$02,$00
+rail_hint_up:
+    .byte $40,$60,$70,$F8,$70,$60,$40,$00
+rail_hint_check:
+    .byte $00,$18,$30,$30,$18,$0C,$06,$00
+rail_hint_pending:
+    .byte $00,$3E,$22,$22,$22,$3E,$00,$00
+rail_bonus_label:
+    .byte $3E,$2A,$14,$00,$1C,$22,$1C,$00,$3E,$1C,$3E,$00,$3E,$20,$3E,$00,$24,$2A,$12,$00
