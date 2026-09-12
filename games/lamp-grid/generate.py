@@ -10,7 +10,6 @@ levels=campaign(root)
 sprites=[]
 for on in (0,1):
     b=Bitmap(16,8);b.rect(1,0,14,8);b.rect(4,2,8,4,on,True)
-    if not on:b.dot(7,3);b.dot(8,4)
     sprites.append(b)
 for on in (0,1):
     # Retain the rectangular lamp: filled when on, outlined when off.
