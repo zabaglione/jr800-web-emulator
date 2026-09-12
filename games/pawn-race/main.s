@@ -386,6 +386,32 @@ pawn_tile_done:
     RTS
 game_render:
     JSR paint_board
+    TST hud_ready
+    BNE pawn_render_values
+    JSR hud_begin
+; Paint the game's static labels before the cached values, including menu return.
+    LDX #pawn_foes_label
+    STX paint_source
+    LDAA #5
+    STAA paint_x
+    LDAA #1
+    STAA paint_band
+    JSR paint_address
+    LDAA #16
+    STAA paint_count
+    CLR paint_id
+    JSR paint_blit
+    LDX #pawn_turns_label
+    STX paint_source
+    CLR paint_x
+    LDAA #4
+    STAA paint_band
+    JSR paint_address
+    LDAA #64
+    STAA paint_count
+    CLR paint_id
+    JSR paint_blit
+pawn_render_values:
     JMP visual_hud
 
 .section .bss, bss
