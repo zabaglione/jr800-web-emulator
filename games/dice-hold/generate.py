@@ -8,8 +8,8 @@ pips=[[],[(11,7)],[(6,3),(16,11)],[(6,3),(11,7),(16,11)],[(6,3),(16,3),(6,11),(1
 for held in range(2):
  for value in range(1,7):
   b=Bitmap(24,16);b.rect(1,2,20,14);b.line(1,2,3,0);b.line(3,0,23,0);b.line(20,2,23,0);b.line(23,0,23,13);b.line(20,15,23,13);b.line(22,3,22,13)
-  # Two-pixel pips leave a clear row below the upper rim, even on sixes.
-  for x,y in pips[value]:b.rect(x-1,max(4,y),2,2,1,True)
+  # Leave a clear row below the held die's inner rim, and between all six pips.
+  for x,y in pips[value]:b.rect(x-1,{3:5,7:8,11:11}[y],2,2,1,True)
   if held:b.rect(2,3,18,12)
   sprites.append(b)
 cells=[255]*112;sub=[0]*112
