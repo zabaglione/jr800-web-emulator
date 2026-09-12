@@ -12,7 +12,7 @@
 
 テンキー2468またはWASDで移動します。A・Bは壁ではなく、歩いて入れる端末のマスです。方向キーで自分の位置をAまたはBと重ねてからSPACEを押すと、その系統のカメラが止まります。端末に入るだけでは停止しません。端末以外、または停止済みの端末ではSPACEで1手待機します。壁やカメラへは進めず、ぶつかっても手は進みません。
 
-1手ごとにカメラが時計回りに90度回り、その後に視線を判定します。各カメラは正面と左右斜めの3方向へ4マス先まで見ます。壁や別のカメラに当たると、その先は見えません。カメラ内の白い切れ込みが正面の向き、床の点模様が現在の監視範囲です。動いた直後の向きで見つかるかどうかが決まります。現在は点がない場所でも、次の回転で監視範囲に入る場合があります。危ないときは安全なマスでSPACEを1回押して待ち、カメラの向きを変えてから進んでください。端末や出口の上も監視対象です。
+1手ごとにカメラが時計回りに90度回り、その後に視線を判定します。各カメラは正面へ90度に広がる三角形の範囲を、4マス先まで監視します。三角形の内側全体が監視対象です。壁や別のカメラに当たると、その先は見えません。カメラ内の白い切れ込みが正面の向き、床の網模様で塗られた三角形や四角い部分が、現在の監視範囲です。重なった光も同じ監視範囲として扱います。動いた直後の向きで見つかるかどうかが決まります。現在は光がない場所でも、次の回転で監視範囲に入る場合があります。危ないときは安全なマスでSPACEを1回押して待ち、カメラの向きを変えてから進んでください。端末や出口の上も監視対象です。
 
 端末Aは2台、Bは1台のカメラを停止します。SPACEで停止を実行した手では、その系統の視線が消えた後で判定します。停止した機器は斜線入りの四角に変わります。停止済みカメラも障害物として残ります。LINKSを0にすると出口の×印が横線に変わり、そこへ進めばクリアです。
 
@@ -26,19 +26,19 @@ RETURNで停止メニューを開きます。WAITは端末を操作せずに1手
 
 ## ゲーム画面
 
-![安全な入口と、近くにある最初の端末A](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/signal-ghost/gameplay-1.png)
+![安全な入口と、近くにある最初の端末A](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/bd26eb4aa8a691102e1c5c1eab5c7cc548450bbb/docs/games/screenshots/signal-ghost/gameplay-1.png)
 
 安全な入口と、近くにある最初の端末A。
 
-![回転のタイミングを見て端末へ潜入する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/signal-ghost/gameplay-2.png)
+![回転のタイミングを見て端末へ潜入する](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/bd26eb4aa8a691102e1c5c1eab5c7cc548450bbb/docs/games/screenshots/signal-ghost/gameplay-2.png)
 
 回転のタイミングを見て端末へ潜入する。
 
-![片方の系統を止め、残る端末と出口へ進む](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/signal-ghost/gameplay-3.png)
+![片方の系統を止め、残る端末と出口へ進む](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/bd26eb4aa8a691102e1c5c1eab5c7cc548450bbb/docs/games/screenshots/signal-ghost/gameplay-3.png)
 
 片方の系統を止め、残る端末と出口へ進む。
 
-![端末Aと自分の位置を重ねた状態](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/13991a5d547d33993eb28301277893b453a79965/docs/games/screenshots/signal-ghost/motion.png)
+![端末Aと自分の位置を重ねた状態](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/bd26eb4aa8a691102e1c5c1eab5c7cc548450bbb/docs/games/screenshots/signal-ghost/motion.png)
 
 端末Aと自分の位置を重ねた状態。
 
