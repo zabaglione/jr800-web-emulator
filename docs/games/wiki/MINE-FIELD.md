@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=mine-field) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/mine-field)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/mine-field/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/mine-field.png)
 
 数字の推理だけで解ける固定盤面を40面収録した、地雷探索パズルです。地雷は10〜25個に増えます。
 

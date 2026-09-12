@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=rail-dispatch) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/rail-dispatch)
 
-![タイトル画面](../../docs/games/screenshots/rail-dispatch/title.png)
+![タイトル画面](../../docs/games/titles/rail-dispatch.png)
 
 上下から来る列車を2つの信号で合流させ、分岐を切り替えて正しい駅へ届ける全12課題の運行ゲームです。
 

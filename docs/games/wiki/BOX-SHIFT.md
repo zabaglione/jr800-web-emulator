@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=box-shift) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/box-shift)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/a7b1c707291fc7e2df911fc01f9fe5310d224a76/docs/games/screenshots/box-shift/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/box-shift.png)
 
 箱を押してすべての目標に置く、全40面の倉庫パズルです。倉庫は第1〜10面の9×5マスから、第11〜20面は12×5マス、第21〜40面は14×5マスへ拡大します。後半には4箱を扱う倉庫も登場し、右側のゴールまで箱を運ぶ順番や回り道が攻略の鍵になります。寸法は外壁を除いた範囲で、内部の柱や壁も含みます。
 

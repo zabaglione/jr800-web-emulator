@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=target-range) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/target-range)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/target-range/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/target-range.png)
 
 丸い標的を撃ち、バツ印は見送る、20回の判断で得点を目指す射撃ゲームです。3段階の難易度があります。
 

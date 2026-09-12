@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=tail-trail) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/tail-trail)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/tail-trail/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/tail-trail.png)
 
 食べ物を集めるたびに長くなる尾を避けて走る、3難易度のヘビゲームです。
 

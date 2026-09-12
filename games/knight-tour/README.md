@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=knight-tour) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/knight-tour)
 
-![タイトル画面](../../docs/games/screenshots/knight-tour/title.png)
+![タイトル画面](../../docs/games/titles/knight-tour.png)
 
 形の異なる盤面をナイトの動きで巡る、全40面の巡回パズルです。8マスから36マスへ拡大します。
 

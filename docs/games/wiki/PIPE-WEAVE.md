@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=pipe-weave) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/pipe-weave)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/pipe-weave/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/pipe-weave.png)
 
 分岐・環状経路を組み替えて通水する、全40面の配管パズルです。
 

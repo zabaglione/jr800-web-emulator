@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=arc-duel) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/arc-duel)
 
-![タイトル画面](../../docs/games/screenshots/arc-duel/title.png)
+![タイトル画面](../../docs/games/titles/arc-duel.png)
 
 風を読み、地形を削りながらCPUの砲台と戦う弾道対戦です。6種類の地形と3段階の難易度があります。
 

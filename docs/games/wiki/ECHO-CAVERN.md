@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=echo-cavern) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/echo-cavern)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/echo-cavern/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/echo-cavern.png)
 
 音波で見えない洞窟を調べ、酸素を管理して結晶3個を持ち帰る全12面の探索ゲームです。
 

@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=five-stones) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/five-stones)
 
-![タイトル画面](../../docs/games/screenshots/five-stones/title.png)
+![タイトル画面](../../docs/games/titles/five-stones.png)
 
 14×7の盤面で5個の石を並べるCPU対戦です。両端が空いた攻め筋と相手のリーチを読む五目並べです。
 

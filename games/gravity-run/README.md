@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=gravity-run) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/gravity-run)
 
-![タイトル画面](../../docs/games/screenshots/gravity-run/title.png)
+![タイトル画面](../../docs/games/titles/gravity-run.png)
 
 重力を反転して床と天井の障害物をかわす、全12コースの自動走行アクションです。
 

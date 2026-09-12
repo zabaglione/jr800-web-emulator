@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=orchard-days) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/orchard-days)
 
-![タイトル画面](../../docs/games/screenshots/orchard-days/title.png)
+![タイトル画面](../../docs/games/titles/orchard-days.png)
 
 1日3回の作業で豆とベリーを育て、期限までの所持金目標を目指す全12課題の農園ゲームです。
 

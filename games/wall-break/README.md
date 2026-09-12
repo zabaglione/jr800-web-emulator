@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=wall-break) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/wall-break)
 
-![タイトル画面](../../docs/games/screenshots/wall-break/title.png)
+![タイトル画面](../../docs/games/titles/wall-break.png)
 
 パドルでボールを打ち返し、12種類のブロック配置を壊すアクションゲームです。
 

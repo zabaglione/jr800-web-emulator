@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=relic-dive-gfx) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/relic-dive-gfx)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/e7c00dd8a7ed836d7009e9ed66f971bd079e30fb/docs/games/screenshots/relic-dive-gfx/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/relic-dive-gfx.png)
 
 元のRELIC DIVEのゲーム内容をすべて引き継ぎ、タイトル・冒険者・12種類の敵・品物・石壁・HUDを描き直した独立版です。EASY 5階、NORMAL 10階、HARD 20階のターン制迷宮を探索します。
 

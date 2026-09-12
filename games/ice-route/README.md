@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=ice-route) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/ice-route)
 
-![タイトル画面](../../docs/games/screenshots/ice-route/title.png)
+![タイトル画面](../../docs/games/titles/ice-route.png)
 
 止まるまで滑り続ける床で宝石と出口を目指す、全40面の経路パズルです。
 

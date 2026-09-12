@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=penalty-arc) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/penalty-arc)
 
-![タイトル画面](../../docs/games/screenshots/penalty-arc/title.png)
+![タイトル画面](../../docs/games/titles/penalty-arc.png)
 
 コース・高さ・強さと、動くキーパーの位置を見て蹴るタイミングを選ぶPKゲームです。10本のシュートで規定のゴール数を目指します。
 

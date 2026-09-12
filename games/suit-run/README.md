@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=suit-run) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/suit-run)
 
-![タイトル画面](../../docs/games/screenshots/suit-run/title.png)
+![タイトル画面](../../docs/games/titles/suit-run.png)
 
 捨て札と前後の数字をつなぎ、連続得点を狙うゴルフ型ソリティアです。解ける20種類の配札を収録しています。
 

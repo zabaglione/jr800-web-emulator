@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=switch-maze) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/switch-maze)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/switch-maze/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/switch-maze.png)
 
 鍵と切替式の扉を使い、区画を行き来する全40面の迷路パズルです。
 

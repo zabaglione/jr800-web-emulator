@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=pawn-race) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/pawn-race)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/b03a0eac526893f05942666005d2b6243419d758/docs/games/screenshots/pawn-race/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/pawn-race.png)
 
 前進と斜め取りで敵陣を突破する6×6のCPU対戦です。3段階のCPUを選べます。
 

@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=pocket-factory) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/pocket-factory)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/pocket-factory/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/pocket-factory.png)
 
 2種類の資源を加工して出荷する、全40課題の工場パズルです。後半は折り返しと迂回を含む長い搬送経路を組みます。
 

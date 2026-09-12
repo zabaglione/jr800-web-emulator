@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=hex-front) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/hex-front)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/hex-front/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/hex-front.png)
 
 六方向につながる6×6の盤面で辺どうしを結ぶCPU対戦です。1局1回だけ相手の拠点を変換するリレーを使えます。
 

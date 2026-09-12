@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=reversi-mini) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/reversi-mini)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/f766716440814d6dc06e63faa0997e0615832381/docs/games/screenshots/reversi-mini/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/reversi-mini.png)
 
 6×6の盤面で相手のディスクを挟んで返す、CPU対戦のリバーシです。1枚ずつの反転アニメーションとSE、置ける場所の表示、自動パスがあります。
 

@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=circuit-deck) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/circuit-deck)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/circuit-deck/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/circuit-deck.png)
 
 手札3枚とエナジー3を使う、9戦制のカードバトルです。最終戦にはボスが待っています。
 

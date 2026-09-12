@@ -4,7 +4,17 @@ import json
 from html import escape
 
 
-def write_index(root, games, genres, verified, raw, site, repo):
+def title_image_path(ident):
+    return f'docs/games/titles/{ident}.png'
+
+
+def title_image_url(ident):
+    # Title art is shared by every page and follows the current published game.
+    return ('https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/'
+            + title_image_path(ident))
+
+
+def write_index(root, games, genres, verified, site, repo):
     copy = json.loads((root / 'games/tools/gallery.json').read_text())
     if set(copy['games']) != {g['id'] for g in games}:
         raise ValueError('Every published game needs a gallery introduction')
@@ -30,7 +40,7 @@ def write_index(root, games, genres, verified, raw, site, repo):
         for game in sorted(items, key=lambda g: g['title']):
             ident, title = game['id'], game['title']
             page = link(ident.upper())
-            picture = (f'[<img src="{raw}/{ident}/title.png" width="384" '
+            picture = (f'[<img src="{title_image_url(ident)}" width="384" '
                        f'alt="{escape(title, quote=True)} のタイトル画面">]({page})')
             rows.append(f'| {picture} | **[{title}]({page})**<br>'
                         f'{copy["games"][ident]}<br>{actions(game)} |')

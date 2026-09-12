@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=maze-chase) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/maze-chase)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/maze-chase/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/maze-chase.png)
 
 2体の追跡者をかわし、迷路の粒を集める12面のアクションゲームです。
 

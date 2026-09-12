@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=beat-step) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/beat-step)
 
-![タイトル画面](../../docs/games/screenshots/beat-step/title.png)
+![タイトル画面](../../docs/games/titles/beat-step.png)
 
 流れてくる矢印に合わせて4方向を押すリズムゲームです。3つの譜面を、6回のミスになる前に最後まで進めます。
 

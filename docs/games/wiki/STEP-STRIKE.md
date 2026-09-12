@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=step-strike) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/step-strike)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/step-strike/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/step-strike.png)
 
 移動・射撃・待機のときだけ世界が進む、全40面の戦術パズルです。扉と遮蔽物を使う後半の部屋を追加しています。
 

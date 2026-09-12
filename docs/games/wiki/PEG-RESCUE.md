@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=peg-rescue) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/peg-rescue)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/peg-rescue/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/peg-rescue.png)
 
 ペグを飛び越して最後の1個を残す、全40面の盤面パズルです。6個から29個の配置を収録しています。
 

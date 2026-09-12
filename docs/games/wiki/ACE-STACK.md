@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=ace-stack) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/ace-stack)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/ace-stack/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/ace-stack.png)
 
 合計13の組を取り除き、28枚のピラミッドを崩すカードパズルです。解ける20種類の配札を収録しています。
 

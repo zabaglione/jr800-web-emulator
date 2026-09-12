@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=star-patrol) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/star-patrol)
 
-![タイトル画面](../../docs/games/screenshots/star-patrol/title.png)
+![タイトル画面](../../docs/games/titles/star-patrol.png)
 
 移動する敵編隊と敵弾を避けながら撃つ、全12ステージの固定画面シューティングです。
 

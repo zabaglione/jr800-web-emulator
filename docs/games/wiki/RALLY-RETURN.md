@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=rally-return) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/rally-return)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/rally-return/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/rally-return.png)
 
 打点とスピンで返球の角度を変える、CPUとのパドル対戦です。先に5点取ると勝利します。
 

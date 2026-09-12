@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=dice-hold) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/dice-hold)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/dice-hold/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/dice-hold.png)
 
 5個のダイスを保持・振り直しし、13種類の得点欄を埋めるダイスゲームです。3段階の得点目標に挑戦します。
 

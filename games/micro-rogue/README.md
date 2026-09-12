@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=micro-rogue) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/micro-rogue)
 
-![タイトル画面](../../docs/games/screenshots/micro-rogue/title.png)
+![タイトル画面](../../docs/games/titles/micro-rogue.png)
 
 地形と配置が変わる5階のダンジョンを、装備と回復薬を集めて踏破する小さなローグライクです。
 

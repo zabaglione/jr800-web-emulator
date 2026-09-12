@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=bomb-vault) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/bomb-vault)
 
-![タイトル画面](../../docs/games/screenshots/bomb-vault/title.png)
+![タイトル画面](../../docs/games/titles/bomb-vault.png)
 
 時限爆弾で壁を壊し、3個の鍵を集めて出口を目指す全12面のアクションです。
 

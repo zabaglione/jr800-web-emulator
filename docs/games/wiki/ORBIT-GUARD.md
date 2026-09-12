@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=orbit-guard) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/orbit-guard)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/orbit-guard/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/orbit-guard.png)
 
 中央の砲台を8方向へ回し、軌道から近づく敵を迎撃する全12ウェーブの防衛シューティングです。
 

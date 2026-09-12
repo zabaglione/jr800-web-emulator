@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=loop-trace) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/loop-trace)
 
-![タイトル画面](../../docs/games/screenshots/loop-trace/title.png)
+![タイトル画面](../../docs/games/titles/loop-trace.png)
 
 分岐のある盤面でS→A→B→C→Sの輪を描く、全40面の経路パズルです。
 

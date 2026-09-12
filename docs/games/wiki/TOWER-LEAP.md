@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=tower-leap) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/tower-leap)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/tower-leap/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/tower-leap.png)
 
 足場を跳び移って12階の頂上を目指す、全12コースの縦スクロールアクションです。
 

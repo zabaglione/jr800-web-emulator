@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=dot-claim) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/dot-claim)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/5366b5e8b2210c26f39777e1941845eb84cb36a4/docs/games/screenshots/dot-claim/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/dot-claim.png)
 
 点の間に辺を引き、四角を閉じて陣地を取るCPU対戦です。12個の四角を争い、閉じると続けて手を打てます。
 

@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=balance-dock) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/balance-dock)
 
-![タイトル画面](../../docs/games/screenshots/balance-dock/title.png)
+![タイトル画面](../../docs/games/titles/balance-dock.png)
 
 左右に動く荷物を落として高く積むタイミングゲームです。はみ出した部分は切り落とされ、残った幅で次の荷物を受け止めます。
 

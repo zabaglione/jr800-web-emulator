@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=wind-putt) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/wind-putt)
 
-![タイトル画面](../../docs/games/screenshots/wind-putt/title.png)
+![タイトル画面](../../docs/games/titles/wind-putt.png)
 
 風と壁の反射を読み、12コースのカップを狙うミニゴルフです。角度と強さを選び、各コース12打以内のカップインを目指します。
 

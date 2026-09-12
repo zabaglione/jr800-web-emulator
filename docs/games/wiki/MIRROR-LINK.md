@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=mirror-link) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/mirror-link)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/mirror-link/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/mirror-link.png)
 
 最大14枚の鏡と複数の光源を扱う、全40面の反射パズルです。
 

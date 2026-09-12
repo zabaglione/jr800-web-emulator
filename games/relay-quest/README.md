@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=relay-quest) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/relay-quest)
 
-![タイトル画面](../../docs/games/screenshots/relay-quest/title.png)
+![タイトル画面](../../docs/games/titles/relay-quest.png)
 
 鍵と回復薬を集め、2基のリレーを回収して遺跡の出口を目指す全12面の探索ゲームです。
 

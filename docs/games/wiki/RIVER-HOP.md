@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=river-hop) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/river-hop)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/river-hop/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/river-hop.png)
 
 車列を避け、流れる丸太を渡って5つの岸へ到着する12面のアクションゲームです。
 

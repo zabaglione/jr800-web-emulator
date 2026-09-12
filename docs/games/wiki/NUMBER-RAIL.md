@@ -4,7 +4,7 @@
 
 [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/number-rail)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/number-rail/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/number-rail.png)
 
 決まった盤面と出現順で数字を合体させる、全40課題のマージパズルです。最終課題の目標は2048です。
 

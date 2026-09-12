@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=signal-ghost) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/signal-ghost)
 
-![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/signal-ghost/title.png)
+![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/signal-ghost.png)
 
 90度ずつ回転する監視カメラを避け、2系統の端末を停止して脱出する全20面の潜入パズルです。
 

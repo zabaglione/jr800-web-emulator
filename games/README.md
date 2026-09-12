@@ -51,7 +51,7 @@ ctest --preset wasm-release
 
 `generate.py`と`tools/visual_art.py`から作品ごとのタイトル・面データを、`tools/hud_layouts.py`・`tools/hud_custom.py`からHUDを再生成できます。パズルの解答手順は各作品の`solutions.json`にあります。所有ROMでも検査する場合は、`JR800_GAME_ROM`にローカルROMの**絶対パス**を設定してください。ROMの配布やネットワーク送信は行いません。
 
-タイトル画像とゲーム中3場面は[スクリーンショット](../docs/games/screenshots/)に、[検証範囲と測定値](../docs/games/validation.md)は別紙にまとめています。Wiki原稿は`docs/games/wiki/`で管理し、`python3 games/tools/wiki.py`で更新します。公開サイトでの検査記録を`--live-check`に渡した作品だけ「遊ぶ」リンクを生成します。公開済みソースのコミットIDを`--image-revision`に渡すと、Wikiの画像をその版に固定できます。
+タイトル画像は[共通タイトル画像](../docs/games/titles/)の`<game-id>.png`を各作品1枚だけ管理し、Wikiトップ・ジャンル一覧・個別ページで同じ最新版を参照します。ゲーム中3場面は[スクリーンショット](../docs/games/screenshots/)に、[検証範囲と測定値](../docs/games/validation.md)は別紙にまとめています。Wiki原稿は`docs/games/wiki/`で管理し、`python3 games/tools/wiki.py`で更新します。公開サイトでの検査記録を`--live-check`に渡した作品だけ「遊ぶ」リンクを生成します。公開済みソースのコミットIDを`--image-revision`に渡すと、ゲーム中の画像をその版に固定できます。タイトル画像はこの指定に影響されず、`--game <game-id>`による個別更新でも全ページへ反映されます。原寸のタイトル画像は検証用の`build/games/`内だけに残し、公開用には複製しません。
 
 ## 画面の制作
 

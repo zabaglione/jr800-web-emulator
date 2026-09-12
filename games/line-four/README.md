@@ -4,7 +4,7 @@
 
 [遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=line-four) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/line-four)
 
-![タイトル画面](../../docs/games/screenshots/line-four/title.png)
+![タイトル画面](../../docs/games/titles/line-four.png)
 
 7列×6段の盤面にディスクを落とし、先に4個を並べるCPU対戦です。3段階の難易度があります。
 
