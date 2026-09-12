@@ -4,13 +4,17 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 from grid_assets import assets,Bitmap,asm_bytes
 sprites=[]
-for n in range(4):
+for n in range(7):
  b=Bitmap(16,8);b.rect(0,0,16,8)
  if n in (1,2):
     b.line(5,1,10,1);b.line(5,6,10,6);b.line(3,3,3,4);b.line(12,3,12,4)
     for x,y in [(4,2),(11,2),(4,5),(11,5)]:b.dot(x,y)
     if n==2:b.rect(4,3,8,2,1,True);b.line(5,2,10,2);b.line(5,5,10,5)
  elif n==3:b.line(6,3,9,3);b.line(7,2,7,5)
+ elif n in (4,5):
+    b.line(6,1,9,1);b.line(6,6,9,6);b.line(5,2,5,5);b.line(10,2,10,5)
+    if n==5:b.rect(6,2,4,4,1,True)
+ elif n==6:b.line(7,1,7,6);b.line(8,1,8,6)
  if n in (1,2):b.line(6,7,11,7);b.dot(12,6)
  sprites.append(b)
 links=[]
