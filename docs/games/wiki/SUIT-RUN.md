@@ -12,21 +12,21 @@
 
 7列に並ぶ35枚をすべて取り除くとクリアです。各列は一番下にあるカードから使います。方向キーでカーソルを動かし、右側のWASTEと数字が1つ違うカードをSPACEで取り除きます。Aは1、Tは10、Jは11、Qは12、Kは13です。AとKもつながります。取り除いたカードが次のWASTEになります。
 
-カードを連続して取り除くとCHAINが増え、1枚目は1点、2枚目は2点、3枚目は3点と得点が伸びます。使えるカードがないときはRETURNメニューのDRAWで山札を引きます。DRAWはCHAINを0に戻します。山札は16枚で一巡だけです。STOCKが残り山札、LEFTが場に残ったカード数です。山札が尽きて使えるカードもなくなると失敗します。
+カードを連続して取り除くとCHAINが増え、1枚目は1点、2枚目は2点、3枚目は3点と得点が伸びます。使えるカードがないときは、カード列の一番下から下キーで画面下の **DRAW** を選び、SPACEで山札を1枚引きます。上キーでカードへ戻ります。DRAWはCHAINを0に戻します。山札は16枚で一巡だけです。使い切るとDRAWの表示がEMPTYに変わります。STOCKが残り山札、LEFTが場に残ったカード数です。山札が尽きて使えるカードもなくなると失敗します。
 
 RETURNのUNDOは直前の除去またはDRAWを1回戻し、得点とCHAINも復元します。RETRYで同じ配札をやり直せます。すべての数字を4枚ずつ使う標準52枚構成の独自配札を20面収録しています。
 
 ## ゲーム画面
 
-![各列の下から前後の数字をつなぐ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/suit-run/gameplay-1.png)
+![各列の下から前後の数字をつなぐ](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/a295f56815d2fae5edc8a4972fffd9feb2877044/docs/games/screenshots/suit-run/gameplay-1.png)
 
 各列の下から前後の数字をつなぐ。
 
-![4連続で得点を伸ばしている場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/suit-run/gameplay-2.png)
+![4連続で得点を伸ばしている場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/a295f56815d2fae5edc8a4972fffd9feb2877044/docs/games/screenshots/suit-run/gameplay-2.png)
 
 4連続で得点を伸ばしている場面。
 
-![14連続を保ちながら最終面を進める](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/suit-run/gameplay-3.png)
+![14連続を保ちながら最終面を進める](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/a295f56815d2fae5edc8a4972fffd9feb2877044/docs/games/screenshots/suit-run/gameplay-3.png)
 
 14連続を保ちながら最終面を進める。
 
