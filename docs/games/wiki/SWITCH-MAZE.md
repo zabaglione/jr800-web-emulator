@@ -10,21 +10,21 @@
 
 ## 遊び方
 
-方向キーで移動します。鍵2個を取り、出口へ着くとクリアです。A・Bは床にある2系統のスイッチです。Aを踏むとAの文字がある扉、Bを踏むとBの文字がある扉が開閉します。床のスイッチは明るい地面に黒い文字、閉じた扉は黒地に白抜きのA・Bで表示します。扉が開くと中央が空いた絵になります。同じスイッチをもう一度踏むと閉じます。追加目標は、2か所の印を通ることです。後半では同じスイッチを複数回使う経路も必要になります。
+開始時は人型のプレイヤーがいるスタート、出口の順に、それぞれSEとともに2回点滅します。点滅が終わったら方向キーで移動します。鍵2個を取り、出口へ着くとクリアです。A・Bは床にある2系統のスイッチです。Aを踏むとAの文字がある扉、Bを踏むとBの文字がある扉が開閉します。床のスイッチは明るい地面に黒い文字、閉じた扉は黒地に白抜きのA・Bで表示します。扉が開くと中央が空いた絵になります。同じスイッチをもう一度踏むと閉じます。追加目標は、2か所の印を通ることです。後半では同じスイッチを複数回使う経路も必要になります。
 
 閉じた扉や壁への入力は手数に含めません。RETURNメニューから移動と扉の状態を1手戻せます。
 
 ## ゲーム画面
 
-![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/switch-maze/gameplay-1.png)
+![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/a8e36a081de88ff605a487f25fb58391f20fa952/docs/games/screenshots/switch-maze/gameplay-1.png)
 
 第1面の初期配置と規定手数。
 
-![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/switch-maze/gameplay-2.png)
+![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/a8e36a081de88ff605a487f25fb58391f20fa952/docs/games/screenshots/switch-maze/gameplay-2.png)
 
 第31面で追加目標に挑戦している場面。
 
-![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/switch-maze/gameplay-3.png)
+![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/a8e36a081de88ff605a487f25fb58391f20fa952/docs/games/screenshots/switch-maze/gameplay-3.png)
 
 第40面を規定手数と追加目標の両方を満たしてクリア。
 
@@ -59,7 +59,7 @@ HUDの **USED** は使った手数、**PAR** は規定手数です。規定手�
 
 コードは**面と評価**を記録します。盤面の途中状態は含みません。BASICへ戻る前にLOAD RECORDを控えると、次回の起動後に記録を復元できます。入力したLOAD RECORDの内容で全40面のBESTが置き換わるため、新しい記録を控えてから復元してください。
 
-![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/screenshots/switch-maze/selection.png)
+![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/a8e36a081de88ff605a487f25fb58391f20fa952/docs/games/screenshots/switch-maze/selection.png)
 
 面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。
 
