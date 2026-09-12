@@ -12,19 +12,19 @@
 
 開始時に安全な領域が開きます。方向キーで選び、SPACEでマスを開きます。数字は隣接8マスの地雷数です。安全なマスをすべて開けばクリアです。追加目標は、最後の安全マスを開く前に、すべての地雷へ自分で旗を立てることです。クリア時の自動旗はありません。
 
-RETURNメニューの FLAG MODE で旗モードへ入り、SPACEで旗の設置・撤去、RETURNで開く操作へ戻ります。開いた数字の周囲に同数の旗があると、SPACEで周囲をまとめて開けます。誤った旗でまとめ開きをすると地雷を踏むことがあります。開く・旗を置く・旗を外す操作をそれぞれ1手と数えます。開始時の自動開放は0手です。規定手数は推理で安全を確認した手順が基準です。
+盤面の右端から右キー、または下端から下キーで、右下の **FLAG MODE** を選びます。SPACEで **ON / OFF** を切り替えると盤面へ戻ります。ONではSPACEで旗の設置・撤去、OFFではマスを開きます。切り替えずに戻るときは左または上キーです。現在のモードは右下に常時表示します。RETURNでも旗モードを解除できます。モード切替だけでは手数は増えません。開いた数字の周囲に同数の旗があると、SPACEで周囲をまとめて開けます。誤った旗でまとめ開きをすると地雷を踏むことがあります。開く・旗を置く・旗を外す操作をそれぞれ1手と数えます。開始時の自動開放は0手です。規定手数は推理で安全を確認した手順が基準です。
 
 ## ゲーム画面
 
-![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/mine-field/gameplay-1.png)
+![第1面の初期配置と規定手数](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/37b4e7d8111e76d208c971018d931cffd3bfbc43/docs/games/screenshots/mine-field/gameplay-1.png)
 
 第1面の初期配置と規定手数。
 
-![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/mine-field/gameplay-2.png)
+![第31面で追加目標に挑戦している場面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/37b4e7d8111e76d208c971018d931cffd3bfbc43/docs/games/screenshots/mine-field/gameplay-2.png)
 
 第31面で追加目標に挑戦している場面。
 
-![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/mine-field/gameplay-3.png)
+![第40面を規定手数と追加目標の両方を満たしてクリア](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/37b4e7d8111e76d208c971018d931cffd3bfbc43/docs/games/screenshots/mine-field/gameplay-3.png)
 
 第40面を規定手数と追加目標の両方を満たしてクリア。
 
@@ -59,7 +59,7 @@ HUDの **USED** は使った手数、**PAR** は規定手数です。規定手�
 
 コードは**面と評価**を記録します。盤面の途中状態は含みません。BASICへ戻る前にLOAD RECORDを控えると、次回の起動後に記録を復元できます。入力したLOAD RECORDの内容で全40面のBESTが置き換わるため、新しい記録を控えてから復元してください。
 
-![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/2f1dcb2f428aff44ed112b3276a2e78ec3b89fc7/docs/games/screenshots/mine-field/selection.png)
+![面選択とパスワード](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/37b4e7d8111e76d208c971018d931cffd3bfbc43/docs/games/screenshots/mine-field/selection.png)
 
 面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。
 
