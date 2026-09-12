@@ -12,8 +12,10 @@
 .global dice_evaluate
 .global dice_roll
 .global dice_commit
+.global dice_action
 .section .text, code
 game_start:
+    CLR dice_action
     JSR grid_reset
     LDX #dice_used
     LDAB #26
@@ -33,6 +35,8 @@ dice_zero_scores:
 game_update:
     TST selection_active
     BNE dice_select_score
+    TST dice_action
+    BNE dice_action_update
     LDAA input_event
     BITA #16
     BEQ dice_cursor
@@ -44,10 +48,36 @@ game_update:
     STAA 0,X
     JMP grid_changed
 dice_cursor:
+    BITA #2
+    BEQ dice_move_horizontal
+    INC dice_action
+    JMP grid_changed
+dice_move_horizontal:
     JSR grid_move
     CMPB #255
     BEQ dice_idle
     STAB cursor
+    JMP grid_changed
+dice_action_update:
+    LDAA input_event
+    BITA #1
+    BEQ dice_action_choose
+    CLR dice_action
+    JMP grid_changed
+dice_action_choose:
+    BITA #16
+    BEQ dice_action_move
+    LDAA dice_action
+    CMPA #2
+    BEQ dice_open_scores
+    JSR dice_roll
+    JMP grid_changed
+dice_action_move:
+    BITA #12
+    BEQ dice_idle
+    LDAA dice_action
+    EORA #3
+    STAA dice_action
     JMP grid_changed
 dice_select_score:
     LDAA input_event
@@ -88,6 +118,7 @@ dice_open_scores:
     STAA selection_active
     JMP grid_changed
 dice_new_round:
+    CLR dice_action
     LDX #dice_holds
     LDAB #5
     CLRA
@@ -321,8 +352,19 @@ dice_sprite_done:
     RTS
 game_render:
     TST selection_active
-    BNE dice_render_scores
+    BEQ dice_render_main
+    JMP dice_render_scores
+dice_render_main:
+    LDAA cursor
+    PSHA
+    TST dice_action
+    BEQ dice_render_dice
+    LDAA #255
+    STAA cursor
+dice_render_dice:
     JSR paint_board
+    PULA
+    STAA cursor
     LDX #dice_hold_label
     CLRA
     LDAB #1
@@ -347,10 +389,32 @@ game_render:
     STAA paint_band
     LDAA dice_bonus
     JSR paint_number
-    LDX #dice_menu_label
-    CLRA
+    LDAA #5
+    STAA hud_play_field + 3
+    CLR hud_play_field + 4
+    LDAA dice_action
+    CMPA #1
+    BNE dice_render_roll
+    LDAA #128
+    STAA hud_play_field + 4
+dice_render_roll:
+    LDX #dice_roll_button
+    LDAA #2
     LDAB #7
     JSR hud_play_text
+    CLR hud_play_field + 4
+    LDAA dice_action
+    CMPA #2
+    BNE dice_render_score
+    LDAA #128
+    STAA hud_play_field + 4
+dice_render_score:
+    LDX #dice_score_button
+    LDAA #66
+    LDAB #7
+    JSR hud_play_text
+    CLR hud_play_field + 3
+    CLR hud_play_field + 4
     JMP dice_render_hud
 dice_render_scores:
     LDX #dice_choose_label
@@ -474,11 +538,13 @@ dice_longest: .space 1
 dice_points: .space 1
 dice_display: .space 1
 dice_row: .space 1
+dice_action: .space 1
 .section .data, data
-dice_hold_label: .byte 83,80,65,67,69,32,84,79,32,72,79,76,68,0
+dice_hold_label: .byte 83,80,65,67,69,58,72,79,76,68,32,32,68,79,87,78,58,65,67,84,73,79,78,83,0
 dice_roll_label: .byte 82,79,76,76,83,0
 dice_bonus_label: .byte 66,79,78,85,83,0
-dice_menu_label: .byte 77,69,78,85,58,82,79,76,76,47,83,67,79,82,69,0
+dice_roll_button: .byte 32,82,79,76,76,32,0
+dice_score_button: .byte 32,83,67,79,82,69,32,0
 dice_choose_label: .byte 67,72,79,79,83,69,32,65,32,82,79,87,0
 dice_confirm_label: .byte 83,80,65,67,69,32,84,79,32,83,67,79,82,69,0
 dice_total_label: .byte 84,79,84,65,76,0
