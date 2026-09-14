@@ -24,6 +24,8 @@ DOC_TOOLS = {'games/tools/wiki.py', 'games/tools/wiki_index.py',
              'games/tools/gallery.json', 'tools/sync_game_wiki.py'}
 POLICY = {'CMakeLists.txt', 'CMakePresets.json', 'tests/CMakeLists.txt',
           'tools/ci.py', 'tools/build_games.py', 'tests/ci_selection_test.py'}
+# This game builds and tests the original sample through its own wrapper.
+GAME_SAMPLE_DEPENDENCIES = {'relic-dive-gfx': ('lcd/07-relic-dive',)}
 
 
 def digest(data):
@@ -41,6 +43,15 @@ def source_files(root):
             sorted(set(result.decode().strip('\0').split('\0'))) if (root / name).is_file()}
 
 
+def sample_names(files):
+    names = sorted(p.removeprefix('sdk/examples/').removesuffix('/Makefile')
+                   for p in files if p.startswith('sdk/examples/') and
+                   p.endswith('/Makefile') and p != 'sdk/examples/lcd/Makefile')
+    if any(not re.fullmatch(r'[a-z0-9-]+(?:/[a-z0-9-]+)*', name) for name in names):
+        raise ValueError('Invalid SDK sample name')
+    return names
+
+
 def fingerprints(files, programs, preset):
     def subset(predicate):
         return {p: h for p, h in files.items() if predicate(p)}
@@ -55,14 +66,22 @@ def fingerprints(files, programs, preset):
                      not p.endswith(('.md', '.png', '.svg')) and
                      p not in {'.gitignore', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'AGENTS.md'})
     core = fingerprint([policy, engine, unknown, preset])
-    sdk = subset(lambda p: p.startswith('sdk/') and not p.endswith(('.md', '.png', '.svg')))
+    sdk = subset(lambda p: p.startswith('sdk/') and not p.startswith('sdk/examples/') and
+                 not p.endswith(('.md', '.png', '.svg')))
+    sample_inputs = {name: subset(lambda p: p.startswith('sdk/examples/' + name + '/') and
+                                not p.endswith(('.md', '.png', '.svg')))
+                     for name in sample_names(files)}
+    owned = {path for inputs in sample_inputs.values() for path in inputs}
+    example_common = subset(lambda p: p.startswith('sdk/examples/') and p not in owned and
+                            p != 'sdk/examples/lcd/Makefile' and not p.endswith(('.md', '.png', '.svg')))
     common = subset(lambda p: p.startswith(('games/common/', 'games/tools/')) and
                     p not in DOC_TOOLS and not p.endswith(('.md', '.png', '.svg')))
     native = preset.startswith('native')
     compiled_tests = subset(lambda p: p.startswith('tests/') and p.endswith(('.cpp', '.c', '.h', '.hpp')))
     build = fingerprint([core, compiled_tests if native else files.get('tests/game_replay_test.cpp')])
-    shared = fingerprint([build, sdk if native else {}, subset(lambda p:
-        (p.startswith('tests/') and p != 'tests/game_rules_driver.py' and
+    shared = fingerprint([build, sdk if native else {},
+        files.get('sdk/examples/lcd/common/memory.j8l') if native else None, subset(lambda p:
+        (p.startswith('tests/') and p not in {'tests/game_rules_driver.py', 'tests/sample_make_test.py'} and
          (not native or not p.endswith(('.mjs', '.cjs')))) or
         (not native and (p.startswith('web/') or p in {'tools/build_web_bundle.py',
          'games/catalog.json', 'LICENSE', 'THIRD_PARTY_NOTICES.md'})) or
@@ -71,18 +90,26 @@ def fingerprints(files, programs, preset):
     game_tests = (files.get('tests/game_rules_test.cpp'), files.get('tests/game_rules_driver.py')) if native else (
         files.get('tests/game_replay_test.cpp'), files.get('web/wasm-machine.mjs'),
         files.get('web/basic-boot-profile.mjs'))
-    games = {p['id']: fingerprint([core, sdk, common, game_tests, subset(lambda path:
+    samples = {name: fingerprint([build, sdk, inputs,
+        {p: h for p, h in example_common.items() if name.startswith('lcd/') or
+         not p.startswith('sdk/examples/lcd/')},
+        subset(lambda p: p == 'tests/sample_make_test.py' or p.startswith('tests/fixtures/write-watch.'))
+        if name == 'write-watch' else {},
+        {} if native else {p: files.get(p) for p in ('web/wasm-machine.mjs', 'web/basic-boot-profile.mjs')}])
+        for name, inputs in sample_inputs.items() if native or name.startswith('lcd/')}
+    games = {p['id']: fingerprint([core, sdk, common, game_tests,
+        {name: sample_inputs.get(name) for name in GAME_SAMPLE_DEPENDENCIES.get(p['id'], ())}, subset(lambda path:
         path.startswith('games/' + p['id'] + '/') and not path.endswith(('.md', '.png', '.svg')))])
         for p in programs if not (native and p['id'] == 'relic-dive-gfx')}
     bundle = fingerprint([build, games, {} if native else subset(lambda p: p.startswith('web/') or p in
         {'games/catalog.json', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'tools/build_web_bundle.py'})])
-    return {'build': build, 'shared': shared, 'games': games, 'bundle': bundle}
+    return {'build': build, 'shared': shared, 'games': games, 'samples': samples, 'bundle': bundle}
 
 
 def read_receipt(cache):
     try:
         receipt = json.loads((cache / 'verified.json').read_text())
-        if receipt.get('version') == 1:
+        if receipt.get('version') == 2:
             return receipt
     except (OSError, ValueError):
         pass
@@ -111,9 +138,12 @@ def select(current, previous, cache, force=False):
     games = [game for game, key in current['games'].items() if force or rebuild or
              old.get('games', {}).get(game) != key or
              not valid_artifacts(cache, artifacts.get('games', {}).get(game))]
+    samples = [name for name, key in current['samples'].items() if force or rebuild or
+               old.get('samples', {}).get(name) != key]
+    samples_changed = old.get('samples') != current['samples']
     bundle = force or rebuild or bool(games) or old.get('bundle') != current['bundle']
-    return {'build': rebuild, 'shared': shared, 'games': games, 'bundle': bundle,
-            'work': rebuild or shared or bool(games) or bundle, 'inputs': current}
+    return {'build': rebuild, 'shared': shared, 'games': games, 'samples': samples, 'bundle': bundle,
+            'work': rebuild or shared or bool(games) or samples_changed or bundle, 'inputs': current}
 
 
 def run(root, *command):
@@ -139,12 +169,16 @@ def restore(root, cache, previous, plan):
             shutil.copy2(cache / 'products' / name, target)
 
 
-def ctest(root, preset, games, shared):
+def ctest(root, preset, games, samples, shared):
     listing = json.loads(subprocess.check_output(
         ['ctest', '--preset', preset, '--show-only=json-v1'], cwd=root))
     available = {test['name'] for test in listing['tests']}
     prefix = ('game_', 'native_replay_') if preset.startswith('wasm') else ('game_rules_',)
-    selected = {name for name in available if shared and not name.startswith(prefix)}
+    selected = {name for name in available if shared and not name.startswith(prefix) and name != 'sample_make_test'}
+    if 'write-watch' in samples:
+        if 'sample_make_test' not in available:
+            raise ValueError('Missing registered test: sample_make_test')
+        selected.add('sample_make_test')
     for game in games:
         for pre in prefix:
             name = pre + game
@@ -155,6 +189,29 @@ def ctest(root, preset, games, shared):
         expression = '^(' + '|'.join(re.escape(n) for n in sorted(selected)) + ')$'
         run(root, 'ctest', '--preset', preset, '--parallel', '4', '--no-tests=error', '-R', expression)
     return sorted(selected)
+
+
+def check_samples(root, preset, samples):
+    available = sample_names(source_files(root))
+    if not set(samples) <= set(available):
+        raise ValueError('Unknown SDK sample selection')
+    native = preset.startswith('native')
+    tool_directory = root / 'build' / (preset if native else 'native-release') / 'tools'
+    checks = []
+    for sample in samples:
+        if sample == 'write-watch':
+            # Its registered Native CTest builds in a temporary directory and
+            # verifies the Make/debugger workflow against independent fixtures.
+            continue
+        output = root / 'build/ci-samples' / preset / sample
+        shutil.rmtree(output, ignore_errors=True)
+        target = 'all' if native else ('run' if preset == 'wasm-debug' else 'test')
+        run(root, 'make', '--no-print-directory', '-C', root / 'sdk/examples' / sample, target,
+            'BUILD_DIR=' + str(output), 'JR8AS=' + str(tool_directory / 'jr8as'),
+            'JR8LD=' + str(tool_directory / 'jr8ld'),
+            'WASM_DIR=' + str(root / 'build' / preset / 'web-module'))
+        checks.append('sample_' + sample + ':' + target)
+    return checks
 
 
 def web_assets(root):
@@ -192,7 +249,7 @@ def seal(root, cache, preset, plan, tests):
     artifacts = {'build': record(binaries), 'games': {}}
     for game in plan['inputs']['games']:
         artifacts['games'][game] = record([root / 'build/games' / game / (game + suffix) for suffix in GAME_SUFFIXES])
-    receipt = {'version': 1, 'inputs': plan['inputs'], 'artifacts': artifacts,
+    receipt = {'version': 2, 'inputs': plan['inputs'], 'artifacts': artifacts,
                'tested': tests, 'commit': os.environ.get('GITHUB_SHA', 'local')}
     cache.mkdir(parents=True, exist_ok=True)
     temporary = cache / 'verified.tmp'
@@ -239,7 +296,8 @@ def execute(root, cache, preset, plan):
         pass
     else:
         package(root, preset, plan['games'])
-    tests = ctest(root, preset, plan['games'], plan['shared'])
+    tests = check_samples(root, preset, plan['samples'])
+    tests += ctest(root, preset, plan['games'], plan['samples'], plan['shared'])
     # Generators must reproduce committed inputs; never cache an untested revision.
     current = fingerprints(source_files(root), catalog(root), preset)
     if current != plan['inputs']:
@@ -272,6 +330,7 @@ def main():
             with open(summary, 'a') as output:
                 output.write(f'### {args.preset}\n\nEngine build: {plan["build"]}; shared checks: {plan["shared"]}.\n\n')
                 output.write('Games: ' + (', '.join(plan['games']) or 'none (verified inputs unchanged)') + '\n\n')
+                output.write('SDK samples: ' + (', '.join(plan['samples']) or 'none (verified inputs unchanged)') + '\n\n')
     elif args.action == 'run':
         execute(root, cache, args.preset, json.loads(plan_path.read_text()))
     else:

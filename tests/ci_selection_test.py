@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""Regression checks for CI selection, reusable artifacts and per-game builds."""
+"""Regression checks for CI selection, reusable artifacts and individual programs."""
 import importlib.util
 import json
 from pathlib import Path
@@ -25,6 +25,12 @@ class SelectionTest(unittest.TestCase):
             'core/src/cpu.cpp', 'sdk/lib/lcd/display.s', 'games/common/runtime.s',
             'games/tools/check.mjs', 'games/box-shift/main.s', 'games/mirror-link/main.s',
             'games/relic-dive-gfx/main.s', 'sdk/examples/lcd/07-relic-dive/main.s',
+            'sdk/examples/lcd/07-relic-dive/Makefile',
+            'sdk/examples/lcd/14-polygon-fighter/Makefile',
+            'sdk/examples/lcd/14-polygon-fighter/main.s',
+            'sdk/examples/lcd/common/sample.mk', 'sdk/examples/lcd/common/memory.j8l',
+            'sdk/examples/lcd/check.mjs', 'sdk/examples/lcd/Makefile',
+            'sdk/examples/write-watch/Makefile', 'sdk/examples/write-watch/main.s',
             'tests/game_rules_test.cpp', 'tests/game_replay_test.cpp',
             'tests/wasm_worker_vertical_slice.mjs', 'web/styles.css',
             'web/wasm-machine.mjs', 'games/catalog.json', 'tools/ci.py')}
@@ -43,6 +49,7 @@ class SelectionTest(unittest.TestCase):
         old = {'inputs': before, 'artifacts': {'build': records.pop('engine'), 'games': records}}
         after = dict(self.files)
         after.update(changed or {})
+        after = {p: h for p, h in after.items() if h is not None}
         current = ci.fingerprints(after, self.programs, preset)
         return ci.select(current, old, self.cache, force)
 
@@ -52,6 +59,84 @@ class SelectionTest(unittest.TestCase):
                          'games/box-shift/README.md', 'core/README.md', 'games/tools/wiki.py'):
                 with self.subTest(preset=preset, file=file):
                     self.assertFalse(self.plan(preset, {file: 'changed'})['work'])
+
+    def test_one_sample_does_not_retest_games_engine_or_other_samples(self):
+        for preset in ci.PRESETS:
+            for file in ('main.s', 'renderer.s', 'model.s', 'generate_model.py', 'check.mjs', 'Makefile'):
+                with self.subTest(preset=preset, file=file):
+                    plan = self.plan(preset, {'sdk/examples/lcd/14-polygon-fighter/' + file: 'changed'})
+                    self.assertEqual(plan['samples'], ['lcd/14-polygon-fighter'])
+                    self.assertEqual(plan['games'], [])
+                    self.assertTrue(plan['work'])
+                    self.assertFalse(plan['build'] or plan['shared'] or plan['bundle'])
+
+    def test_new_sample_and_aggregate_list_only_select_new_sample(self):
+        for preset in ci.PRESETS:
+            plan = self.plan(preset, {'sdk/examples/lcd/15-new-demo/Makefile': 'new',
+                                     'sdk/examples/lcd/15-new-demo/main.s': 'new',
+                                     'sdk/examples/lcd/Makefile': 'updated-list'})
+            self.assertEqual(plan['samples'], ['lcd/15-new-demo'])
+            self.assertEqual(plan['games'], [])
+            self.assertFalse(plan['build'] or plan['shared'] or plan['bundle'])
+
+    def test_sample_deletion_updates_receipt_without_testing_other_programs(self):
+        for preset in ci.PRESETS:
+            plan = self.plan(preset, {'sdk/examples/lcd/14-polygon-fighter/Makefile': None,
+                                     'sdk/examples/lcd/14-polygon-fighter/main.s': None,
+                                     'sdk/examples/lcd/Makefile': 'updated-list'})
+            self.assertTrue(plan['work'])
+            self.assertEqual(plan['samples'], [])
+            self.assertEqual(plan['games'], [])
+            self.assertNotIn('lcd/14-polygon-fighter', plan['inputs']['samples'])
+            self.assertFalse(plan['build'] or plan['shared'] or plan['bundle'])
+
+    def test_sample_docs_preview_and_aggregate_list_do_not_invalidate_checks(self):
+        for preset in ci.PRESETS:
+            for file in ('sdk/examples/lcd/14-polygon-fighter/README.md',
+                         'sdk/examples/lcd/14-polygon-fighter/preview.svg', 'sdk/examples/lcd/Makefile'):
+                self.assertFalse(self.plan(preset, {file: 'changed'})['work'])
+
+    def test_lcd_common_files_only_invalidate_lcd_samples(self):
+        for preset in ci.PRESETS:
+            for file in ('sdk/examples/lcd/common/sample.mk', 'sdk/examples/lcd/check.mjs',
+                         'sdk/examples/lcd/common/memory.j8l'):
+                plan = self.plan(preset, {file: 'changed'})
+                self.assertEqual(plan['samples'], ['lcd/07-relic-dive', 'lcd/14-polygon-fighter'])
+                self.assertEqual(plan['games'], [])
+                self.assertFalse(plan['build'] or plan['bundle'])
+                self.assertEqual(plan['shared'], preset.startswith('native') and file.endswith('memory.j8l'))
+
+    def test_reused_sample_only_invalidates_its_dependent_game(self):
+        for preset in ci.PRESETS:
+            plan = self.plan(preset, {'sdk/examples/lcd/07-relic-dive/main.s': 'changed'})
+            self.assertEqual(plan['samples'], ['lcd/07-relic-dive'])
+            self.assertEqual(plan['games'], [] if preset.startswith('native') else ['relic-dive-gfx'])
+            self.assertFalse(plan['build'] or plan['shared'])
+
+    def test_write_watch_selects_its_native_workflow_only(self):
+        for preset in ci.PRESETS:
+            for file in ('sdk/examples/write-watch/main.s', 'tests/sample_make_test.py'):
+                plan = self.plan(preset, {file: 'changed'})
+                self.assertEqual(plan['samples'], ['write-watch'] if preset.startswith('native') else [])
+                self.assertEqual(plan['games'], [])
+                self.assertFalse(plan['build'] or plan['shared'] or plan['bundle'])
+
+    def test_cancelled_sample_checks_cannot_be_hidden_by_later_docs(self):
+        plan = self.plan('wasm-release', {'sdk/examples/lcd/14-polygon-fighter/main.s': 'unverified',
+                                         'sdk/examples/lcd/README.md': 'later-commit'})
+        self.assertEqual(plan['samples'], ['lcd/14-polygon-fighter'])
+
+    def test_real_sample_inventory_and_dependency_scope(self):
+        files = ci.source_files(ROOT)
+        self.assertIn('lcd/14-polygon-fighter', ci.sample_names(files))
+        self.assertNotIn('lcd', ci.sample_names(files))
+        for preset in ci.PRESETS:
+            before = ci.fingerprints(files, build_games.catalog(ROOT), preset)
+            after = ci.fingerprints({**files, 'sdk/examples/lcd/14-polygon-fighter/main.s': 'changed'},
+                                    build_games.catalog(ROOT), preset)
+            self.assertEqual(before['games'], after['games'])
+            self.assertEqual([name for name in before['samples'] if
+                              before['samples'][name] != after['samples'][name]], ['lcd/14-polygon-fighter'])
 
     def test_one_game_runs_only_that_game(self):
         for preset in ci.PRESETS:
@@ -85,7 +170,7 @@ class SelectionTest(unittest.TestCase):
 
     def test_shared_dependencies_and_unknown_sources_invalidate_games(self):
         for file in ('core/src/cpu.cpp', 'sdk/lib/lcd/display.s', 'games/common/runtime.s',
-                     'games/tools/check.mjs', 'sdk/examples/lcd/07-relic-dive/main.s',
+                     'games/tools/check.mjs',
                      'tools/ci.py', 'new-runtime/input.cpp'):
             for preset in ci.PRESETS:
                 plan = self.plan(preset, {file: 'changed'})
@@ -100,6 +185,8 @@ class SelectionTest(unittest.TestCase):
         self.assertTrue(cold['build'] and cold['shared'])
         self.assertEqual(len(cold['games']), 3)
         self.assertEqual(self.plan('wasm-release', force=True)['games'], cold['games'])
+        self.assertEqual(cold['samples'], list(current['samples']))
+        self.assertEqual(self.plan('wasm-release', force=True)['samples'], cold['samples'])
 
     def test_corrupt_game_retests_only_that_game(self):
         plan = self.plan('wasm-release', damage='box-shift')
@@ -136,15 +223,21 @@ class SelectionTest(unittest.TestCase):
                  'native_replay_mirror-link', 'web_ui_contract']
         listing = json.dumps({'tests': [{'name': n} for n in names]}).encode()
         with patch.object(ci.subprocess, 'check_output', return_value=listing), patch.object(ci, 'run') as run:
-            selected = ci.ctest(ROOT, 'wasm-release', ['box-shift'], False)
+            selected = ci.ctest(ROOT, 'wasm-release', ['box-shift'], [], False)
             self.assertEqual(selected, names[:2])
             self.assertNotIn('mirror-link', run.call_args.args[-1])
             self.assertNotIn('web_ui_contract', run.call_args.args[-1])
             with self.assertRaises(ValueError):
-                ci.ctest(ROOT, 'wasm-release', ['unknown'], False)
+                ci.ctest(ROOT, 'wasm-release', ['unknown'], [], False)
+
+    def test_write_watch_ctest_is_independent_of_shared_checks(self):
+        listing = json.dumps({'tests': [{'name': n} for n in ['sample_make_test', 'native_smoke']]}).encode()
+        with patch.object(ci.subprocess, 'check_output', return_value=listing), patch.object(ci, 'run'):
+            self.assertEqual(ci.ctest(ROOT, 'native-release', [], ['write-watch'], False), ['sample_make_test'])
+            self.assertEqual(ci.ctest(ROOT, 'native-release', [], [], True), ['native_smoke'])
 
     def test_failed_checks_do_not_seal_receipt(self):
-        plan = {'work': True, 'build': False, 'games': [], 'shared': True}
+        plan = {'work': True, 'build': False, 'games': [], 'samples': [], 'shared': True}
         with patch.object(ci, 'restore'), patch.object(ci, 'configure'), \
              patch.object(ci, 'ctest', side_effect=subprocess.CalledProcessError(1, 'ctest')), \
              patch.object(ci, 'seal') as seal:
@@ -152,11 +245,60 @@ class SelectionTest(unittest.TestCase):
                 ci.execute(ROOT, self.cache, 'native-release', plan)
             seal.assert_not_called()
 
+    def test_failed_sample_does_not_seal_receipt(self):
+        plan = {'work': True, 'build': False, 'games': [], 'samples': ['lcd/14-polygon-fighter'], 'shared': False}
+        with patch.object(ci, 'restore'), patch.object(ci, 'configure'), \
+             patch.object(ci, 'check_samples', side_effect=subprocess.CalledProcessError(1, 'make')), \
+             patch.object(ci, 'seal') as seal:
+            with self.assertRaises(subprocess.CalledProcessError):
+                ci.execute(ROOT, self.cache, 'native-release', plan)
+            seal.assert_not_called()
+
+    def test_only_current_receipt_format_is_accepted(self):
+        for version in (1, 2):
+            (self.cache / 'verified.json').write_text(json.dumps({'version': version}))
+            self.assertEqual(ci.read_receipt(self.cache), {'version': 2} if version == 2 else {})
+
     def test_real_catalog_and_web_allowlist(self):
         programs = build_games.catalog(ROOT)
         self.assertGreaterEqual(len(programs), 51)
         self.assertIn('app.mjs', [p.name for p in ci.web_assets(ROOT)])
         self.assertTrue(all(p.is_file() for p in ci.web_assets(ROOT)))
+
+
+class CheckSamplesTest(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.sample = 'lcd/14-polygon-fighter'
+        self.files = {'sdk/examples/' + self.sample + '/Makefile': 'hash'}
+
+    def test_only_selected_output_is_rebuilt_with_the_selected_tools(self):
+        for preset in ci.PRESETS:
+            output = self.root / 'build/ci-samples' / preset / self.sample
+            output.mkdir(parents=True)
+            (output / 'stale.jro').touch()
+            other = self.root / 'build/ci-samples' / preset / 'lcd/01-hello/keep.jro'
+            other.parent.mkdir(parents=True)
+            other.touch()
+            with patch.object(ci, 'source_files', return_value=self.files), patch.object(ci, 'run') as run:
+                ci.check_samples(self.root, preset, [self.sample])
+                self.assertFalse(output.exists())
+                self.assertTrue(other.is_file())
+                self.assertEqual(run.call_count, 1)
+                args = [str(a) for a in run.call_args.args]
+                target = 'all' if preset.startswith('native') else ('run' if preset == 'wasm-debug' else 'test')
+                self.assertEqual(args[5], target)
+                tools = preset if preset.startswith('native') else 'native-release'
+                self.assertIn('JR8AS=' + str(self.root / 'build' / tools / 'tools/jr8as'), args)
+                self.assertIn('WASM_DIR=' + str(self.root / 'build' / preset / 'web-module'), args)
+
+    def test_unknown_sample_cannot_run_make(self):
+        with patch.object(ci, 'source_files', return_value=self.files), patch.object(ci, 'run') as run:
+            with self.assertRaises(ValueError):
+                ci.check_samples(self.root, 'wasm-release', ['../bad'])
+            run.assert_not_called()
 
 
 class BuildGamesTest(unittest.TestCase):
