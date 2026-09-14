@@ -41,7 +41,7 @@ jobs:
           if [[ "$FORCE_FULL" == true ]]; then args+=(--force); fi
           python3 tools/ci.py plan --preset "$PRESET" "${args[@]}" --github-output "$GITHUB_OUTPUT"
       - uses: emscripten-core/setup-emsdk@v16
-        if: steps.plan.outputs.work == 'true' && startsWith(inputs.preset, 'wasm-')
+        if: steps.plan.outputs.emsdk == 'true'
         with:
           version: 6.0.8
       - name: Build and test selected components

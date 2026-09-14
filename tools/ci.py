@@ -151,6 +151,14 @@ def run(root, *command):
     subprocess.run([str(c) for c in command], cwd=root, check=True)
 
 
+def needs_ctest(plan):
+    return bool(plan['shared'] or plan['games'] or 'write-watch' in plan['samples'])
+
+
+def needs_configure(plan):
+    return plan['build'] or needs_ctest(plan)
+
+
 def configure(root, preset):
     prefix = ['emcmake'] if preset.startswith('wasm') else []
     run(root, *prefix, 'cmake', '--preset', preset)
@@ -278,7 +286,10 @@ def execute(root, cache, preset, plan):
         return
     previous = read_receipt(cache)
     restore(root, cache, previous, plan)
-    configure(root, preset)
+    # Cached assembly samples and bundles use the verified tools directly.
+    # Only builds and registered CTest checks need a configured CMake tree.
+    if needs_configure(plan):
+        configure(root, preset)
     native = preset.startswith('native')
     if plan['build']:
         if native:
@@ -297,7 +308,8 @@ def execute(root, cache, preset, plan):
     else:
         package(root, preset, plan['games'])
     tests = check_samples(root, preset, plan['samples'])
-    tests += ctest(root, preset, plan['games'], plan['samples'], plan['shared'])
+    if needs_ctest(plan):
+        tests += ctest(root, preset, plan['games'], plan['samples'], plan['shared'])
     # Generators must reproduce committed inputs; never cache an untested revision.
     current = fingerprints(source_files(root), catalog(root), preset)
     if current != plan['inputs']:
@@ -318,12 +330,13 @@ def main():
     if args.action == 'plan':
         current = fingerprints(source_files(root), catalog(root), args.preset)
         plan = select(current, read_receipt(cache), cache, args.force)
+        plan['emsdk'] = args.preset.startswith('wasm') and needs_configure(plan)
         plan_path.parent.mkdir(parents=True, exist_ok=True)
         plan_path.write_text(json.dumps(plan, indent=2) + '\n')
         print(json.dumps({key: value for key, value in plan.items() if key != 'inputs'}, indent=2))
         if args.github_output:
             with args.github_output.open('a') as output:
-                for key in ('work', 'build', 'shared', 'bundle'):
+                for key in ('work', 'build', 'shared', 'bundle', 'emsdk'):
                     output.write(f'{key}={str(plan[key]).lower()}\n')
         summary = os.environ.get('GITHUB_STEP_SUMMARY')
         if summary:

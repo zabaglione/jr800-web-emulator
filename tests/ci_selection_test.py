@@ -126,6 +126,70 @@ class SelectionTest(unittest.TestCase):
                                          'sdk/examples/lcd/README.md': 'later-commit'})
         self.assertEqual(plan['samples'], ['lcd/14-polygon-fighter'])
 
+    def test_plan_exports_sdk_requirement_for_selected_work(self):
+        for preset in ci.PRESETS:
+            cases = [
+                (self.plan(preset), False),
+                (self.plan(preset, {'sdk/examples/lcd/14-polygon-fighter/main.s': 'new'}), False),
+                (self.plan(preset, {'web/styles.css': 'new'}), True),
+                (self.plan(preset, {'games/box-shift/main.s': 'new'}), True),
+                (self.plan(preset, damage='engine'), True),
+                (self.plan(preset, force=True), True),
+                (ci.select(ci.fingerprints(self.files, self.programs, preset), {}, self.cache), True),
+            ]
+            for index, (plan, requires_sdk) in enumerate(cases):
+                with self.subTest(preset=preset, case=index):
+                    output = self.cache / f'{preset}-{index}.txt'
+                    with patch.object(ci, '__file__', str(self.cache / 'tools/ci.py')), \
+                         patch.object(ci, 'source_files', return_value=self.files), \
+                         patch.object(ci, 'catalog', return_value=self.programs), \
+                         patch.object(ci, 'select', return_value=plan), \
+                         patch.dict(ci.os.environ, {'GITHUB_STEP_SUMMARY': str(self.cache / 'summary.md')}), \
+                         patch.object(sys, 'argv', ['ci.py', 'plan', '--preset', preset,
+                                                   '--github-output', str(output)]), \
+                         patch.object(sys, 'stdout'):
+                        ci.main()
+                    values = dict(line.split('=', 1) for line in output.read_text().splitlines())
+                    expected = requires_sdk and preset.startswith('wasm')
+                    self.assertEqual(values['emsdk'], str(expected).lower())
+                    saved = json.loads((self.cache / 'build' / f'ci-plan-{preset}.json').read_text())
+                    self.assertEqual(saved['emsdk'], expected)
+
+    def test_cached_samples_and_bundles_run_without_cmake_or_ctest(self):
+        for preset in ci.PRESETS:
+            for samples in (['lcd/14-polygon-fighter'], []):
+                with self.subTest(preset=preset, samples=samples):
+                    plan = {'work': True, 'build': False, 'games': [], 'samples': samples,
+                            'shared': False, 'bundle': not samples, 'inputs': {'verified': 'inputs'}}
+                    checks = ['sample_lcd/14-polygon-fighter:test'] if samples else []
+                    with patch.object(ci, 'restore'), patch.object(ci, 'package'), \
+                         patch.object(ci, 'configure', side_effect=AssertionError('Unexpected CMake')), \
+                         patch.object(ci, 'ctest', side_effect=AssertionError('Unexpected CTest')), \
+                         patch.object(ci, 'check_samples', return_value=checks) as check_samples, \
+                         patch.object(ci, 'source_files'), patch.object(ci, 'catalog'), \
+                         patch.object(ci, 'fingerprints', return_value=plan['inputs']), \
+                         patch.object(ci, 'seal') as seal:
+                        ci.execute(ROOT, self.cache, preset, plan)
+                        check_samples.assert_called_once_with(ROOT, preset, samples)
+                        seal.assert_called_once_with(ROOT, self.cache, preset, plan, checks)
+
+    def test_registered_checks_still_require_configuration(self):
+        for preset in ci.PRESETS:
+            cases = [(True, [], []), (False, ['box-shift'], [])]
+            if preset.startswith('native'):
+                cases.append((False, [], ['write-watch']))
+            for shared, games, samples in cases:
+                with self.subTest(preset=preset, shared=shared, games=games, samples=samples):
+                    plan = {'work': True, 'build': False, 'shared': shared,
+                            'games': games, 'samples': samples}
+                    with patch.object(ci, 'restore'), patch.object(ci, 'package'), \
+                         patch.object(ci.shutil, 'rmtree'), patch.object(ci, 'configure') as configure, \
+                         patch.object(ci, 'check_samples', return_value=[]), \
+                         patch.object(ci, 'ctest', side_effect=subprocess.CalledProcessError(1, 'ctest')):
+                        with self.assertRaises(subprocess.CalledProcessError):
+                            ci.execute(ROOT, self.cache, preset, plan)
+                        configure.assert_called_once_with(ROOT, preset)
+
     def test_real_sample_inventory_and_dependency_scope(self):
         files = ci.source_files(ROOT)
         self.assertIn('lcd/14-polygon-fighter', ci.sample_names(files))
