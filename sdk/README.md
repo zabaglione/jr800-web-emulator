@@ -13,3 +13,5 @@ JR-800本体のLCDとキー入力を使う[機械語サンプルとゲーム](ex
 [RELIC DIVE](examples/lcd/07-relic-dive/README.md)は、下降専用の迷宮、12種類の敵、3段階の難易度とブラウザー中断保存を備えています。
 
 [省RAM機械語ライブラリ](lib/README.md)とサンプル08〜13を追加しました。各機能を小さく試す例と、3レーンの回収・回避ゲーム[STAR COURIER](examples/lcd/13-star-courier/README.md)があります。
+
+[POLYGON FIGHTER](examples/lcd/14-polygon-fighter/README.md)は、陰影付きの戦闘機ポリゴンを機械語で描画・回転するテックデモです。
