@@ -5,56 +5,113 @@
 .global faces
 .global faces_end
 .global sine
+.global edge_cache
+.global edge_cache_end
+.global edge_cache_pointers
+.global edge_cache_pointers_end
+.global state_end
 .section .data, data
+; Vertex: X,Y,Z and the two angle-independent fixed-pitch Y products.
 vertices:
-    .byte 0,0,44
-    .byte 251,0,18
-    .byte 0,6,18
-    .byte 5,0,18
-    .byte 0,252,18
-    .byte 250,0,228
-    .byte 0,5,228
-    .byte 6,0,228
-    .byte 0,252,228
-    .byte 214,0,232
-    .byte 42,0,232
-    .byte 237,0,219
-    .byte 19,0,219
-    .byte 0,0,222
-    .byte 0,17,228
-    .byte 0,4,246
-    .byte 253,4,8
-    .byte 0,10,8
-    .byte 3,4,8
-    .byte 0,6,250
+    .byte 0,0,44,0,0
+    .byte 251,0,18,0,0
+    .byte 0,6,18,5,2
+    .byte 5,0,18,0,0
+    .byte 0,252,18,252,254
+    .byte 250,0,228,0,0
+    .byte 0,5,228,4,1
+    .byte 6,0,228,0,0
+    .byte 0,252,228,252,254
+    .byte 214,0,232,0,0
+    .byte 42,0,232,0,0
+    .byte 237,0,219,0,0
+    .byte 19,0,219,0,0
+    .byte 0,0,222,0,0
+    .byte 0,17,228,15,6
+    .byte 0,4,246,3,1
+    .byte 253,4,8,3,1
+    .byte 0,10,8,9,3
+    .byte 3,4,8,3,1
+    .byte 0,6,250,5,2
 vertices_end:
+; Face: vertex offsets, normal, flags, fixed-pitch Y products, opposite edge indices.
 faces:
-    .byte 0,6,3,183,61,14,0
-    .byte 0,9,6,73,61,14,0
-    .byte 0,12,9,60,182,11,0
-    .byte 0,3,12,196,182,11,0
-    .byte 3,18,15,195,74,1,0
-    .byte 3,6,18,182,61,255,0
-    .byte 6,21,18,61,74,254,0
-    .byte 6,9,21,74,61,2,0
-    .byte 9,24,21,53,176,1,0
-    .byte 9,12,24,60,181,0,0
-    .byte 12,15,24,203,176,0,0
-    .byte 12,3,15,196,181,1,0
-    .byte 15,18,24,0,0,160,0
-    .byte 18,21,24,0,0,160,4
-    .byte 3,15,27,0,96,0,1
-    .byte 9,30,21,0,96,0,5
-    .byte 15,39,33,0,96,0,5
-    .byte 21,36,39,0,96,0,5
-    .byte 18,42,45,96,0,0,1
-    .byte 6,51,48,171,42,17,2
-    .byte 6,54,51,85,42,17,2
-    .byte 48,51,57,171,43,244,2
-    .byte 51,54,57,85,43,244,2
+    .byte 0,6,3,183,61,14,0,56,23,8,0,2
+    .byte 0,9,6,73,61,14,0,56,23,18,2,4
+    .byte 0,12,9,60,182,11,0,187,227,30,4,6
+    .byte 0,3,12,196,182,11,0,187,227,10,6,0
+    .byte 3,18,15,195,74,1,0,68,28,42,12,14
+    .byte 3,6,18,182,61,255,0,56,23,20,14,8
+    .byte 6,21,18,61,74,254,0,68,28,52,20,22
+    .byte 6,9,21,74,61,2,0,56,23,32,22,18
+    .byte 9,24,21,53,176,1,0,182,225,60,32,34
+    .byte 9,12,24,60,181,0,0,186,227,40,34,30
+    .byte 12,15,24,203,176,0,0,182,225,44,40,38
+    .byte 12,3,15,196,181,1,0,186,227,12,38,10
+    .byte 15,18,24,0,0,160,0,0,0,54,44,42
+    .byte 18,21,24,0,0,160,4,0,0,60,54,52
+    .byte 3,15,27,0,96,0,1,88,36,46,16,12
+    .byte 9,30,21,0,96,0,5,88,36,62,32,36
+    .byte 15,39,33,0,96,0,5,88,36,68,48,50
+    .byte 21,36,39,0,96,0,5,88,36,70,66,64
+    .byte 18,42,45,96,0,0,1,0,0,72,58,56
+    .byte 6,51,48,171,42,17,2,38,16,74,24,26
+    .byte 6,54,51,85,42,17,2,38,16,78,26,28
+    .byte 48,51,57,171,43,244,2,39,16,80,76,74
+    .byte 51,54,57,85,43,244,2,39,16,82,80,78
 faces_end:
 sine:
     .byte 0,12,25,37,49,60,71,81,90,98,106,112,117,122,125,126
     .byte 127,126,125,122,117,112,106,98,90,81,71,60,49,37,25,12
     .byte 0,244,231,219,207,196,185,175,166,158,150,144,139,134,131,130
     .byte 129,130,131,134,139,144,150,158,166,175,185,196,207,219,231,244
+; Cache entry: angle8, anchor16, runtime X samples, untouched guard8.
+edge_cache_pointers:
+    .word edge_cache + 0
+    .word edge_cache + 15
+    .word edge_cache + 35
+    .word edge_cache + 50
+    .word edge_cache + 69
+    .word edge_cache + 81
+    .word edge_cache + 92
+    .word edge_cache + 115
+    .word edge_cache + 142
+    .word edge_cache + 169
+    .word edge_cache + 181
+    .word edge_cache + 204
+    .word edge_cache + 232
+    .word edge_cache + 244
+    .word edge_cache + 257
+    .word edge_cache + 269
+    .word edge_cache + 280
+    .word edge_cache + 303
+    .word edge_cache + 329
+    .word edge_cache + 356
+    .word edge_cache + 383
+    .word edge_cache + 405
+    .word edge_cache + 417
+    .word edge_cache + 428
+    .word edge_cache + 448
+    .word edge_cache + 459
+    .word edge_cache + 468
+    .word edge_cache + 480
+    .word edge_cache + 493
+    .word edge_cache + 509
+    .word edge_cache + 522
+    .word edge_cache + 533
+    .word edge_cache + 553
+    .word edge_cache + 564
+    .word edge_cache + 573
+    .word edge_cache + 586
+    .word edge_cache + 599
+    .word edge_cache + 623
+    .word edge_cache + 636
+    .word edge_cache + 649
+    .word edge_cache + 662
+    .word edge_cache + 676
+edge_cache_pointers_end:
+.section .bss, bss
+edge_cache:
+    .space 689
+edge_cache_end:
+state_end:

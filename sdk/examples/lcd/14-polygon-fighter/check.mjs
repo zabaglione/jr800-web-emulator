@@ -29,6 +29,7 @@ const transfers = [], pollGaps = [], nominalHz = 1_228_800;
 let inputPolling = mode === 'test', lastPollCycle, rotationTransfers = [], rotationSha256;
 let stops = 0, previousCycles = 0, firstPanel, header, footer, vertices, faces, code, lowerRam;
 let stateGuard, stackGuard, rotationTimings = [], shortPressCases = 0;
+let edgePairs = [], edgeCaches = [];
 
 function rotated(v, angle) {
     const sin = Math.round(127*Math.sin(angle*Math.PI/32));
@@ -48,6 +49,18 @@ function oracle(angle) {
         assert.ok(x >= 0 && x < 192 && y >= 8 && y < 56, `Projection outside viewport: ${angle}: ${x},${y}`);
     }
     assert.deepEqual([...read('projected_vertices', vertices.length*3)], projected.flat(), 'Fixed-point projection');
+    edgeCaches.forEach(({address, capacity}, i) => {
+        const header = machine.memory(address, 3);
+        if (header[0] !== angle) return;
+        let [a,b] = edgePairs[i].map(index => projected[index]);
+        if (a[1] > b[1]) [a,b] = [b,a];
+        const dy = b[1]-a[1], dx = b[0]-a[0];
+        assert.ok(dy > 0 && dy+1 <= capacity, `Edge ${i} exceeds cache capacity`);
+        assert.equal(header[1]*256+header[2], address+3-a[1], `Edge ${i} anchor`);
+        const expected = Array.from({length:dy+1}, (_,y) =>
+            a[0]+Math.sign(dx)*Math.floor(Math.abs(dx)*y/dy));
+        assert.deepEqual([...machine.memory(address+3, dy+1)], expected, `Edge ${i} cached intersections`);
+    });
     const visible = [];
     faces.forEach((f,i) => {
         let n = rotated(f.slice(3,6),angle);
@@ -65,7 +78,7 @@ function oracle(angle) {
     assert.equal(read('visible_count')[0],visible.length,'Back-face culling');
     const records = read('face_records',visible.length*5);
     visible.forEach((f,i) => assert.deepEqual([...records.slice(i*5,i*5+5)],
-        [f.depth>>8, f.depth&255, (symbols.faces+f.face*7)>>8, (symbols.faces+f.face*7)&255, f.shade],
+        [f.depth>>8, f.depth&255, (symbols.faces+f.face*12)>>8, (symbols.faces+f.face*12)&255, f.shade],
         'Depth order and lighting'));
     const expected = new Uint8Array(1536);
     const set = (x,y,value) => {
@@ -129,6 +142,8 @@ function frame(validate=true) {
     assert.deepEqual(machine.memory(0x2800,0x1800),code,'Program modified');
     assert.deepEqual(machine.memory(symbols.state_end,0x4c00-symbols.state_end),stateGuard,'State overflow');
     assert.deepEqual(machine.memory(0x5e00,0x100),stackGuard,'Stack reserve overflow');
+    edgeCaches.forEach(({address,capacity,guard},i) =>
+        assert.equal(machine.memory(address+3+capacity,1)[0],guard,`Edge ${i} cache overflow`));
     const angle=read('angle')[0]; angles.add(angle);
     if (validate) assert.deepEqual(fb.slice(192,1344),oracle(angle).slice(192,1344),`Triangle rasterization at ${angle}`);
     return {angle, fb: [...fb], dots: [...panel.dots]};
@@ -154,11 +169,37 @@ try {
     }
     const application = await readFile(resolve(outDir,`${sample}.j8a`));
     machine.loadProgram(application);
-    vertices=Array.from({length:(symbols.vertices_end-symbols.vertices)/3},(_,i)=>
-        [...machine.memory(symbols.vertices+i*3,3)].map(signed));
-    faces=Array.from({length:(symbols.faces_end-symbols.faces)/7},(_,i)=>
-        [...machine.memory(symbols.faces+i*7,7)].map((v,j)=>j>=3&&j<6?signed(v):v));
+    vertices=Array.from({length:(symbols.vertices_end-symbols.vertices)/5},(_,i)=>
+        [...machine.memory(symbols.vertices+i*5,3)].map(signed));
+    faces=Array.from({length:(symbols.faces_end-symbols.faces)/12},(_,i)=>
+        [...machine.memory(symbols.faces+i*12,7)].map((v,j)=>j>=3&&j<6?signed(v):v));
     assert.equal(vertices.length,20);assert.equal(faces.length,23);
+    vertices.forEach((v,i) => assert.deepEqual([...machine.memory(symbols.vertices+i*5+3,2)],
+        [Math.floor(v[1]*118/128)&255,Math.floor(v[1]*49/128)&255],'Vertex fixed pitch constants'));
+    faces.forEach((f,i) => assert.deepEqual([...machine.memory(symbols.faces+i*12+7,2)],
+        [Math.floor(f[4]*118/128)&255,Math.floor(f[4]*49/128)&255],'Normal fixed pitch constants'));
+    edgePairs = [...new Map(faces.flatMap(f => [0,1,2].map(i => {
+        const pair = [f[i]/3,f[(i+1)%3]/3].sort((a,b)=>a-b);
+        return [pair.join(','),pair];
+    }))).values()].sort((a,b)=>a[0]-b[0] || a[1]-b[1]);
+    const pointers = read('edge_cache_pointers',symbols.edge_cache_pointers_end-symbols.edge_cache_pointers);
+    assert.equal(edgePairs.length,42);
+    assert.equal(pointers.length,edgePairs.length*2,'Edge pointer table size');
+    const addresses = Array.from({length:edgePairs.length},(_,i)=>pointers[i*2]*256+pointers[i*2+1]);
+    assert.equal(addresses[0],symbols.edge_cache);
+    assert.equal(symbols.state_end,symbols.edge_cache_end,'State guard must follow all caches');
+    edgeCaches = addresses.map((address,i) => {
+        const next = addresses[i+1] ?? symbols.edge_cache_end, capacity = next-address-4;
+        assert.ok(capacity>0 && capacity<=48,'Invalid edge cache allocation');
+        return {address,capacity,guard:machine.memory(next-1,1)[0]};
+    });
+    faces.forEach((f,i) => {
+        const expected = [0,1,2].map(j => {
+            const pair = [f[(j+1)%3]/3,f[(j+2)%3]/3].sort((a,b)=>a-b);
+            return edgePairs.findIndex(p=>p[0]===pair[0] && p[1]===pair[1])*2;
+        });
+        assert.deepEqual([...machine.memory(symbols.faces+i*12+9,3)],expected,'Opposite edge identities');
+    });
     code=machine.memory(0x2800,0x1800);lowerRam=machine.memory(0x2000,0x800);
     stateGuard=machine.memory(symbols.state_end,0x4c00-symbols.state_end);
     stackGuard=machine.memory(0x5e00,0x100);
@@ -173,7 +214,7 @@ try {
         inputPolling=false;
         machine.setExecutionBreakpoint(symbols.poll_controls,false);
         assert.ok(Math.max(...pollGaps)<49152,'Input polling exceeds minimum browser key hold');
-        assert.ok(Math.max(...rotationTransfers)<=530,'Dirty transfer exceeds viewport budget');
+        assert.ok(Math.max(...rotationTransfers)<=300,'Dirty transfer exceeds 300-byte viewport budget');
         rotationSha256=hash(Buffer.concat([...captures].sort((a,b)=>a.angle-b.angle).map(f=>Buffer.from(f.fb))));
         // All 64 original framebuffers, ordered by angle. This protects the
         // appearance even if the model data and numeric oracle change together.
@@ -192,8 +233,8 @@ try {
         machine.setKeyboardKeyState('keypad-4',true);frame();
         assert.equal(read('paused')[0],0,'Unassigned key affected pause');
         machine.setKeyboardKeyState('keypad-4',false);
-        assert.ok(Math.max(...rotationTimings)<125000,'Rotation exceeded 125,000 E-cycle frame budget');
-        assert.ok(rotationTimings.reduce((a,b)=>a+b,0)/64<110000,'Rotation mean exceeds 110,000 E cycles');
+        assert.ok(Math.max(...rotationTimings)<110000,'Rotation exceeded 110,000 E-cycle frame budget');
+        assert.ok(rotationTimings.reduce((a,b)=>a+b,0)/64<100000,'Rotation mean exceeds 100,000 E cycles');
         // Browser key holds last at least 49,152 E cycles. Exercise presses
         // arriving throughout rendering and transfer across successive frames, then release before
         // waiting for a complete frame. The flag must retain each short edge.
@@ -227,6 +268,7 @@ try {
         lcdBytes:rotationTransfers.length?{min:Math.min(...rotationTransfers),max:Math.max(...rotationTransfers),
             mean:rotationTransfers.reduce((a,b)=>a+b,0)/rotationTransfers.length}:null,
         maxInputPollGapCycles:pollGaps.length?Math.max(...pollGaps):null,
+        edgeCache:{edges:edgeCaches.length,bytes:symbols.edge_cache_end-symbols.edge_cache},
         rotationSha256, applicationSha256:hash(application),
         firstFrameSha256:hash(firstPanel.dots),passed:true};
     const report=mode==='test' ? (process.env.JR800_SAMPLE_ROM?'verification-owned-rom':'verification') : mode;
