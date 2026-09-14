@@ -1,7 +1,7 @@
 ; SPDX-License-Identifier: MIT
 ; Integer 3D pipeline: Q7 yaw/pitch, view-space lighting, painter sorting,
 ; and opaque scanline triangles with a 2x2 ordered monochrome dither.
-; Shared LCD scratch is $80-$91. This renderer owns $92-$C3 (50 bytes).
+; Shared LCD scratch is $80-$91. This renderer owns $92-$C7 (54 bytes).
 .equ vx, $92
 .equ vy, $93
 .equ vz, $94
@@ -17,7 +17,6 @@
 .equ dest_ptr, $9F
 .equ face_ptr, $A1
 .equ record_ptr, $A3
-.equ record_count, $A5
 .equ face_flags, $A6
 .equ light, $A7
 .equ depth_sum, $A8
@@ -34,16 +33,18 @@
 .equ x_step, $B6
 .equ edge_dx, $B7
 .equ edge_dy, $B8
-.equ edge_error, $B9
+.equ edge_primary, $B9
 .equ row_start, $BA
 .equ max_y, $BC
 .equ edge_count, $BD
 .equ span_count, $BE
 .equ row_mask, $BF
 .equ clear_mask, $C0
-.equ draw_even, $C1
-.equ draw_odd, $C2
+.equ x_advance, $C1
+.equ row_pattern, $C2
 .equ left_x, $C3
+.equ row_base, $C4
+.equ pattern_base, $C6
 .global render_fighter
 .global projected_vertices
 .global visible_count
@@ -51,6 +52,9 @@
 .global scan_left
 .global scan_right
 .global state_end
+.global view_valid
+.global span_done
+.global row_done
 .extern angle
 .extern vertices
 .extern vertices_end
@@ -59,16 +63,27 @@
 .extern sine
 .extern framebuffer
 .extern poll_controls
+.extern dirty_min
+.extern dirty_max
+.extern dirty_pending
+.extern span_bb
+.extern span_bw
+.extern span_wb
+.extern span_ww
 .section .text, code
 render_fighter:
-    ; Keep the header/footer. One framebuffer, no stored animation frames.
-    LDX #framebuffer + 192
-    CLRA
-clear_view:
-    STAA 0,X
-    INX
-    CPX #framebuffer + 1344
-    BNE clear_view
+    ; Erase the previous bounds, then transfer the union of old/new bounds.
+    TST view_valid
+    BEQ empty_view
+    JSR mark_view
+    JSR clear_view
+empty_view:
+    LDAA #192
+    STAA view_min_x
+    LDAA #63
+    STAA view_min_y
+    CLR view_max_x
+    CLR view_max_y
     LDX #sine
     LDAB angle
     ABX
@@ -85,8 +100,8 @@ clear_view:
     STX source_ptr
     LDX #projected_vertices
     STX dest_ptr
-transform_vertex:
     JSR poll_controls
+transform_vertex:
     LDX source_ptr
     LDD 0,X
     STD vx
@@ -100,9 +115,25 @@ transform_vertex:
     LDAA rx
     ADDA #96
     STAA 0,X
+    CMPA view_min_x
+    BCC vertex_min_x
+    STAA view_min_x
+vertex_min_x:
+    CMPA view_max_x
+    BLS vertex_max_x
+    STAA view_max_x
+vertex_max_x:
     LDAA #34
     SUBA ry
     STAA 1,X
+    CMPA view_min_y
+    BCC vertex_min_y
+    STAA view_min_y
+vertex_min_y:
+    CMPA view_max_y
+    BLS vertex_max_y
+    STAA view_max_y
+vertex_max_y:
     LDAA rz
     ADDA #128
     STAA 2,X
@@ -112,6 +143,9 @@ transform_vertex:
     LDX source_ptr
     CPX #vertices_end
     BNE transform_vertex
+    LDAA #1
+    STAA view_valid
+    JSR mark_view
     JSR prepare_faces
     JSR sort_faces
     LDX #face_records
@@ -135,30 +169,128 @@ render_face:
 render_done:
     RTS
 
+; Inclusive bounds are measured from the runtime-projected vertices.
+mark_view:
+    LDAA #1
+    STAA dirty_pending
+    LDAB view_min_y
+    LSRB
+    LSRB
+    LSRB
+    STAB edge_count
+    LDAA view_max_y
+    LSRA
+    LSRA
+    LSRA
+    STAA max_y
+mark_band:
+    LDX #dirty_min
+    ABX
+    LDAA view_min_x
+    CMPA 0,X
+    BCC mark_right
+    STAA 0,X
+mark_right:
+    LDAA view_max_x
+    CMPA 8,X
+    BLS mark_next
+    STAA 8,X
+mark_next:
+    LDAB edge_count
+    CMPB max_y
+    BEQ mark_done
+    INCB
+    STAB edge_count
+    BRA mark_band
+mark_done:
+    RTS
+
+; Round horizontal erase bounds outward to 16-byte blocks. Bytes outside the
+; previous geometry are already blank. Vertical bounds exclude both captions.
+clear_view:
+    LDAB view_min_y
+    LSRB
+    LSRB
+    LSRB
+    STAB edge_count
+    LDAA #192
+    MUL
+    ADDD #framebuffer
+    STD row_start
+    LDAA view_min_x
+    ANDA #$F0
+    STAA left_x
+    LDAA view_max_x
+    SUBA left_x
+    LSRA
+    LSRA
+    LSRA
+    LSRA
+    INCA
+    STAA edge_dx
+    LDD row_start
+    ADDB left_x
+    ADCA #0
+    STD row_start
+clear_band:
+    LDAA edge_dx
+    STAA span_count
+    LDX row_start
+    CLRA
+    CLRB
+clear_block:
+    STD 0,X
+    STD 2,X
+    STD 4,X
+    STD 6,X
+    STD 8,X
+    STD 10,X
+    STD 12,X
+    STD 14,X
+    LDAB #16
+    ABX
+    CLRB
+    DEC span_count
+    BNE clear_block
+    LDAA edge_count
+    CMPA max_y
+    BEQ clear_done
+    INC edge_count
+    LDD row_start
+    ADDD #192
+    STD row_start
+    BRA clear_band
+clear_done:
+    RTS
+
 ; Signed A * signed B / 128, rounded toward negative infinity, returned in A.
 ; Products are bounded by the original model/normal range; X is preserved.
 multiply:
-    CLR mul_sign
-    TSTA
-    BPL multiply_a
-    NEGA
-    INC mul_sign
-multiply_a:
     TSTB
-    BPL multiply_b
+    BPL multiply_positive
     NEGB
-    INC mul_sign
-multiply_b:
+    TSTA
+    BMI multiply_both_negative
     MUL
-    PSHB
-    LDAB mul_sign
-    BITB #1
-    PULB
-    BEQ multiply_shift
     COMA
     COMB
     ADDD #1
-multiply_shift:
+    ASLD
+    RTS
+multiply_both_negative:
+    NEGA
+    BRA multiply_unsigned
+; Signed A times nonnegative B: only the product's high byte needs correction.
+multiply_positive:
+    TSTA
+    BPL multiply_unsigned
+    STAB mul_sign
+    MUL
+    SUBA mul_sign
+    ASLD
+    RTS
+multiply_unsigned:
+    MUL
     ASLD
     RTS
 
@@ -185,50 +317,60 @@ rotate:
     STAA yaw_z
     LDAA yaw_z
     LDAB #49
-    JSR multiply
+    JSR multiply_positive
     STAA term
     LDAA vy
     LDAB #118
-    JSR multiply
+    JSR multiply_positive
     SUBA term
     STAA ry
     LDAA yaw_z
     LDAB #118
-    JSR multiply
+    JSR multiply_positive
     STAA term
     LDAA vy
     LDAB #49
-    JSR multiply
+    JSR multiply_positive
     ADDA term
     STAA rz
     RTS
 
 prepare_faces:
+    JSR poll_controls
     CLR visible_count
     LDX #face_records
     STX record_ptr
     LDX #faces
     STX face_ptr
 prepare_face:
-    JSR poll_controls
     LDX face_ptr
+    LDAA 6,X
+    STAA face_flags
+    BITA #4
+    BEQ calculate_normal
+    ; The generator marks consecutive equal normal/material pairs only.
+    ; Shade $FF means the preceding face was culled this frame.
+    TST shade
+    BPL reused_normal
+    JMP culled_face
+reused_normal:
+    JMP record_face
+calculate_normal:
     LDD 3,X
     STD vx
     LDAA 5,X
     STAA vz
-    LDAA 6,X
-    STAA face_flags
     JSR rotate
     TST rz
     BGT front_face
     LDAA face_flags
     BITA #1
     BNE sheet_back
-    JMP next_face
+    JMP culled_face
 sheet_back:
     TST rz
     BNE flip_sheet
-    JMP next_face
+    JMP culled_face
 flip_sheet:
     NEG rx
     NEG ry
@@ -241,12 +383,12 @@ front_face:
     STAA light
     LDAA ry
     LDAB #88
-    JSR multiply
+    JSR multiply_positive
     ADDA light
     STAA light
     LDAA rz
     LDAB #72
-    JSR multiply
+    JSR multiply_positive
     ADDA light
     STAA light
     CLR shade
@@ -272,26 +414,29 @@ shade_ready:
     STAA shade
 record_face:
     ; Depth is the sum of the three vertex depths; no division is necessary.
+    LDX face_ptr
+    LDAB 0,X
+    LDX #projected_vertices
+    ABX
+    LDAB 2,X
     CLRA
-    CLRB
     STD depth_sum
     LDX face_ptr
-    STX source_ptr
-    LDAA #3
-    STAA record_count
-sum_depth:
-    LDX source_ptr
-    LDAB 0,X
-    INX
-    STX source_ptr
+    LDAB 1,X
     LDX #projected_vertices
     ABX
     LDAB 2,X
     CLRA
     ADDD depth_sum
     STD depth_sum
-    DEC record_count
-    BNE sum_depth
+    LDX face_ptr
+    LDAB 2,X
+    LDX #projected_vertices
+    ABX
+    LDAB 2,X
+    CLRA
+    ADDD depth_sum
+    STD depth_sum
     LDX record_ptr
     LDD depth_sum
     STD 0,X
@@ -303,6 +448,10 @@ sum_depth:
     ABX
     STX record_ptr
     INC visible_count
+    BRA next_face
+culled_face:
+    LDAA #$FF
+    STAA shade
 next_face:
     LDX face_ptr
     LDAB #7
@@ -320,81 +469,100 @@ sort_faces:
     LDAA visible_count
     CMPA #2
     BCS sort_done
-sort_pass:
-    CLR sort_changed
-    LDAA visible_count
     DECA
     STAA sort_remaining
-    LDX #face_records
-sort_pair:
+    LDX #face_records + 5
+    STX record_ptr
+sort_item:
+    LDX record_ptr
     LDD 0,X
-    SUBD 5,X
-    BLS sort_advance
-    LDAB #5
-    STAB sort_bytes
-sort_swap:
-    LDAA 0,X
-    LDAB 5,X
-    STAB 0,X
-    STAA 5,X
-    INX
-    DEC sort_bytes
-    BNE sort_swap
-    INC sort_changed
-    BRA sort_next
-sort_advance:
+    STD sort_temp
+    LDD 2,X
+    STD sort_temp + 2
+    LDAA 4,X
+    STAA sort_temp + 4
+sort_previous:
+    CPX #face_records
+    BEQ sort_insert
+    XGDX
+    SUBD #5
+    XGDX
+    LDD 0,X
+    SUBD sort_temp
+    BLS sort_after
+    LDD 0,X
+    STD 5,X
+    LDD 2,X
+    STD 7,X
+    LDAA 4,X
+    STAA 9,X
+    BRA sort_previous
+sort_after:
     LDAB #5
     ABX
-sort_next:
+sort_insert:
+    LDD sort_temp
+    STD 0,X
+    LDD sort_temp + 2
+    STD 2,X
+    LDAA sort_temp + 4
+    STAA 4,X
+    LDD record_ptr
+    ADDD #5
+    STD record_ptr
     DEC sort_remaining
-    BNE sort_pair
-    TST sort_changed
-    BNE sort_pass
+    BNE sort_item
 sort_done:
     RTS
 
 ; X points to three vertex offsets in a face. Copy XY and close the triangle.
 load_triangle:
     STX source_ptr
-    LDX #triangle
-    STX dest_ptr
-    LDAA #3
-    STAA record_count
-load_corner:
-    LDX source_ptr
     LDAB 0,X
-    INX
-    STX source_ptr
     LDX #projected_vertices
     ABX
     LDD 0,X
-    LDX dest_ptr
-    STD 0,X
-    INX
-    INX
-    STX dest_ptr
-    DEC record_count
-    BNE load_corner
+    STD triangle + 0
+    LDX source_ptr
+    LDAB 1,X
+    LDX #projected_vertices
+    ABX
+    LDD 0,X
+    STD triangle + 2
+    LDX source_ptr
+    LDAB 2,X
+    LDX #projected_vertices
+    ABX
+    LDD 0,X
+    STD triangle + 4
     LDD triangle
     STD triangle + 6
     RTS
 
 fill_triangle:
-    LDX #scan_left
-    LDAA #255
-    CLRB
-reset_edges:
-    STAA 0,X
-    STAB 64,X
+    ; Sort three corners by Y. The long edge initializes every touched row;
+    ; the two shorter edges then extend its bounds without clearing a table.
+    LDX #triangle
+    JSR sort_corners
     INX
-    CPX #scan_right
-    BNE reset_edges
-    LDAA #63
+    INX
+    JSR sort_corners
+    LDX #triangle
+    JSR sort_corners
+    LDD triangle
+    STD triangle + 6
+    LDAA triangle + 1
     STAA min_y
-    CLR max_y
+    LDAA triangle + 5
+    STAA max_y
+    LDAA #1
+    STAA edge_primary
+    LDX #triangle + 4
+    JSR edge
+    CLR edge_primary
     LDX #triangle
     STX edge_input
-    LDAA #3
+    LDAA #2
     STAA edge_count
 trace_edge:
     LDX edge_input
@@ -406,6 +574,33 @@ trace_edge:
     BNE trace_edge
     LDAA min_y
     STAA row_y
+    ANDA #1
+    ASLA
+    ASLA
+    STAA row_pattern
+    LDAB min_y
+    LSRB
+    LSRB
+    LSRB
+    ASLB
+    LDX #band_addresses
+    ABX
+    LDD 0,X
+    STD row_base
+    LDAB min_y
+    ANDB #7
+    LDX #bit_masks
+    ABX
+    LDAA 0,X
+    STAA row_mask
+    COMA
+    STAA clear_mask
+    LDAB shade
+    ASLB
+    ASLB
+    LDX #span_functions
+    ABX
+    STX pattern_base
 fill_row:
     LDAB row_y
     LDX #scan_left
@@ -416,74 +611,56 @@ fill_row:
     SUBA left_x
     INCA
     STAA span_count
-    ; Byte address = framebuffer + (y / 8)*192 + x.
-    LDAB row_y
-    LSRB
-    LSRB
-    LSRB
-    LDAA #192
-    MUL
-    ADDD #framebuffer
+    ; Advance the band address and bit mask only at the end of each row.
+    LDD row_base
     ADDB left_x
     ADCA #0
     STD row_start
-    LDAB row_y
-    ANDB #7
-    LDX #bit_masks
-    ABX
+    LDAB span_count
+    CMPB #2
+    BHI patterned_row
+    ; One or two pixels are entirely contour: avoid dither/span setup.
+    LDX row_start
+    DECB
+    BEQ single_pixel
+    LDD 0,X
+    ORAA row_mask
+    ORAB row_mask
+    STD 0,X
+    JMP row_done
+single_pixel:
     LDAA 0,X
-    STAA row_mask
-    COMA
-    STAA clear_mask
-    CLR draw_even
-    CLR draw_odd
-    LDAB row_y
-    ANDB #1
-    ADDB shade
-    LDX #patterns
-    ABX
-    LDAB 0,X
-    BITB #1
-    BEQ odd_color
-    LDAA row_mask
-    STAA draw_even
-odd_color:
-    BITB #2
-    BEQ border_row
-    LDAA row_mask
-    STAA draw_odd
-border_row:
+    ORAA row_mask
+    STAA 0,X
+    JMP row_done
+patterned_row:
     LDAA row_y
     CMPA min_y
     BEQ solid_row
     CMPA max_y
-    BNE span_begin
+    BEQ solid_row
+    LDAB left_x
+    ANDB #1
+    ASLB
+    ADDB row_pattern
+    LDX pattern_base
+    ABX
+    LDX 0,X
+    BRA span_begin
 solid_row:
-    LDAA row_mask
-    STAA draw_even
-    STAA draw_odd
+    LDX #span_bb
 span_begin:
-    LDX row_start
-    LDAB span_count
-    LDAA left_x
-    BITA #1
-    BNE span_odd
-span_even:
-    LDAA 0,X
-    ANDA clear_mask
-    ORAA draw_even
-    STAA 0,X
-    INX
-    DECB
-    BEQ span_done
-span_odd:
-    LDAA 0,X
-    ANDA clear_mask
-    ORAA draw_odd
-    STAA 0,X
-    INX
-    DECB
-    BNE span_even
+    STX edge_input
+    LDAA span_count
+    ANDA #7
+    STAA edge_count
+    LDAA span_count
+    LSRA
+    LSRA
+    LSRA
+    STAA span_count
+    LDX edge_input
+    JMP 0,X
 span_done:
     ; Dark contour on every triangle makes the facets legible at 192x64.
     DEX
@@ -494,12 +671,38 @@ span_done:
     LDAA 0,X
     ORAA row_mask
     STAA 0,X
+row_done:
     LDAA row_y
     CMPA max_y
     BEQ triangle_done
     INC row_y
+    LDAA row_pattern
+    EORA #4
+    STAA row_pattern
+    ASL row_mask
+    BNE same_band
+    INC row_mask
+    LDD row_base
+    ADDD #192
+    STD row_base
+same_band:
+    LDAA row_mask
+    COMA
+    STAA clear_mask
     JMP fill_row
 triangle_done:
+    RTS
+sort_corners:
+    LDAA 1,X
+    CMPA 3,X
+    BLS corners_sorted
+    LDD 0,X
+    STD swap_point
+    LDD 2,X
+    STD 0,X
+    LDD swap_point
+    STD 2,X
+corners_sorted:
     RTS
 
 ; Walk integer edge intersections from smaller Y to larger Y, including both
@@ -520,20 +723,19 @@ edge:
     LDD swap_point
     STD end_x
 edge_sorted:
-    LDAA edge_y
-    CMPA min_y
-    BCC edge_max
-    STAA min_y
-edge_max:
-    LDAA end_y
-    CMPA max_y
-    BLS edge_delta
-    STAA max_y
-edge_delta:
     LDAA end_y
     SUBA edge_y
     STAA edge_dy
     BNE edge_sloped
+    TST edge_primary
+    BEQ horizontal_ready
+    LDAB edge_y
+    LDX #scan_left
+    ABX
+    LDAA edge_x
+    STAA 0,X
+    STAA 64,X
+horizontal_ready:
     JSR edge_record
     LDAA end_x
     STAA edge_x
@@ -548,26 +750,68 @@ edge_sloped:
     LDAB #$FF
     STAB x_step
 edge_positive:
+    ; Divide once per edge. The row loop adds the quotient and needs at most
+    ; one remainder correction, instead of stepping once per horizontal pixel.
+    CLR x_advance
+edge_quotient:
+    CMPA edge_dy
+    BCS edge_remainder
+    SUBA edge_dy
+    INC x_advance
+    BRA edge_quotient
+edge_remainder:
     STAA edge_dx
-    CLR edge_error
-edge_row:
-    JSR edge_record
-    LDAA edge_y
-    CMPA end_y
+    LDAB x_step
+    CMPB #1
+    BEQ edge_advance_ready
+    NEG x_advance
+edge_advance_ready:
+    ; X walks the scanline table, B holds X intersection, A holds remainder.
+    ; The point swap temporary is no longer needed and stores the final row.
+    CLRA
+    LDAB end_y
+    ADDD #scan_left
+    STD swap_point
+    LDAB edge_y
+    LDX #scan_left
+    ABX
+    LDAB edge_x
+    CLRA
+    TST edge_primary
+    BEQ edge_row
+primary_row:
+    STAB 0,X
+    STAB 64,X
+    CPX swap_point
     BEQ edge_done
-    LDAA edge_error
+    ADDB x_advance
     ADDA edge_dx
-edge_step:
+    CMPA edge_dy
+    BCS primary_next
+    SUBA edge_dy
+    ADDB x_step
+primary_next:
+    INX
+    BRA primary_row
+edge_row:
+    CMPB 0,X
+    BCC edge_row_right
+    STAB 0,X
+edge_row_right:
+    CMPB 64,X
+    BLS edge_row_recorded
+    STAB 64,X
+edge_row_recorded:
+    CPX swap_point
+    BEQ edge_done
+    ADDB x_advance
+    ADDA edge_dx
     CMPA edge_dy
     BCS edge_next_row
     SUBA edge_dy
-    LDAB edge_x
     ADDB x_step
-    STAB edge_x
-    BRA edge_step
 edge_next_row:
-    STAA edge_error
-    INC edge_y
+    INX
     BRA edge_row
 edge_done:
     RTS
@@ -588,8 +832,16 @@ edge_recorded:
 
 .section .data, data
 bit_masks: .byte 1,2,4,8,16,32,64,128
-; Pairs of even/odd row patterns. Bit 0 = even column, bit 1 = odd column.
-patterns: .byte 3,3, 3,1, 1,2, 1,0
+; For each shade: even-row/even-X, even-row/odd-X, odd-row/even-X,
+; odd-row/odd-X. B/W select setting/clearing the current vertical LCD bit.
+span_functions:
+    .word span_bb, span_bb, span_bb, span_bb
+    .word span_bb, span_bb, span_bw, span_wb
+    .word span_bw, span_wb, span_wb, span_bw
+    .word span_bw, span_wb, span_ww, span_ww
+band_addresses:
+    .word framebuffer, framebuffer+192, framebuffer+384, framebuffer+576
+    .word framebuffer+768, framebuffer+960, framebuffer+1152, framebuffer+1344
 .section .bss, bss
 projected_vertices: .space 60
 visible_count: .space 1
@@ -597,7 +849,11 @@ face_records: .space 115
 triangle: .space 8
 scan_left: .space 64
 scan_right: .space 64
-sort_changed: .space 1
 sort_remaining: .space 1
-sort_bytes: .space 1
+sort_temp: .space 5
+view_valid: .space 1
+view_min_x: .space 1
+view_max_x: .space 1
+view_min_y: .space 1
+view_max_y: .space 1
 state_end:

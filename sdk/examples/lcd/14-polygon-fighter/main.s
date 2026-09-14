@@ -9,11 +9,13 @@
 .extern basic_check_break
 .extern init
 .extern clear
-.extern present_begin
-.extern present_next
+.extern dirty_all
+.extern dirty_begin
+.extern dirty_next
 .extern text
 .extern framebuffer
 .extern render_fighter
+.extern view_valid
 .section .text, code
 entry:
     SEI
@@ -21,6 +23,8 @@ entry:
     JSR basic_save
     JSR init
     JSR clear
+    CLR view_valid
+    JSR dirty_all
     CLR paused
     CLR key_previous
     CLR frame_counter
@@ -34,21 +38,23 @@ entry:
     JSR text
 render:
     JSR render_fighter
-    JSR present_begin
+    JSR dirty_begin
 transfer:
     JSR poll_controls
-    JSR present_next
+    JSR dirty_next
     BNE transfer
     INC frame_counter
 frame_ready:
-    ; Bound the input polling interval with CPU cycles, without host timers.
+    JSR poll_controls
+    TST paused
+    BEQ advance_angle
+    ; Only the paused loop waits; active rendering already polls input often.
     LDX #3000
 wait:
     DEX
     BNE wait
-    JSR poll_controls
-    TST paused
-    BNE frame_ready
+    BRA frame_ready
+advance_angle:
     LDAA angle
     INCA
     ANDA #63

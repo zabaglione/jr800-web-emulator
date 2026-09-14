@@ -25,6 +25,8 @@ const read = (name, size=1) => machine.memory(symbols[name], size);
 const signed = n => n < 128 ? n : n - 256;
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const timings = [], captures = [], angles = new Set(), shades = new Set();
+const transfers = [], pollGaps = [], nominalHz = 1_228_800;
+let inputPolling = mode === 'test', lastPollCycle, rotationTransfers = [], rotationSha256;
 let stops = 0, previousCycles = 0, firstPanel, header, footer, vertices, faces, code, lowerRam;
 let stateGuard, stackGuard, rotationTimings = [], shortPressCases = 0;
 
@@ -93,11 +95,25 @@ function oracle(angle) {
 
 function frame(validate=true) {
     if (stops) machine.step();
-    const stop = machine.runTo(symbols.frame_ready, 1_000_000);
-    assert.equal(stop.reason,'address-reached',JSON.stringify(stop));
+    // Observe every poll during a complete revolution, without inserting
+    // instructions or changing emulated timing in the program under test.
+    for (;;) {
+        const stop = machine.runTo(symbols.frame_ready, 1_000_000);
+        if (stop.reason === 'address-reached') break;
+        assert.ok(inputPolling && stop.reason === 'execution-breakpoint' &&
+            machine.state().pc === symbols.poll_controls, JSON.stringify(stop));
+        const cycle = Number(machine.state().cycleCount);
+        if (lastPollCycle !== undefined) pollGaps.push(cycle-lastPollCycle);
+        lastPollCycle = cycle;
+        machine.step();
+    }
     assert.equal(machine.state().sp,0x5fff,'Unbalanced stack');
     const cycle = Number(machine.state().cycleCount);
-    if (stops && !read('paused')[0]) timings.push(cycle-previousCycles);
+    if (stops && !read('paused')[0]) {
+        timings.push(cycle-previousCycles);
+        const bytes = read('dirty_bytes',2);
+        transfers.push(bytes[0]*256+bytes[1]);
+    }
     previousCycles=cycle;
     stops++;
     const panel = machine.lcdPanel(), fb = read('framebuffer',1536);
@@ -136,7 +152,8 @@ try {
         rom.set([0x20,0xfe]);rom[32766]=0x80;rom[32767]=0;
         machine.loadLogicalRom(rom);
     }
-    machine.loadProgram(await readFile(resolve(outDir,`${sample}.j8a`)));
+    const application = await readFile(resolve(outDir,`${sample}.j8a`));
+    machine.loadProgram(application);
     vertices=Array.from({length:(symbols.vertices_end-symbols.vertices)/3},(_,i)=>
         [...machine.memory(symbols.vertices+i*3,3)].map(signed));
     faces=Array.from({length:(symbols.faces_end-symbols.faces)/7},(_,i)=>
@@ -145,12 +162,23 @@ try {
     code=machine.memory(0x2800,0x1800);lowerRam=machine.memory(0x2000,0x800);
     stateGuard=machine.memory(symbols.state_end,0x4c00-symbols.state_end);
     stackGuard=machine.memory(0x5e00,0x100);
+    if (inputPolling) machine.setExecutionBreakpoint(symbols.poll_controls,true);
     captures.push(frame());
     await saveSvg('screen',captures[0].dots);
     if (mode==='test') {
         for(let i=1;i<64;i++) captures.push(frame());
         const repeated=frame();
         rotationTimings=[...timings];
+        rotationTransfers=[...transfers];
+        inputPolling=false;
+        machine.setExecutionBreakpoint(symbols.poll_controls,false);
+        assert.ok(Math.max(...pollGaps)<49152,'Input polling exceeds minimum browser key hold');
+        assert.ok(Math.max(...rotationTransfers)<=530,'Dirty transfer exceeds viewport budget');
+        rotationSha256=hash(Buffer.concat([...captures].sort((a,b)=>a.angle-b.angle).map(f=>Buffer.from(f.fb))));
+        // All 64 original framebuffers, ordered by angle. This protects the
+        // appearance even if the model data and numeric oracle change together.
+        assert.equal(rotationSha256,'6f31df7e9061e5078dd1e6f1f63b5435618154d12d78a3465d95abcc567a7cb5',
+            'Optimized rotation differs from original pixels');
         assert.deepEqual(repeated,captures[0],'Full revolution must return to identical output');
         assert.equal(angles.size,64);assert.equal(shades.size,4);
         assert.equal(new Set(captures.map(f=>hash(Uint8Array.from(f.fb)))).size,64,'Rotation frames must differ');
@@ -164,9 +192,10 @@ try {
         machine.setKeyboardKeyState('keypad-4',true);frame();
         assert.equal(read('paused')[0],0,'Unassigned key affected pause');
         machine.setKeyboardKeyState('keypad-4',false);
-        assert.ok(Math.max(...rotationTimings)<350000,'Rotation exceeded nominal 285ms frame budget');
+        assert.ok(Math.max(...rotationTimings)<125000,'Rotation exceeded 125,000 E-cycle frame budget');
+        assert.ok(rotationTimings.reduce((a,b)=>a+b,0)/64<110000,'Rotation mean exceeds 110,000 E cycles');
         // Browser key holds last at least 49,152 E cycles. Exercise presses
-        // arriving throughout rendering and transfer, then release before
+        // arriving throughout rendering and transfer across successive frames, then release before
         // waiting for a complete frame. The flag must retain each short edge.
         const runCycles = count => {
             const end=Number(machine.state().cycleCount)+count;
@@ -190,9 +219,15 @@ try {
         }
         await writeFile(resolve(outDir,'rotation.json'),JSON.stringify(captures)+'\n');
     }
+    const mean = rotationTimings.length ? rotationTimings.reduce((a,b)=>a+b,0)/rotationTimings.length : null;
     const result={sample,mode,model:'JR-800 WASM',bootstrap:process.env.JR800_SAMPLE_ROM?'owner-supplied':'project-authored',
         expansionRam:Boolean(process.env.JR800_SAMPLE_ROM),vertices:vertices.length,triangles:faces.length,stops,angles:angles.size,shortPressCases,
-        cycles:rotationTimings.length?{min:Math.min(...rotationTimings),max:Math.max(...rotationTimings),mean:Math.round(rotationTimings.reduce((a,b)=>a+b,0)/rotationTimings.length)}:null,
+        cycles:rotationTimings.length?{min:Math.min(...rotationTimings),max:Math.max(...rotationTimings),mean}:null,
+        nominalHz, nominalFps:mean===null?null:nominalHz/mean,
+        lcdBytes:rotationTransfers.length?{min:Math.min(...rotationTransfers),max:Math.max(...rotationTransfers),
+            mean:rotationTransfers.reduce((a,b)=>a+b,0)/rotationTransfers.length}:null,
+        maxInputPollGapCycles:pollGaps.length?Math.max(...pollGaps):null,
+        rotationSha256, applicationSha256:hash(application),
         firstFrameSha256:hash(firstPanel.dots),passed:true};
     const report=mode==='test' ? (process.env.JR800_SAMPLE_ROM?'verification-owned-rom':'verification') : mode;
     await writeFile(resolve(outDir,`${report}.json`),JSON.stringify(result,null,2)+'\n');

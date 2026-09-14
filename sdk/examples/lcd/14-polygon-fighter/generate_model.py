@@ -31,6 +31,7 @@ FACES = [
 
 def mesh():
     result = []
+    previous_normal = None
     for indices, hint, flags in FACES:
         a, b, c = (VERTICES[i] for i in indices)
         u, v = ([b[j] - a[j] for j in range(3)], [c[j] - a[j] for j in range(3)])
@@ -39,7 +40,13 @@ def mesh():
             indices = (indices[0], indices[2], indices[1])
             n = [-x for x in n]
         length = math.sqrt(sum(x*x for x in n))
-        result.append((*[i*3 for i in indices], *[round(x*96/length) for x in n], flags))
+        normal = tuple(round(x*96/length) for x in n)
+        key = (*normal, flags)
+        # Bit 2 reuses the previous face's runtime culling/shade calculation.
+        # Only identical normals with identical material flags may share it.
+        stored_flags = flags | (4 if key == previous_normal else 0)
+        result.append((*[i*3 for i in indices], *normal, stored_flags))
+        previous_normal = key
     return result
 
 def source():
