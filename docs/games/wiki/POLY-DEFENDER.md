@@ -2,7 +2,7 @@
 
 [ゲーム一覧](https://github.com/zabaglione/jr800-web-emulator/wiki) / [シューティング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting) · モダン
 
-[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/poly-defender)
+[遊ぶ](https://zabaglione.github.io/jr800-web-emulator/?program=poly-defender) · [ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/poly-defender)
 
 ![タイトル画面](https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/poly-defender.png)
 

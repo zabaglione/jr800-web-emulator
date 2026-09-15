@@ -357,6 +357,13 @@
       "genre": "adventure",
       "style": "classic",
       "summary": "元のRELIC DIVEと同じ探索・戦闘・アイテム処理を使う、新しいグラフィックの独立版。"
+    },
+    {
+      "id": "poly-defender",
+      "title": "POLY DEFENDER",
+      "genre": "shooting",
+      "style": "modern",
+      "summary": "立体の敵を上下移動でかわす横スクロール射撃。武器強化・シールド・分裂・ラッシュを経て、大型ボスを倒します。"
     }
   ]
 }
