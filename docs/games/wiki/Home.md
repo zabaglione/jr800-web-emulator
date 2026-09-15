@@ -1,9 +1,9 @@
 # JR-800 ゲームライブラリー
 
 ひとりでじっくり考える。CPUと読み合う。タイミングを合わせて駆け抜ける。
-**51本**のゲームから、気になる画面と遊び方を見つけてください。
+**52本**のゲームから、気になる画面と遊び方を見つけてください。
 
-[全51作品のプレイ動画](https://zabaglione.github.io/jr800-web-emulator/videos/)も掲載しています。約30秒からの音声付き動画で、操作やゲームの雰囲気を確認できます。
+[51作品のプレイ動画](https://zabaglione.github.io/jr800-web-emulator/videos/)も掲載しています。約30秒からの音声付き動画で、操作やゲームの雰囲気を確認できます。
 
 ## ジャンルから探す
 
@@ -13,7 +13,7 @@
 | [盤上戦略](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Board) | 8 | CPUとの読み合いから、一人でじっくり解く盤面パズルまで。 |
 | [カード・ダイス](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Cards) | 5 | 手札と出目を見て、攻めるか引くか。組み合わせと駆け引きを楽しもう。 |
 | [アクション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Action) | 8 | かわす、跳ぶ、打ち返す。とっさの判断でピンチを切り抜けよう。 |
-| [シューティング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting) | 6 | 狙いを定めて一発。反射、風、止まる時間を使いこなそう。 |
+| [シューティング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting) | 7 | 狙いを定めて一発。反射、風、止まる時間を使いこなそう。 |
 | [探索・冒険](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Adventure) | 5 | 未知の道へ踏み出し、宝や手掛かりを探して帰還を目指そう。 |
 | [経営・シミュレーション](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Simulation) | 4 | 工場を動かし、列車をさばき、農園や港で稼ごう。 |
 | [スポーツ・タイミング](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Sports) | 5 | 狙いとタイミングが勝負。ボール、リズム、積み上げに挑戦。 |
@@ -85,7 +85,7 @@ CPUとの読み合いから、一人でじっくり解く盤面パズルまで�
 | [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/tower-leap.png" width="384" alt="TOWER LEAP のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/TOWER-LEAP) | **[TOWER LEAP](https://github.com/zabaglione/jr800-web-emulator/wiki/TOWER-LEAP)**<br>次の足場へ跳び移り、塔を登ろう。着地を見極めながら12階の頂上を目指す。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=tower-leap) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/TOWER-LEAP) · [動画を見る](https://zabaglione.github.io/jr800-web-emulator/videos/#tower-leap) |
 | [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/wall-break.png" width="384" alt="WALL BREAK のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/WALL-BREAK) | **[WALL BREAK](https://github.com/zabaglione/jr800-web-emulator/wiki/WALL-BREAK)**<br>パドルで弾き返して、ブロックを崩そう。12種類の配置をボールで切り開く定番アクション。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=wall-break) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/WALL-BREAK) · [動画を見る](https://zabaglione.github.io/jr800-web-emulator/videos/#wall-break) |
 
-### [シューティング（6作品）](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting)
+### [シューティング（7作品）](https://github.com/zabaglione/jr800-web-emulator/wiki/Genre-Shooting)
 
 狙いを定めて一発。反射、風、止まる時間を使いこなそう。
 
@@ -93,6 +93,7 @@ CPUとの読み合いから、一人でじっくり解く盤面パズルまで�
 | --- | --- |
 | [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/arc-duel.png" width="384" alt="ARC DUEL のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/ARC-DUEL) | **[ARC DUEL](https://github.com/zabaglione/jr800-web-emulator/wiki/ARC-DUEL)**<br>山の向こうへ一発。風を読み、地形を削りながら相手の砲台を狙おう。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=arc-duel) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/ARC-DUEL) · [動画を見る](https://zabaglione.github.io/jr800-web-emulator/videos/#arc-duel) |
 | [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/orbit-guard.png" width="384" alt="ORBIT GUARD のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/ORBIT-GUARD) | **[ORBIT GUARD](https://github.com/zabaglione/jr800-web-emulator/wiki/ORBIT-GUARD)**<br>敵は周囲からやってくる。中央の砲台を8方向へ回し、迫る波を迎え撃とう。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=orbit-guard) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/ORBIT-GUARD) · [動画を見る](https://zabaglione.github.io/jr800-web-emulator/videos/#orbit-guard) |
+| [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/poly-defender.png" width="384" alt="POLY DEFENDER のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/POLY-DEFENDER) | **[POLY DEFENDER](https://github.com/zabaglione/jr800-web-emulator/wiki/POLY-DEFENDER)**<br>迫る立体の敵をかわし、強化を拾って反撃。分裂する敵とラッシュを抜け、大型ボスに挑もう。<br>[ビルド可能なソース](https://github.com/zabaglione/jr800-web-emulator/tree/main/games/poly-defender) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/POLY-DEFENDER) |
 | [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/ricochet-ops.png" width="384" alt="RICOCHET OPS のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/RICOCHET-OPS) | **[RICOCHET OPS](https://github.com/zabaglione/jr800-web-emulator/wiki/RICOCHET-OPS)**<br>直接届かない標的へ、鏡を使って一発。反射する弾の道筋を組み立てる40面の射撃パズル。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=ricochet-ops) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/RICOCHET-OPS) · [動画を見る](https://zabaglione.github.io/jr800-web-emulator/videos/#ricochet-ops) |
 | [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/star-patrol.png" width="384" alt="STAR PATROL のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/STAR-PATROL) | **[STAR PATROL](https://github.com/zabaglione/jr800-web-emulator/wiki/STAR-PATROL)**<br>敵編隊のすき間を狙って撃ち込もう。敵弾をかわしながら12ステージを突破する宇宙戦。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=star-patrol) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/STAR-PATROL) · [動画を見る](https://zabaglione.github.io/jr800-web-emulator/videos/#star-patrol) |
 | [<img src="https://raw.githubusercontent.com/zabaglione/jr800-web-emulator/main/docs/games/titles/step-strike.png" width="384" alt="STEP STRIKE のタイトル画面">](https://github.com/zabaglione/jr800-web-emulator/wiki/STEP-STRIKE) | **[STEP STRIKE](https://github.com/zabaglione/jr800-web-emulator/wiki/STEP-STRIKE)**<br>あなたが動くと、敵も動く。止まった時間の中で次の一手を考え、射線を切り抜けよう。<br>[プレイ](https://zabaglione.github.io/jr800-web-emulator/?program=step-strike) · [遊び方を見る](https://github.com/zabaglione/jr800-web-emulator/wiki/STEP-STRIKE) · [動画を見る](https://zabaglione.github.io/jr800-web-emulator/videos/#step-strike) |

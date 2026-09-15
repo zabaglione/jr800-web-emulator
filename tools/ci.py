@@ -26,6 +26,10 @@ POLICY = {'CMakeLists.txt', 'CMakePresets.json', 'tests/CMakeLists.txt',
           'tools/ci.py', 'tools/build_games.py', 'tests/ci_selection_test.py'}
 # This game builds and tests the original sample through its own wrapper.
 GAME_SAMPLE_DEPENDENCIES = {'relic-dive-gfx': ('lcd/07-relic-dive',)}
+# These programs validate their full native replay alongside the WASM campaign.
+KEY_REPLAY_GAMES = {'relic-dive-gfx', 'poly-defender'}
+GAME_EXTRA_INPUTS = {'poly-defender': tuple('sdk/examples/lcd/common/' + name for name in
+    ('poly3d-check.mjs', 'poly3d-runtime.s', 'poly3d-memory.j8l'))}
 
 
 def digest(data):
@@ -98,9 +102,10 @@ def fingerprints(files, programs, preset):
         {} if native else {p: files.get(p) for p in ('web/wasm-machine.mjs', 'web/basic-boot-profile.mjs')}])
         for name, inputs in sample_inputs.items() if native or name.startswith('lcd/')}
     games = {p['id']: fingerprint([core, sdk, common, game_tests,
-        {name: sample_inputs.get(name) for name in GAME_SAMPLE_DEPENDENCIES.get(p['id'], ())}, subset(lambda path:
+        {name: sample_inputs.get(name) for name in GAME_SAMPLE_DEPENDENCIES.get(p['id'], ())},
+        {name: files.get(name) for name in GAME_EXTRA_INPUTS.get(p['id'], ())}, subset(lambda path:
         path.startswith('games/' + p['id'] + '/') and not path.endswith(('.md', '.png', '.svg')))])
-        for p in programs if not (native and p['id'] == 'relic-dive-gfx')}
+        for p in programs if not (native and p['id'] in KEY_REPLAY_GAMES)}
     bundle = fingerprint([build, games, {} if native else subset(lambda p: p.startswith('web/') or p in
         {'games/catalog.json', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'tools/build_web_bundle.py'})])
     return {'build': build, 'shared': shared, 'games': games, 'samples': samples, 'bundle': bundle}

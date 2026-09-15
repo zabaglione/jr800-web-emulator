@@ -224,6 +224,38 @@ class SelectionTest(unittest.TestCase):
                     self.assertEqual([game for game in before['games'] if
                                       before['games'][game] != after['games'][game]], ['dot-claim'])
 
+    def test_polygon_game_and_samples_keep_individual_ownership(self):
+        files = ci.source_files(ROOT)
+        programs = build_games.catalog(ROOT)
+        self.assertIn('poly-defender', {p['id'] for p in programs})
+        self.assertNotIn('lcd/17-poly-defender', ci.sample_names(files))
+        for preset in ci.PRESETS:
+            before = ci.fingerprints(files, programs, preset)
+            for path in ('games/poly-defender/main.s', 'games/poly-defender/audio.s',
+                         'games/poly-defender/check.mjs', 'games/poly-defender/Makefile',
+                         'sdk/examples/lcd/16-gate-flight/main.s',
+                         'sdk/examples/lcd/18-turn-match/main.s'):
+                with self.subTest(preset=preset, path=path):
+                    self.assertIn(path, files)
+                    after = ci.fingerprints({**files, path: 'changed'}, programs, preset)
+                    self.assertEqual(before['build'], after['build'])
+                    self.assertEqual(before['shared'], after['shared'])
+                    changed_games = [g for g in before['games'] if before['games'][g] != after['games'][g]]
+                    changed_samples = [n for n in before['samples'] if before['samples'][n] != after['samples'][n]]
+                    game_changed = path.startswith('games/')
+                    self.assertEqual(changed_games, ['poly-defender'] if game_changed and preset.startswith('wasm') else [])
+                    self.assertEqual(changed_samples, [] if game_changed else [path.removeprefix('sdk/examples/').rsplit('/', 1)[0]])
+
+    def test_polygon_shared_runtime_invalidates_its_game(self):
+        files = ci.source_files(ROOT)
+        programs = build_games.catalog(ROOT)
+        for path in ci.GAME_EXTRA_INPUTS['poly-defender']:
+            self.assertIn(path, files)
+            before = ci.fingerprints(files, programs, 'wasm-release')
+            after = ci.fingerprints({**files, path: 'changed'}, programs, 'wasm-release')
+            self.assertEqual(before['build'], after['build'])
+            self.assertEqual([g for g in before['games'] if before['games'][g] != after['games'][g]], ['poly-defender'])
+
     def test_web_style_only_runs_wasm_shared_tests(self):
         for preset in ci.PRESETS:
             plan = self.plan(preset, {'web/styles.css': 'changed'})

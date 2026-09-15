@@ -57,7 +57,9 @@ for game in games:
  page+=video_section(root,ident,site)
  if ident in PUZZLES:
   page+=puzzle_common+f'\n![面選択とパスワード]({raw}/{ident}/selection.png)\n\n面選択では規定手数、追加目標、BEST、2種類のパスワードを確認できます。\n\n'
- page+=common+f'\n## ビルド\n\n```sh\nmake -C games/{ident}\nmake -C games/{ident} test\n```\n\n環境の準備・一括ビルドは[Games README]({repo}/tree/main/games)を参照してください。画像とマップを含む新規制作物はMIT Licenseです。\n'
+ # Some programs provide their complete controls in the individual guide.
+ shared=common[common.index('## 確認済み環境'):] if manual.get('custom_controls') else common
+ page+=shared+f'\n## ビルド\n\n```sh\nmake -C games/{ident}\nmake -C games/{ident} test\n```\n\n環境の準備・一括ビルドは[Games README]({repo}/tree/main/games)を参照してください。画像とマップを含む新規制作物はMIT Licenseです。\n'
  (wiki/(ident.upper()+'.md')).write_text(page)
  (root/'games'/ident/'README.md').write_text(page.replace(title_image_url(ident),'../../'+title_image_path(ident)).replace(raw+'/'+ident,'../../docs/games/screenshots/'+ident))
  title=root/title_image_path(ident);title.parent.mkdir(parents=True,exist_ok=True)

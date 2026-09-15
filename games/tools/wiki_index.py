@@ -82,7 +82,7 @@ def write_index(root, games, genres, verified, site, repo):
              '## タイトル画面ギャラリー\n\n')
     if videos:
         home = home.replace('## ジャンルから探す',
-            f'[全{len(videos)}作品のプレイ動画]({site}videos/)も掲載しています。'
+            f'[{len(videos)}作品のプレイ動画]({site}videos/)も掲載しています。'
             '約30秒からの音声付き動画で、操作やゲームの雰囲気を確認できます。\n\n## ジャンルから探す', 1)
     for genre in genres:
         items = [g for g in games if g['genre'] == genre['id']]
@@ -127,7 +127,7 @@ def write_index(root, games, genres, verified, site, repo):
                f'[タイトル順の全作品]({link("All-Games")})\n\n'
                f'[はじめて遊ぶ方へ]({link("Controls")})\n\n')
     if videos:
-        sidebar += f'[全作品のプレイ動画]({site}videos/)\n\n'
+        sidebar += f'[プレイ動画ギャラリー]({site}videos/)\n\n'
     for genre in genres:
         count = sum(g['genre'] == genre['id'] for g in games)
         sidebar += f'- [{genre["title"]} ({count})]({link(genre_page(genre))})\n'

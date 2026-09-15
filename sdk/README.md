@@ -15,3 +15,5 @@ JR-800本体のLCDとキー入力を使う[機械語サンプルとゲーム](ex
 [省RAM機械語ライブラリ](lib/README.md)とサンプル08〜13を追加しました。各機能を小さく試す例と、3レーンの回収・回避ゲーム[STAR COURIER](examples/lcd/13-star-courier/README.md)があります。
 
 [POLYGON FIGHTER](examples/lcd/14-polygon-fighter/README.md)は、陰影付きの戦闘機ポリゴンを機械語で描画・回転するテックデモです。
+
+[poly3d](lib/poly3d/README.md)は、三角錐などの小さな凸多面体を再利用できる描画ライブラリです。[実証サンプル15](examples/lcd/15-poly3d-lab/README.md)と、[GATE FLIGHT](examples/lcd/16-gate-flight/README.md)・[TURN MATCH](examples/lcd/18-turn-match/README.md)の独立したサンプルを用意しています。射撃ゲームの完成版は[POLY DEFENDER](../games/poly-defender/README.md)として公開しています。

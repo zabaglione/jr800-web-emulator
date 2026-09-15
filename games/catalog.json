@@ -306,6 +306,12 @@
       "title": "RELIC DIVE GFX",
       "genre": "adventure",
       "style": "classic"
+    },
+    {
+      "id": "poly-defender",
+      "title": "POLY DEFENDER",
+      "genre": "shooting",
+      "style": "modern"
     }
   ]
 }

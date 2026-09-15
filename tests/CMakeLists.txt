@@ -39,8 +39,12 @@ if(EMSCRIPTEN)
         set(GAME_REPLAY_PREFIX "smoke-")
     endif()
     foreach(game IN LISTS GAME_IDS)
+        set(GAME_CHECK_SCRIPT ${PROJECT_SOURCE_DIR}/games/tools/check.mjs)
+        if(game STREQUAL "poly-defender")
+            set(GAME_CHECK_SCRIPT ${PROJECT_SOURCE_DIR}/games/${game}/check.mjs)
+        endif()
         add_test(NAME game_${game}
-            COMMAND ${NODE_EXECUTABLE} ${PROJECT_SOURCE_DIR}/games/tools/check.mjs
+            COMMAND ${NODE_EXECUTABLE} ${GAME_CHECK_SCRIPT}
                 $<TARGET_FILE_DIR:jr800_wasm> ${PROJECT_SOURCE_DIR}/build/games/${game} ${game} ${GAME_CHECK_MODE})
     endforeach()
     foreach(game IN LISTS GAME_IDS)
@@ -167,8 +171,8 @@ else()
     add_executable(game_rules_test game_rules_test.cpp)
     target_link_libraries(game_rules_test PRIVATE jr800::core jr800::formats)
     foreach(game IN LISTS GAME_IDS)
-        # RELIC DIVE GFX uses its own key-driven parity checks in the WASM suite.
-        if(NOT game STREQUAL "relic-dive-gfx")
+        # These games use key-driven native/WASM parity checks in the WASM suite.
+        if(NOT game MATCHES "^(relic-dive-gfx|poly-defender)$")
             add_test(NAME game_rules_${game} COMMAND ${Python3_EXECUTABLE}
                 ${CMAKE_CURRENT_SOURCE_DIR}/game_rules_driver.py ${PROJECT_SOURCE_DIR}
                 $<TARGET_FILE:jr8as> $<TARGET_FILE:jr8ld> $<TARGET_FILE:game_rules_test> ${game})
@@ -228,6 +232,10 @@ else()
     add_executable(sdk_library_test sdk_library_test.cpp)
     target_link_libraries(sdk_library_test PRIVATE jr800::assembler jr800::core jr800::linker)
     add_test(NAME sdk_library_test COMMAND sdk_library_test ${PROJECT_SOURCE_DIR})
+
+    add_executable(poly3d_library_test poly3d_library_test.cpp)
+    target_link_libraries(poly3d_library_test PRIVATE jr800::assembler jr800::core jr800::linker)
+    add_test(NAME poly3d_library_test COMMAND poly3d_library_test ${PROJECT_SOURCE_DIR})
 
     add_executable(lcd_sample_busy_test lcd_sample_busy_test.cpp)
     target_link_libraries(
