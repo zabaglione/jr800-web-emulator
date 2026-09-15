@@ -6,11 +6,6 @@
 .global def_audio_pump
 .global audio_id
 .global audio_serial
-.global music_tick
-.global music_notes_played
-.extern def_tick
-.extern sector
-.extern stage
 .extern sound_tone
 .extern sound_port
 .extern input_ticks
@@ -19,8 +14,6 @@ def_audio_init:
     CLR audio_id
     CLR audio_priority
     CLR audio_serial
-    CLR music_step
-    CLR music_notes_played
     LDAA #$EF
     STAA sound_port
     STAA $0002
@@ -109,8 +102,8 @@ audio_start: .space 1
 audio_length: .space 1
 .section .audio, code
 ; Each note is delay word + duration in 20,000-E-cycle input ticks.
-audio_cues: .word audio_shot,audio_hit,audio_blast,audio_split,audio_item,audio_shield,audio_hurt,audio_death,audio_warning,audio_start_cue,audio_clear,audio_over,audio_enemy,audio_burst,audio_laser,audio_music
-audio_priorities: .byte 1,2,3,4,5,6,7,8,9,10,11,12,2,4,2,0
+audio_cues: .word audio_shot,audio_hit,audio_blast,audio_split,audio_item,audio_shield,audio_hurt,audio_death,audio_warning,audio_start_cue,audio_clear,audio_over,audio_enemy,audio_burst,audio_laser
+audio_priorities: .byte 1,2,3,4,5,6,7,8,9,10,11,12,2,4,2
 audio_shot: .word 56
     .byte 2
     .word 100
@@ -240,47 +233,3 @@ audio_laser: .word 64
     .byte 4
     .word 0
     .byte 0
-audio_music: .word 0
-    .byte 5
-    .word 0
-    .byte 0
-; Original four eight-note motifs. The single voice yields to every SE.
-music_tick:
-    LDAA def_tick
-    ANDA #3
-    BNE music_done
-    INC music_step
-    TST audio_id
-    BNE music_done
-    LDAA #16
-    JSR def_audio_request
-    LDAB sector
-    LDAA stage
-    CMPA #3
-    BNE music_select
-    LDAB #3
-music_select:
-    ASLB
-    ASLB
-    ASLB
-    ASLB
-    LDX #music_notes
-    ABX
-    LDAA music_step
-    ANDA #7
-    ASLA
-    TAB
-    ABX
-    LDD 0,X
-    STD audio_period
-    INC music_notes_played
-music_done:
-    RTS
-music_notes:
-    .word 229,172,153,172,229,182,153,114
-    .word 273,182,229,153,273,204,229,136
-    .word 229,153,182,114,204,136,172,102
-    .word 306,153,229,153,273,136,204,114
-.section .bss, bss
-music_step: .space 1
-music_notes_played: .space 1

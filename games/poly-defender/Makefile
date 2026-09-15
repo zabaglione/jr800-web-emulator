@@ -10,9 +10,9 @@ PYTHON ?= python3
 WASM_DIR ?= $(ROOT)/build/wasm-release/web-module
 BUILD_DIR ?= $(ROOT)/build/games/$(GAME)
 .DEFAULT_GOAL := all
-.PHONY: all run debug test clean check-models
+.PHONY: all run debug test clean check-models check-facets
 # Game-owned memory map keeps the expanded campaign in standard 16KB RAM.
-OBJECTS := $(addprefix $(BUILD_DIR)/,main.jro audio.jro campaign.jro boss-model.jro sound.jro p3-render.jro p3-models.jro p3-runtime.jro game-input.jro dirty.jro display.jro font.jro basic.jro)
+OBJECTS := $(addprefix $(BUILD_DIR)/,main.jro audio.jro campaign.jro facets.jro facet-models.jro solid-render.jro sound.jro p3-runtime.jro game-input.jro dirty.jro display.jro font.jro basic.jro)
 
 $(BUILD_DIR):
 	mkdir -p "$@"
@@ -22,10 +22,6 @@ $(BUILD_DIR)/%.jro: $(SDK)/%.s | $(BUILD_DIR)
 	"$(JR8AS)" --target hd6301v1 --listing "$(BUILD_DIR)/$*.lst" -o "$@" "$<"
 $(BUILD_DIR)/%.jro: $(SDK)/lcd/%.s | $(BUILD_DIR)
 	"$(JR8AS)" --target hd6301v1 --listing "$(BUILD_DIR)/$*.lst" -o "$@" "$<"
-$(BUILD_DIR)/p3-render.jro: $(SDK)/poly3d/render.s | $(BUILD_DIR)
-	"$(JR8AS)" --target hd6301v1 --listing "$(BUILD_DIR)/p3-render.lst" -o "$@" "$<"
-$(BUILD_DIR)/p3-models.jro: $(SDK)/poly3d/models.s | $(BUILD_DIR)
-	"$(JR8AS)" --target hd6301v1 --listing "$(BUILD_DIR)/p3-models.lst" -o "$@" "$<"
 $(BUILD_DIR)/p3-runtime.jro: $(COMMON)/poly3d-runtime.s | $(BUILD_DIR)
 	"$(JR8AS)" --target hd6301v1 --listing "$(BUILD_DIR)/p3-runtime.lst" -o "$@" "$<"
 $(BUILD_DIR)/$(GAME).j8a: $(OBJECTS) memory.j8l
@@ -38,6 +34,13 @@ run debug test: all
 check-models:
 	$(PYTHON) generate_model.py --check
 	$(PYTHON) "$(SDK)/poly3d/generate_models.py" --check
-test: check-models
+test: check-models check-facets
 clean:
 	$(PYTHON) -c 'import shutil; shutil.rmtree("$(BUILD_DIR)", ignore_errors=True)'
+
+PROBE_OBJECTS := $(addprefix $(BUILD_DIR)/,facet-probe.jro facets.jro facet-models.jro solid-render.jro game-input.jro dirty.jro display.jro font.jro basic.jro)
+$(BUILD_DIR)/facets/facet-probe.j8a: $(PROBE_OBJECTS) memory.j8l
+	mkdir -p "$(@D)"
+	"$(JR8LD)" --script memory.j8l -o "$@" --debug "$(@D)/facet-probe.j8d" --map "$(@D)/facet-probe.map" --symbols "$(@D)/facet-probe.sym" $(PROBE_OBJECTS)
+check-facets: $(BUILD_DIR)/facets/facet-probe.j8a
+	"$(NODE)" facets-check.mjs "$(WASM_DIR)" "$(BUILD_DIR)/facets" facet-probe test

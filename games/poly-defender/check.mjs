@@ -26,7 +26,7 @@ f.frame=()=>{
 f.capture=async(name='screen')=>{
     await baseCapture(name);
     const dots=f.machine.lcdPanel().dots;
-    const gallery={'maze-2':'gameplay-1','rush-1':'gameplay-2','laser-3':'gameplay-3'};
+    const gallery={'maze-2':'gameplay-1','reactor-obstacles':'gameplay-2','laser-3':'gameplay-3'};
     for(const label of [name,gallery[name]].filter(Boolean)){
         await writeFile(resolve(process.argv[3],label+'.png'),png(dots));
         await writeFile(resolve(process.argv[3],label+'-1x.png'),png(dots,1));
@@ -42,6 +42,7 @@ const held=new Set(),events=[],checkpoints=[],captures=new Set();
 let frameIndex=0,recording=false,startCycle=0;
 const now=()=>Number(f.machine.state().cycleCount);
 const immutable=Uint8Array.from(f.machine.memory(0x5200,0x600));
+const geometryGuard=Uint8Array.from(f.machine.memory(0x5900,0x398));
 function keys(wanted=[]) {
     const next=new Set(wanted);
     // Same-row multi-key electrical behavior is unresolved. Use the existing S alias
@@ -55,6 +56,7 @@ function keys(wanted=[]) {
 function step(wanted=[],benchmark=false){
     keys(wanted);const p=state(f),panel=f.machine.lcdPanel().dots;f.frame();const s=state(f);frameIndex++;
     assert.deepEqual(f.machine.memory(0x5200,0x600),immutable,'Immutable extension program');
+    assert.deepEqual(f.machine.memory(0x5900,0x398),geometryGuard,'Immutable polygon geometry');
     coverage.phases.add(s.phase);coverage.audio.add(s.audio);
     if(s.phase!==0){
         coverage.sectors.add(s.sector);assert.ok(s.sector<=2);
@@ -66,7 +68,9 @@ function step(wanted=[],benchmark=false){
         assert.ok(s.enemies.filter(e=>e[0]).length<=2 && s.bolts.length<=2 && s.swarm.length<=6 && s.gates.length<=2);
         coverage.maxScouts=Math.max(coverage.maxScouts,s.swarm.length);
         for(const e of s.enemies.filter(e=>e[0])){
-            coverage.kinds.add(e[0]);assert.ok(e[1]>0 && e[2]>=9 && e[2]<=188 && e[3]>=16 && e[3]<=48);
+            coverage.kinds.add(e[0]);assert.ok(e[1]>0 && e[2]>=9 && e[2]<=(s.sector===2 && e[0]===5?214:188) && e[3]>=16 && e[3]<=48);
+            if(s.sector===2 && e[0]===5)assert.equal(e[3],32,'Large core stays inside the vertical viewport');
+            if(s.sector===2 && e[0]>=6)assert.ok(e[3]>=20 && e[3]<=44,'Factory hull stays inside the vertical viewport');
             if(e[0]===5 && e[4]<128){
                 coverage.bossModes.add(`${s.sector}:${f.read('boss_mode')}`);
                 if(s.sector && e[4]>=28 && e[4]<=32)coverage.laserFrames++;
@@ -99,7 +103,7 @@ function step(wanted=[],benchmark=false){
         if(p.stage===1 && s.stage===1){
             for(let i=0;i<2;i++){
                 const shot=p.shots[i];
-                if(shot[0] && s.gates.some(g=>Math.abs(g[0]-shot[1])<=10 && Math.abs(g[1]-shot[2])>=12)){
+                if(shot[0] && s.gates.some(g=>Math.abs(g[0]-shot[1])<=13 && (s.sector===2?Math.abs(g[1]-shot[2])<=11:Math.abs(g[1]-shot[2])>=12+Math.floor(Math.max(0,Math.abs(g[0]-shot[1])-4)/2)))){
                     assert.ok(!s.shots[i][0] || s.shots[i][1]===s.x+8,'Solid must stop every shot');coverage.gateBlocks++;
                 }
             }
@@ -152,6 +156,7 @@ try {
             const n=step(input,true);
             if(n.sector!==s.sector)console.log(JSON.stringify({sector:n.sector,frame:frameIndex,hull:n.hull,score:n.score}));
             if(n.gates.some(g=>g[0]<110))await capture(`maze-${n.sector+1}`);
+            if(n.sector===2 && n.gates.some(g=>g[0]<110))await capture('reactor-obstacles');
             if(n.swarm.length>=4)await capture(`rush-${n.sector+1}`);
             if(n.message)await capture('shield-broken');
             if(n.phase===5)await capture('boss-warning');
@@ -173,7 +178,11 @@ try {
         for(const k of [1,2,3,4,5,6,7])assert.ok(coverage.kinds.has(k),'Enemy '+k);
         for(const k of ['shieldBroken','hits','weaponPickups','shieldPickups','chargeShots','burstHits','laserFrames','movingGates','forwardFrames','backwardFrames','frozenFrames','entries','closedCore','gateBlocks'])assert.ok(coverage[k]>0,'Coverage '+k);
         assert.equal(coverage.maxScouts,6);assert.ok(coverage.scoreCarry);
-        for(const area of measured)for(const m of area){assert.ok(m);assert.ok(m.meanCycles<=123624,'Mean slowdown: '+JSON.stringify(m));assert.ok(m.maxCycles<=188366,'Frame spike: '+JSON.stringify(m));}
+        // Preserve the preceding campaign's limits, including all six-scout rushes.
+        for(const area of measured)for(const m of area){
+            assert.ok(m);assert.ok(m.meanCycles<=123624,'Mean slowdown: '+JSON.stringify(m));
+            assert.ok(m.maxCycles<=188366,'Frame spike: '+JSON.stringify(m));
+        }
         recording=false;
         step(['return']);step();
         for(let i=0;i<40 && f.read('phase')!==1;i++)step();
@@ -194,9 +203,9 @@ try {
         step(['keypad-4']);assert.equal(f.read('ship_x'),110,'Backward movement after clamp');
         keys();
         await f.finish({gameplay:timing(measures.flat(2)),stages:measured,coverage:serializable,
-            extensionBytes:[...(await readFile(resolve(process.argv[3],'poly-defender.map'),'utf8')).matchAll(/^  \$([0-9A-F]+)-\$([0-9A-F]+)  EXTENSION  /gm)].reduce((n,m)=>n+parseInt(m[2],16)-parseInt(m[1],16)+1,0),controls:'Normal keypad 8/2/4/6, SPACE, RETURN; key replay only',
+            additionalProgramBytes:[...(await readFile(resolve(process.argv[3],'poly-defender.map'),'utf8')).matchAll(/^  \$([0-9A-F]+)-\$([0-9A-F]+)  (?:EXTENSION|GEOMETRY)  /gm)].reduce((n,m)=>n+parseInt(m[2],16)-parseInt(m[1],16)+1,0),controls:'Normal keypad 8/2/4/6, SPACE, RETURN; key replay only',
             memory:'Standard 16KB RAM; immutable program extension and relocated BASIC return workspace',
-            baseline:{meanCycles:123623.63679245283,maxCycles:188366}});
+            budgets:{meanCycles:123624,maxCycles:188366}});
     }
     if(!process.env.JR800_GAME_ROM)await writeFile(resolve(process.argv[3],(smoke?'smoke-':'')+'replay.txt'),replay.join('\n')+'\n');
 }finally{f.close();}

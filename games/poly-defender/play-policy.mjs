@@ -33,7 +33,7 @@ export function chooseInput(s,{collect=true,evade=true,front=true}={}) {
             const penalty=5000/(t+1);
             for(const g of s.gates) {
                 const gx=g[0]-2*t,gy=g[1]+(s.sector===2?(g[2]<<24>>24)*Math.floor(t/8):0);
-                if(Math.abs(gx-x)<=15 && Math.abs(y-gy)>=7)value+=penalty;
+                if(Math.abs(gx-x)<=16 && (s.sector===2?Math.abs(y-gy)<=14:Math.abs(y-gy)>=7))value+=penalty;
             }
             for(const b of s.bolts) {
                 if(b.life<=t)continue;
@@ -54,11 +54,11 @@ export function chooseInput(s,{collect=true,evade=true,front=true}={}) {
                     for(let n=1;n<=t;n++){
                         const a=e[4]+n;
                         if(s.sector===1 && a>=40 && a<64)ey+=a<52?-1:1;
-                        else if(a>=40 && a<48){ex-=15;ey=toward(ey,e[5],2);}
+                        else if(a>=40 && a<48){ex-=s.sector===2?11:15;if(s.sector!==2)ey=toward(ey,e[5],2);}
                         else if(a>=48 && a<64)ex=Math.min(152,ex+8);
                     }
                 }
-                if(Math.abs(ex-x)<=18 && Math.abs(ey-y)<=12)value+=penalty;
+                if(Math.abs(ex-x)<=(e[0]===5 && s.sector===2?26:18) && Math.abs(ey-y)<=(e[0]===5 && s.sector===2?23:12))value+=penalty;
             }
         }
         if(value<best.value)best={value,x:destX,y:destY};
@@ -75,7 +75,7 @@ export function humanPolicy() {
             const target=s.enemies.find(e=>e[0]);goalY=s.item[0] && s.item[1]<110?s.item[2]:target?.[3]??32;
             goalX=s.item[0] && s.item[1]<110?72:56;
             const wall=s.gates.find(g=>g[0]>s.x-14 && g[0]<s.x+60);
-            if(wall){goalY=wall[1];goalX=24;}
+            if(wall){goalY=s.sector===2?(wall[1]<32?48:16):wall[1];goalX=24;}
             const bolt=s.bolts.find(b=>b.x/16<s.x+80 && b.x/16>s.x-12 && (Math.abs(b.y/16-s.y)<12 || Math.abs(b.y/16-goalY)<12));
             const body=[...s.enemies.filter(e=>e[0]).map(e=>[e[2],e[3]]),...s.swarm].find(e=>e[0]<s.x+50 && e[0]>s.x-14 && Math.abs(e[1]-s.y)<12);
             if(!wall && (bolt || body)){goalY=(bolt?bolt.y/16:body[1])<32?46:18;goalX=24;}
