@@ -36,13 +36,16 @@ f.capture=async(name='screen')=>{
 const coverage={phases:new Set(),sectors:new Set(),kinds:new Set(),audio:new Set(),bossModes:new Set(),
     shieldBroken:0,hits:0,laserFrames:0,closedCore:0,burstHits:0,chargeShots:0,gateBlocks:0,
     shieldPickups:0,weaponPickups:0,forwardFrames:0,backwardFrames:0,maxScouts:0,movingGates:0,
-    frozenFrames:0,entries:0,scoreCarry:false};
+    frozenFrames:0,entries:0,scoreCarry:false,gunHolds:0,recoilFrames:0,diverWindups:0,
+    diverRecoveries:0,committedDives:0,bossWindups:0,passiveWeaves:0};
 const measures=Array.from({length:3},()=>Array.from({length:4},()=>[]));
+const bossTimings=Array.from({length:3},()=>Array.from({length:12},()=>[]));
 const held=new Set(),events=[],checkpoints=[],captures=new Set();
 let frameIndex=0,recording=false,startCycle=0;
 const now=()=>Number(f.machine.state().cycleCount);
 const immutable=Uint8Array.from(f.machine.memory(0x5200,0x600));
 const geometryGuard=Uint8Array.from(f.machine.memory(0x5900,0x398));
+const cueGuard=Uint8Array.from(f.machine.memory(0x5884,0x7c));
 function keys(wanted=[]) {
     const next=new Set(wanted);
     // Same-row multi-key electrical behavior is unresolved. Use the existing S alias
@@ -57,6 +60,7 @@ function step(wanted=[],benchmark=false){
     keys(wanted);const p=state(f),panel=f.machine.lcdPanel().dots;f.frame();const s=state(f);frameIndex++;
     assert.deepEqual(f.machine.memory(0x5200,0x600),immutable,'Immutable extension program');
     assert.deepEqual(f.machine.memory(0x5900,0x398),geometryGuard,'Immutable polygon geometry');
+    assert.deepEqual(f.machine.memory(0x5884,0x7c),cueGuard,'Immutable attack poses beside BASIC context');
     coverage.phases.add(s.phase);coverage.audio.add(s.audio);
     if(s.phase!==0){
         coverage.sectors.add(s.sector);assert.ok(s.sector<=2);
@@ -96,6 +100,30 @@ function step(wanted=[],benchmark=false){
                 assert.equal(b[2],Math.max(152,a[2]-3));assert.equal(b[1],a[1]);
                 if(!(b[4]&128))coverage.entries++;
             }
+            if(s.phase===1 && a[0] && a[0]===b[0] && a[4]<128 && b[4]===a[4]+1){
+                const kind=b[0],age=b[4];
+                if(kind===1 || kind===3 || (kind>=6 && s.sector===2)){
+                    const t=kind===1?age%32:kind===3?age-4:age;
+                    if(t>8 && t<20){
+                        assert.deepEqual(b.slice(5,7),a.slice(5,7),'Gun target stays fixed after the visible aim begins');
+                        if(t<16){assert.deepEqual(b.slice(2,4),a.slice(2,4),'Aiming gun holds still');coverage.gunHolds++;}
+                    }
+                    if(t>=16 && t<20){assert.equal(b[2]-a[2],t%4<2?2:-2,'Visible recoil follows the real hull');coverage.recoilFrames++;}
+                }
+                if(kind===2 && age>=8 && age<48){
+                    if(age>8)assert.equal(b[5],a[5],'Diver never retargets during windup or attack');
+                    assert.equal(b[3],b[5],'Diver stays on the committed visible lane');
+                    if(age<16){assert.equal(b[2]-a[2],1,'Diver pulls back before contact attack');coverage.diverWindups++;}
+                    else if(age<40){assert.equal(b[2]-a[2],-4,'Diver attacks in a straight line');coverage.committedDives++;}
+                    else {assert.deepEqual(b.slice(2,4),a.slice(2,4),'Diver pauses after attacking');coverage.diverRecoveries++;}
+                }
+                if(kind===5 && age>=40 && age<56){
+                    if(age>40)assert.deepEqual(b.slice(5,7),a.slice(5,7),'Boss commits before its physical attack');
+                    if(age<48){assert.equal(b[2]-a[2],1,'Boss winds up before its physical attack');coverage.bossWindups++;}
+                    else if(s.sector!==1){assert.equal(b[3],a[3],'Boss ram does not turn or follow the player');coverage.committedDives++;}
+                }
+                if(kind>=6 && s.sector===1){assert.equal(s.bolts.length,0,'Passive canyon enemies never fire');coverage.passiveWeaves++;}
+            }
             const x=p.shots[i],y=s.shots[i];
             if(y[0] && y[3]&64 && (!x[0] || y[1]===s.x+8))coverage.chargeShots++;
             if(x[0] && x[3]&64 && b[0] && b[0]===a[0] && b[1]<a[1])coverage.burstHits++;
@@ -103,20 +131,24 @@ function step(wanted=[],benchmark=false){
         if(p.stage===1 && s.stage===1){
             for(let i=0;i<2;i++){
                 const shot=p.shots[i];
-                if(shot[0] && s.gates.some(g=>Math.abs(g[0]-shot[1])<=13 && (s.sector===2?Math.abs(g[1]-shot[2])<=11:Math.abs(g[1]-shot[2])>=12+Math.floor(Math.max(0,Math.abs(g[0]-shot[1])-4)/2)))){
-                    assert.ok(!s.shots[i][0] || s.shots[i][1]===s.x+8,'Solid must stop every shot');coverage.gateBlocks++;
+                // A newly spawned right-edge gate first participates next update.
+                if(shot[0] && s.gates.some(g=>p.gates.some(old=>old[0]===g[0]+2) && Math.abs(g[0]-shot[1])<=13 && (s.sector===2?Math.abs(g[1]-shot[2])<=11:Math.abs(g[1]-shot[2])>=12+Math.floor(Math.max(0,Math.abs(g[0]-shot[1])-4)/2)))){
+                    assert.ok(!s.shots[i][0] || s.shots[i][1]===s.x+8,'Solid must stop every shot '+JSON.stringify({shot,after:s.shots[i],gates:s.gates,phase:s.phase,x:s.x,tick:s.tick}));coverage.gateBlocks++;
                 }
             }
         }
         const a=p.enemies[0],b=s.enemies[0];
-        if(p.sector===2 && s.stage===3 && a[0]===5 && b[0]===5 && a[4]<128 && b[4]<48 &&
+        if(p.sector===2 && s.stage===3 && a[0]===5 && b[0]===5 && a[4]<128 && b[4]<128 && f.read('boss_mode')!==3 &&
             p.shots.every(shot=>!(shot[0] && (shot[3]&64))) &&
             p.shots.some(shot=>shot[0] && !(shot[3]&1) && Math.abs(shot[1]+8-b[2])<=7 && Math.abs(shot[2]-b[3])<=7)){
             assert.equal(b[1],a[1],'Closed core must stop normal shots');coverage.closedCore++;
         }
-        if(s.sector && a[0]===5 && b[0]===5 && a[4]>=8 && b[4]<=32 && b[4]>a[4])assert.equal(b[5],a[5],'Laser aim must remain fixed through the entire beam');
+        if(s.sector && a[0]===5 && b[0]===5 && a[4]>=20 && b[4]<=32 && b[4]>a[4])assert.equal(b[5],a[5],'Laser aim must remain fixed through the entire beam');
         for(let i=0;i<Math.min(p.gates.length,s.gates.length);i++)if(p.gates[i][1]!==s.gates[i][1])coverage.movingGates++;
-        if(benchmark && s.phase===1 && p.sector===s.sector && p.stage===s.stage)measures[p.sector][p.stage].push(f.cycles.at(-1));
+        if(benchmark && s.phase===1 && p.sector===s.sector && p.stage===s.stage){
+            measures[p.sector][p.stage].push(f.cycles.at(-1));
+            if(s.stage===3 && s.enemies[0][0]===5 && s.enemies[0][4]<96)bossTimings[s.sector][s.enemies[0][4]>>3].push(f.cycles.at(-1));
+        }
     }
     if([6,7].includes(p.phase) && s.phase===p.phase){
         for(const k of ['enemies','bolts','shots','item','gates','swarm','tick','x','y','hull','weapon','shield'])assert.deepEqual(s[k],p[k],'Frozen impact '+k);
@@ -168,7 +200,8 @@ try {
         keys();
         const serializable=Object.fromEntries(Object.entries(coverage).map(([k,v])=>[k,v instanceof Set?[...v]:v]));
         const measured=measures.map(a=>a.map(b=>b.length?timing(b):null));
-        await writeFile(resolve(process.argv[3],'campaign-diagnostics.json'),JSON.stringify({state:state(f),measures:measured,coverage:serializable},null,2)+'\n');
+        await writeFile(resolve(process.argv[3],'campaign-diagnostics.json'),JSON.stringify({state:state(f),measures:measured,
+            bossTimings:bossTimings.map(row=>row.map(values=>values.length?timing(values):null)),coverage:serializable},null,2)+'\n');
         assert.equal(f.read('phase'),2,'Campaign input replay must defeat all three bosses');await capture('clear');
         const outcome=state(f);
         for(let i=0;i<32;i++)step();assert.equal(f.read('audio_id'),0);
@@ -176,7 +209,8 @@ try {
             outcome,events,checkpoints,inputStyle:'Automated coverage keys with deterministic hazard forecast; no RAM writes'},null,2)+'\n');
         for(const p of [0,1,2,3,4,5,6,7,8])if(p)assert.ok(coverage.phases.has(p),'Phase '+p);
         for(const k of [1,2,3,4,5,6,7])assert.ok(coverage.kinds.has(k),'Enemy '+k);
-        for(const k of ['shieldBroken','hits','weaponPickups','shieldPickups','chargeShots','burstHits','laserFrames','movingGates','forwardFrames','backwardFrames','frozenFrames','entries','closedCore','gateBlocks'])assert.ok(coverage[k]>0,'Coverage '+k);
+        for(const k of ['shieldBroken','hits','weaponPickups','shieldPickups','chargeShots','burstHits','laserFrames','movingGates','forwardFrames','backwardFrames','frozenFrames','entries','closedCore','gateBlocks',
+            'gunHolds','recoilFrames','diverWindups','diverRecoveries','committedDives','bossWindups','passiveWeaves'])assert.ok(coverage[k]>0,'Coverage '+k);
         assert.equal(coverage.maxScouts,6);assert.ok(coverage.scoreCarry);
         // Preserve the preceding campaign's limits, including all six-scout rushes.
         for(const area of measured)for(const m of area){
@@ -203,7 +237,7 @@ try {
         step(['keypad-4']);assert.equal(f.read('ship_x'),110,'Backward movement after clamp');
         keys();
         await f.finish({gameplay:timing(measures.flat(2)),stages:measured,coverage:serializable,
-            additionalProgramBytes:[...(await readFile(resolve(process.argv[3],'poly-defender.map'),'utf8')).matchAll(/^  \$([0-9A-F]+)-\$([0-9A-F]+)  (?:EXTENSION|GEOMETRY)  /gm)].reduce((n,m)=>n+parseInt(m[2],16)-parseInt(m[1],16)+1,0),controls:'Normal keypad 8/2/4/6, SPACE, RETURN; key replay only',
+            additionalProgramBytes:[...(await readFile(resolve(process.argv[3],'poly-defender.map'),'utf8')).matchAll(/^  \$([0-9A-F]+)-\$([0-9A-F]+)  (?:EXTENSION|GEOMETRY|CUES)  /gm)].reduce((n,m)=>n+parseInt(m[2],16)-parseInt(m[1],16)+1,0),controls:'Normal keypad 8/2/4/6, SPACE, RETURN; key replay only',
             memory:'Standard 16KB RAM; immutable program extension and relocated BASIC return workspace',
             budgets:{meanCycles:123624,maxCycles:188366}});
     }

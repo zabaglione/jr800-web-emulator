@@ -27,6 +27,9 @@
 .extern facet_ship_poses
 .extern facet_scout_poses
 .extern facet_rotor_poses
+.extern facet_aim_poses
+.extern facet_core_poses
+.extern p3_dashed_line
 .section .text, code
 entry:
     SEI
@@ -49,6 +52,30 @@ probe_draw:
     LDAA probe_group
     CMPA #12
     BCS probe_dispatch
+    BEQ probe_composition
+    LDAA #152
+    STAA facet_x
+    LDAA #1
+    STAA facet_double
+    LDAA #16
+    LDAB probe_group
+    CMPB #13
+    BEQ probe_attack_pose
+    LDAA #48
+    CMPB #14
+    BEQ probe_attack_pose
+    LDAA #32
+    STAA facet_y
+    LDX #facet_core_poses
+    BRA probe_special_pose
+probe_attack_pose:
+    STAA facet_y
+    LDX #facet_aim_poses
+probe_special_pose:
+    LDX 0,X
+    JSR facet_mesh
+    JMP probe_present
+probe_composition:
     LDAA probe_case
     CMPA #1
     BEQ probe_overlap
@@ -66,7 +93,7 @@ probe_overlap:
     LDX #facet_rotor_poses
     LDX 0,X
     JSR facet_mesh
-    BRA probe_present
+    JMP probe_present
 probe_dispatch:
     CMPA #11
     BNE probe_not_line
@@ -76,6 +103,12 @@ probe_dispatch:
     TAB
     LDX #probe_lines
     ABX
+    LDAA probe_case
+    CMPA #16
+    BCS probe_solid_line
+    JSR p3_dashed_line
+    JMP probe_present
+probe_solid_line:
     JSR p3_line
     JMP probe_present
 probe_not_line:
@@ -121,6 +154,14 @@ probe_small:
     BCS probe_pose
     SUBA #4
     LDX #facet_guardian_poses
+    CMPA #4
+    BCS probe_pose
+    SUBA #4
+    LDX #facet_aim_poses
+    CMPA #1
+    BCS probe_pose
+    DECA
+    LDX #facet_core_poses
 probe_pose:
     ASLA
     TAB
@@ -150,12 +191,13 @@ probe_next_group:
     JMP probe_draw
 probe_xs: .byte 16,93,187,16,110,214,152,64,152,152,93
     .byte 24,33,40,18,44,32,32,32,16,48,33
-probe_limits: .byte 19,19,19,19,19,4,4,4,8,8,19,16,3
+probe_limits: .byte 21,21,21,21,21,4,4,4,8,8,21,20,3,1,1,1
 probe_lines:
     .byte 0,8,191,8,191,55,0,55,40,0,40,63,100,63,100,0
     .byte 0,0,191,63,191,63,0,0,0,63,191,0,191,0,0,63
     .byte 18,20,24,24,24,24,18,20,70,15,73,46,73,46,70,15
     .byte 5,2,189,2,5,60,189,60,92,32,92,32,20,8,22,9
+    .byte 16,16,152,16,16,48,160,48,0,8,191,8,0,55,191,55
 .section .bss, bss
 probe_case: .space 1
 probe_group: .space 1

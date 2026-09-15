@@ -46,16 +46,17 @@ export function chooseInput(s,{collect=true,evade=true,front=true}={}) {
             for(const e of enemies) {
                 if(e[4]&128)continue;
                 let ex=e[2],ey=e[3];
-                if(e[0]===2){const n=Math.max(0,e[4]+t-23)-Math.max(0,e[4]-23);ex-=3*n;ey=toward(ey,e[5],2*n);}
+                if(e[0]===2)for(let n=1;n<=t;n++){const a=e[4]+n;if(a>=8 && a<16)ex++;else if(a>=16 && a<40)ex-=4;else if(a>=48)ex-=3;}
                 if(e[0]===4){ex-=t;ey=reflect(ey+(e[6]<<24>>24)*t);}
-                if(e[0]>=6){ex-=(e[0]===6?2:4)*t;ey=reflect(ey+(e[6]<<24>>24)*t);}
+                if(e[0]>=6 && !(s.sector===2 && e[4]<20)){ex-=(e[0]===6?2:4)*t;ey=reflect(ey+(e[6]<<24>>24)*t);}
                 if(e[0]===5){
-                    if(s.sector && e[4]>=8 && e[4]+t>=28 && e[4]+t<=32 && x<ex && Math.abs(y-e[5])<=8)value+=penalty;
+                    if(s.sector && e[4]>=20 && e[4]+t>=28 && e[4]+t<=32 && x<ex && Math.abs(y-e[5])<=8)value+=penalty;
                     for(let n=1;n<=t;n++){
                         const a=e[4]+n;
-                        if(s.sector===1 && a>=40 && a<64)ey+=a<52?-1:1;
-                        else if(a>=40 && a<48){ex-=s.sector===2?11:15;if(s.sector!==2)ey=toward(ey,e[5],2);}
-                        else if(a>=48 && a<64)ex=Math.min(152,ex+8);
+                        if(s.sector===1 && a>=48 && a<72)ey+=a<60?-1:1;
+                        else if(a>=40 && a<48){ex++;if(s.sector===0)ey=toward(ey,e[4]>=40?e[5]:s.y,4);}
+                        else if(a>=48 && a<56)ex-=s.sector===2?11:15;
+                        else if(a>=56 && a<72)ex=Math.min(152,ex+8);
                     }
                 }
                 if(Math.abs(ex-x)<=(e[0]===5 && s.sector===2?26:18) && Math.abs(ey-y)<=(e[0]===5 && s.sector===2?23:12))value+=penalty;
@@ -79,7 +80,7 @@ export function humanPolicy() {
             const bolt=s.bolts.find(b=>b.x/16<s.x+80 && b.x/16>s.x-12 && (Math.abs(b.y/16-s.y)<12 || Math.abs(b.y/16-goalY)<12));
             const body=[...s.enemies.filter(e=>e[0]).map(e=>[e[2],e[3]]),...s.swarm].find(e=>e[0]<s.x+50 && e[0]>s.x-14 && Math.abs(e[1]-s.y)<12);
             if(!wall && (bolt || body)){goalY=(bolt?bolt.y/16:body[1])<32?46:18;goalX=24;}
-            if(target?.[0]===5 && ((s.sector && target[4]>=8 && target[4]<33) || (s.sector!==1 && target[4]>=34 && target[4]<48))){goalY=target[5]<32?46:18;goalX=16;}
+            if(target?.[0]===5 && ((s.sector && target[4]>=20 && target[4]<33) || (s.sector!==1 && target[4]>=40 && target[4]<56))){goalY=target[5]<32?46:18;goalX=16;}
         }
         return [goalY<s.y-2?'keypad-8':goalY>s.y+2?'keypad-2':null,goalX<s.x-2?'keypad-4':goalX>s.x+2?'keypad-6':null].filter(Boolean);
     };

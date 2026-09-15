@@ -40,6 +40,7 @@
 .extern facet_y
 .extern input_poll
 .extern p3_line
+.extern p3_dashed_line
 .section .campaign, code
 campaign_reset:
     LDX #campaign_state
@@ -406,25 +407,25 @@ laser_draw:
     TST sector
     BEQ laser_done
     LDAA enemies + 4
-    CMPA #8
+    CMPA #20
     BCS laser_done
     CMPA #33
     BCC laser_done
     CMPA #28
     BCC laser_beam
-    LDAA def_tick
-    BITA #1
-    BNE laser_done
     LDAA #16
     STAA def_line
-    LDAA #36
+    LDAA enemies + 2
     STAA def_line + 2
-    BRA laser_height
+    LDAA enemies + 5
+    STAA def_line + 1
+    STAA def_line + 3
+    LDX #def_line
+    JMP p3_dashed_line
 laser_beam:
     LDAA #16
     STAA def_line
     LDAA enemies + 2
-    SUBA #8
     STAA def_line + 2
 laser_height:
     LDAA enemies + 5
@@ -432,9 +433,6 @@ laser_height:
     STAA def_line + 3
     LDX #def_line
     JSR campaign_line
-    LDAA enemies + 4
-    CMPA #28
-    BCS laser_done
     INC def_line + 1
     INC def_line + 3
     JMP campaign_line

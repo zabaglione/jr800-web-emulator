@@ -1,7 +1,7 @@
 ; SPDX-License-Identifier: MIT
 ; All combat, item collection, waves, and timing execute on the JR-800.
-; Enemy: kind,hp,x,y,age,target_y,vy,scale,loot,flash (10 bytes).
-; Kind: 0 absent, 1 gunner, 2 diver, 3 splitter, 4 fragment, 5 boss.
+; Enemy: kind,hp,x,y,age,target_y,target_x/direction,scale,loot,flash (10 bytes).
+; Kind: 0 absent, 1 gunner, 2 diver, 3 splitter, 4 fragment, 5 boss, 6/7 weaver.
 ; Player shot: active,x,y,flags (bit 7 piercing; bits 0/1 already hit).
 ; Enemy bolt: life,xQ4(16),yQ4(16),vxQ4(16),vyQ4(8 signed).
 .global app_init
@@ -21,6 +21,8 @@
 .extern facet_double
 .extern facet_rotor_poses
 .extern facet_ship_poses
+.extern facet_core_poses
+.extern facet_wire
 .extern campaign_update
 .extern campaign_draw
 .extern campaign_reset
@@ -81,7 +83,7 @@
 .extern p3_x
 .extern p3_y
 .extern p3_yaw
-.extern p3_pitch
+.extern p3_aim
 .extern p3_scale
 .extern p3_mode
 .extern p3_model_tetra
@@ -376,27 +378,8 @@ def_enemy_kind:
     JSR def_boss_update
     JMP def_enemy_collisions
 def_not_boss:
-    CMPA #3
-    BNE def_not_parent
-    LDAA 4,X
-    CMPA #12
-    BNE lock_far_1
-    JMP def_lock_enemy
-lock_far_1:
-    CMPA #24
-    BNE def_branch_4
-    JMP def_shoot_enemy
-def_branch_4:
-    CMPA #48
-    BCC def_branch_5
-    JMP def_enemy_collisions
-def_branch_5:
-    CLR 4,X
-    JMP def_enemy_collisions
-def_not_parent:
     CMPA #4
-    BNE def_regular
-    ; Two fragments peel into separate lanes, then travel left.
+    BNE def_not_fragment
     LDAA 3,X
     ADDA 6,X
     STAA 3,X
@@ -409,32 +392,92 @@ def_fragment_turn:
 def_fragment_x:
     DEC 2,X
     JMP def_enemy_collisions
-def_regular:
+def_not_fragment:
+    CMPA #2
+    BNE def_not_diver
+    JMP def_diver
+def_not_diver:
+    CMPA #6
+    BCS def_gun_update
     LDAA sector
     CMPA #2
-    BNE def_weave_dispatch
-    LDAA 4,X
+    BEQ def_gun_update
+    JMP def_weave
+; A single phase calculation drives both the posture and the actual gun.
+; Gunner: aim 8..15, fire/recoil 16..19, repeated 32 updates later.
+; Splitter: 12..19 / 20..23. Factory: one shot, then resume weaving.
+def_gun_update:
+    JSR def_gun_age
     CMPA #8
-    BNE def_factory_fire
-    LDAA ship_y
-    STAA 5,X
-    JMP def_enemy_collisions
-def_factory_fire:
-    CMPA #20
-    BNE def_weave_dispatch
-    LDAA 6,X
-    PSHA
-    LDAA ship_x
-    STAA 6,X
+    BEQ def_lock_enemy
+    CMPA #16
+    BNE def_gun_recoil
     JSR def_launch_bolt
     LDX def_enemy_ptr
-    PULA
-    STAA 6,X
-    JMP def_enemy_collisions
-def_weave_dispatch:
+    LDAA #16
+def_gun_recoil:
+    CMPA #16
+    BCS def_gun_done
+    CMPA #20
+    BCC def_gun_resume
+    JSR def_recoil
+    BRA def_gun_done
+def_gun_resume:
     LDAB 0,X
     CMPB #6
-    BCS def_regular_old
+    BCS def_gun_done
+    CMPA #20
+    BNE def_weave
+    ; The direction byte holds captured target X while the factory gun aims.
+    LDAB #1
+    LDAA 3,X
+    CMPA #32
+    BCS def_weave_restore
+    NEGB
+def_weave_restore:
+    STAB 6,X
+    BRA def_weave
+def_gun_done:
+    LDAA #64
+    LDAB 0,X
+    CMPB #3
+    BNE def_gun_reset
+    LDAA #48
+def_gun_reset:
+    CMPA 4,X
+    BNE def_gun_collisions
+    CLR 4,X
+def_gun_collisions:
+    JMP def_enemy_collisions
+def_lock_enemy:
+    JSR def_capture_aim
+    JMP def_enemy_collisions
+def_gun_age:
+    LDAA 4,X
+    LDAB 0,X
+    CMPB #3
+    BNE def_gun_age_regular
+    SUBA #4
+    RTS
+def_gun_age_regular:
+    CMPB #6
+    BCC def_gun_age_done
+    ANDA #31
+def_gun_age_done:
+    RTS
+; Recoil changes the real hull position: two updates back, two returning.
+def_recoil:
+    BITA #2
+    BNE def_recoil_return
+    INC 2,X
+    INC 2,X
+    RTS
+def_recoil_return:
+    DEC 2,X
+    DEC 2,X
+    RTS
+def_weave:
+    LDAB 0,X
     LDAA 2,X
     SUBA #2
     CMPB #7
@@ -448,57 +491,42 @@ def_weave_x:
     CMPA #20
     BLS def_weave_turn
     CMPA #44
-    BCS def_weave_done
+    BCS def_gun_collisions
 def_weave_turn:
     NEG 6,X
-def_weave_done:
-    JMP def_enemy_collisions
-def_regular_old:
+    BRA def_gun_collisions
+; A diver approaches a lane, pulls back for eight visible updates, then
+; flies straight. Its captured lane never follows later player movement.
+def_diver:
     LDAA 4,X
     CMPA #8
-    BNE lock_far_2
-    JMP def_lock_enemy
-lock_far_2:
-    CMPA #20
-    BNE def_branch_6
-    JMP def_shoot_enemy
-def_branch_6:
-    LDAB 0,X
-    CMPB #2
-    BEQ def_diver
+    BCC def_diver_ready
+    JSR def_capture_aim
+    JSR def_move_to_aim
+    JMP def_enemy_collisions
+def_diver_ready:
+    BNE def_diver_windup
+    LDAA 3,X
+    STAA 5,X
+def_diver_windup:
+    LDAA 4,X
+    CMPA #16
+    BCC def_diver_dash
+    INC 2,X
+    JMP def_enemy_collisions
+def_diver_dash:
     CMPA #40
-    BNE lock_far_3
-    JMP def_lock_enemy
-lock_far_3:
-    CMPA #52
-    BNE def_branch_7
-    JMP def_shoot_enemy
-def_branch_7:
-    CMPA #64
-    BCC def_branch_8
+    BCC def_diver_recover
+    LDAA 2,X
+    SUBA #4
+    STAA 2,X
     JMP def_enemy_collisions
-def_branch_8:
-    CLR 4,X
-    JMP def_enemy_collisions
-def_diver:
-    CMPA #24
-    BCC def_branch_9
-    JMP def_enemy_collisions
-def_branch_9:
+def_diver_recover:
+    CMPA #48
+    BCS def_gun_collisions
     LDAA 2,X
     SUBA #3
     STAA 2,X
-    ; A dive commits to the warned lane; it does not track the player.
-    JSR def_move_to_aim
-    JMP def_enemy_collisions
-def_lock_enemy:
-    LDAA ship_x
-    STAA 6,X
-    LDAA ship_y
-    STAA 5,X
-    JMP def_enemy_collisions
-def_shoot_enemy:
-    JSR def_launch_bolt
     JMP def_enemy_collisions
 def_enter:
     ; Approach from a tiny distant point at the right edge, growing as it enters.
@@ -616,77 +644,113 @@ def_aim_snap:
 def_aim_done:
     RTS
 
-; Boss: warning/fire, committed dive, retreat and vulnerable recovery.
+; Boss: aimed shot, second shot/laser, exposed core, windup, physical
+; attack, and exposed recovery. All target changes precede a visible hold.
 def_boss_update:
     JSR def_boss_drop
     LDX def_enemy_ptr
-    LDAA 4,X
-    LSRA
-    LSRA
-    LSRA
-    LSRA
-    CMPA #3
-    BLS def_boss_mode_bounded
+    LDAB 4,X
+    CLRA
+    CMPB #20
+    BCS def_boss_mode_ready
+    INCA
+    CMPB #33
+    BCS def_boss_mode_ready
     LDAA #3
-def_boss_mode_bounded:
+    CMPB #40
+    BCS def_boss_mode_ready
+    CMPB #56
+    BCC def_boss_mode_ready
+    DECA
+def_boss_mode_ready:
     CMPA boss_mode
     BEQ def_boss_pattern
     STAA boss_mode
     LDAA #1
     STAA hud_dirty
 def_boss_pattern:
-    TST sector
-    BEQ def_boss_no_laser
     LDAA 4,X
+    CMPA #8
+    BEQ def_boss_lock
+    CMPA #20
+    BEQ def_boss_lock
+    CMPA #16
+    BEQ def_boss_shot
+    CMPA #18
+    BNE def_boss_recoil
+    LDAB 1,X
+    CMPB #9
+    BLS def_boss_shot
+def_boss_recoil:
+    CMPA #16
+    BCS def_boss_early_done
+    CMPA #20
+    BCS def_boss_kick
+    TST sector
+    BNE def_boss_laser
     CMPA #28
-    BCS def_boss_no_laser
+    BEQ def_boss_shot
+    CMPA #32
+    BCC def_boss_physical
+    CMPA #28
+    BCC def_boss_kick
+    RTS
+def_boss_kick:
+    JMP def_recoil
+def_boss_shot:
+    JSR def_launch_bolt
+    LDX def_enemy_ptr
+    LDAA 4,X
+    JMP def_recoil
+def_boss_lock:
+    JSR def_capture_aim
+    RTS
+def_boss_laser:
+    CMPA #28
+    BCS def_boss_early_done
     CMPA #33
-    BCC def_boss_no_laser
+    BCC def_boss_physical
     LDAA #15
     JSR def_audio_request
     LDAA ship_x
     ADDA #8
     CMPA 2,X
-    BCC def_boss_no_laser
+    BCC def_boss_early_done
     LDAA ship_y
     SUBA 5,X
     BPL def_laser_dy
     NEGA
 def_laser_dy:
     CMPA #5
-    BHI def_boss_no_laser
+    BHI def_boss_early_done
     LDAA #4
     STAA hit_cause
-    JSR def_damage
-    LDX def_enemy_ptr
-    BRA def_boss_no_laser
-def_boss_fire:
-    JMP def_launch_bolt
-def_boss_no_laser:
-    LDAA 4,X
-    CMPA #8
-    BEQ def_boss_lock
-    CMPA #16
-    BEQ def_boss_fire
-    CMPA #20
-    BNE def_boss_second
-    LDAB 1,X
-    CMPB #9
-    BLS def_boss_fire
-def_boss_second:
-    CMPA #28
-    BEQ def_boss_fire
-    CMPA #34
-    BEQ def_boss_lock
+    JMP def_damage
+def_boss_early_done:
+    RTS
+def_boss_physical:
     CMPA #40
     BCS def_boss_done
+    BNE def_boss_windup
+    JSR def_capture_aim
+def_boss_windup:
+    LDAA 4,X
+    CMPA #48
+    BCC def_boss_attack
+    INC 2,X
+    TST sector
+    BNE def_boss_done
+    ; Reach the committed lane during the windup, then attack horizontally.
+    JSR def_move_to_aim
+    JMP def_move_to_aim
+def_boss_attack:
     LDAB sector
     CMPB #1
     BNE def_boss_ram
-    CMPA #64
+    CMPA #72
     BCC def_boss_recover
     LDAB 3,X
-    CMPA #52
+    CMPA #60
     BCC def_boss_sweep_down
     DECB
     BRA def_boss_sweep_store
@@ -696,7 +760,7 @@ def_boss_sweep_store:
     STAB 3,X
     RTS
 def_boss_ram:
-    CMPA #48
+    CMPA #56
     BCC def_boss_retreat
     LDAB 2,X
     LDAA sector
@@ -708,12 +772,9 @@ def_ram_small:
     SUBB #15
 def_ram_store:
     STAB 2,X
-    LDAA sector
-    CMPA #2
-    BEQ def_boss_done
-    JMP def_move_to_aim
+    RTS
 def_boss_retreat:
-    CMPA #64
+    CMPA #72
     BCC def_boss_recover
     LDAB 2,X
     CMPB #152
@@ -726,24 +787,24 @@ def_boss_return_x:
     STAB 2,X
     RTS
 def_boss_recover:
-    LDAB 1,X
-    CMPB #9
-    BHI def_boss_slow
-    CMPA #72
-    BCS def_boss_done
-    BRA def_boss_reset
-def_boss_slow:
-    CMPA #80
-    BCS def_boss_done
-def_boss_reset:
+    LDAA #152
+    STAA 2,X
+    LDAA 1,X
+    CMPA #10
+    LDAA #88
+    BCS def_boss_period
+    LDAA #96
+def_boss_period:
+    CMPA 4,X
+    BHI def_boss_done
     CLR 4,X
+def_boss_done:
     RTS
-def_boss_lock:
+def_capture_aim:
     LDAA ship_x
     STAA 6,X
     LDAA ship_y
     STAA 5,X
-def_boss_done:
     RTS
 def_boss_drop:
     TST item
@@ -830,9 +891,9 @@ def_hit_damage:
     LDAA 0,X
     CMPA #5
     BNE def_hit_hp
-    LDAA 4,X
-    CMPA #48
-    BCC def_core_open
+    LDAA boss_mode
+    CMPA #3
+    BEQ def_core_open
     LDAA sector
     CMPA #2
     BNE def_hit_hp
@@ -1559,8 +1620,7 @@ def_draw_not_warning:
     LDAA def_tick
     ANDA #63
     STAA p3_yaw
-    LDAA #4
-    STAA p3_pitch
+    CLR p3_aim
     LDX #p3_model_octa
     JMP p3_draw
 def_world:
@@ -1704,6 +1764,7 @@ def_enemy_draw:
     BEQ def_draw_return
     STX def_draw_ptr
     CLR p3_mode
+    CLR p3_aim
     TST 9,X
     BEQ def_enemy_pose
     INC p3_mode
@@ -1731,36 +1792,50 @@ def_enemy_full_size:
     ADDA 2,X
     ANDA #63
     STAA p3_yaw
-    LDAA #8
-    STAA p3_pitch
-    LDAA 0,X
-    CMPA #5
-    BNE def_enemy_diver_pose
-    LDAA boss_mode
-    CMPA #2
-    BNE def_enemy_open_pose
-    LDAA #24
-    STAA p3_pitch
-    CLR p3_yaw
-    BRA def_mesh_kind
-def_enemy_open_pose:
-    CMPA #3
-    BNE def_mesh_kind
-    CLR p3_pitch
-    LDAA #8
-    STAA p3_yaw
-    BRA def_mesh_kind
-def_enemy_diver_pose:
-    LDAA 0,X
-    CMPA #2
-    BNE def_mesh_kind
     LDAA 4,X
-    CMPA #12
+    BMI def_mesh_kind
+    LDAB 0,X
+    CMPB #5
+    BEQ def_boss_pose
+    CMPB #4
+    BEQ def_mesh_kind
+    CMPB #2
+    BEQ def_diver_pose
+    CMPB #6
+    BCS def_gun_pose
+    LDAB sector
+    CMPB #2
+    BNE def_mesh_kind
+def_gun_pose:
+    JSR def_gun_age
+    CMPA #8
     BCS def_mesh_kind
-    ; The diver leans forward during the warning and committed charge.
-    LDAA #24
-    STAA p3_pitch
+    CMPA #20
+    BCC def_mesh_kind
+    BRA def_aim_pose
+def_diver_pose:
+    CMPA #8
+    BCS def_mesh_kind
+    CMPA #40
+    BCS def_aim_pose
+    CMPA #48
+    BCC def_mesh_kind
+    BRA def_open_pose
+def_boss_pose:
+    LDAA boss_mode
+    CMPA #3
+    BEQ def_open_pose
+    LDAA 4,X
+    CMPA #8
+    BCS def_mesh_kind
+def_aim_pose:
     CLR p3_yaw
+    LDAA #1
+    STAA p3_aim
+    BRA def_mesh_kind
+def_open_pose:
+    LDAA #4
+    STAA p3_yaw
 def_mesh_kind:
     LDAA sector
     CMPA #2
@@ -1772,6 +1847,8 @@ def_mesh_kind:
     LDAA #1
     STAA facet_double
 def_factory_mesh:
+    LDAA p3_mode
+    STAA facet_wire
     LDAA p3_x
     STAA facet_x
     LDAA p3_y
@@ -1786,6 +1863,7 @@ def_factory_mesh:
     LDX 0,X
     JSR facet_mesh
     CLR facet_double
+    CLR facet_wire
     BRA def_mesh_finished
 def_standard_mesh:
     LDAA 0,X
@@ -1811,73 +1889,19 @@ def_mesh_draw:
     JSR p3_draw
 def_mesh_finished:
     CLR p3_mode
-    ; Short bar above the enemy is a persistent aim/charge warning.
     LDX def_draw_ptr
-    LDAA 4,X
-    BPL def_warning_active
+    LDAA 0,X
+    CMPA #5
+    BNE def_mesh_done
+    LDAA boss_mode
+    CMPA #3
+    BNE def_mesh_done
+    ; A separate shaded core becomes visible in the recovery posture.
+    LDX #facet_core_poses
+    LDX 0,X
+    JSR facet_mesh
+def_mesh_done:
     RTS
-def_warning_active:
-    LDAB 0,X
-    CMPB #4
-    BNE def_far_9
-    JMP def_draw_return
-def_far_9:
-    CMPB #5
-    BEQ def_boss_warning
-    CMPA #8
-    BCC def_far_10
-    JMP def_draw_return
-def_far_10:
-    CMPA #20
-    BCS def_warning
-    CMPB #3
-    BEQ def_parent_warning
-    CMPB #2
-    BNE def_far_11
-    JMP def_draw_return
-def_far_11:
-    CMPA #40
-    BCC def_far_12
-    JMP def_draw_return
-def_far_12:
-    CMPA #52
-    BCS def_warning
-    RTS
-def_parent_warning:
-    CMPA #24
-    BCS def_warning
-    RTS
-def_boss_warning:
-    CMPA #8
-    BCC def_far_13
-    JMP def_draw_return
-def_far_13:
-    CMPA #16
-    BCS def_warning
-    CMPA #32
-    BCC def_far_6
-    JMP def_draw_return
-def_far_6:
-    CMPA #40
-    BCS def_far_7
-    JMP def_draw_return
-def_far_7:
-def_warning:
-    LDAA 2,X
-    SUBA #5
-    STAA def_line
-    ADDA #10
-    STAA def_line + 2
-    LDAA 3,X
-    SUBA #7
-    CMPA #8
-    BCC def_warning_y
-    LDAA #8
-def_warning_y:
-    STAA def_line + 1
-    STAA def_line + 3
-    LDX #def_line
-    JMP p3_line
 
 def_shot_draw:
     TST 0,X

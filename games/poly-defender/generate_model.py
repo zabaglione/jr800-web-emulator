@@ -29,11 +29,12 @@ author.MODELS['scout'] = {
 }
 author.MODELS['rotor'] = {'vertices': [(0,22,0),(0,-22,0),(-20,0,0),(20,0,0),(0,0,20),(0,0,-20)],'faces': [(0,2,4),(0,4,3),(0,3,5),(0,5,2),(1,4,2),(1,3,4),(1,5,3),(1,2,5)]}
 models=author.meshes()
-def project(name,yaw,pitch,scale):
+def project(name,yaw,pitch,scale,roll=0):
     cy,sy=math.cos(yaw),math.sin(yaw);cp,sp=math.cos(pitch),math.sin(pitch)
     def rotate(v):
         x,y,z=v;x,z=x*cy+z*sy,z*cy-x*sy
-        return x,y*cp-z*sp,y*sp+z*cp
+        y,z=y*cp-z*sp,y*sp+z*cp
+        return x*math.cos(roll)-y*math.sin(roll),x*math.sin(roll)+y*math.cos(roll),z
     vertices=[(round(rotate(v)[0]*scale),round(-rotate(v)[1]*scale)) for v in models[name]['vertices']]
     faces=[]
     for face in models[name]['faces']:
@@ -49,7 +50,9 @@ def project(name,yaw,pitch,scale):
 poses={'ship':[project('fighter',0,p,1) for p in (0,-.48,.48)],
        'scout':[project('scout',i*math.tau/8,.6,.35) for i in range(8)],
        'rotor':[project('rotor',i*math.pi/8,.35,.5) for i in range(4)],
-       'guardian':[project('prism',i*math.tau/4,.35,.5) for i in range(4)]}
+       'guardian':[project('prism',i*math.tau/4,.35,.5) for i in range(4)],
+       'aim':[project('scout',0,.6,.3,math.pi/2)],
+       'core':[project('rotor',math.pi/4,0,.15)]}
 def columns(face):
     shade,*xy=face;points=list(zip(xy[::2],xy[1::2]));left=min(x for x,y in points);right=max(x for x,y in points)
     edges={x:[] for x in range(left,right+1)}
@@ -61,7 +64,8 @@ def columns(face):
     return [shade,left,right-left+1,min(y for x,y in points),max(y for x,y in points),*[v for values in edges.values() for v in (min(values),max(values))]]
 lines=['; SPDX-License-Identifier: MIT','; Polygon column boundaries and shades, no stored pixel colors.']
 for kind,frames in poses.items():
-    lines+=['.section '+('.geometry' if kind in ('rotor','guardian') else '.data')+', data']
+    section='.cues' if kind in ('aim','core') else '.geometry' if kind in ('rotor','guardian') else '.data'
+    lines+=['.section '+section+', data']
     lines+=['.global facet_'+kind+'_poses','facet_'+kind+'_poses: .word '+','.join('facet_'+kind+'_'+str(i) for i in range(len(frames)))]
     for i,faces in enumerate(frames):
         lines+=['facet_'+kind+'_'+str(i)+': .byte '+str(len(faces))]
@@ -76,4 +80,4 @@ content=json.dumps(poses,indent=2)+'\n'
 if args.check:
     if path.read_text()!=content:raise SystemExit('Stale projected face oracle')
 else:path.write_text(content)
-print('Verified 19 original geometry poses.' if args.check else 'Generated 19 original geometry poses.')
+print(('Verified' if args.check else 'Generated')+' '+str(sum(map(len,poses.values())))+' original geometry poses.')

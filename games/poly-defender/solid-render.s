@@ -4,10 +4,11 @@
 .global p3_begin
 .global p3_draw
 .global p3_line
+.global p3_dashed_line
 .global p3_x
 .global p3_y
 .global p3_yaw
-.global p3_pitch
+.global p3_aim
 .global p3_scale
 .global p3_mode
 .global p3_error
@@ -30,6 +31,7 @@
 .extern facet_scout_poses
 .extern facet_rotor_poses
 .extern facet_guardian_poses
+.extern facet_aim_poses
 .extern framebuffer
 .extern input_poll
 .section .text, code
@@ -60,8 +62,14 @@ solid_small:
     LSRA
     LDAB solid_kind
     BNE solid_octa
+    TST p3_aim
+    BNE solid_aim
     ANDA #7
     LDX #facet_scout_poses
+    BRA solid_pose
+solid_aim:
+    CLRA
+    LDX #facet_aim_poses
     BRA solid_pose
 solid_octa:
     ANDA #3
@@ -82,6 +90,12 @@ solid_pose:
     CLR facet_wire
     RTS
 
+; The beam's preview uses 4-pixel dashes along its actual firing line.
+p3_dashed_line:
+    INC line_dashed
+    JSR p3_line
+    CLR line_dashed
+    RTS
 ; Inclusive integer line, endpoints x=0..191, y=0..63. Viewport clips y.
 p3_line:
     LDAA 0,X
@@ -178,6 +192,8 @@ line_horizontal:
     LDAB facet_right
     SUBB facet_left
     INCB
+    TST line_dashed
+    BNE line_dash_loop
 line_horizontal_loop:
     LDAA 0,X
     ORAA line_bit
@@ -185,6 +201,19 @@ line_horizontal_loop:
     INX
     DECB
     BNE line_horizontal_loop
+    RTS
+line_dash_loop:
+    LDAA line_x
+    BITA #4
+    BNE line_dash_skip
+    LDAA 0,X
+    ORAA line_bit
+    STAA 0,X
+line_dash_skip:
+    INX
+    INC line_x
+    DECB
+    BNE line_dash_loop
     RTS
 line_address:
     LDAA line_y
@@ -223,7 +252,9 @@ line_polled:
     STAA 0,X
 line_advance:
     TST line_count
-    BEQ line_done
+    BNE line_continue
+    RTS
+line_continue:
     DEC line_count
     LDAA line_ex
     ADDA line_dx_value
@@ -259,7 +290,7 @@ line_bits: .byte 1,2,4,8,16,32,64,128
 p3_x: .space 1
 p3_y: .space 1
 p3_yaw: .space 1
-p3_pitch: .space 1
+p3_aim: .space 1
 p3_scale: .space 1
 p3_mode: .space 1
 p3_error: .space 1
@@ -278,3 +309,4 @@ line_ex: .space 1
 line_ey: .space 1
 line_bit: .space 1
 line_pointer: .space 2
+line_dashed: .space 1
