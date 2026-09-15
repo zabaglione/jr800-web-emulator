@@ -9,6 +9,28 @@
 .global app_draw
 .global phase
 .global stage
+.global sector
+.global charge
+.global message_ticks
+.global score_hi
+.extern campaign_update
+.extern campaign_draw
+.extern campaign_reset
+.extern campaign_rush
+.extern campaign_busy
+.extern gates
+.extern gate_left
+.extern swarm
+.extern music_tick
+.global def_damage
+.global def_add_score
+.global def_drop
+.global def_drop_kind
+.global def_drop_x
+.global def_drop_y
+.global def_line
+.global def_enemy_ptr
+.global def_new_generation
 .global score
 .global hull
 .global weapon
@@ -35,6 +57,7 @@
 .extern dirty_all
 .extern scene_clear
 .extern text
+.extern glyph
 .extern framebuffer
 .extern ui_footer
 .extern ui_number
@@ -56,6 +79,7 @@
 .extern p3_mode
 .extern p3_model_tetra
 .extern p3_model_octa
+.extern p3_model_prism
 .section .text, code
 app_init:
     JSR def_audio_init
@@ -114,7 +138,9 @@ def_wait_done:
     INC def_tick
     LDAA input_event
     ANDA #48
-    BEQ def_idle
+    BNE def_branch_1
+    JMP def_idle
+def_branch_1:
     JMP def_new
 def_idle:
     RTS
@@ -130,12 +156,38 @@ def_tick_shield:
     BEQ def_controls_update
     DEC invulnerable
 def_controls_update:
+    TST message_ticks
+    BEQ def_charge_tick
+    DEC message_ticks
+    BNE def_charge_tick
+    JSR def_footer
+def_charge_tick:
+    TST fire_enabled
+    BNE def_controls_input
+    LDAA charge
+    CMPA #18
+    BCC def_controls_input
+    INC charge
+    LDAA charge
+    CMPA #18
+    BNE def_controls_input
+    JSR def_footer
+def_controls_input:
     LDAA input_event
     BITA #16
     BEQ def_move
     LDAA fire_enabled
     EORA #1
     STAA fire_enabled
+    BEQ def_charge_begin
+    LDAA charge
+    CMPA #18
+    BCS def_charge_begin
+    LDAA #1
+    STAA burst_pending
+    CLR def_cooldown
+def_charge_begin:
+    CLR charge
     JSR def_footer
 def_move:
     LDAA input_held
@@ -149,13 +201,47 @@ def_move:
     STAB ship_y
 def_move_down:
     BITA #2
-    BEQ def_update_shots
+    BEQ def_move_left
     LDAB ship_y
     CMPB #48
-    BCC def_update_shots
+    BCC def_move_left
     ADDB #2
     STAB ship_y
+def_move_left:
+    BITA #4
+    BEQ def_move_right
+    LDAB ship_x
+    CMPB #16
+    BLS def_move_right
+    SUBB #2
+    STAB ship_x
+def_move_right:
+    BITA #8
+    BEQ def_update_shots
+    LDAB ship_x
+    CMPB #112
+    BCC def_update_shots
+    ADDB #2
+    STAB ship_x
 def_update_shots:
+    CLRA
+    LDAB ship_x
+    CMPB #72
+    BCS def_bonus_zone
+    INCA
+def_bonus_zone:
+    CMPA front_zone
+    BEQ def_bonus_ready
+    STAA front_zone
+    JSR def_footer
+def_bonus_ready:
+    JSR music_tick
+    JSR campaign_update
+    LDAA phase
+    CMPA #1
+    BEQ def_update_projectiles
+    RTS
+def_update_projectiles:
     LDX #shots
     JSR def_shot_move
     LDX #shots + 4
@@ -167,7 +253,9 @@ def_update_shots:
     JSR def_enemy_update
     LDAA phase
     CMPA #1
-    BNE def_idle
+    BEQ def_branch_2
+    JMP def_idle
+def_branch_2:
     LDX #enemies + 10
     LDAA #2
     STAA def_enemy_bit
@@ -231,11 +319,21 @@ def_find_shot:
 def_fire_slot:
     LDAA #1
     STAA 0,X
-    LDAA #32
+    LDAA ship_x
+    ADDA #8
     STAA 1,X
     LDAA ship_y
     STAA 2,X
     CLR 3,X
+    TST burst_pending
+    BEQ def_regular_shot
+    CLR burst_pending
+    LDAA #192
+    STAA 3,X
+    LDAA #14
+    JSR def_audio_request
+    BRA def_fire_delay
+def_regular_shot:
     LDAA weapon
     CMPA #3
     BNE def_fire_delay
@@ -255,7 +353,9 @@ def_enemy_update:
 def_enemy_live:
     STX def_enemy_ptr
     LDAA 4,X
-    BMI def_enter
+    BPL def_branch_3
+    JMP def_enter
+def_branch_3:
     INC 4,X
     TST 9,X
     BEQ def_enemy_kind
@@ -271,13 +371,19 @@ def_not_boss:
     BNE def_not_parent
     LDAA 4,X
     CMPA #12
-    BEQ def_lock_enemy
+    BNE lock_far_1
+    JMP def_lock_enemy
+lock_far_1:
     CMPA #24
-    BEQ def_shoot_enemy
+    BNE def_branch_4
+    JMP def_shoot_enemy
+def_branch_4:
     CMPA #48
-    BCS def_enemy_collisions
+    BCC def_branch_5
+    JMP def_enemy_collisions
+def_branch_5:
     CLR 4,X
-    BRA def_enemy_collisions
+    JMP def_enemy_collisions
 def_not_parent:
     CMPA #4
     BNE def_regular
@@ -293,40 +399,76 @@ def_fragment_turn:
     NEG 6,X
 def_fragment_x:
     DEC 2,X
-    BRA def_enemy_collisions
+    JMP def_enemy_collisions
 def_regular:
+    LDAB 0,X
+    CMPB #6
+    BCS def_regular_old
+    LDAA 2,X
+    SUBA #2
+    CMPB #7
+    BNE def_weave_x
+    SUBA #2
+def_weave_x:
+    STAA 2,X
+    LDAA 3,X
+    ADDA 6,X
+    STAA 3,X
+    CMPA #18
+    BLS def_weave_turn
+    CMPA #46
+    BCS def_weave_done
+def_weave_turn:
+    NEG 6,X
+def_weave_done:
+    JMP def_enemy_collisions
+def_regular_old:
     LDAA 4,X
     CMPA #8
-    BEQ def_lock_enemy
+    BNE lock_far_2
+    JMP def_lock_enemy
+lock_far_2:
     CMPA #20
-    BEQ def_shoot_enemy
+    BNE def_branch_6
+    JMP def_shoot_enemy
+def_branch_6:
     LDAB 0,X
     CMPB #2
     BEQ def_diver
     CMPA #40
-    BEQ def_lock_enemy
+    BNE lock_far_3
+    JMP def_lock_enemy
+lock_far_3:
     CMPA #52
-    BEQ def_shoot_enemy
+    BNE def_branch_7
+    JMP def_shoot_enemy
+def_branch_7:
     CMPA #64
-    BCS def_enemy_collisions
+    BCC def_branch_8
+    JMP def_enemy_collisions
+def_branch_8:
     CLR 4,X
-    BRA def_enemy_collisions
+    JMP def_enemy_collisions
 def_diver:
     CMPA #24
-    BCS def_enemy_collisions
+    BCC def_branch_9
+    JMP def_enemy_collisions
+def_branch_9:
     LDAA 2,X
     SUBA #3
     STAA 2,X
     ; A dive commits to the warned lane; it does not track the player.
     JSR def_move_to_aim
-    BRA def_enemy_collisions
+    JMP def_enemy_collisions
 def_lock_enemy:
+    LDAA ship_x
+    STAA 6,X
     LDAA ship_y
     STAA 5,X
-    BRA def_enemy_collisions
+    JMP def_enemy_collisions
 def_shoot_enemy:
     JSR def_launch_bolt
-    BRA def_enemy_collisions
+    JMP def_enemy_collisions
 def_enter:
     ; Approach from a tiny distant point at the right edge, growing as it enters.
     LDAA 2,X
@@ -345,8 +487,12 @@ def_enemy_collisions:
     TST 0,X
     BEQ def_enemy_return
     LDAA 2,X
-    CMPA #36
-    BHI def_enemy_shots
+    SUBA ship_x
+    BPL def_body_dx
+    NEGA
+def_body_dx:
+    CMPA #13
+    BHI def_enemy_escape_check
     LDAA 3,X
     SUBA ship_y
     BPL def_body_distance
@@ -436,6 +582,31 @@ def_boss_mode_bounded:
     LDAA #1
     STAA hud_dirty
 def_boss_pattern:
+    TST sector
+    BEQ def_boss_no_laser
+    LDAA 4,X
+    CMPA #28
+    BCS def_boss_no_laser
+    CMPA #33
+    BCC def_boss_no_laser
+    LDAA #15
+    JSR def_audio_request
+    LDAA ship_x
+    ADDA #8
+    CMPA 2,X
+    BCC def_boss_no_laser
+    LDAA ship_y
+    SUBA 5,X
+    BPL def_laser_dy
+    NEGA
+def_laser_dy:
+    CMPA #5
+    BHI def_boss_no_laser
+    LDAA #4
+    STAA hit_cause
+    JSR def_damage
+    LDX def_enemy_ptr
+def_boss_no_laser:
     LDAA 4,X
     CMPA #8
     BEQ def_boss_lock
@@ -449,10 +620,26 @@ def_boss_pattern:
 def_boss_second:
     CMPA #28
     BEQ def_boss_fire
-    CMPA #32
+    CMPA #34
     BEQ def_boss_lock
     CMPA #40
     BCS def_boss_done
+    LDAB sector
+    CMPB #1
+    BNE def_boss_ram
+    CMPA #64
+    BCC def_boss_recover
+    LDAB 3,X
+    CMPA #52
+    BCC def_boss_sweep_down
+    DECB
+    BRA def_boss_sweep_store
+def_boss_sweep_down:
+    INCB
+def_boss_sweep_store:
+    STAB 3,X
+    RTS
+def_boss_ram:
     CMPA #48
     BCC def_boss_retreat
     LDAB 2,X
@@ -486,6 +673,8 @@ def_boss_reset:
     CLR 4,X
     RTS
 def_boss_lock:
+    LDAA ship_x
+    STAA 6,X
     LDAA ship_y
     STAA 5,X
 def_boss_done:
@@ -529,10 +718,14 @@ def_boss_drop_done:
 ; Shot is tested once per enemy generation, including piercing and the boss.
 def_shot_hit:
     TST 0,X
-    BEQ def_hit_return
+    BNE def_branch_10
+    JMP def_hit_return
+def_branch_10:
     LDAA 3,X
     BITA def_enemy_bit
-    BNE def_hit_return
+    BEQ def_branch_11
+    JMP def_hit_return
+def_branch_11:
     STX def_shot_ptr
     LDAA 1,X
     LDX def_enemy_ptr
@@ -541,7 +734,9 @@ def_shot_hit:
     NEGA
 def_hit_dx:
     CMPA def_radius
-    BHI def_hit_return
+    BLS def_branch_12
+    JMP def_hit_return
+def_branch_12:
     LDX def_shot_ptr
     LDAA 2,X
     LDX def_enemy_ptr
@@ -550,7 +745,9 @@ def_hit_dx:
     NEGA
 def_hit_dy:
     CMPA def_radius
-    BHI def_hit_return
+    BLS def_branch_13
+    JMP def_hit_return
+def_branch_13:
     LDAB #1
     LDX def_shot_ptr
     LDAA 3,X
@@ -559,6 +756,9 @@ def_hit_dy:
     BITA #128
     BEQ def_consume_shot
     INCB
+    BITA #64
+    BEQ def_hit_damage
+    LDAB #5
     BRA def_hit_damage
 def_consume_shot:
     CLR 0,X
@@ -569,7 +769,15 @@ def_hit_damage:
     BNE def_hit_hp
     LDAA 4,X
     CMPA #48
-    BCS def_hit_hp
+    BCC def_core_open
+    LDAA sector
+    CMPA #2
+    BNE def_hit_hp
+    CMPB #5
+    BCC def_hit_hp
+    LDAA #2
+    JMP def_audio_request
+def_core_open:
     INCB
     ; Recovery rewards attacking rather than moving out to collect an item.
 def_hit_hp:
@@ -693,7 +901,8 @@ def_bolt_slot:
     CLRA
     LDAB def_bolt_origin_x
     STD def_velocity
-    LDD #24
+    CLRA
+    LDAB 6,X
     SUBD def_velocity
     ASRA
     RORB
@@ -748,9 +957,11 @@ def_bolt_dy_positive:
     LSRD
     LSRD
     LSRD
-    CMPB #19
-    BCS def_bolt_done
-    CMPB #29
+    SUBB ship_x
+    BPL def_bolt_dx
+    NEGB
+def_bolt_dx:
+    CMPB #5
     BHI def_bolt_done
     LDD 3,X
     LSRD
@@ -782,6 +993,10 @@ def_damage:
     TST shield
     BEQ def_damage_hull
     CLR shield
+    LDAA #20
+    STAA message_ticks
+    LDX #def_shield_broken
+    JSR ui_footer
     LDAA #6
     JMP def_audio_request
 def_damage_hull:
@@ -810,6 +1025,13 @@ def_hurt_cue:
     CMPA #1
     BEQ def_hurt_label
     LDX #def_hit_body
+    CMPA #3
+    BNE def_not_wall_hit
+    LDX #def_hit_wall
+def_not_wall_hit:
+    CMPA #4
+    BNE def_hurt_label
+    LDX #def_hit_laser
 def_hurt_label:
     JSR ui_footer
 def_damage_done:
@@ -848,7 +1070,11 @@ def_item_update:
     STAA item + 1
     CMPA #12
     BLS def_item_expire
-    CMPA #31
+    SUBA ship_x
+    BPL def_item_dx
+    NEGA
+def_item_dx:
+    CMPA #8
     BHI def_item_done
     LDAA item + 2
     SUBA ship_y
@@ -882,10 +1108,21 @@ def_item_done:
     RTS
 
 def_add_score:
+    LDAB ship_x
+    CMPB #72
+    BCS def_score_normal
+    ASLA
+def_score_normal:
     ADDA score
-    CMPA #99
-    BLS def_score_store
+    CMPA #100
+    BCS def_score_store
+    SUBA #100
+    INC score_hi
+    LDAB score_hi
+    CMPB #100
+    BCS def_score_store
     LDAA #99
+    STAA score_hi
 def_score_store:
     STAA score
     LDAA #1
@@ -894,6 +1131,20 @@ def_score_store:
 
 ; Waves own the enemy slots: patrol -> splitter -> rush -> boss.
 def_waves:
+    LDAA stage
+    CMPA #2
+    BNE def_wave_regular
+    JSR campaign_rush
+    TST campaign_busy
+    BNE def_wave_return_far
+    TST item
+    BNE def_wave_return_far
+    INC stage
+    JSR def_stage_header
+    JMP def_start_boss
+def_wave_return_far:
+    RTS
+def_wave_regular:
     LDAA stage
     CMPA #3
     BNE def_far_3
@@ -930,9 +1181,14 @@ def_spawn_slot:
 def_spawn_gunner:
     LDAA #1
 def_spawn_kind:
+    LDAB sector
+    BEQ def_spawn_original
+    ADDA #5
+def_spawn_original:
     STAA 0,X
     LDAA #1
     STAA 1,X
+    STAA 6,X
     STX def_enemy_ptr
     LDAA spawn_serial
     ANDA #3
@@ -974,13 +1230,18 @@ def_wave_empty:
     BEQ def_start_split
     JMP def_start_boss
 def_wave_split:
+    TST gate_left
+    BNE def_wave_return
+    LDAA gates
+    ORAA gates + 3
+    BNE def_wave_return
     LDAA enemies
     ORAA enemies + 10
     BNE def_wave_return
     TST item
     BNE def_wave_return
     INC stage
-    LDAA #10
+    LDAA #18
     STAA spawn_left
     CLR spawn_delay
     JSR def_stage_header
@@ -990,6 +1251,7 @@ def_wave_return:
 def_wave_boss:
     RTS
 def_start_split:
+    JSR campaign_reset
     LDX #enemies
     JSR def_clear_enemy
     LDAA #3
@@ -1030,8 +1292,12 @@ def_boss_enter:
     JSR def_clear_enemy
     LDAA #5
     STAA 0,X
-    LDAA #30
-    STAA 1,X
+    LDAB sector
+    LDX #def_boss_hp
+    ABX
+    LDAA 0,X
+    STAA enemies + 1
+    LDX #enemies
     LDAA #188
     STAA 2,X
     LDAA #32
@@ -1040,6 +1306,7 @@ def_boss_enter:
     STAA 7,X
     LDAA #128
     STAA 4,X
+    CLR boss_drop_mask
     CLR boss_mode
     LDAA #255
     STAA def_last_boss_mode
@@ -1099,10 +1366,16 @@ def_clear_state:
     STAA ship_y
     LDAA #4
     STAA spawn_left
+    JSR campaign_reset
     LDAA input_ticks
     STAA def_clock
     JSR def_redraw_header
-    LDX #def_ready
+def_sector_ready:
+    LDAB sector
+    ASLB
+    LDX #def_sector_names
+    ABX
+    LDX 0,X
     JSR ui_footer
     LDAA #4
     STAA phase
@@ -1114,6 +1387,7 @@ def_clear_state:
 def_redraw_header:
     LDAA #255
     STAA def_last_score
+    STAA def_last_score_hi
     STAA def_last_hull
     STAA def_last_weapon
     STAA def_last_shield
@@ -1124,12 +1398,24 @@ def_redraw_header:
     JMP def_stage_header
 
 def_footer:
+    TST message_ticks
+    BNE def_footer_done
     LDX #def_auto_on
+    TST front_zone
+    BEQ def_footer_fire
+    LDX #def_front_on
+def_footer_fire:
     TST fire_enabled
     BNE def_footer_write
     LDX #def_auto_off
+    LDAA charge
+    CMPA #18
+    BCS def_footer_write
+    LDX #def_burst_ready
 def_footer_write:
     JMP ui_footer
+def_footer_done:
+    RTS
 
 def_stage_header:
     LDX #framebuffer + 108
@@ -1146,8 +1432,15 @@ def_header_clear:
     TAB
     ABX
     LDX 0,X
-    LDD #framebuffer + 108
+    LDD #framebuffer + 132
     JSR text
+    LDAA #47
+    LDX #framebuffer + 108
+    JSR glyph
+    LDAA sector
+    ADDA #49
+    LDX #framebuffer + 114
+    JSR glyph
     LDAA dirty_min
     CMPA #108
     BLS def_stage_mark_max
@@ -1190,32 +1483,39 @@ def_world:
     JMP def_geometry
 def_far_8:
     CLR hud_dirty
+    LDAA score_hi
+    CMPA def_last_score_hi
+    BEQ def_hud_score_low
+    STAA def_last_score_hi
+    LDX #framebuffer + 12
+    JSR ui_number
+def_hud_score_low:
     LDAA score
     CMPA def_last_score
     BEQ def_hud_hull
     STAA def_last_score
-    LDX #framebuffer + 12
+    LDX #framebuffer + 24
     JSR ui_number
 def_hud_hull:
     LDAA hull
     CMPA def_last_hull
     BEQ def_hud_weapon
     STAA def_last_hull
-    LDX #framebuffer + 36
+    LDX #framebuffer + 48
     JSR ui_number
 def_hud_weapon:
     LDAA weapon
     CMPA def_last_weapon
     BEQ def_hud_shield
     STAA def_last_weapon
-    LDX #framebuffer + 60
+    LDX #framebuffer + 72
     JSR ui_number
 def_hud_shield:
     LDAA shield
     CMPA def_last_shield
     BEQ def_hud_boss
     STAA def_last_shield
-    LDX #framebuffer + 84
+    LDX #framebuffer + 96
     JSR ui_number
 def_hud_boss:
     LDAA stage
@@ -1225,7 +1525,7 @@ def_hud_boss:
     CMPA def_last_boss_hp
     BEQ def_hud_boss_mode
     STAA def_last_boss_hp
-    LDX #framebuffer + 138
+    LDX #framebuffer + 144
     JSR ui_number
 def_hud_boss_mode:
     LDAA boss_mode
@@ -1233,6 +1533,12 @@ def_hud_boss_mode:
     BEQ def_geometry
     STAA def_last_boss_mode
     ASLA
+    STAA def_tmp
+    LDAA sector
+    ASLA
+    ASLA
+    ASLA
+    ADDA def_tmp
     TAB
     LDX #def_boss_names
     ABX
@@ -1250,6 +1556,7 @@ def_boss_mark_max:
     LDAA #1
     STAA dirty_pending
 def_geometry:
+    JSR campaign_draw
     ; Draw the farther enemy first if their screen-space silhouettes overlap.
     LDAA enemies + 3
     CMPA enemies + 13
@@ -1279,7 +1586,8 @@ def_ship_visible:
     JSR def_ship_draw
     TST shield
     BEQ def_draw_particles
-    LDAA #17
+    LDAA ship_x
+    SUBA #7
     STAA def_line
     STAA def_line + 2
     LDAA ship_y
@@ -1373,7 +1681,17 @@ def_mesh_kind:
     CMPA #3
     BEQ def_mesh_octa
     CMPA #5
-    BEQ def_mesh_octa
+    BEQ def_boss_mesh
+    LDX #p3_model_tetra
+    BRA def_mesh_draw
+def_boss_mesh:
+    LDAA sector
+    BEQ def_boss_tetra
+    CMPA #1
+    BNE def_mesh_octa
+    LDX #p3_model_prism
+    BRA def_mesh_draw
+def_boss_tetra:
     LDX #p3_model_tetra
     BRA def_mesh_draw
 def_mesh_octa:
@@ -1457,6 +1775,21 @@ def_shot_draw:
     ADDA #4
     STAA def_line + 2
     LDAA 2,X
+    STAA def_line + 1
+    STAA def_line + 3
+    LDAA 3,X
+    STAA def_tmp
+    LDX #def_line
+    JSR p3_line
+    LDAA def_tmp
+    BITA #64
+    BEQ def_particle_return
+    DEC def_line + 1
+    DEC def_line + 3
+    LDX #def_line
+    JSR p3_line
+    LDAA def_line + 1
+    ADDA #2
     STAA def_line + 1
     STAA def_line + 3
     LDX #def_line
@@ -1569,9 +1902,11 @@ def_ship_span:
     LDX #def_ship_widths
     ABX
     LDAA 0,X
-    ADDA #19
+    ADDA ship_x
+    SUBA #5
     STAA def_line + 2
-    LDAA #19
+    LDAA ship_x
+    SUBA #5
     STAA def_line
     LDAA ship_y
     SUBA #3
@@ -1585,9 +1920,10 @@ def_ship_span:
     CMPA #7
     BCS def_ship_span
     ; Short alternating exhaust provides a motion cue at almost no LCD cost.
-    LDAA #14
+    LDAA ship_x
+    SUBA #10
     STAA def_line
-    LDAA #17
+    ADDA #3
     STAA def_line + 2
     LDAA ship_y
     STAA def_line + 1
@@ -1603,16 +1939,22 @@ def_ship_exhaust:
 ; Presentation phases: 4 ready,5 warning,6 damage,7 death,8 boss explosion.
 def_pause_update:
     DEC pause_ticks
-    BNE def_pause_done
+    BEQ def_branch_14
+    JMP def_pause_done
+def_branch_14:
     LDAA phase
     CMPA #4
-    BEQ def_ready_done
+    BNE def_branch_15
+    JMP def_ready_done
+def_branch_15:
     CMPA #5
     BNE def_pause_not_warning
     JMP def_boss_enter
 def_pause_not_warning:
     CMPA #6
-    BEQ def_resume
+    BNE def_branch_16
+    JMP def_resume
+def_branch_16:
     CMPA #7
     BNE def_clear_result
     LDAA #3
@@ -1623,6 +1965,42 @@ def_pause_not_warning:
     LDX #def_lose
     BRA def_result
 def_clear_result:
+    LDAA sector
+    CMPA #2
+    BCC def_campaign_clear
+    INC sector
+    LDAA hull
+    CMPA #3
+    BCC def_sector_keep_hull
+    INC hull
+def_sector_keep_hull:
+    CLR stage
+    CLR enemies
+    CLR enemies + 10
+    CLR shots
+    CLR shots + 4
+    CLR bolts
+    CLR bolts + 8
+    CLR item
+    CLR fx_age
+    CLR invulnerable
+    CLR spawn_serial
+    CLR spawn_delay
+    CLR message_ticks
+    CLR front_zone
+    CLR charge
+    CLR burst_pending
+    JSR campaign_reset
+    LDAA #4
+    STAA spawn_left
+    LDAA #24
+    STAA ship_x
+    LDAA #32
+    STAA ship_y
+    JSR scene_clear
+    JSR def_redraw_header
+    JMP def_sector_ready
+def_campaign_clear:
     LDAA #2
     STAA phase
     LDAA #11
@@ -1635,8 +2013,11 @@ def_result:
     LDX #def_score_label
     LDD #framebuffer
     JSR text
-    LDAA score
+    LDAA score_hi
     LDX #framebuffer + 12
+    JSR ui_number
+    LDAA score
+    LDX #framebuffer + 24
     JSR ui_number
     LDX #def_retry
     JMP ui_footer
@@ -1713,7 +2094,7 @@ def_hit_effect:
     BCS def_effect_done
     CMPA #7
     BHI def_effect_done
-    LDAA #24
+    LDAA ship_x
     STAA def_drop_x
     LDAA ship_y
     STAA def_drop_y
@@ -1789,6 +2170,13 @@ def_warning_draw:
 def_state_begin:
 phase: .space 1
 stage: .space 1
+sector: .space 1
+score_hi: .space 1
+charge: .space 1
+front_zone: .space 1
+burst_pending: .space 1
+message_ticks: .space 1
+def_last_score_hi: .space 1
 score: .space 1
 hull: .space 1
 weapon: .space 1
@@ -1845,15 +2233,15 @@ def_state_end:
 ; POLY DEFENDER
 def_title: .byte 80,79,76,89,32,68,69,70,69,78,68,69,82,0
 ; COLLECT W/+  SURVIVE THE BOSS
-def_intro: .byte 67,79,76,76,69,67,84,32,87,47,43,32,32,83,85,82,86,73,86,69,32,84,72,69,32,66,79,83,83,0
+def_intro: .byte 51,32,83,69,67,84,79,82,83,32,45,32,66,82,69,65,75,32,84,72,69,32,67,79,82,69,0
 ; 8/2 MOVE  SPACE/RETURN START
-def_start: .byte 56,47,50,32,77,79,86,69,32,32,83,80,65,67,69,47,82,69,84,85,82,78,32,83,84,65,82,84,0
+def_start: .byte 56,47,50,47,52,47,54,32,77,79,86,69,32,32,82,69,84,85,82,78,32,83,84,65,82,84,0
 ; AUTO ON  8/2 MOVE  SPACE TOGGLE
-def_auto_on: .byte 65,85,84,79,32,79,78,32,32,56,47,50,32,77,79,86,69,32,32,83,80,65,67,69,32,84,79,71,71,76,69,0
+def_auto_on: .byte 65,85,84,79,32,83,80,65,67,69,58,67,72,65,82,71,69,32,83,67,79,82,69,32,88,49,0
 ; AUTO OFF 8/2 MOVE  SPACE TOGGLE
-def_auto_off: .byte 65,85,84,79,32,79,70,70,32,56,47,50,32,77,79,86,69,32,32,83,80,65,67,69,32,84,79,71,71,76,69,0
+def_auto_off: .byte 67,72,65,82,71,73,78,71,32,45,32,83,80,65,67,69,32,84,79,32,70,73,82,69,0
 ; AREA CLEAR
-def_win: .byte 65,82,69,65,32,67,76,69,65,82,0
+def_win: .byte 77,73,83,83,73,79,78,32,67,79,77,80,76,69,84,69,0
 ; GAME OVER
 def_lose: .byte 71,65,77,69,32,79,86,69,82,0
 ; SCORE
@@ -1861,19 +2249,19 @@ def_score_label: .byte 83,67,0
 ; SPACE/RETURN RETRY  BREAK EXIT
 def_retry: .byte 83,80,65,67,69,47,82,69,84,85,82,78,32,82,69,84,82,89,32,32,66,82,69,65,75,32,69,88,73,84,0
 ; SC00 H03 W01 S00
-def_header: .byte 83,67,48,48,32,72,48,51,32,87,48,49,32,83,48,48,0
+def_header: .byte 83,67,48,48,48,48,32,72,48,51,32,87,48,49,32,83,48,48,0
 ; PATROL
-def_stage_patrol: .byte 80,65,84,82,79,76,0
+def_stage_patrol: .byte 83,75,89,0
 ; SPLIT
-def_stage_split: .byte 83,80,76,73,84,0
+def_stage_split: .byte 77,65,90,69,0
 ; RUSH
 def_stage_rush: .byte 82,85,83,72,0
 ; BOSS
-def_stage_boss: .byte 66,79,83,83,0
+def_stage_boss: .byte 66,0
 def_stage_names: .word def_stage_patrol,def_stage_split,def_stage_rush,def_stage_boss
 def_spawn_lanes: .byte 22,42,30,38
 ; W:POWER +:SHIELD HIT:DOWN
-def_rules: .byte 87,58,80,79,87,69,82,32,43,58,83,72,73,69,76,68,32,72,73,84,58,68,79,87,78,0
+def_rules: .byte 87,58,80,79,87,69,82,32,43,58,83,72,73,69,76,68,32,83,80,65,67,69,58,66,85,82,83,84,0
 ; AIM (padded)
 def_boss_aim: .byte 65,73,77,32,0
 ; FIRE
@@ -1883,8 +2271,13 @@ def_boss_dive: .byte 68,73,86,69,0
 ; OPEN
 def_boss_open: .byte 79,80,69,78,0
 def_boss_names: .word def_boss_aim,def_boss_fire_name,def_boss_dive,def_boss_open
+    .word def_boss_aim,def_beam_name,def_sweep_name,def_boss_open
+    .word def_armor_name,def_beam_name,def_boss_dive,def_boss_open
+def_beam_name: .byte 66,69,65,77,0
+def_sweep_name: .byte 83,87,69,80,0
+def_armor_name: .byte 65,82,77,82,0
 ; READY - 8/2 MOVE, AUTO FIRE
-def_ready: .byte 82,69,65,68,89,32,45,32,56,47,50,32,77,79,86,69,44,32,65,85,84,79,32,70,73,82,69,0
+def_ready: .byte 82,69,65,68,89,32,45,32,56,47,50,47,52,47,54,32,77,79,86,69,0
 ; ! BOSS APPROACHING !
 def_warning_title: .byte 33,32,66,79,83,83,32,65,80,80,82,79,65,67,72,73,78,71,32,33,0
 ; WATCH THE AIM - EVADE THEN FIRE
@@ -1896,3 +2289,15 @@ def_hit_body: .byte 72,73,84,32,66,89,32,69,78,69,77,89,32,45,32,73,77,80,65,67,
 ; BOSS DESTROYED
 def_boss_down: .byte 66,79,83,83,32,68,69,83,84,82,79,89,69,68,0
 def_ship_widths: .byte 1,4,8,13,8,4,1
+
+def_shield_broken: .byte 83,72,73,69,76,68,32,66,82,79,75,69,78,32,45,32,69,86,65,68,69,33,0
+def_burst_ready: .byte 66,85,82,83,84,32,82,69,65,68,89,32,45,32,83,80,65,67,69,32,84,79,32,70,73,82,69,0
+def_hit_wall: .byte 72,73,84,32,66,89,32,87,65,76,76,32,45,32,73,77,80,65,67,84,32,77,65,82,75,69,68,32,88,0
+def_hit_laser: .byte 72,73,84,32,66,89,32,76,65,83,69,82,32,45,32,73,77,80,65,67,84,32,77,65,82,75,69,68,32,88,0
+def_sector_1: .byte 83,69,67,84,79,82,32,49,32,45,32,79,85,84,83,75,73,82,84,83,0
+def_sector_2: .byte 83,69,67,84,79,82,32,50,32,45,32,67,82,89,83,84,65,76,32,77,65,90,69,0
+def_sector_3: .byte 83,69,67,84,79,82,32,51,32,45,32,82,69,65,67,84,79,82,32,67,79,82,69,0
+def_sector_names: .word def_sector_1,def_sector_2,def_sector_3
+def_boss_hp: .byte 20,24,30
+
+def_front_on: .byte 65,85,84,79,32,83,80,65,67,69,58,67,72,65,82,71,69,32,83,67,79,82,69,32,88,50,0

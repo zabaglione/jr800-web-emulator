@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 import assert from 'node:assert/strict';
-import {writeFile} from 'node:fs/promises';
+import {readFile,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {fixture} from '../../sdk/examples/lcd/common/poly3d-check.mjs';
-import {state,chooseInput,humanPolicy} from './play-policy.mjs';
+import {state,chooseInput} from './play-policy.mjs';
 import {png} from '../tools/harness.mjs';
 const smoke=process.argv[5]==='smoke';
 if(smoke)process.argv[5]='run';
@@ -26,206 +26,177 @@ f.frame=()=>{
 f.capture=async(name='screen')=>{
     await baseCapture(name);
     const dots=f.machine.lcdPanel().dots;
-    const gallery={'boss-warning':'gameplay-1','boss-fight':'gameplay-2','death-hold':'gameplay-3'};
+    const gallery={'maze-2':'gameplay-1','rush-1':'gameplay-2','laser-3':'gameplay-3'};
     for(const label of [name,gallery[name]].filter(Boolean)){
         await writeFile(resolve(process.argv[3],label+'.png'),png(dots));
         await writeFile(resolve(process.argv[3],label+'-1x.png'),png(dots,1));
     }
 };
-const coverage={phases:new Set(),kinds:new Set(),bossModes:new Set(),audio:new Set(),weapons:new Set(),
-    entries:0,split:0,weaponPickups:0,shieldPickups:0,shieldBlocks:0,hits:0,bulletHits:0,bodyHits:0,
-    downgrades:0,expiredItems:0,piercing:0,recoveryHits:0,aimedBolts:0,frozenFrames:0,invertedFrames:0,
-    maxEnemies:0,maxShots:0,maxBolts:0,maxObjects:0,rage:false};
-const stages=[[],[],[],[]],stress=[],held=new Set(),events=[],checkpoints=[];
-let recording=false,startCycle,frameIndex=0;
+
+const coverage={phases:new Set(),sectors:new Set(),kinds:new Set(),audio:new Set(),bossModes:new Set(),
+    shieldBroken:0,hits:0,laserFrames:0,closedCore:0,burstHits:0,chargeShots:0,gateBlocks:0,
+    shieldPickups:0,weaponPickups:0,forwardFrames:0,backwardFrames:0,maxScouts:0,movingGates:0,
+    frozenFrames:0,entries:0,scoreCarry:false};
+const measures=Array.from({length:3},()=>Array.from({length:4},()=>[]));
+const held=new Set(),events=[],checkpoints=[],captures=new Set();
+let frameIndex=0,recording=false,startCycle=0;
 const now=()=>Number(f.machine.state().cycleCount);
-function key(k,v){if(held.has(k)===v)return;f.key(k,v);if(v)held.add(k);else held.delete(k);
-    if(recording)events.push({cycle:now()-startCycle,key:k,down:v});}
-function release(){for(const k of [...held])key(k,false);}
-function check(p,s) {
-    coverage.phases.add(s.phase);if(s.audio)coverage.audio.add(s.audio);
-    if(s.phase===0)return;
-    if(s.phase===5){
-        const font=f.read('font',320),fb=f.read('framebuffer',1536);
-        for(const [i,c] of [...'! BOSS APPROACHING !'].entries())for(let x=0;x<5;x++)
-            assert.equal(fb[576+39+i*6+x],font[(c.charCodeAt(0)-32)*5+x],'Warning text was erased by moving shutters');
+const immutable=Uint8Array.from(f.machine.memory(0x5200,0x600));
+function keys(wanted=[]) {
+    const next=new Set(wanted);
+    // Same-row multi-key electrical behavior is unresolved. Use the existing S alias
+    // when down and horizontal motion overlap; never change the emulator response.
+    if(next.has("keypad-2") && (next.has("keypad-4") || next.has("keypad-6"))){next.delete("keypad-2");next.add("letter-s");}
+    for(const key of new Set([...held,...next]))if(held.has(key)!==next.has(key)){
+        f.key(key,next.has(key));if(recording)events.push({cycle:now()-startCycle,key,down:next.has(key)});
     }
-    assert.ok(s.hull>=0 && s.hull<=3 && s.weapon>=1 && s.weapon<=3);
-    assert.ok(s.shield===0 || s.shield===1);assert.equal(s.x,24);
-    assert.ok(s.y>=16 && s.y<=48 && s.y%2===0);assert.ok(s.score<=99);
-    const live=s.enemies.filter(e=>e[0]),shots=s.shots.filter(e=>e[0]);
-    coverage.maxEnemies=Math.max(coverage.maxEnemies,live.length);
-    coverage.maxShots=Math.max(coverage.maxShots,shots.length);
-    coverage.maxBolts=Math.max(coverage.maxBolts,s.bolts.length);
-    coverage.maxObjects=Math.max(coverage.maxObjects,live.length+shots.length+s.bolts.length+Number(!!s.item[0]));
-    coverage.weapons.add(s.weapon);
-    assert.ok(live.length<=2 && shots.length<=2 && s.bolts.length<=2);
-    for(const e of live){
-        coverage.kinds.add(e[0]);assert.ok(e[2]>=9 && e[2]<=188 && e[3]>=16 && e[3]<=48);
-        assert.ok(e[1]>0);
-        if(e[0]===3 || e[0]===5)assert.equal(live.length,1);
-    }
-    for(const e of shots)assert.ok(e[1]>=32 && e[1]<=184 && e[2]>=16 && e[2]<=48);
-    if(s.phase===1 && s.stage===3 && !(s.enemies[0][4]&128))coverage.bossModes.add(f.read('boss_mode'));
-    if(p.phase!==1)return;
-    for(let i=0;i<2;i++){
-        const a=p.enemies[i],b=s.enemies[i];
-        if(a[0] && b[0]===a[0] && a[4]&128 && s.phase===1){
-            assert.equal(b[2],Math.max(152,a[2]-3),'Entrance must move smoothly');
-            assert.equal(b[1],a[1],'Enemy cannot be hit before entering');
-            if(!(b[4]&128))coverage.entries++;
-        }
-        const x=p.shots[i],y=s.shots[i];
-        if(x[0] && y[0] && y[1]!==32 && !(a[0]===3 && b[0]===4)){
-            assert.equal(y[1],x[1]+8);assert.equal(y[2],x[2],'Shot must keep its launch lane');
-        }
-        if(y[0] && y[3]&128 && (y[3]&3)&~(x[3]&3))coverage.piercing++;
-    }
-    for(const b of s.bolts) {
-        assert.ok(b.x>=0 && b.x<3072 && b.y>=144 && b.y<864);
-        const previous=p.bolts.find(a=>a.life===b.life+1 && a.dx===b.dx && a.dy===b.dy &&
-            a.x+a.dx===b.x && a.y+a.dy===b.y);
-        const frozen=p.bolts.some(a=>JSON.stringify(a)===JSON.stringify(b));
-        if(b.life===37 || b.life===38){
-            const steps=38-b.life,ox=b.x-b.dx*steps,oy=b.y-b.dy*steps;
-            assert.equal(ox%16,0);assert.equal(oy%16,0);
-            assert.ok(Math.abs((ox+b.dx*32)/16-24)<=1,'Bolt must target the captured player column');
-            assert.ok(s.enemies.some(e=>Math.abs((oy+b.dy*32)/16-e[5])<=1),'Bolt target lane');
-            coverage.aimedBolts++;
-        }else assert.ok(previous || (s.phase!==1 && frozen),'Bolt changed fixed velocity');
-    }
-    if(p.enemies[0][0]===3 && s.enemies[0][0]===4){
-        assert.deepEqual(s.enemies.map(e=>e[0]),[4,4]);assert.equal(shots.length,0);coverage.split++;
-    }
-    if(s.weapon>p.weapon)coverage.weaponPickups++;
-    if(s.shield>p.shield)coverage.shieldPickups++;
-    if(p.item[0] && !s.item[0] && s.item[1]<=12 && p.score===s.score)coverage.expiredItems++;
-    if(p.shield && !s.shield){assert.equal(s.hull,p.hull);assert.ok(s.weapon>=p.weapon);coverage.shieldBlocks++;}
-    if(s.hull<p.hull){
-        assert.equal(s.hull,p.hull-1);assert.equal(s.weapon,Math.max(1,p.weapon-1));
-        assert.equal(s.phase,s.hull?6:7);assert.ok(s.inverted);coverage.hits++;
-        if(s.cause===1)coverage.bulletHits++;else if(s.cause===2)coverage.bodyHits++;
-        if(s.weapon<p.weapon)coverage.downgrades++;
-    }
-    const a=p.enemies[0],b=s.enemies[0];
-    if(a[0]===5 && b[0]===5 && b[1]<a[1] && b[4]>=48)coverage.recoveryHits++;
-    if(b[0]===5 && b[1]<=9 && b[4]===20 && s.bolts.length===2)coverage.rage=true;
+    held.clear();for(const key of next)held.add(key);
 }
-function frame({benchmark=false,stressRun=false}={}){
-    const p=state(f),panel=f.machine.lcdPanel().dots;f.frame();const s=state(f);frameIndex++;
-    check(p,s);
-    if([6,7].includes(p.phase) && s.phase===p.phase){
-        for(const k of ['enemies','bolts','shots','item','tick','y','hull','weapon','shield'])assert.deepEqual(s[k],p[k],'Frozen impact '+k);
-        coverage.frozenFrames++;
-        if(s.inverted!==p.inverted){
-            const dots=f.machine.lcdPanel().dots;
-            for(let i=0;i<dots.length;i++)assert.equal(dots[i],3-panel[i],'Whole-screen inverse at '+i);
+function step(wanted=[],benchmark=false){
+    keys(wanted);const p=state(f),panel=f.machine.lcdPanel().dots;f.frame();const s=state(f);frameIndex++;
+    assert.deepEqual(f.machine.memory(0x5200,0x600),immutable,'Immutable extension program');
+    coverage.phases.add(s.phase);coverage.audio.add(s.audio);
+    if(s.phase!==0){
+        coverage.sectors.add(s.sector);assert.ok(s.sector<=2);
+        assert.ok(s.x>=16 && s.x<=112 && s.x%2===0);
+        assert.ok(s.y>=16 && s.y<=48 && s.y%2===0);
+        assert.ok(s.hull>=0 && s.hull<=3 && s.weapon>=1 && s.weapon<=3 && s.shield<=1);
+        assert.ok(s.score<=9999);assert.ok(s.charge<=18);
+        coverage.scoreCarry ||= s.score>=100;
+        assert.ok(s.enemies.filter(e=>e[0]).length<=2 && s.bolts.length<=2 && s.swarm.length<=6 && s.gates.length<=2);
+        coverage.maxScouts=Math.max(coverage.maxScouts,s.swarm.length);
+        for(const e of s.enemies.filter(e=>e[0])){
+            coverage.kinds.add(e[0]);assert.ok(e[1]>0 && e[2]>=9 && e[2]<=188 && e[3]>=16 && e[3]<=48);
+            if(e[0]===5 && e[4]<128){
+                coverage.bossModes.add(`${s.sector}:${f.read('boss_mode')}`);
+                if(s.sector && e[4]>=28 && e[4]<=32)coverage.laserFrames++;
+            }
         }
     }
-    if(s.inverted)coverage.invertedFrames++;
-    if(p.phase===1 && s.phase===1 && p.stage===s.stage){
-        if(benchmark)stages[p.stage].push(f.cycles.at(-1));
-        if(stressRun)stress.push(f.cycles.at(-1));
+    if(p.phase===1){
+        if(s.x>p.x)coverage.forwardFrames++;
+        if(s.x<p.x)coverage.backwardFrames++;
+        assert.ok(Math.abs(s.x-p.x)<=2 && Math.abs(s.y-p.y)<=2,'Movement step');
+        if(s.weapon>p.weapon)coverage.weaponPickups++;
+        if(s.shield>p.shield)coverage.shieldPickups++;
+        if(p.shield && !s.shield){
+            assert.equal(s.hull,p.hull);assert.ok(s.message>0);coverage.shieldBroken++;
+            const font=f.read('font',320),fb=f.read('framebuffer',1536);
+            for(const [i,c] of [...'SHIELD BROKEN'].entries())for(let x=0;x<5;x++)
+                assert.equal(fb[1344+6+i*6+x],font[(c.charCodeAt(0)-32)*5+x],'Shield feedback');
+        }
+        if(s.hull<p.hull){assert.equal(s.hull,p.hull-1);assert.ok([6,7].includes(s.phase));assert.ok(s.inverted);coverage.hits++;}
+        for(let i=0;i<2;i++){
+            const a=p.enemies[i],b=s.enemies[i];
+            if(a[0] && b[0]===a[0] && a[4]&128 && s.phase===1){
+                assert.equal(b[2],Math.max(152,a[2]-3));assert.equal(b[1],a[1]);
+                if(!(b[4]&128))coverage.entries++;
+            }
+            const x=p.shots[i],y=s.shots[i];
+            if(y[0] && y[3]&64 && (!x[0] || y[1]===s.x+8))coverage.chargeShots++;
+            if(x[0] && x[3]&64 && b[0] && b[0]===a[0] && b[1]<a[1])coverage.burstHits++;
+        }
+        if(p.stage===1 && s.stage===1){
+            for(let i=0;i<2;i++){
+                const shot=p.shots[i];
+                if(shot[0] && s.gates.some(g=>Math.abs(g[0]-shot[1])<=10 && Math.abs(g[1]-shot[2])>=12)){
+                    assert.ok(!s.shots[i][0] || s.shots[i][1]===s.x+8,'Solid must stop every shot');coverage.gateBlocks++;
+                }
+            }
+        }
+        const a=p.enemies[0],b=s.enemies[0];
+        if(p.sector===2 && s.stage===3 && a[0]===5 && b[0]===5 && a[4]<128 && b[4]<48 &&
+            p.shots.every(shot=>!(shot[0] && (shot[3]&64))) &&
+            p.shots.some(shot=>shot[0] && !(shot[3]&1) && Math.abs(shot[1]+8-b[2])<=7 && Math.abs(shot[2]-b[3])<=7)){
+            assert.equal(b[1],a[1],'Closed core must stop normal shots');coverage.closedCore++;
+        }
+        if(s.sector && a[0]===5 && b[0]===5 && a[4]>=8 && b[4]<=32 && b[4]>a[4])assert.equal(b[5],a[5],'Laser aim must remain fixed through the entire beam');
+        for(let i=0;i<Math.min(p.gates.length,s.gates.length);i++)if(p.gates[i][1]!==s.gates[i][1])coverage.movingGates++;
+        if(benchmark && s.phase===1 && p.sector===s.sector && p.stage===s.stage)measures[p.sector][p.stage].push(f.cycles.at(-1));
+    }
+    if([6,7].includes(p.phase) && s.phase===p.phase){
+        for(const k of ['enemies','bolts','shots','item','gates','swarm','tick','x','y','hull','weapon','shield'])assert.deepEqual(s[k],p[k],'Frozen impact '+k);
+        coverage.frozenFrames++;
+        if(s.inverted!==p.inverted){const dots=f.machine.lcdPanel().dots;for(let i=0;i<dots.length;i++)assert.equal(dots[i],3-panel[i]);}
     }
     return s;
 }
-function move(k,options={}){key('keypad-8',k==='keypad-8');key('keypad-2',k==='keypad-2');return frame(options);}
-function steer(options={},timing={}){return move(chooseInput(state(f),options),timing);}
-function tap(k){key(k,true);frame();key(k,false);return frame();}
-function until(test,limit=2400,options={},timing={}){
-    for(let i=0;i<limit;i++){if(test(state(f)))return;assert.ok(![2,3].includes(f.read('phase')),'Unexpected result');steer(options,timing);}
-    assert.fail('Replay exceeded update budget');
+async function capture(name){
+    if(captures.has(name))return;captures.add(name);await f.capture(name);
+    if(recording)checkpoints.push({label:name,cycle:now()-startCycle,phase:f.read('phase')});
 }
-async function capture(label){await f.capture(label);if(recording)checkpoints.push({label,cycle:now()-startCycle,phase:f.read('phase')});}
 const timing=a=>{assert.ok(a.length);const mean=a.reduce((x,y)=>x+y,0)/a.length;
     return {frames:a.length,meanCycles:mean,minCycles:Math.min(...a),maxCycles:Math.max(...a),nominalFps:1228800/mean};};
 try {
-    f.frame();await f.capture();await f.capture('title');
+    f.frame();await capture('title');
     if(f.mode!=='test'){
-        tap('return');for(let i=0;i<32;i++)frame();
-        assert.equal(f.read('phase'),1);await f.finish();
+        step(['return']);step();for(let i=0;i<32;i++)step();assert.equal(f.read('phase'),1);await f.finish();
     }else{
         f.observePolling();recording=true;startCycle=now();
-        for(let i=0;i<16;i++)frame();tap('return');
-        // First attempt: small, hesitant manual-style adjustments miss aimed attacks.
-        let age=0;const captured=new Set();
-        for(let i=0;i<800 && f.read('phase')!==3;i++){
-            const s=state(f);
-            let k=null;
-            if(s.phase===1){age++;const n=age%30;if(n>=18 && n<20)k='keypad-8';if(n>=22 && n<24)k='keypad-2';}
-            move(k);
-            if([6,7].includes(f.read('phase')) && !captured.has(f.read('phase'))){
-                captured.add(f.read('phase'));await capture(f.read('phase')===7?'death-inverted':'hurt');
-            }
-            if(f.read('phase')===7 && !f.read('screen_inverted') && !captured.has('death-hold')){
-                captured.add('death-hold');await capture('death-hold');
-            }
+        // An unattended first attempt demonstrates readable impacts and game over.
+        step(['return']);step();
+        for(let i=0;i<900 && f.read('phase')!==3;i++){
+            const s=step();
+            if(s.phase===7)await capture(s.inverted?'death-inverted':'death-hold');
         }
-        release();assert.equal(f.read('phase'),3);await capture('game-over');
-        for(let i=0;i<28;i++)frame();assert.equal(f.read('audio_id'),0,'Game-over cue must end');
-        tap('return');const player=humanPolicy();
-        let warningCaptured=false,bossEntryCaptured=false;
-        for(let i=0;i<2300 && ![2,3].includes(f.read('phase'));i++){
-            const s=move(player(state(f)),{benchmark:true});
-            if(s.phase===5 && !warningCaptured){await capture('boss-warning');warningCaptured=true;}
-            if(s.stage===3 && s.phase===1 && s.enemies[0][2]===176 && !bossEntryCaptured){
-                await capture('boss-entry');bossEntryCaptured=true;
-            }
-            if(s.stage===3 && s.phase===1 && s.enemies[0][4]===36 && !captured.has('boss-fight')){
-                captured.add('boss-fight');await capture('boss-fight');
-            }
-            if(s.phase===8 && !captured.has('boss-destroyed')){captured.add('boss-destroyed');await capture('boss-destroyed');}
+        assert.equal(f.read('phase'),3,'Idle attempt must lose');await capture('game-over');
+        for(let i=0;i<28;i++)step();
+        step(['return']);step();
+        let shieldWait=0;
+        for(let i=0;i<6500 && ![2,3].includes(f.read('phase'));i++){
+            const s=state(f);let input=chooseInput(s);
+            if(s.phase===1 && s.shield && !coverage.shieldBroken && shieldWait++<150){input=[];}
+            // Release SPACE between the two taps. Charging sacrifices sustained fire.
+            if(s.phase===1 && s.firing && i%74===16)input.push('space');
+            if(s.phase===1 && !s.firing && s.charge===18)input.push('space');
+            const n=step(input,true);
+            if(n.sector!==s.sector)console.log(JSON.stringify({sector:n.sector,frame:frameIndex,hull:n.hull,score:n.score}));
+            if(n.gates.some(g=>g[0]<110))await capture(`maze-${n.sector+1}`);
+            if(n.swarm.length>=4)await capture(`rush-${n.sector+1}`);
+            if(n.message)await capture('shield-broken');
+            if(n.phase===5)await capture('boss-warning');
+            if(n.stage===3 && n.enemies[0][4]===36)await capture('boss-fight');
+            if(n.stage===3 && n.sector && n.enemies[0][4]===29)await capture(`laser-${n.sector+1}`);
+            if(n.phase===8)await capture(`boss-down-${n.sector+1}`);
+            if(n.phase===7)await capture('unexpected-death');
         }
-        release();assert.equal(f.read('phase'),2);await capture('clear');
-        for(let i=0;i<32;i++)frame();assert.equal(f.read('audio_id'),0,'Clear cue must end');
-        const outcome=Object.fromEntries(['phase','score','hull','weapon','shield'].map(n=>[n,f.read(n)]));
-        await writeFile(resolve(process.argv[3],'horizontal-replay.json'),JSON.stringify({clockHz:1228800,
-            startCycle,durationCycles:now()-startCycle,outcome,events,checkpoints,
-            inputStyle:'Automated keys: hesitant first attempt, 0.3s observations / 0.2s delayed decisions on retry'},null,2)+'\n');
+        keys();
+        const serializable=Object.fromEntries(Object.entries(coverage).map(([k,v])=>[k,v instanceof Set?[...v]:v]));
+        const measured=measures.map(a=>a.map(b=>b.length?timing(b):null));
+        await writeFile(resolve(process.argv[3],'campaign-diagnostics.json'),JSON.stringify({state:state(f),measures:measured,coverage:serializable},null,2)+'\n');
+        assert.equal(f.read('phase'),2,'Campaign input replay must defeat all three bosses');await capture('clear');
+        const outcome=state(f);
+        for(let i=0;i<32;i++)step();assert.equal(f.read('audio_id'),0);
+        await writeFile(resolve(process.argv[3],'campaign-replay.json'),JSON.stringify({clockHz:1228800,startCycle,durationCycles:now()-startCycle,
+            outcome,events,checkpoints,inputStyle:'Automated coverage keys with deterministic hazard forecast; no RAM writes'},null,2)+'\n');
+        for(const p of [0,1,2,3,4,5,6,7,8])if(p)assert.ok(coverage.phases.has(p),'Phase '+p);
+        for(const k of [1,2,3,4,5,6,7])assert.ok(coverage.kinds.has(k),'Enemy '+k);
+        for(const k of ['shieldBroken','hits','weaponPickups','shieldPickups','chargeShots','burstHits','laserFrames','movingGates','forwardFrames','backwardFrames','frozenFrames','entries','closedCore','gateBlocks'])assert.ok(coverage[k]>0,'Coverage '+k);
+        assert.equal(coverage.maxScouts,6);assert.ok(coverage.scoreCarry);
+        for(const area of measured)for(const m of area){assert.ok(m);assert.ok(m.meanCycles<=123624,'Mean slowdown: '+JSON.stringify(m));assert.ok(m.maxCycles<=188366,'Frame spike: '+JSON.stringify(m));}
         recording=false;
-        // Test precise controls, hold behavior and independent stress/escape scenarios.
-        tap('return');until(s=>s.phase===1);
-        assert.equal(f.read('hull'),3);assert.equal(f.read('weapon'),1);assert.equal(f.read('score'),0);
-        key('space',true);frame();for(let i=0;i<12;i++)frame();assert.equal(f.read('fire_enabled'),0);
-        key('space',false);frame();key('keypad-8',true);for(let i=0;i<12;i++)frame();
-        assert.equal(f.read('ship_y'),16);release();key('keypad-2',true);for(let i=0;i<20;i++)frame();
-        assert.equal(f.read('ship_y'),48);release();tap('space');
-        until(s=>s.stage===2);
-        release();tap('space');for(let i=0;i<100;i++)steer({}, {stressRun:true});
-        release();tap('space');until(s=>s.stage===3,1500,{}, {stressRun:true});
-        until(s=>s.phase===1 && s.enemies[0][4]<128);
-        until(s=>s.enemies[0][1]<=9,1300,{collect:false});
-        release();tap('space');for(let i=0;i<135;i++)steer({collect:false,avoidItems:true});
-        release();
-        // Stay in the lane locked at age 32 to verify a body-impact freeze too.
-        for(let i=0;i<400 && !coverage.bodyHits;i++){
-            const s=state(f),e=s.enemies[0];
-            assert.notEqual(s.phase,3,'Body-impact scenario ran out of hull');
-            const k=s.phase===1 && e[4]>=32 && e[4]<48?
-                (e[5]<s.y?'keypad-8':e[5]>s.y?'keypad-2':null):chooseInput(s,{collect:false});
-            move(k);
-        }
-        release();
-        f.observePolling(false);
-        const measures=stages.map(timing),load=timing(stress),serializable=Object.fromEntries(
-            Object.entries(coverage).map(([k,v])=>[k,v instanceof Set?[...v].sort((a,b)=>a-b):v]));
-        await writeFile(resolve(process.argv[3],'scenario-diagnostics.json'),JSON.stringify({stages:measures,stress:load,coverage:serializable},null,2)+'\n');
-        for(const p of [0,1,2,3,4,5,6,7,8])assert.ok(coverage.phases.has(p),'Phase '+p);
-        for(const k of [1,2,3,4,5])assert.ok(coverage.kinds.has(k),'Enemy '+k);
-        for(const k of [0,1,2,3])assert.ok(coverage.bossModes.has(k),'Boss mode '+k);
-        for(const k of [1,3,4,5,7,8,9,10,11,12,13])assert.ok(coverage.audio.has(k),'Audio cue '+k);
-        for(const k of ['entries','split','weaponPickups','shieldPickups','hits','bulletHits','bodyHits','downgrades',
-            'expiredItems','piercing','recoveryHits','aimedBolts','frozenFrames','invertedFrames'])assert.ok(coverage[k]>0,'Missing '+k);
-        assert.ok(coverage.rage,'Low HP boss attack');
-        for(const m of [...measures,load]){
-            assert.ok(m.meanCycles<=123624,'Mean slowdown: '+JSON.stringify(m));
-            assert.ok(m.maxCycles<=188366,'Frame spike: '+JSON.stringify(m));
-        }
-        await f.finish({gameplay:timing(stages.flat()),stages:measures,stress:load,coverage:serializable,
-            controls:'normal keypad 8/2, W/S, SPACE, RETURN; key replay only',
-            presentation:'entry, warning, frozen/inverted impacts, boss destruction, jingles and SE',
+        step(['return']);step();
+        for(let i=0;i<40 && f.read('phase')!==1;i++)step();
+        for(let i=0;i<8;i++)step(['keypad-4']);
+        assert.equal(f.read('ship_x'),16,'Left movement boundary');
+        step();step(['letter-d']);assert.equal(f.read('ship_x'),18,'D moves forward');
+        step();step(['letter-a']);assert.equal(f.read('ship_x'),16,'A moves backward');
+        step();for(let i=0;i<24;i++)step(['space']);
+        assert.equal(f.read('fire_enabled'),0,'Holding SPACE must not toggle repeatedly');
+        assert.equal(f.read('charge'),18,'Charging must stop at ready');
+        step();step(['space']);step();
+        for(let i=0;i<8;i++)step(['keypad-8']);
+        for(let i=0;i<110 && f.read('ship_x')!==112;i++)step(['keypad-6']);
+        assert.equal(f.read('ship_x'),112,'Right movement boundary');
+        for(let i=0;i<6;i++)step(['keypad-6']);assert.equal(f.read('ship_x'),112,'Right clamp');
+        step();for(let i=0;i<32 && f.read('phase')!==1;i++)step();
+        assert.equal(f.read('phase'),1,'Controls resume after impact pause');
+        step(['keypad-4']);assert.equal(f.read('ship_x'),110,'Backward movement after clamp');
+        keys();
+        await f.finish({gameplay:timing(measures.flat(2)),stages:measured,coverage:serializable,
+            extensionBytes:[...(await readFile(resolve(process.argv[3],'poly-defender.map'),'utf8')).matchAll(/^  \$([0-9A-F]+)-\$([0-9A-F]+)  EXTENSION  /gm)].reduce((n,m)=>n+parseInt(m[2],16)-parseInt(m[1],16)+1,0),controls:'Normal keypad 8/2/4/6, SPACE, RETURN; key replay only',
+            memory:'Standard 16KB RAM; immutable program extension and relocated BASIC return workspace',
             baseline:{meanCycles:123623.63679245283,maxCycles:188366}});
     }
-    if(!process.env.JR800_GAME_ROM)
-        await writeFile(resolve(process.argv[3],(smoke?'smoke-':'')+'replay.txt'),replay.join('\n')+'\n');
+    if(!process.env.JR800_GAME_ROM)await writeFile(resolve(process.argv[3],(smoke?'smoke-':'')+'replay.txt'),replay.join('\n')+'\n');
 }finally{f.close();}

@@ -1,0 +1,16 @@
+target hd6301v1
+entry entry
+region PROGRAM $2800 $2400
+region FRAME $4C00 $0600
+region EXTENSION $5200 $0600
+region CONTEXT $5800 $0100
+region STATE $5900 $0400
+region RUNTIME $5D00 $00E0
+place .text PROGRAM
+place .data PROGRAM
+place .audio EXTENSION
+place .campaign EXTENSION
+place .frame FRAME
+place .bss STATE
+place .runtime RUNTIME
+place .context CONTEXT
