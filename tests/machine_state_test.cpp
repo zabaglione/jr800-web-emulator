@@ -45,5 +45,24 @@ int main() {
     require(machine.calendar_alarm_terminal_state() == calendar_before);
     for (std::size_t i = 0; i < clock_before.size(); ++i)
         require(machine.execution().inspect8(static_cast<std::uint16_t>(0x0600U + i)).value == clock_before[i]);
-    std::cout << "Machine state round trip, deterministic continuation and RTC separation passed\n";
+    // Restoring must carry expansion presence, even across differently configured sessions.
+    config.memory = Jr800ExperimentalMemoryConfiguration{0, {}};
+    Jr800Machine standard_only(config);
+    require(standard_only.load_logical_rom(rom) == Jr800MemoryStatus::ok);
+    standard_only.execution().cpu().initialize(jr800::isa::CpuProfile::hd6301v1, 0x8000, 0x5fff);
+    const auto standard_saved = standard_only.save_state();
+    require(standard_only.clone()->execution().inspect8(0x6000).value == 0xFF);
+    machine.restore_state(standard_saved);
+    require(machine.execution().inspect8(0x6000).value == 0xFF);
+    require(machine.host_load_ram(0x6000, program) == Jr800MemoryStatus::unsupported_region);
+    standard_only.restore_state(saved);
+    require(standard_only.execution().inspect8(0x6000).value == 0);
+    require(standard_only.host_load_ram(0x6000, program) == Jr800MemoryStatus::ok);
+    const auto expanded_state = standard_only.save_state();
+    auto obsolete = standard_saved;
+    obsolete[0] = 1;
+    rejected = false;
+    try { standard_only.restore_state(obsolete); } catch (const std::invalid_argument&) { rejected = true; }
+    require(rejected && standard_only.save_state() == expanded_state);
+    std::cout << "Machine state round trip, deterministic continuation, RTC separation and RAM options passed\n";
 }

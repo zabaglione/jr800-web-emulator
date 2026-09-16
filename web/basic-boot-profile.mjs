@@ -10,7 +10,6 @@ export function jr800BasicBootExperimentConfiguration() {
     return {
         internalRamInitialValue: 0x00,
         standardRamInitialValue: 0x00,
-        expansionRamInitialValue: 0x00,
         lcdUnknownDataReadValue: 0x00,
         calendarAddressSource: "a0-a3",
         calendarUpperRead: "zero",

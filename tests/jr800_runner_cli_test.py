@@ -173,7 +173,7 @@ def main() -> None:
 
         append_checked_read(b"\x96\x80", 0x00)
         append_checked_read(b"\xb6\x20\x00", 0x00)
-        append_checked_read(b"\xb6\x60\x00", 0x00)
+        append_checked_read(b"\xb6\x60\x00", 0xFF)
         append_checked_read(b"\xb6\x00\x02", 0xFF)
         append_checked_read(b"\xb6\x00\x03", 0xDE)
         append_checked_read(b"\xb6\x06\x00", 0x00)
@@ -212,6 +212,31 @@ def main() -> None:
             f"stdout={basic_boot_result.stdout!r} "
             f"stderr={basic_boot_result.stderr!r}",
         )
+
+        # The same authored probe must detect absence or the explicitly attached RAM.
+        for expansion_options, initial, after_write in [
+            ([], 0xFF, 0xFF),
+            (["--expansion-ram-initial", "0x5a"], 0x5A, 0x12),
+        ]:
+            probe_rom = temporary / f"expansion-{initial}.j8r"
+            make_rom(probe_rom, bytes([
+                0xB6, 0x60, 0x00, 0x81, initial, 0x26, 13,
+                0x86, 0x12, 0xB7, 0x60, 0x00,
+                0xB6, 0x60, 0x00, 0x81, after_write, 0x26, 1,
+                0x01, 0x00,
+            ]))
+            for options in [
+                ["--basic-boot-experiment", *expansion_options],
+                [*expansion_options, "--basic-boot-experiment"],
+            ]:
+                result = run([
+                    str(args.runner), "jr800", "--max-instructions", "9",
+                    *options, str(probe_rom),
+                ])
+                require(
+                    result.returncode == 0 and "instructions=9" in result.stdout,
+                    "BASIC expansion opt-in probe failed: " + result.stdout + result.stderr,
+                )
 
         conflicting_basic_boot_result = run(
             [

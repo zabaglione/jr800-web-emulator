@@ -23,7 +23,7 @@ export class Game {
   const {jr800BasicBootExperimentConfiguration}=await import(url('basic-boot-profile.mjs'));
   const g=new Game();g.out=out;g.id=id;g.frames=0;g.cycles=[];g.transfers=[];g.trace=[];g.keys=0;
   g.symbols=Object.fromEntries([... (await readFile(resolve(out,`${id}.sym`),'utf8')).matchAll(/^ \$([0-9A-F]+) G (\S+)/gm)].map(([,a,n])=>[n,parseInt(a,16)]));
-  const config={...jr800BasicBootExperimentConfiguration(),ignoreUnsupportedIo:Boolean(process.env.JR800_GAME_ROM)};if(!process.env.JR800_GAME_ROM)delete config.expansionRamInitialValue;
+  const config={...jr800BasicBootExperimentConfiguration(),ignoreUnsupportedIo:Boolean(process.env.JR800_GAME_ROM)};
   g.machine=await WasmMachine.createJr800(url('jr800_wasm.mjs'),config);
   if(process.env.JR800_GAME_ROM){const p=process.env.JR800_GAME_ROM,d=await readFile(p);if(p.endsWith('.j8r'))g.machine.loadJr8rom(d);else g.machine.loadLogicalRom(d);const stop=g.machine.run(1000000);assert.ok(['instruction-limit','sleeping'].includes(stop.reason),JSON.stringify(stop));}
   else {const rom=new Uint8Array(32768).fill(1);rom.set([0x20,0xfe]);rom[32766]=0x80;rom[32767]=0;g.machine.loadLogicalRom(rom);}

@@ -75,7 +75,7 @@ int main() {
                 && standard_low.value == 0xA5U
                 && standard_high.succeeded()
                 && standard_high.value == 0xA5U
-                && expansion.fault == BusFault::unsupported_access,
+                && expansion.succeeded() && expansion.value == 0xFFU,
             "Explicit RAM experiments crossed a memory-region boundary"
         );
 
@@ -110,6 +110,56 @@ int main() {
                 && observer.events[2].previous_value_known
                 && observer.events[2].previous_value == 0x6BU,
             "Experimental RAM lost state or trace provenance"
+        );
+    }
+
+    {
+        Jr800ExperimentalMachineConfiguration configuration;
+        configuration.memory = Jr800ExperimentalMemoryConfiguration{0xA5U, {}};
+        Jr800Bus bus(configuration);
+        RecordingObserver observer;
+        passed &= expect(bus.set_observer(&observer), "Absent RAM observer attach failed");
+        for (const auto address : {0x6000U, 0x7FFFU}) {
+            const auto location = static_cast<std::uint16_t>(address);
+            const auto write = bus.write8(location, 0x12U);
+            const auto read = bus.read8(location, AccessKind::data_read);
+            const auto discard = bus.read8_discard(location);
+            passed &= expect(
+                write.succeeded() && !write.previous_value_known
+                    && read.succeeded() && read.value == 0xFFU
+                    && discard.succeeded()
+                    && bus.inspect8(location).value == 0xFFU
+                    && bus.read8(location, AccessKind::instruction_fetch).fault
+                        == BusFault::unsupported_access,
+                "Absent expansion policy provided storage or executable bytes"
+            );
+        }
+        passed &= expect(
+            observer.event_count == 6U
+                && observer.events[0].kind == AccessKind::data_write
+                && observer.events[0].value == 0x12U
+                && !observer.events[0].previous_value_known
+                && observer.events[1].kind == AccessKind::data_read
+                && observer.events[1].value == 0xFFU
+                && observer.events[2].kind == AccessKind::data_read
+                && observer.events[2].value == 0xFFU
+                && observer.events[3].address == 0x7FFFU,
+            "Absent expansion accesses lost trace ordering or provenance"
+        );
+        const std::array<std::uint8_t, 2U> bytes{0x12U, 0x34U};
+        passed &= expect(
+            bus.host_load_ram(0x6000U, bytes) == Jr800MemoryStatus::unsupported_region
+                && bus.host_load_ram(0x5FFFU, bytes) == Jr800MemoryStatus::unsupported_region
+                && bus.host_fill_ram(0x6000U, 1U, 0U) == Jr800MemoryStatus::unsupported_region
+                && bus.inspect8(0x5FFFU).value == 0xA5U
+                && bus.inspect8(0x8000U).fault == BusFault::backing_store_unavailable,
+            "Absent expansion policy admitted a program load or crossed a boundary"
+        );
+        bus.reset_cpu_devices();
+        passed &= expect(
+            bus.inspect8(0x6000U).value == 0xFFU
+                && !bus.ignored_io_access_count().has_value(),
+            "Absent expansion policy changed on reset or enabled unrelated I/O policy"
         );
     }
 

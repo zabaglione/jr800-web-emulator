@@ -37,8 +37,8 @@ struct Jr800ExperimentalInternalRamConfiguration {
         default;
 };
 
-// E-294 host-provided power-on values. A missing expansion value keeps that
-// logical region disconnected rather than implying physical absence.
+// Host-provided power-on values. Without expansion, this experiment substitutes
+// $FF data reads and discards writes. This is not a physical open-bus claim.
 struct Jr800ExperimentalMemoryConfiguration {
     std::uint8_t standard_ram_initial_value{};
     std::optional<std::uint8_t> expansion_ram_initial_value;
@@ -209,6 +209,9 @@ private:
     Jr800Bus(const Jr800Bus& source) noexcept;
     void copy_state_from(const Jr800Bus& source) noexcept;
     [[nodiscard]] bool can_ignore_io(std::uint16_t address) const noexcept;
+    [[nodiscard]] bool uses_absent_expansion_policy(
+        std::uint16_t address
+    ) const noexcept;
     [[nodiscard]] BusReadResult read_experimental_calendar(
         std::uint16_t address,
         AccessKind kind
@@ -243,6 +246,7 @@ private:
         experimental_lcd_configuration_;
     std::optional<Jr800ExperimentalCalendarConfiguration>
         experimental_calendar_configuration_;
+    bool experimental_absent_expansion_ram_{};
     bool ignore_unsupported_io_{};
     std::uint8_t calendar_cpu_cycle_remainder_{};
     std::uint64_t lcd_substituted_data_read_count_{};

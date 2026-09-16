@@ -23,7 +23,7 @@ const build = resolve(root,'build/games',id), wasm = resolve(root,'build/wasm-re
 const url = n => pathToFileURL(resolve(wasm,n)).href;
 const {WasmMachine} = await import(url('wasm-machine.mjs'));
 const {jr800BasicBootExperimentConfiguration} = await import(url('basic-boot-profile.mjs'));
-const config = {...jr800BasicBootExperimentConfiguration()}; delete config.expansionRamInitialValue;
+const config = jr800BasicBootExperimentConfiguration();
 const machine = await WasmMachine.createJr800(url('jr800_wasm.mjs'),config);
 const symbols = Object.fromEntries([...readFileSync(resolve(build,id+'.sym'),'utf8').matchAll(/^ \$([0-9A-F]+) G (\S+)/gm)].map(([,a,n]) => [n,parseInt(a,16)]));
 if(id==='relic-dive-gfx')for(const [,name,value] of readFileSync(resolve(root,'sdk/examples/lcd/07-relic-dive/constants.inc'),'utf8').matchAll(/\.equ (\w+), (\$[\dA-F]+|\d+)/g))symbols[name]=value.startsWith('$')?parseInt(value.slice(1),16):Number(value);

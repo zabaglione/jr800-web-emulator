@@ -78,7 +78,7 @@ private:
         (*this)(s.internal_ram_, s.internal_ram_valid_, s.standard_ram_, s.standard_ram_valid_, s.expansion_ram_, s.expansion_ram_initialized_);
     }
     void value(Jr800Bus& s) {
-        (*this)(s.ports_, s.ram_control_, s.sci_, s.timer_, s.keyboard_, s.lcd_, s.memory_, s.experimental_lcd_configuration_, s.ignore_unsupported_io_, s.lcd_substituted_data_read_count_, s.ignored_io_access_count_);
+        (*this)(s.ports_, s.ram_control_, s.sci_, s.timer_, s.keyboard_, s.lcd_, s.memory_, s.experimental_lcd_configuration_, s.experimental_absent_expansion_ram_, s.ignore_unsupported_io_, s.lcd_substituted_data_read_count_, s.ignored_io_access_count_);
     }
     void value(Hd44102::PendingDisplayRead& s) { (*this)(s.x, s.y, s.next_y); }
     void value(Hd44102::PendingDisplayWrite& s) { (*this)(s.x, s.y, s.next_y, s.value); }
@@ -91,7 +91,7 @@ std::vector<std::uint8_t> Jr800Machine::save_state() const {
     auto copy = clone();
     std::vector<std::uint8_t> bytes;
     MachineStateCodec codec(bytes);
-    std::uint32_t version = 1;
+    std::uint32_t version = 2;
     auto cpu = execution_.cpu().state();
     auto profile = execution_.cpu().profile();
     codec(version, profile, cpu, copy->reset_state_configuration_, copy->bus_);
@@ -104,7 +104,7 @@ void Jr800Machine::restore_state(std::span<const std::uint8_t> bytes) {
     auto profile = execution_.cpu().profile();
     auto cpu = execution_.cpu().state();
     codec(version);
-    if (version != 1) throw std::invalid_argument("Unsupported machine state version");
+    if (version != 2) throw std::invalid_argument("Unsupported machine state version");
     codec(profile, cpu, candidate->reset_state_configuration_, candidate->bus_);
     codec.finish();
     if (profile != isa::CpuProfile::hd6301v1 || cpu.execution_state > CpuExecutionState::waiting_for_interrupt)

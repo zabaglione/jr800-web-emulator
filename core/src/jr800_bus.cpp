@@ -20,6 +20,7 @@ void Jr800Bus::copy_state_from(const Jr800Bus& source) noexcept {
     memory_ = source.memory_;
     experimental_lcd_configuration_ = source.experimental_lcd_configuration_;
     experimental_calendar_configuration_ = source.experimental_calendar_configuration_;
+    experimental_absent_expansion_ram_ = source.experimental_absent_expansion_ram_;
     ignore_unsupported_io_ = source.ignore_unsupported_io_;
     calendar_cpu_cycle_remainder_ = source.calendar_cpu_cycle_remainder_;
     lcd_substituted_data_read_count_ = source.lcd_substituted_data_read_count_;
@@ -111,6 +112,10 @@ Jr800Bus::Jr800Bus(
 ) noexcept
     : experimental_lcd_configuration_(configuration.lcd),
       experimental_calendar_configuration_(configuration.calendar),
+      experimental_absent_expansion_ram_(
+          configuration.memory.has_value()
+          && !configuration.memory->expansion_ram_initial_value.has_value()
+      ),
       ignore_unsupported_io_(configuration.ignore_unsupported_io) {
     if (configuration.internal_ram.has_value()) {
         static_cast<void>(memory_.initialize_ram(
@@ -418,6 +423,11 @@ BusReadResult Jr800Bus::read8(
 
     const auto read = memory_.read8(address);
     if (!read.succeeded()) {
+        if (kind == AccessKind::data_read
+            && uses_absent_expansion_policy(address)) {
+            notify_read(address, 0xFFU, kind);
+            return {BusFault::none, 0xFFU};
+        }
         if (read.status == Jr800MemoryStatus::unsupported_region
             && kind == AccessKind::data_read && can_ignore_io(address)) {
             ++ignored_io_access_count_;
@@ -509,6 +519,10 @@ BusDiscardedReadResult Jr800Bus::read8_discard(
         return {BusFault::none};
     }
     if (!read.succeeded()) {
+        if (uses_absent_expansion_policy(address)) {
+            notify_read(address, 0xFFU, AccessKind::data_read);
+            return {BusFault::none};
+        }
         if (read.status == Jr800MemoryStatus::unsupported_region
             && can_ignore_io(address)) {
             ++ignored_io_access_count_;
@@ -607,6 +621,9 @@ BusReadResult Jr800Bus::inspect8(std::uint16_t address) const noexcept {
 
     const auto read = memory_.read8(address);
     if (!read.succeeded()) {
+        if (uses_absent_expansion_policy(address)) {
+            return {BusFault::none, 0xFFU};
+        }
         if (read.status == Jr800MemoryStatus::unsupported_region
             && can_ignore_io(address)) {
             return {BusFault::none, 0xFFU};
@@ -710,6 +727,10 @@ BusWriteResult Jr800Bus::write8(
     const auto previous = memory_.read8(address);
     const auto write = memory_.write8(address, value);
     if (!write.succeeded()) {
+        if (uses_absent_expansion_policy(address)) {
+            notify_write(address, value, std::nullopt);
+            return {BusFault::none, 0U, false};
+        }
         if (write.status == Jr800MemoryStatus::unsupported_region
             && can_ignore_io(address)) {
             ++ignored_io_access_count_;
@@ -735,6 +756,14 @@ BusWriteResult Jr800Bus::write8(
 
 bool Jr800Bus::rom_loaded() const noexcept {
     return memory_.rom_loaded();
+}
+
+bool Jr800Bus::uses_absent_expansion_policy(
+    std::uint16_t address
+) const noexcept {
+    // Only the explicitly selected standard-only RAM experiment.
+    return experimental_absent_expansion_ram_
+        && jr800_memory_region(address) == Jr800MemoryRegion::expansion_ram;
 }
 
 bool Jr800Bus::can_ignore_io(std::uint16_t address) const noexcept {

@@ -47,14 +47,14 @@ jr8run jr800 [--max-instructions <count>]
 これらは処理資源の上限であり、実機の性質ではありません。
 
 `--basic-boot-experiment`は、Web UIの`Boot BASIC experiment`と同じ現在の仮入力を使います。
-CPU内RAM、標準RAM、拡張RAMをゼロ、LCD不明読込値をゼロ、calendarをA0-A3と上位ゼロで接続し、公称1.2288 MHzのCPU Eサイクルに連動してRTCを進めます。
+CPU内RAMと標準16KB RAMをゼロ、LCD不明読込値をゼロ、calendarをA0-A3と上位ゼロで接続し、公称1.2288 MHzのCPU Eサイクルに連動してRTCを進めます。8KB拡張RAMは標準では接続しません。
 Nativeのこの起動フラグは現在日時を取得しません。
 ブラウザーの現在日時による初期化はWebの起動オプションです。
 Port 1は`$FF`、Port 2下位は`$1E`、RAM standbyはinvalid、キーボード範囲は`$FF`です。
 リセット時のレジスター値と実行上限は変更しません。
 
-この一括指定と個別のハードウェア入力オプションは併用できません。
-一括指定を暗黙に変更しないためです。
+拡張RAMを使う場合は`--expansion-ram-initial 0`を追加します。初期値は任意の1バイトを指定できます。
+それ以外の個別ハードウェア入力オプションは、一括指定と併用できません。
 
 ## 個別の仮入力
 
@@ -65,6 +65,7 @@ Port 1は`$FF`、Port 2下位は`$1E`、RAM standbyはinvalid、キーボード�
 - PCはリセットベクターから読み、高位CCRビットとreset Iは変更できません。
 - CPU内RAM、標準RAM、拡張RAMは別々の入力です。
 - 拡張RAMには標準RAMの指定も必要です。
+- 標準RAMだけを指定した実験では、未接続の`$6000-$7FFF`へのデータ読込を`$FF`とし、書込を破棄します。命令フェッチとプログラムの配置は拒否します。実機の未接続バス値は未確認です。
 - LCDとcalendarは必要な組を完全に指定した場合だけ接続します。
 - `e030-nominal-1.2288mhz`は、calendar接続時だけCPU E cycleを`2/75`で変換します。
 - Port入力とRAM standbyは、指定しなければ不明です。

@@ -413,7 +413,6 @@ std::optional<CliOptions> parse_options(int argc, char* argv[]) {
         || options.reset_condition_code.has_value()
         || options.internal_ram_initial.has_value()
         || options.standard_ram_initial.has_value()
-        || options.expansion_ram_initial.has_value()
         || options.lcd_unknown_data.has_value()
         || options.calendar_address_source.has_value()
         || options.calendar_upper_read_bits.has_value()
@@ -432,7 +431,6 @@ std::optional<CliOptions> parse_options(int argc, char* argv[]) {
     if (options.basic_boot_experiment) {
         options.internal_ram_initial = 0x00U;
         options.standard_ram_initial = 0x00U;
-        options.expansion_ram_initial = 0x00U;
         options.lcd_unknown_data = 0x00U;
         options.calendar_address_source =
             core::Jr800ExperimentalCalendarAddressSource::cpu_a0_to_a3;

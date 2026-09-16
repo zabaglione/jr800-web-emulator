@@ -290,11 +290,12 @@
 
                             <fieldset>
                                 <legend>RAM</legend>
+                                <p>BASIC uses 16 KB RAM by default. Enable expansion RAM before starting BASIC if needed.</p>
                                 <label class="check-field"><input id="internal-ram-enabled" type="checkbox"><span>Initialize CPU internal RAM</span></label>
                                 <label><span>Internal byte</span><input id="internal-ram-value" class="mono-input" value="$00" inputmode="text"></label>
-                                <label class="check-field"><input id="standard-ram-enabled" type="checkbox"><span>Initialize standard RAM</span></label>
+                                <label class="check-field"><input id="standard-ram-enabled" type="checkbox" checked><span>Initialize standard RAM</span></label>
                                 <label><span>Standard byte</span><input id="standard-ram-value" class="mono-input" value="$00" inputmode="text"></label>
-                                <label class="check-field"><input id="expansion-ram-enabled" type="checkbox"><span>Attach expansion RAM</span></label>
+                                <label class="check-field"><input id="expansion-ram-enabled" type="checkbox"><span>Attach 8 KB expansion RAM (optional)</span></label>
                                 <label><span>Expansion byte</span><input id="expansion-ram-value" class="mono-input" value="$00" inputmode="text"></label>
                             </fieldset>
 

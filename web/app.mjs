@@ -839,7 +839,6 @@ function applyBasicBootExperimentControls() {
     for (const [enabledId, valueId, value] of [
         ["internal-ram-enabled", "internal-ram-value", configuration.internalRamInitialValue],
         ["standard-ram-enabled", "standard-ram-value", configuration.standardRamInitialValue],
-        ["expansion-ram-enabled", "expansion-ram-value", configuration.expansionRamInitialValue],
         ["lcd-enabled", "lcd-value", configuration.lcdUnknownDataReadValue],
         ["keyboard-window-enabled", "keyboard-window-value", configuration.keyboardWindowValue],
     ]) {

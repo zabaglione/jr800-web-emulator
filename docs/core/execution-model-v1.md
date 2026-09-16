@@ -1640,7 +1640,10 @@ its dependence on that input.
 E-294 independently adds `Jr800ExperimentalMemoryConfiguration`. Its required
 byte marks the complete E-008 standard-RAM range known at machine construction.
 Its optional expansion byte attaches equally initialized storage to the E-009
-logical expansion range; omission retains the default unsupported result.
+logical expansion range. Omitting expansion within this explicit experiment
+uses provisional `$FF` data reads and discarded writes without backing storage.
+Instruction fetches and host loading into absent expansion still fail, and
+omitting the entire memory experiment retains the strict unsupported result.
 Configured RAM uses the ordinary read, write, discarded-read, inspection, and
 trace paths. CPU-device reset does not refill either region, so program writes
 survive reset. These caller-selected bytes are experiment state, not claimed

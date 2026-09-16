@@ -90,6 +90,9 @@ The browser can update it from the current browser time on restore.
 Saving during an active SAVE/MSAVE capture is rejected; already exported files,
 debugger configuration and browser audio buffers are not checkpoint contents.
 The machine is paused on restoration. The snapshot remains available until replaced.
+The inner machine-state payload is version 2 and includes the absent-expansion
+policy. Older payloads are rejected without changing the active machine; the
+envelope and ABI layout are unchanged.
 
 The adapter exposes `exportState()` and `importState(bytes)`; corresponding Worker
 commands are `export-state` and `import-state`. Both require idle execution.
@@ -196,6 +199,9 @@ experimental device or host input is opt-in:
 - CPU internal RAM requires an explicit uniform initial byte;
 - standard RAM requires an explicit initial byte;
 - expansion RAM requires both standard RAM and its own explicit byte;
+- standard RAM without expansion selects the provisional absent-memory
+  policy: `$FF` data reads and discarded writes at `$6000-$7FFF`, with bus trace
+  events but no backing RAM, instruction fetches or host program loading;
 - the LCD adapter requires an explicit unknown-data read byte;
 - the calendar adapter requires both an address source and an upper-read-bit
   rule;
